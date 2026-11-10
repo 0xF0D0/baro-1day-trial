@@ -1,0 +1,13 @@
+{
+ "_note": "Fields of the run object read about 1 second after the run reached SUCCEEDED (2026-11-10 07:51 UTC). Only these fields were saved at that time. Charges were not yet complete.",
+ "response": {
+  "id": "JHcDlVBcEj0jHJNfL",
+  "status": "SUCCEEDED",
+  "finishedAt": "2026-11-10T07:51:34.828Z",
+  "usageTotalUsd": 0.03005514,
+  "chargedEventCounts": {
+   "apify-actor-start": 1,
+   "apify-default-dataset-item": 170
+  }
+ }
+}

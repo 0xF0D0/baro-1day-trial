@@ -1,0 +1,1342 @@
+{
+ "_note": "Apify clockworks/tiktok-scraper, input profiles=['deathwishcoffee'], profileScrapeSections=['videos'], profileSorting='popular', resultsPerPage=10, run n2AqBFXajcYSVlXCC (2026-11-10T07:18:44Z). All 10 items in the order returned. Values replaced with '<removed>': author id/nickName/signature/bioLink/avatar URLs/roomId, music author and signed URLs, video cover and subtitle signed URLs, mention id/nickName, locationMeta values. Everything else is as returned.",
+ "items": [
+  {
+   "id": "7106601227126885674",
+   "text": "#duet with @dokaryan Especially on Sundays. 😏 #worldsstrongestcoffee #coffee #coffeeconctions #cocktailrecipes",
+   "textLanguage": "en",
+   "createTime": 1654634539,
+   "createTimeISO": "2022-06-07T20:42:19.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7102966318231472902"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7106601227126885674",
+   "videoMeta": {
+    "height": 576,
+    "width": 648,
+    "duration": 59,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 420500,
+   "shareCount": 2819,
+   "playCount": 1800000,
+   "collectCount": 19785,
+   "commentCount": 1093,
+   "repostCount": 0,
+   "mentions": [
+    "@dokaryan"
+   ],
+   "detailedMentions": [
+    {
+     "name": "dokaryan",
+     "profileUrl": "https://www.tiktok.com/@215109628081172480",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "duet",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "worldsstrongestcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeeconctions",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "cocktailrecipes",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7070901173074562347",
+   "text": "Reply to @ivyhoodz @gatorade Did we just create the ultimate hangover cure?? #coffeetok #deathwishcoffee #gatorade #coffeebrewing",
+   "textLanguage": "en",
+   "createTime": 1646322473,
+   "createTimeISO": "2022-03-03T15:47:53.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "YOU'RE ALL I KNOW",
+    "musicAuthor": "<removed>",
+    "musicOriginal": false,
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "6768742350614169601"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7070901173074562347",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 43,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "MU",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     },
+     {
+      "language": "eng-US",
+      "source": "LC",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 304900,
+   "shareCount": 1965,
+   "playCount": 2200000,
+   "collectCount": 8313,
+   "commentCount": 1204,
+   "repostCount": 0,
+   "mentions": [
+    "@ivyhoodz",
+    "@gatorade"
+   ],
+   "detailedMentions": [
+    {
+     "name": "ivyhoodz",
+     "profileUrl": "https://www.tiktok.com/@6814736682551165958",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    },
+    {
+     "name": "gatorade",
+     "profileUrl": "https://www.tiktok.com/@6823427585344848902",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "coffeetok",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "gatorade",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeebrewing",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7232643185036660014",
+   "text": "What We Do In The Aisles (with @Clayton Farris) @target #shoppinghaul #sarcasm #humor #groceryshopping #target #coffeetime #grocerytok ",
+   "textLanguage": "en",
+   "createTime": 1683981000,
+   "createTimeISO": "2023-05-13T12:30:00.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7232643271825066794"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7232643185036660014",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 73,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "ASR",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 144900,
+   "shareCount": 14900,
+   "playCount": 640500,
+   "collectCount": 13325,
+   "commentCount": 907,
+   "repostCount": 0,
+   "mentions": [
+    "@Clayton Farris",
+    "@target"
+   ],
+   "detailedMentions": [
+    {
+     "name": "claytonfarris4ever",
+     "profileUrl": "https://www.tiktok.com/@6689098110826284037",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    },
+    {
+     "name": "target",
+     "profileUrl": "https://www.tiktok.com/@6648738317729939461",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "shoppinghaul",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "sarcasm",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "humor",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "groceryshopping",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "target",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeetime",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "grocerytok",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7082765480859094318",
+   "text": "Monday you sly dawg, you. Coming around again. #mondaymood #comedy #trending #sendcoffee",
+   "textLanguage": "en",
+   "createTime": 1649084847,
+   "createTimeISO": "2022-04-04T15:07:27.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7071804147334630190"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7082765480859094318",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 5,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 75700,
+   "shareCount": 364,
+   "playCount": 702200,
+   "collectCount": 1177,
+   "commentCount": 461,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "mondaymood",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "comedy",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "trending",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "sendcoffee",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7062143750096784686",
+   "text": "Brewing Death Wish Coffee with @liquiddeath? What’s the worst that could happen? TBD… #fueledbydeath #chemexcoffee #brewmethod",
+   "textLanguage": "en",
+   "createTime": 1644283476,
+   "createTimeISO": "2022-02-08T01:24:36.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7062143748959898415"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7062143750096784686",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 15,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 66800,
+   "shareCount": 1487,
+   "playCount": 919200,
+   "collectCount": 1836,
+   "commentCount": 670,
+   "repostCount": 0,
+   "mentions": [
+    "@liquiddeath"
+   ],
+   "detailedMentions": [
+    {
+     "name": "liquiddeath",
+     "profileUrl": "https://www.tiktok.com/@6800814484048102405",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "fueledbydeath",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "chemexcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "brewmethod",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7115086400701156651",
+   "text": "NEW GAME: Give your coworker an egg with no context and film what happens #eggchallenge #nocontext #officelife #deathwishcoffee #eggprank",
+   "textLanguage": "en",
+   "createTime": 1656610149,
+   "createTimeISO": "2022-06-30T17:29:09.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7115086410670951211"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7115086400701156651",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 70,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "ASR",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 59900,
+   "shareCount": 397,
+   "playCount": 226300,
+   "collectCount": 5450,
+   "commentCount": 712,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "eggchallenge",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "nocontext",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "officelife",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "eggprank",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7527666840152132878",
+   "text": "Real Energy, No Sh*t. \n\n#LiveWithADeathWish ",
+   "textLanguage": "en",
+   "createTime": 1752671532,
+   "createTimeISO": "2025-07-16T13:12:12.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7527666878223780622"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7527666840152132878",
+   "videoMeta": {
+    "height": 848,
+    "width": 480,
+    "duration": 18,
+    "coverUrl": "<removed>",
+    "definition": "480p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "ASR",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 52700,
+   "shareCount": 236,
+   "playCount": 6900000,
+   "collectCount": 1017,
+   "commentCount": 126,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "livewithadeathwish",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7075037224923958571",
+   "text": "Reply to @ll_t.w.e.e.d.l.e_ll Root beer, coffee and vanilla ice cream. #StrangeBrews front-runner? Watch and see. What’s up next? #coffeerecipe #coffeeconcoction #deathwishcoffee",
+   "textLanguage": "en",
+   "createTime": 1647285471,
+   "createTimeISO": "2022-03-14T19:17:51.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "YOU'RE ALL I KNOW",
+    "musicAuthor": "<removed>",
+    "musicOriginal": false,
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "6768742350614169601"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7075037224923958571",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 58,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "LC",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     },
+     {
+      "language": "eng-US",
+      "source": "MU",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 49800,
+   "shareCount": 432,
+   "playCount": 330000,
+   "collectCount": 1558,
+   "commentCount": 291,
+   "repostCount": 0,
+   "mentions": [
+    "@ll_t.w.e.e.d.l.e_ll"
+   ],
+   "detailedMentions": [
+    {
+     "name": "ll_t.w.e.e.d.l.e_ll",
+     "profileUrl": "https://www.tiktok.com/@6759425480644953094",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "strangebrews",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeerecipe",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeeconcoction",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7128088005973118251",
+   "text": "#duet with @Ryan Doka Watermelon Coffee? 🍉☕️☠️ We had to try it #deathwishcoffee #watermelon #inajar #dokaryan #fyp #coffee",
+   "textLanguage": "en",
+   "createTime": 1659637321,
+   "createTimeISO": "2022-08-04T18:22:01.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7126667747316173573"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7128088005973118251",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 116,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 45000,
+   "shareCount": 146,
+   "playCount": 217800,
+   "collectCount": 3554,
+   "commentCount": 117,
+   "repostCount": 0,
+   "mentions": [
+    "@Ryan Doka"
+   ],
+   "detailedMentions": [
+    {
+     "name": "dokaryan",
+     "profileUrl": "https://www.tiktok.com/@215109628081172480",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "duet",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "watermelon",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "inajar",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "dokaryan",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "fyp",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7077553857361956142",
+   "text": "Reply to @mr.wolf704 #StrangeBrews a Monday morning visit to the doctor. DWC brewed with @Dr Pepper. #coffeerecipe #brewvideo #deathwishcoffee #drpepper #coffeeconcoction",
+   "textLanguage": "en",
+   "createTime": 1647871422,
+   "createTimeISO": "2022-03-21T14:03:42.000Z",
+   "isAd": true,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": "<removed>",
+    "avatar": "<removed>",
+    "commerceUserInfo": {
+     "commerceUser": true,
+     "downLoadLink": {
+      "android": "",
+      "ios": ""
+     },
+     "category": "Shopping & Retail",
+     "categoryButton": false
+    },
+    "privateAccount": false,
+    "roomId": "<removed>",
+    "ttSeller": true,
+    "createTime": 1582240930,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 149,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "YOU'RE ALL I KNOW",
+    "musicAuthor": "<removed>",
+    "musicOriginal": false,
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "6768742350614169601"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7077553857361956142",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 37,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "LC",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     },
+     {
+      "language": "eng-US",
+      "source": "MU",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 45000,
+   "shareCount": 303,
+   "playCount": 865800,
+   "collectCount": 1022,
+   "commentCount": 319,
+   "repostCount": 0,
+   "mentions": [
+    "@mr.wolf704",
+    "@Dr Pepper"
+   ],
+   "detailedMentions": [
+    {
+     "name": "",
+     "profileUrl": "https://www.tiktok.com/@6780156169127920645",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    },
+    {
+     "name": "drpepper",
+     "profileUrl": "https://www.tiktok.com/@6692024490064937989",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "strangebrews",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeerecipe",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "brewvideo",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "drpepper",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeeconcoction",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "896750",
+     "name": "Green Screen Eyes and Mouth",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "fromProfileSection": "videos",
+   "isStory": false,
+   "commentsDatasetUrl": null
+  }
+ ]
+}

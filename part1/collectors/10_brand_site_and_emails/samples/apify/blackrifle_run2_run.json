@@ -1,0 +1,211 @@
+{
+ "data": {
+  "id": "hnwXbDVmaBIo3D8pq",
+  "actId": "2APbAvDfNDOWXbkWf",
+  "userId": "REDACTED",
+  "startedAt": "2026-11-10T10:52:16.305Z",
+  "finishedAt": "2026-11-10T10:54:03.666Z",
+  "status": "SUCCEEDED",
+  "meta": {
+   "origin": "API",
+   "userAgent": "Python-urllib/3.12"
+  },
+  "stats": {
+   "inputBodyLen": 290,
+   "migrationCount": 0,
+   "rebootCount": 0,
+   "restartCount": 0,
+   "durationMillis": 107183,
+   "resurrectCount": 0,
+   "runTimeSecs": 107.183,
+   "metamorph": 0,
+   "computeUnits": 0.014886527777777778,
+   "memAvgBytes": 98043225.32004382,
+   "memMaxBytes": 119660544,
+   "memCurrentBytes": 0,
+   "cpuAvgUsage": 2.525610871577067,
+   "cpuMaxUsage": 52.65015228426396,
+   "cpuCurrentUsage": 0,
+   "netRxBytes": 974505,
+   "netTxBytes": 502565
+  },
+  "options": {
+   "build": "latest",
+   "timeoutSecs": 3600,
+   "memoryMbytes": 512,
+   "maxItems": null,
+   "maxTotalChargeUsd": 1,
+   "isMaxTotalChargeUsdSetByUser": true,
+   "diskMbytes": 1024
+  },
+  "buildId": "kH3MrtEIGNK1E3cvi",
+  "exitCode": 0,
+  "defaultKeyValueStoreId": "CHfLSv5IWXeWkgVVi",
+  "defaultDatasetId": "acH9PkI4GhGsuaFn8",
+  "defaultRequestQueueId": "ckowe7SrdERBa4wIv",
+  "storageIds": {
+   "keyValueStores": {
+    "default": "CHfLSv5IWXeWkgVVi"
+   },
+   "datasets": {
+    "default": "acH9PkI4GhGsuaFn8",
+    "errors": "fbBhlbxovpP7CU5xq"
+   },
+   "requestQueues": {
+    "default": "ckowe7SrdERBa4wIv"
+   }
+  },
+  "pricingInfo": {
+   "minimalMaxTotalChargeUsd": 1,
+   "pricingModel": "PAY_PER_EVENT",
+   "isPriceChangeNotificationSuppressed": false,
+   "reasonForChange": "E-commerce Scraping Tool now scrapes stores that block even residential proxies by auto-switching to an Unblocker proxy. Those products cost $0.00075\u2013$0.0015 extra each, by plan. Other sites cost the same. Cap spend with maxProductResults.",
+   "apifyMarginPercentage": 0.2,
+   "startedAt": "2026-10-19T00:00:00.000Z",
+   "createdAt": "2026-10-19T16:19:07.720Z",
+   "notifiedAboutChangeAt": "2026-10-19T16:30:33.000Z",
+   "pricingPerEvent": {
+    "actorChargeEvents": {
+     "push-product": {
+      "eventTitle": "Product Details",
+      "eventDescription": "The fee per product successfully scraped from an e-commerce store. These requests will use http with a datacenter proxy",
+      "isOneTimeEvent": false,
+      "isPrimaryEvent": true,
+      "eventPriceUsd": 0.006
+     },
+     "start-actor": {
+      "eventTitle": "Actor Start",
+      "eventDescription": "The price to start an actor run",
+      "isOneTimeEvent": true,
+      "eventPriceUsd": 0.0001
+     },
+     "product-search": {
+      "eventTitle": "Product Listing",
+      "eventDescription": "This is the fee per listing page scraped - product lists, search results pages, or category pages where you need a quick overview of many products. The cost is for each pagination page, not the number of products scraped. Example (Starter Plan) - If you scrape 5,000 listing pages from a batch of category URLs, the additional fee would be $2.10",
+      "isOneTimeEvent": false,
+      "eventPriceUsd": 0.0005
+     },
+     "residential-proxy-per-product": {
+      "eventTitle": "Residential Proxy per Product",
+      "eventDescription": "This is an additional fee if the e-commerce website requires using residential proxy to overcome bot detection. This is a flat fee per product. Example (Starter Plan) if you scrape 10,000 products that require a residential proxy, the additional fee would be $10.",
+      "isOneTimeEvent": false,
+      "eventPriceUsd": 0.003
+     },
+     "browser-rendering-per-product": {
+      "eventTitle": "Browser Rendering per Product",
+      "eventDescription": "This is the additional fee if the e-commerce website requires browser rendering to scrape product details. This is a flat fee per product. Example (Starter Plan) if you scrape 50,000 products that require using browser rendering, the additional fee would be $28.50.",
+      "isOneTimeEvent": false,
+      "eventPriceUsd": 0.0006
+     },
+     "push-review": {
+      "eventTitle": "Review Details",
+      "eventDescription": "This is a flat fee per review scraped.",
+      "isOneTimeEvent": false,
+      "eventPriceUsd": 0.002
+     },
+     "push-seller": {
+      "eventTitle": "Seller Details",
+      "eventDescription": "This is a flat fee per seller page scraped",
+      "isOneTimeEvent": true,
+      "eventPriceUsd": 0.003
+     },
+     "ai-summary": {
+      "eventTitle": "AI Summary",
+      "eventDescription": "This service charges a fee specifically for the AI-powered analysis.",
+      "isOneTimeEvent": false,
+      "eventPriceUsd": 0.0075
+     },
+     "push-influencer-post": {
+      "eventTitle": "Influencer post details",
+      "eventDescription": "This is a flat fee per post scraped.",
+      "isOneTimeEvent": false,
+      "eventPriceUsd": 0.002
+     },
+     "unblocker-proxy-per-product": {
+      "eventTitle": "Unblocker Proxy",
+      "eventDescription": "This is an additional fee if the e-commerce website blocks even residential proxies and requires an unblocker proxy to bypass bot detection. This is a flat fee per product.",
+      "isOneTimeEvent": false,
+      "eventPriceUsd": 0.0015
+     }
+    }
+   }
+  },
+  "chargedEventCounts": {
+   "push-product": 55,
+   "start-actor": 1,
+   "product-search": 2,
+   "residential-proxy-per-product": 32,
+   "browser-rendering-per-product": 0,
+   "push-review": 0,
+   "push-seller": 0,
+   "ai-summary": 0,
+   "push-influencer-post": 0,
+   "unblocker-proxy-per-product": 0
+  },
+  "platformUsageBillingModel": "DEVELOPER",
+  "accountedChargedEventCounts": {
+   "push-product": 55,
+   "start-actor": 1,
+   "product-search": 2,
+   "residential-proxy-per-product": 32,
+   "browser-rendering-per-product": 0,
+   "push-review": 0,
+   "push-seller": 0,
+   "ai-summary": 0,
+   "push-influencer-post": 0,
+   "unblocker-proxy-per-product": 0
+  },
+  "standby": null,
+  "generalAccess": "FOLLOW_USER_SETTING",
+  "buildNumber": "0.0.140",
+  "containerUrl": "https://j1d7lwahwti4.runs.apify.net",
+  "usageTotalUsd": 0.42710000000000004,
+  "consoleUrl": "https://console.apify.com/view/runs/hnwXbDVmaBIo3D8pq",
+  "eventUsage": {
+   "push-product": {
+    "eventTitle": "Product Details",
+    "eventTotalUsd": 0.33
+   },
+   "start-actor": {
+    "eventTitle": "Actor Start",
+    "eventTotalUsd": 0.0001
+   },
+   "product-search": {
+    "eventTitle": "Product Listing",
+    "eventTotalUsd": 0.001
+   },
+   "residential-proxy-per-product": {
+    "eventTitle": "Residential Proxy per Product",
+    "eventTotalUsd": 0.096
+   },
+   "browser-rendering-per-product": {
+    "eventTitle": "Browser Rendering per Product",
+    "eventTotalUsd": 0
+   },
+   "push-review": {
+    "eventTitle": "Review Details",
+    "eventTotalUsd": 0
+   },
+   "push-seller": {
+    "eventTitle": "Seller Details",
+    "eventTotalUsd": 0
+   },
+   "ai-summary": {
+    "eventTitle": "AI Summary",
+    "eventTotalUsd": 0
+   },
+   "push-influencer-post": {
+    "eventTitle": "Influencer post details",
+    "eventTotalUsd": 0
+   },
+   "unblocker-proxy-per-product": {
+    "eventTitle": "Unblocker Proxy",
+    "eventTotalUsd": 0
+   }
+  },
+  "output": {
+   "results": "https://api.apify.com/v2/datasets/acH9PkI4GhGsuaFn8/items?signature=REDACTED",
+   "errors": "https://api.apify.com/v2/datasets/fbBhlbxovpP7CU5xq/items"
+  }
+ }
+}

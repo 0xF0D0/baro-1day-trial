@@ -1,0 +1,22 @@
+{
+ "_note": "Which hashtag to use per brand for the hashtag path. Checked 2026-11-10 ~10:41-10:44 UTC in the Claude desktop app's built-in browser (US VPN, not logged in). For each tag page https://www.tiktok.com/tag/<tag>, the first 20 tiles were read; each tile's caption was judged from the first 70-80 characters of its image alt text. video_count and view_count are statsV2 of the page's own /api/challenge/detail/ response. No puzzle, block or login prompt appeared on any tag page. deathwishcoffee was judged from the Apify hashtag run instead (apify/hashtag_deathwishcoffee_10.json, 10 items). Categories: names_brand = the brand's account, an @mention of it, or the brand name appears in the visible caption; related_no_name = same product category (hair care, dry shampoo, dog food, coffee) but the brand name is not in the visible part; unrelated = neither.",
+ "decision": {
+  "batiste": "batistedryshampoo",
+  "living-proof": "livingproofhair",
+  "death-wish-coffee": "deathwishcoffee",
+  "black-rifle-coffee": "blackriflecoffee",
+  "jinx": "jinxdogfood",
+  "decided_by": "user, 2026-11-10"
+ },
+ "tags": {
+  "jinx": {"video_count": null, "view_count": null, "tiles_read": 20, "names_brand": 0, "related_no_name": 0, "unrelated": 20, "unrelated_examples": "all 20 are about Jinx, a character of the series Arcane / League of Legends, or other uses of the word"},
+  "jinxpartner": {"video_count": null, "view_count": null, "tiles_read": 20, "names_brand": 5, "related_no_name": 0, "unrelated": 15, "unrelated_examples": "Arcane fan edits and cosplay, posts about a personal partner; the tag page matches 'jinx' and 'partner' separately"},
+  "jinxdogfood": {"video_count": 159, "view_count": 849925, "tiles_read": 20, "names_brand": 17, "related_no_name": 3, "unrelated": 0},
+  "batiste": {"video_count": 20741, "view_count": 2032936214, "tiles_read": 20, "names_brand": 14, "related_no_name": 4, "unrelated": 2, "unrelated_examples": "a 60 Minutes clip about the musician Jon Batiste; one tile with no caption"},
+  "batistedryshampoo": {"video_count": 6475, "view_count": 667506277, "tiles_read": 20, "names_brand": 15, "related_no_name": 5, "unrelated": 0},
+  "livingproof": {"video_count": 42665, "view_count": 377306911, "tiles_read": 20, "names_brand": 6, "related_no_name": 5, "unrelated": 9, "unrelated_examples": "religious posts, personal stories and other uses of the phrase 'living proof'"},
+  "livingproofhair": {"video_count": 560, "view_count": 1661698, "tiles_read": 20, "names_brand": 13, "related_no_name": 7, "unrelated": 0},
+  "blackriflecoffee": {"video_count": 18648, "view_count": 193148577, "tiles_read": 20, "names_brand": 13, "related_no_name": 7, "unrelated": 0},
+  "deathwishcoffee": {"video_count": 8715, "view_count": 40301273, "tiles_read": 10, "names_brand": 8, "related_no_name": 0, "unrelated": 2, "unrelated_examples": "'#onthisday' with no brand; a list video tagged #coffee about coffee and cancer", "source": "Apify hashtag run DyYwrr03sEqM1ZF2r; video_count and view_count from challenge_detail_deathwishcoffee.json"}
+ }
+}

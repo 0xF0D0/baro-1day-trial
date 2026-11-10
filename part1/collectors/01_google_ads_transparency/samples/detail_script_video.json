@@ -1,0 +1,30 @@
+{
+ "request": null,
+ "response": {
+  "1": {
+   "1": "AR05357902879204048897",
+   "2": "CR14139026059189813249",
+   "4": {
+    "1": "1794297736",
+    "2": 497593000
+   },
+   "5": [
+    {
+     "1": {
+      "4": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&obfuscatedCustomerId=5149621073&creativeId=829789129170&uiFeatures=12&adGroupId=188788175488&assets=%3DH4sIAAAAAAAAAONS5OLkOLq0q306lwAzFydH76YZDy_yCPBwcXIcuNYxYzmLABMAMz90uiMAAAA&sig=ACiVB_yzXIia-MOx8tUPS8AD7FnMWecpdw&htmlParentId=fletch-render-4191476911358142309&responseCallback=fletchCallback4191476911358142309"
+     }
+    }
+   ],
+   "8": 3,
+   "17": [
+    {
+     "1": 2840,
+     "5": 20261110
+    }
+   ],
+   "22": {
+    "1": "Jinx, Inc."
+   }
+  }
+ }
+}

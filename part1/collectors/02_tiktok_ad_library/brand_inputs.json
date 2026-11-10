@@ -1,0 +1,7 @@
+{
+  "batiste": {"keywords": ["Batiste"], "match_terms": ["batiste"], "kept_mentions": []},
+  "living-proof": {"keywords": ["Living Proof"], "match_terms": ["living proof", "livingproof"], "kept_mentions": []},
+  "death-wish-coffee": {"keywords": ["Death Wish Coffee", "Death Wish"], "match_terms": ["death wish coffee", "deathwishcoffee"], "kept_mentions": []},
+  "black-rifle-coffee": {"keywords": ["Black Rifle Coffee", "Black Rifle", "BRCC"], "match_terms": ["black rifle coffee", "blackriflecoffee", "brcc"], "kept_mentions": []},
+  "jinx": {"keywords": ["Jinx", "thinkjinx"], "match_terms": ["@jinx", "#jinxpartner", "thinkjinx"], "kept_mentions": ["jinx"]}
+}

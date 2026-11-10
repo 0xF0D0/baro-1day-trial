@@ -1,0 +1,6 @@
+{
+  "error": {
+    "type": "max-total-charge-usd-below-minimum",
+    "message": "Maximum cost per run is less than the allowed minimum of $0.00204"
+  }
+}

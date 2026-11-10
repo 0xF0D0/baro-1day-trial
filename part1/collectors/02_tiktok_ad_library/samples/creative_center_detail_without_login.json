@@ -1,0 +1,96 @@
+{
+ "_note": "One page load of a Creative Center detail URL without login (2026-11-10, headed Chrome). The page redirected to the Top Ads list. Page text cut to the part shown; API bodies not stored.",
+ "requested_url": "https://ads.tiktok.com/business/creativecenter/topads/7531018269878140936",
+ "final_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en?period=30&region=US",
+ "flags": {
+  "log in to": true,
+  "log in or sign up": true,
+  "sign up": true,
+  "captcha": false,
+  "verify": false,
+  "access denied": false,
+  "not found": false,
+  "no data": false
+ },
+ "creative_radar_api": [
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/user/info",
+   "status": 200,
+   "code": 40000,
+   "msg": "invalid user"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/top_ads/v2/filters",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/initial/location_info?module=1",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/top_ads/query_suggestion?count=50&scenario=1",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/user/location",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/configure/safety",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/top_ads/v2/list?period=30&page=1&limit=20&order_by=for_you&country_code=US",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/top_ads/v2/list?period=30&page=1&limit=20&order_by=for_you&country_code=US",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/user/tt_info",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/user/location",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/initial/location_list",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/top_ads/v2/filters",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  },
+  {
+   "url": "https://ads.tiktok.com/creative_radar_api/v1/top_ads/v2/filters",
+   "status": 200,
+   "code": 0,
+   "msg": "OK"
+  }
+ ],
+ "page_text_excerpt": "Explore Top Ads on TikTok\nSee high-performing auction ads on TikTok. Let successful cases inspire your creativity.\nSearch\nTop Ads Dashboard\nTop Ads Spotlight\nUnited States\nObjective\nLast 30 days\nAd Language\nAd Format\nLikes\nSort by:\nFor You\nReach\nCTR\nOthers\nReach\nLife & Leisure\n56K\nLikes\nTop 40%\nCTR\nHigh\nBudget\nSee analytics\nTraffic\nCell Phones\n752\nLikes\nTop 74%\nCTR\nLow\nBudget\nSee analytics\nVideo Views\nCell Phones\n865\nLikes\nTop 81%\nCTR\nLow\nBudget\nSee analytics\nConversions\nCulture & Art\n9\nLikes\nTop 83%\nCTR\nLow\nBudget\nSee analytics\nView More\nLog in to access all Top Ads and more.\nLog in or sign up\n*That ads displayed here are limited to those that have been authorized by advertisers and may not reflect all top-performing auction ads.\n"
+}

@@ -1,0 +1,3498 @@
+[
+  {
+    "status": "Success",
+    "productId": "1731481072630141720",
+    "source": "keyword",
+    "rank": 8,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731481072630141720",
+    "title": "Batiste Clean Conditioning Dry Shampoo - Tropical Exotic Coconut Scent, 3.81 oz Aerosol Can, Unisex Oily & Greasy Hair Solution, Oryza Sativa (Rice) Starch, Volumizing Invisible Finish, Travel Toiletries, UK Hair Care Products",
+    "description": null,
+    "currentPrice": 14.24,
+    "priceDisplay": "$14.24",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4,
+    "reviewCount": 2,
+    "ratingsBreakdown": {
+      "totalCount": 2,
+      "overallScore": 4,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 1
+      }
+    },
+    "commentRate": 0.2857,
+    "soldCount": 7,
+    "gmvContribution": 99.68,
+    "sellerId": "7495776925997304600",
+    "sellerName": "unitedbeautysupply",
+    "sellerFollowers": 7246,
+    "sellerRating": 4.5,
+    "sellerSold": 15514,
+    "sellerResponseRatePct": 83,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 87,
+    "sellerProductCount": 787,
+    "sellerReviewCount": 1715,
+    "sellerVideoCount": 764,
+    "sellerUrl": "https://shop.tiktok.com/us/store/unitedbeautysupply/7495776925997304600",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "unitedbeautysupply",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Dry Shampoo",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7e77de4f85ba4eaf9e89a48aab0d8480~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7e77de4f85ba4eaf9e89a48aab0d8480~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7f336dd408164324b9588f496f947a4b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b2cc0f8d0a28492ca4e97d33bfee866a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a2745011e00945658f5a8060a3953d7d~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/53b2f36f80654123b05059e6b5328ae1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731481086588326680",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:09.160Z",
+    "lastTimeStamp": 1794307449,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732457336927523121",
+    "source": "keyword",
+    "rank": 3,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732457336927523121",
+    "title": "Batiste By Batiste Dry Shampoo Cherry For Unisex",
+    "description": null,
+    "currentPrice": 6.77,
+    "priceDisplay": "$6.77",
+    "originalPrice": 10,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 1,
+    "ratingsBreakdown": {
+      "totalCount": 1,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 1
+      }
+    },
+    "commentRate": 0.0833,
+    "soldCount": 12,
+    "gmvContribution": 81.24,
+    "sellerId": "7496023118322436401",
+    "sellerName": "FragranceNet",
+    "sellerFollowers": 173137,
+    "sellerRating": 4.6,
+    "sellerSold": 594265,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 91,
+    "sellerProductCount": 16005,
+    "sellerReviewCount": 96636,
+    "sellerVideoCount": 409,
+    "sellerUrl": "https://shop.tiktok.com/us/store/fragrancenet/7496023118322436401",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "FragranceNet",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/37cf7017041f40b197f186fb0c42bc34~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/37cf7017041f40b197f186fb0c42bc34~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732457327780466993",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:09.426Z",
+    "lastTimeStamp": 1794307449,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732819509339853133",
+    "source": "keyword",
+    "rank": 5,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732819509339853133",
+    "title": "Batiste Fresh Breezy Citrus Dry Shampoo Value Bundle (200ml / 120g) Instant Hair Refresh Spray - No-Rinse Grease Absorbing Volume Boost Travel Hair Care",
+    "description": null,
+    "currentPrice": 27.43,
+    "priceDisplay": "$27.43",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 1,
+    "gmvContribution": 27.43,
+    "sellerId": "7494490639641511245",
+    "sellerName": "Egidoo",
+    "sellerFollowers": 20353,
+    "sellerRating": 4.5,
+    "sellerSold": 96978,
+    "sellerResponseRatePct": 97,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 89,
+    "sellerProductCount": 300,
+    "sellerReviewCount": 11572,
+    "sellerVideoCount": 3230,
+    "sellerUrl": "https://shop.tiktok.com/us/store/egidoo/7494490639641511245",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Egidoo",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Dry Shampoo",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/8126a22d9c84bced624fbbab1d024642~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/8126a22d9c84bced624fbbab1d024642~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/665ceb3752034286bc7ce3cff1bcd86a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/81d7763367904af1b2e780079d7325af~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/75e1b5da22f6440283e20e5e9eb54bb3~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7827ce4093ad44f2bc5a2db69c270823~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7200fa62ac8c4493b1064d6fb98781e0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/aef84fd64e554440b770010e93d810b4~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732820069897245005",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732820069897310541",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732820069897376077",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732820069897441613",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732820069897507149",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:09.524Z",
+    "lastTimeStamp": 1794307449,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732457335553560881",
+    "source": "keyword",
+    "rank": 6,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732457335553560881",
+    "title": "Batiste By Batiste Dry Shampoo Blush For Unisex",
+    "description": null,
+    "currentPrice": 13.64,
+    "priceDisplay": "$13.64",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 4,
+    "gmvContribution": 54.56,
+    "sellerId": "7496023118322436401",
+    "sellerName": "FragranceNet",
+    "sellerFollowers": 173137,
+    "sellerRating": 4.6,
+    "sellerSold": 594265,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 91,
+    "sellerProductCount": 0,
+    "sellerReviewCount": 96636,
+    "sellerVideoCount": 409,
+    "sellerUrl": "https://shop.tiktok.com/us/store/fragrancenet/7496023118322436401",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "FragranceNet",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/6ac9e616a3fe4076bdc40a493858205d~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/6ac9e616a3fe4076bdc40a493858205d~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732457338589057329",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:10.123Z",
+    "lastTimeStamp": 1794307450,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732457336723312945",
+    "source": "keyword",
+    "rank": 2,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732457336723312945",
+    "title": "Batiste By Batiste Dry Shampoo Plus Heavenly Volume For Unisex",
+    "description": null,
+    "currentPrice": 6.61,
+    "priceDisplay": "$6.61",
+    "originalPrice": 104,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 5,
+    "ratingsBreakdown": {
+      "totalCount": 5,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 5
+      }
+    },
+    "commentRate": 0.4545,
+    "soldCount": 11,
+    "gmvContribution": 72.71,
+    "sellerId": "7496023118322436401",
+    "sellerName": "FragranceNet",
+    "sellerFollowers": 173137,
+    "sellerRating": 4.6,
+    "sellerSold": 594265,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 91,
+    "sellerProductCount": 0,
+    "sellerReviewCount": 96636,
+    "sellerVideoCount": 409,
+    "sellerUrl": "https://shop.tiktok.com/us/store/fragrancenet/7496023118322436401",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "FragranceNet",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/9d986e113a4f4e2396db1d85e99fe424~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/9d986e113a4f4e2396db1d85e99fe424~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732457333475676465",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:10.394Z",
+    "lastTimeStamp": 1794307450,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1729700911318536984",
+    "source": "keyword",
+    "rank": 9,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1729700911318536984",
+    "title": "Floral No-Water Needed Dry Shampoo - Oil-Absorbing, Blush-Toned, 3.81 oz Refreshing Haircare Product",
+    "description": null,
+    "currentPrice": 17.2,
+    "priceDisplay": "$17.20",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 1,
+    "gmvContribution": 17.2,
+    "sellerId": "7495776925997304600",
+    "sellerName": "unitedbeautysupply",
+    "sellerFollowers": 7246,
+    "sellerRating": 4.5,
+    "sellerSold": 15514,
+    "sellerResponseRatePct": 83,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 87,
+    "sellerProductCount": 787,
+    "sellerReviewCount": 1715,
+    "sellerVideoCount": 764,
+    "sellerUrl": "https://shop.tiktok.com/us/store/unitedbeautysupply/7495776925997304600",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "unitedbeautysupply",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo & Conditioner Kits",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/463e6bccd64b429cb715c4fa92beff41~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/463e6bccd64b429cb715c4fa92beff41~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c6b2bfd458004e70a88c47a8fa2efdf8~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/41df6024ba44417585dcb4af29d67fe8~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/49e7d523611542ac9345a7e0859e4fe7~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/72d622637bca4d368c6171b90dbe943a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/d1ba5e24cfce430f91c7aa5ab1ec88ac~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/94f90bcf4c184c2ea081132e701b683d~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1729700863594369816",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:11.014Z",
+    "lastTimeStamp": 1794307451,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732457338433802545",
+    "source": "keyword",
+    "rank": 1,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732457338433802545",
+    "title": "Batiste By Batiste Dry Shampoo Tropical For Unisex",
+    "description": null,
+    "currentPrice": 12.24,
+    "priceDisplay": "$12.24",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 2,
+    "ratingsBreakdown": {
+      "totalCount": 2,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 2
+      }
+    },
+    "commentRate": 0.0667,
+    "soldCount": 30,
+    "gmvContribution": 367.2,
+    "sellerId": "7496023118322436401",
+    "sellerName": "FragranceNet",
+    "sellerFollowers": 173137,
+    "sellerRating": 4.6,
+    "sellerSold": 594265,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 91,
+    "sellerProductCount": 0,
+    "sellerReviewCount": 96636,
+    "sellerVideoCount": 409,
+    "sellerUrl": "https://shop.tiktok.com/us/store/fragrancenet/7496023118322436401",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "FragranceNet",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/bd374d86e4424b87984dc95a73708bce~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/bd374d86e4424b87984dc95a73708bce~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732457335615361329",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:13.147Z",
+    "lastTimeStamp": 1794307453,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731612409548279962",
+    "source": "keyword",
+    "rank": 3,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731612409548279962",
+    "title": "Living Proof Full Shampoo & Conditioner Weightless Volumizing Duo Pack, 24 oz Haircare Set for Fine Hair - Cleanses, Hydrates, Smooths Locks, Thickens Hair with Sunflower, Citric Acid, Behentrimonium Chloride, C13-15 Alkane, Hydroxypropyl Methylcellulose",
+    "description": null,
+    "currentPrice": 122.4,
+    "priceDisplay": "$122.40",
+    "originalPrice": 144,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 3,
+    "ratingsBreakdown": {
+      "totalCount": 3,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 3
+      }
+    },
+    "commentRate": 0.0566,
+    "soldCount": 53,
+    "gmvContribution": 6487.2,
+    "sellerId": "7495863828072663194",
+    "sellerName": "Planet Beauty",
+    "sellerFollowers": 36832,
+    "sellerRating": 4.6,
+    "sellerSold": 82309,
+    "sellerResponseRatePct": 86,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 89,
+    "sellerProductCount": 655,
+    "sellerReviewCount": 4655,
+    "sellerVideoCount": 2310,
+    "sellerUrl": "https://shop.tiktok.com/us/store/planet-beauty/7495863828072663194",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Planet Beauty",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo & Conditioner Kits",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/2b17e7336120419487c204dce2b15e04~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/2b17e7336120419487c204dce2b15e04~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e4ee3cdd8bb440d797e4e79680292bfa~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/dfe4c1f0e16946388b17095096f886bb~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3938ef53d2cd422e854412282b315411~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c255ef8754ba41728d1184acfb761ca2~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/63b720158b554545a2437c1709697029~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/36464a3c2f1a456292fd390e75c8af0b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/554bcfffa1ef457a8787e39f7c146486~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731612416676106394",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:14.680Z",
+    "lastTimeStamp": 1794307454,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1729442967734752162",
+    "source": "keyword",
+    "rank": 5,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1729442967734752162",
+    "title": "Full Dry Volume & Texture Spray",
+    "description": null,
+    "currentPrice": 24.7,
+    "priceDisplay": "$24.70",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.4,
+    "reviewCount": 590,
+    "ratingsBreakdown": {
+      "totalCount": 590,
+      "overallScore": 4.4,
+      "stars": {
+        "1": 44,
+        "2": 16,
+        "3": 35,
+        "4": 51,
+        "5": 444
+      }
+    },
+    "commentRate": 1.662,
+    "soldCount": 355,
+    "gmvContribution": 8768.5,
+    "sellerId": "7495199044660923298",
+    "sellerName": "Living Proof, Inc.",
+    "sellerFollowers": 104662,
+    "sellerRating": 4.6,
+    "sellerSold": 65464,
+    "sellerResponseRatePct": 84,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 88,
+    "sellerProductCount": 51,
+    "sellerReviewCount": 2367,
+    "sellerVideoCount": 2000,
+    "sellerUrl": "https://shop.tiktok.com/us/store/living-proof-inc/7495199044660923298",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Living Proof, Inc.",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Mousse & Gel",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1b4f3def63ee41efa11ccf406d3b2b57~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1b4f3def63ee41efa11ccf406d3b2b57~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/d302c1c806124f7db93100ceed822ca7~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/d26217b1e87247fa8a01fd4d9db1f516~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/868d9a86af12492f94fbe58ef8afc1d5~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/66b9ffc10c56432282a1f27b7baa8555~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/17a800ac911e42a5a14079ff3f070f71~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8840ae9acaa3466e9ab5d569022d2cf8~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c959942e39174dc0b419c8c66db73cf9~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732039361363809186",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1729442967734948770",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1729442967734883234",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:14.941Z",
+    "lastTimeStamp": 1794307454,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1729408843730228130",
+    "source": "keyword",
+    "rank": 1,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1729408843730228130",
+    "title": "Full Thickening Blow-Dry Cream",
+    "description": null,
+    "currentPrice": 44.2,
+    "priceDisplay": "$44.20",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.6,
+    "reviewCount": 132,
+    "ratingsBreakdown": {
+      "totalCount": 132,
+      "overallScore": 4.6,
+      "stars": {
+        "1": 1,
+        "2": 7,
+        "3": 6,
+        "4": 16,
+        "5": 102
+      }
+    },
+    "commentRate": 1.4348,
+    "soldCount": 92,
+    "gmvContribution": 4066.4,
+    "sellerId": "7495199044660923298",
+    "sellerName": "Living Proof, Inc.",
+    "sellerFollowers": 104662,
+    "sellerRating": 4.6,
+    "sellerSold": 65464,
+    "sellerResponseRatePct": 84,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 88,
+    "sellerProductCount": 51,
+    "sellerReviewCount": 2367,
+    "sellerVideoCount": 2000,
+    "sellerUrl": "https://shop.tiktok.com/us/store/living-proof-inc/7495199044660923298",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Living Proof, Inc.",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Mousse & Gel",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c19d7b09af674cf8b226f93e9820288f~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c19d7b09af674cf8b226f93e9820288f~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/38b678a3af9348e0ba2893d35cefa8be~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e43e130b8c9a4c2cace10ed6752567d5~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5c89bd561beb41e59d0916da6f5ebe76~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3ef72644531140889df0496ed64305e0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8ea4ecb2d4c74520b3dfa95b8575cfa6~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/d83213373ab746eb80da268614fd0477~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/518365ef50884578b81bcc43e2932d7e~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/513a31536a3048d6a2c32432b98eb9e4~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732039653920445346",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:15.173Z",
+    "lastTimeStamp": 1794307455,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732457334855733553",
+    "source": "keyword",
+    "rank": 7,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732457334855733553",
+    "title": "Batiste By Batiste Dry Shampoo Divine Dark For Unisex",
+    "description": null,
+    "currentPrice": 12.94,
+    "priceDisplay": "$12.94",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.7,
+    "reviewCount": 3,
+    "ratingsBreakdown": {
+      "totalCount": 3,
+      "overallScore": 4.7,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "5": 2
+      }
+    },
+    "commentRate": 0.0882,
+    "soldCount": 34,
+    "gmvContribution": 439.96,
+    "sellerId": "7496023118322436401",
+    "sellerName": "FragranceNet",
+    "sellerFollowers": 173137,
+    "sellerRating": 4.6,
+    "sellerSold": 594265,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 91,
+    "sellerProductCount": 0,
+    "sellerReviewCount": 96636,
+    "sellerVideoCount": 409,
+    "sellerUrl": "https://shop.tiktok.com/us/store/fragrancenet/7496023118322436401",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "FragranceNet",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e994a5eb451d4190b6e538d442f91123~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e994a5eb451d4190b6e538d442f91123~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732457340373930289",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:15.620Z",
+    "lastTimeStamp": 1794307455,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732558722221904177",
+    "source": "keyword",
+    "rank": 4,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732558722221904177",
+    "title": "Living Proof By Living Proof Full Shampoo For Unisex",
+    "description": null,
+    "currentPrice": 18.54,
+    "priceDisplay": "$18.54",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 3,
+    "gmvContribution": 55.62,
+    "sellerId": "7496023118322436401",
+    "sellerName": "FragranceNet",
+    "sellerFollowers": 173137,
+    "sellerRating": 4.6,
+    "sellerSold": 594265,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 91,
+    "sellerProductCount": 0,
+    "sellerReviewCount": 96636,
+    "sellerVideoCount": 409,
+    "sellerUrl": "https://shop.tiktok.com/us/store/fragrancenet/7496023118322436401",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "FragranceNet",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e43731652b234424ae159bd6d6557495~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e43731652b234424ae159bd6d6557495~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/cd61d4325c0e4fe480a4cc8378e75ad0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1be6ed9f1b0b4200b504c183940afae6~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/435c8abdb5e747cf8fc450e0950b52d4~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732558725240361265",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732558725240426801",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732558725240492337",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732558725240557873",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:15.627Z",
+    "lastTimeStamp": 1794307455,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731612497358524570",
+    "source": "keyword",
+    "rank": 8,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731612497358524570",
+    "title": "Living Proof Restore Shampoo and Conditioner Duo - Hydrate & Strengthen Hair, Silicone- and Sulfate-Free Repair for Dry Damaged Hair, Restores Moisture and Radiant Shine with Lactic Acid & Sunflower Extract, 24 oz",
+    "description": null,
+    "currentPrice": 106.46,
+    "priceDisplay": "$106.46",
+    "originalPrice": 161,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 3,
+    "reviewCount": 1,
+    "ratingsBreakdown": {
+      "totalCount": 1,
+      "overallScore": 3,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0.0345,
+    "soldCount": 29,
+    "gmvContribution": 3087.34,
+    "sellerId": "7495863828072663194",
+    "sellerName": "Planet Beauty",
+    "sellerFollowers": 36832,
+    "sellerRating": 4.6,
+    "sellerSold": 82309,
+    "sellerResponseRatePct": 86,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 89,
+    "sellerProductCount": 655,
+    "sellerReviewCount": 4655,
+    "sellerVideoCount": 2310,
+    "sellerUrl": "https://shop.tiktok.com/us/store/planet-beauty/7495863828072663194",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Planet Beauty",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo & Conditioner Kits",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/431d745629324fc292184f8b3281cfc1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/431d745629324fc292184f8b3281cfc1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/75b995997a5846ff86e3805c4e3791a0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e01373c815d04414b9132d3b1ede7ad8~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/9b4b8d3046f84626b3845cd8f84eec80~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/85cc2119490642e48c3b857d1dc529ce~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/9804013880274ceeb040cbeafe4270da~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c6aadf52fff44ab3a51da5dbea9d470c~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/561022fabd1a401e8a8cd5d60fdb0ffd~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a7d346580a1c43cfb46967de6174759c~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731612504186720410",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:16.666Z",
+    "lastTimeStamp": 1794307456,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732457347225653553",
+    "source": "keyword",
+    "rank": 7,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732457347225653553",
+    "title": "Living Proof By Living Proof Full Dry Volume & Texture Spray For Unisex",
+    "description": null,
+    "currentPrice": 15.92,
+    "priceDisplay": "$15.92",
+    "originalPrice": 22.74,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 5,
+    "gmvContribution": 79.6,
+    "sellerId": "7496023118322436401",
+    "sellerName": "FragranceNet",
+    "sellerFollowers": 173137,
+    "sellerRating": 4.6,
+    "sellerSold": 594265,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 91,
+    "sellerProductCount": 0,
+    "sellerReviewCount": 96636,
+    "sellerVideoCount": 409,
+    "sellerUrl": "https://shop.tiktok.com/us/store/fragrancenet/7496023118322436401",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "FragranceNet",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Mousse & Gel",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3c79a37220474809a3ac61f1e7bb64f1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3c79a37220474809a3ac61f1e7bb64f1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732457347678638385",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:16.774Z",
+    "lastTimeStamp": 1794307456,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732296356580004770",
+    "source": "keyword",
+    "rank": 10,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732296356580004770",
+    "title": "The Original Dry Shampoo Duo | TikTok Exclusive",
+    "description": null,
+    "currentPrice": 66,
+    "priceDisplay": "$66.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.8,
+    "reviewCount": 66,
+    "ratingsBreakdown": {
+      "totalCount": 66,
+      "overallScore": 4.8,
+      "stars": {
+        "1": 3,
+        "2": 0,
+        "3": 0,
+        "4": 3,
+        "5": 60
+      }
+    },
+    "commentRate": 0.0436,
+    "soldCount": 1515,
+    "gmvContribution": 99990,
+    "sellerId": "7495199044660923298",
+    "sellerName": "Living Proof, Inc.",
+    "sellerFollowers": 104662,
+    "sellerRating": 4.6,
+    "sellerSold": 65464,
+    "sellerResponseRatePct": 84,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 88,
+    "sellerProductCount": 51,
+    "sellerReviewCount": 2367,
+    "sellerVideoCount": 2000,
+    "sellerUrl": "https://shop.tiktok.com/us/store/living-proof-inc/7495199044660923298",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Living Proof, Inc.",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Dry Shampoo",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1c753f2a48d64869a23dad7f34224ba0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1c753f2a48d64869a23dad7f34224ba0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/53460f1cf255435d93ec59e9386894c8~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/376cf8dc58c742eab7155802377a1ac5~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c8b6fcbbb19f41f88700283c6a4550ee~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5313cbf8682a41508ebde6a9885397ab~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a649139162b74f5eb5c711aece1b2c2a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a984a3dd5dba4d01a6882c0759c4afce~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ce2d0f852c054be9823a9b869ce9edc9~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8a8010aadd2045e983cfac7a0b81585c~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732296356512830370",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:17.226Z",
+    "lastTimeStamp": 1794307457,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731685127579930741",
+    "source": "keyword",
+    "rank": 4,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731685127579930741",
+    "title": "Batiste Waterless Cleansing Foam, Cactus Water-Infused Cleanse & Hydrate Aqua Formula, 3.6 oz Dry Shampoo for Refreshing Daily Haircare",
+    "description": null,
+    "currentPrice": 10.38,
+    "priceDisplay": "$10.38",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 3,
+    "gmvContribution": 31.14,
+    "sellerId": "7495552601180506229",
+    "sellerName": "PILIPALA BEAUTY",
+    "sellerFollowers": 4166,
+    "sellerRating": 4.7,
+    "sellerSold": 47172,
+    "sellerResponseRatePct": 96,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 93,
+    "sellerProductCount": 398,
+    "sellerReviewCount": 5837,
+    "sellerVideoCount": 6,
+    "sellerUrl": "https://shop.tiktok.com/us/store/pilipala-beauty/7495552601180506229",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "PILIPALA BEAUTY",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Dry Shampoo",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/12b260af7fe84b7aab24b6cae4b8a972~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/12b260af7fe84b7aab24b6cae4b8a972~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e955f0377a704322b12648fa8e744df9~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c5ba8f15cf384b5d83a04fef32aade25~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/09c0889b458e4726af70562398f941e0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/2b52df9944fa4389939d79d3f6cb4da0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731685160889782389",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:17.325Z",
+    "lastTimeStamp": 1794307457,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731200240060239883",
+    "source": "keyword",
+    "rank": 4,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731200240060239883",
+    "title": "Mourning Roost",
+    "description": null,
+    "currentPrice": 18,
+    "priceDisplay": "$18.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 3,
+    "ratingsBreakdown": {
+      "totalCount": 3,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 3
+      }
+    },
+    "commentRate": 1,
+    "soldCount": 3,
+    "gmvContribution": 54,
+    "sellerId": "7496137603159328779",
+    "sellerName": "Blackcraft Coffee",
+    "sellerFollowers": 29259,
+    "sellerRating": 4.7,
+    "sellerSold": 251,
+    "sellerResponseRatePct": 25,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 95,
+    "sellerProductCount": 33,
+    "sellerReviewCount": 22,
+    "sellerVideoCount": 381,
+    "sellerUrl": "https://shop.tiktok.com/us/store/blackcraft-coffee/7496137603159328779",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Blackcraft Coffee",
+    "categoryPath": "Food & Beverages > Drinks > Coffee > Coffee Beans/Tea Leaves > Roasted Whole Coffee Beans",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a08336624eba4db5adb3d75518c877eb~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a08336624eba4db5adb3d75518c877eb~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/0e9343ffaa304574969de1477d57eb80~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/9228e55979634c87ac688fdc01d46d54~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f9bb7961963449ab85647e8e3c9ee6de~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731200240105852939",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1731200240105918475",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:18.262Z",
+    "lastTimeStamp": 1794307458,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732307512139747336",
+    "source": "keyword",
+    "rank": 1,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732307512139747336",
+    "title": "coffee cup",
+    "description": null,
+    "currentPrice": 1,
+    "priceDisplay": "$1.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 2,
+    "gmvContribution": 2,
+    "sellerId": "7495365574818695176",
+    "sellerName": "A&R things",
+    "sellerFollowers": 1561,
+    "sellerRating": 5,
+    "sellerSold": 23,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 22,
+    "sellerReviewCount": 2,
+    "sellerVideoCount": 72,
+    "sellerUrl": "https://shop.tiktok.com/us/store/a-r-things/7495365574818695176",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "A&R things",
+    "categoryPath": "Kitchenware > Drinkware > Mugs",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/72efa53dd7d6465e86f8b6afda3e8dbc~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/72efa53dd7d6465e86f8b6afda3e8dbc~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732307512526999560",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:18.322Z",
+    "lastTimeStamp": 1794307458,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731061134231769099",
+    "source": "keyword",
+    "rank": 2,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731061134231769099",
+    "title": "Pale Moon",
+    "description": null,
+    "currentPrice": 19,
+    "priceDisplay": "$19.00",
+    "originalPrice": 22,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.7,
+    "reviewCount": 11,
+    "ratingsBreakdown": {
+      "totalCount": 11,
+      "overallScore": 4.7,
+      "stars": {
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "4": 0,
+        "5": 10
+      }
+    },
+    "commentRate": 3.6667,
+    "soldCount": 3,
+    "gmvContribution": 57,
+    "sellerId": "7496137603159328779",
+    "sellerName": "Blackcraft Coffee",
+    "sellerFollowers": 29259,
+    "sellerRating": 4.7,
+    "sellerSold": 251,
+    "sellerResponseRatePct": 25,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 95,
+    "sellerProductCount": 33,
+    "sellerReviewCount": 22,
+    "sellerVideoCount": 381,
+    "sellerUrl": "https://shop.tiktok.com/us/store/blackcraft-coffee/7496137603159328779",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Blackcraft Coffee",
+    "categoryPath": "Food & Beverages > Drinks > Coffee > Coffee & Espresso Beverages",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f8f8338c8fc64203a227e30b0e369c2b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f8f8338c8fc64203a227e30b0e369c2b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/917ebfb0dafe4edfb94cda3cef5c5933~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c8f1dd8951b84b8ebcd9381df796976c~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/40a4084801dc43c39186a480b33ee984~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731061160775159819",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1731061160775225355",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:18.427Z",
+    "lastTimeStamp": 1794307458,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1729700841513849624",
+    "source": "keyword",
+    "rank": 10,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=batiste%20dry%20shampoo",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1729700841513849624",
+    "title": "Batiste Divine Dark Color Dry Shampoo Aerosol - Plant-Based Waterless Haircare Spray for Dark & Black Hair, Oil Control, Grime Cleansing, Subtle Tint Root Disguise, Texturizing, Honey Blend for Fresh Seamless Finish That Blends With Hair",
+    "description": null,
+    "currentPrice": 17.97,
+    "priceDisplay": "$17.97",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 2,
+    "gmvContribution": 35.94,
+    "sellerId": "7495776925997304600",
+    "sellerName": "unitedbeautysupply",
+    "sellerFollowers": 7246,
+    "sellerRating": 4.5,
+    "sellerSold": 15514,
+    "sellerResponseRatePct": 83,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 87,
+    "sellerProductCount": 787,
+    "sellerReviewCount": 1715,
+    "sellerVideoCount": 764,
+    "sellerUrl": "https://shop.tiktok.com/us/store/unitedbeautysupply/7495776925997304600",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "unitedbeautysupply",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo & Conditioner Kits",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5b5626df9cd34fb6a1606373efb8d384~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5b5626df9cd34fb6a1606373efb8d384~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/78de79adb0974ef58dd78823dd53c1a6~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/665a6293f2434ebe8faa37bc39dc4c4e~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f0a8d9c87c0241c8a7c37ec0d24fb7a1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a825e410f8804c38aa2195e6ad4b20c4~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/61fddd15cd559b15b533dc8de2de0517~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/831580db2a6541349f95f1601a809b93~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1729700935185765144",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:19.132Z",
+    "lastTimeStamp": 1794307459,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1729468442804392307",
+    "source": "keyword",
+    "rank": 8,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1729468442804392307",
+    "title": "coffee table",
+    "description": null,
+    "currentPrice": 34,
+    "priceDisplay": "$34.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 26,
+    "gmvContribution": 884,
+    "sellerId": "7495695005916236147",
+    "sellerName": "KramerD",
+    "sellerFollowers": null,
+    "sellerRating": null,
+    "sellerSold": 25,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 2,
+    "sellerReviewCount": 0,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/kramerd/7495695005916236147",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "KramerD",
+    "categoryPath": "Furniture > Indoor Furniture > Tables & Desks > Living Room Furniture > Tables > Coffee Tables",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5fe2c6ae084e40d995c17828996d6d28~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5fe2c6ae084e40d995c17828996d6d28~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/911f33d428f245e1ae75ebb2d1f4d6ad~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7d76687b6b9a2fa80393586cdc2f73db~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ac16b3ffcd954cb4a88f6507e12d4ded~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8b265b0da5fe78d0ada8af1057f2c575~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1729468443465060723",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:19.999Z",
+    "lastTimeStamp": 1794307459,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731067391837310987",
+    "source": "keyword",
+    "rank": 6,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731067391837310987",
+    "title": "Vanta Black Bold Dark Roast Beverage - Blackcraft Coffee, 100% Pure Arabica Premium Single-Origin Brazilian Coffee (1,000m Elevation), Vegetarian, Notes of Charred Caramel/Bitter Chocolate, Hauntingly Smooth Finish, 12 oz (336g)",
+    "description": null,
+    "currentPrice": 18,
+    "priceDisplay": "$18.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.9,
+    "reviewCount": 19,
+    "ratingsBreakdown": {
+      "totalCount": 19,
+      "overallScore": 4.9,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "5": 18
+      }
+    },
+    "commentRate": 2.7143,
+    "soldCount": 7,
+    "gmvContribution": 126,
+    "sellerId": "7496137603159328779",
+    "sellerName": "Blackcraft Coffee",
+    "sellerFollowers": 29259,
+    "sellerRating": 4.7,
+    "sellerSold": 251,
+    "sellerResponseRatePct": 25,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 95,
+    "sellerProductCount": 33,
+    "sellerReviewCount": 22,
+    "sellerVideoCount": 381,
+    "sellerUrl": "https://shop.tiktok.com/us/store/blackcraft-coffee/7496137603159328779",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Blackcraft Coffee",
+    "categoryPath": "Food & Beverages > Drinks > Coffee > Coffee & Espresso Beverages",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a9ea5f83a4f84df3ae443f5bb4e80991~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a9ea5f83a4f84df3ae443f5bb4e80991~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8fd166e7a72444fcbb65b567f556431e~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1f4ac0574f3a4877839ee8c5f6e88fc5~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/72de499d82304a078713ca2b8051db91~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/231ff19d04734b2fb04721b2e98eea6d~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/80883e9014cd4495baa3aaf9ac5906a0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731067401848918027",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1731067401848983563",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:20.046Z",
+    "lastTimeStamp": 1794307460,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731996123673104616",
+    "source": "keyword",
+    "rank": 5,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731996123673104616",
+    "title": "Fueled by coffee and books Badge Reel",
+    "description": null,
+    "currentPrice": 9,
+    "priceDisplay": "$9.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 1,
+    "ratingsBreakdown": {
+      "totalCount": 1,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 1
+      }
+    },
+    "commentRate": 1,
+    "soldCount": 1,
+    "gmvContribution": 9,
+    "sellerId": "7495537095205357800",
+    "sellerName": "Badge Reel World",
+    "sellerFollowers": 359,
+    "sellerRating": 4.5,
+    "sellerSold": 274,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 433,
+    "sellerReviewCount": 55,
+    "sellerVideoCount": 64,
+    "sellerUrl": "https://shop.tiktok.com/us/store/badge-reel-world/7495537095205357800",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Badge Reel World",
+    "categoryPath": "Computers & Office Equipment > Office Stationery & Supplies > Identification Badges & Supplies",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f7605a7d5d614952a5745f135e4ff293~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f7605a7d5d614952a5745f135e4ff293~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/6f3057dc9d8748398ab1657f8c0f81e1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a2cd93555fa64ef5b89bff959b585fdc~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731996108661493992",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:20.123Z",
+    "lastTimeStamp": 1794307460,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1730952228322710146",
+    "source": "keyword",
+    "rank": 9,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1730952228322710146",
+    "title": "Black Rifle Coffee 300 RTD Ready To Drink Variety Pack, Gluten Free, 300mg Caffeine - (6 Pack)",
+    "description": null,
+    "currentPrice": 33.13,
+    "priceDisplay": "$33.13",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 4,
+    "gmvContribution": 132.52,
+    "sellerId": "7495594371834743426",
+    "sellerName": "Ameretail",
+    "sellerFollowers": 654,
+    "sellerRating": 4.4,
+    "sellerSold": 7274,
+    "sellerResponseRatePct": 89,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 83,
+    "sellerProductCount": 34,
+    "sellerReviewCount": 425,
+    "sellerVideoCount": 55,
+    "sellerUrl": "https://shop.tiktok.com/us/store/ameretail/7495594371834743426",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Ameretail",
+    "categoryPath": "Food & Beverages > Drinks > Coffee > Coffee & Espresso Beverages",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5491b15b64954c30974d775d1ba7180e~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5491b15b64954c30974d775d1ba7180e~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c02ba28a5a904fb580a36a7e3f42dc49~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1104bae0c06f4024bcfcfaa1f821dbd6~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/27f646cea1c649af9aa53a912f32d012~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1730952349373862530",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:21.665Z",
+    "lastTimeStamp": 1794307461,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1729406875956252851",
+    "source": "keyword",
+    "rank": 10,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1729406875956252851",
+    "title": "Out of the Way Coffee 5lb Bag OOTW Recovery Roast Dark Roast Coffee US Beverage Product",
+    "description": null,
+    "currentPrice": 85,
+    "priceDisplay": "$85.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 23,
+    "ratingsBreakdown": {
+      "totalCount": 23,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 23
+      }
+    },
+    "commentRate": 0.2987,
+    "soldCount": 77,
+    "gmvContribution": 6545,
+    "sellerId": "7495342300605876403",
+    "sellerName": "Erica Rifkin the coffee lady",
+    "sellerFollowers": null,
+    "sellerRating": 5,
+    "sellerSold": 14849,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 99,
+    "sellerProductCount": 26,
+    "sellerReviewCount": 2839,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/erica-rifkin-the-coffee-lady/7495342300605876403",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Erica Rifkin the coffee lady",
+    "categoryPath": "Food & Beverages > Drinks > Coffee > Coffee Beans/Tea Leaves > Roasted Whole Coffee Beans",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/fb45c4710214b68c3731e185c7cab539~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/fb45c4710214b68c3731e185c7cab539~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1de6dc2f4d634da198cfe7e33367e620~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ed23c2a135cf4583b7a98381ab37e38a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/be47e2a7d8e14db7a1c1159f65baac3b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/daa77e7f12154fa787b4bcdce5e2ff01~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1729406875956318387",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1729406875956383923",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1729406875956449459",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1729406875956514995",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:21.729Z",
+    "lastTimeStamp": 1794307461,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1729408848141849506",
+    "source": "keyword",
+    "rank": 2,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1729408848141849506",
+    "title": "Perfect hair Day™ Heat Styling Spray",
+    "description": null,
+    "currentPrice": 44.2,
+    "priceDisplay": "$44.20",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.7,
+    "reviewCount": 443,
+    "ratingsBreakdown": {
+      "totalCount": 443,
+      "overallScore": 4.7,
+      "stars": {
+        "1": 13,
+        "2": 7,
+        "3": 13,
+        "4": 37,
+        "5": 373
+      }
+    },
+    "commentRate": 0.2565,
+    "soldCount": 1727,
+    "gmvContribution": 76333.4,
+    "sellerId": "7495199044660923298",
+    "sellerName": "Living Proof, Inc.",
+    "sellerFollowers": 104662,
+    "sellerRating": 4.6,
+    "sellerSold": 65464,
+    "sellerResponseRatePct": 84,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 88,
+    "sellerProductCount": 51,
+    "sellerReviewCount": 2367,
+    "sellerVideoCount": 2000,
+    "sellerUrl": "https://shop.tiktok.com/us/store/living-proof-inc/7495199044660923298",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Living Proof, Inc.",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Mousse & Gel",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8d86e5fb017444609aaae1b14bd1414b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8d86e5fb017444609aaae1b14bd1414b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/fd1c862c38894c018b4e892fe3bb1a86~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/018b0ff92bfa4428a86aff1cec0ecf31~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a17f90576432423297d6bee3542014b1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/fe4fbd522a5a4e01a9b01b64251249ba~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/115a1c1585134c8b9bd399ca5502e252~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7981d85fac9646ca95103537ed357ef8~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/0697b284c4404d01ba69619ddb1e318e~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732039609034642338",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:21.898Z",
+    "lastTimeStamp": 1794307461,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731985309626372528",
+    "source": "keyword",
+    "rank": 2,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731985309626372528",
+    "title": "Jinx All Life Stages Dry Dog Food Atlantic Salmon Brown Rice & Sweet Potato Recipe for Digestive Health and Healthy Immunity Nutrient Rich Formula",
+    "description": null,
+    "currentPrice": 45.63,
+    "priceDisplay": "$45.63",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": null,
+    "soldCount": 0,
+    "gmvContribution": 0,
+    "sellerId": "7496006434054769072",
+    "sellerName": "RAYMONDSAECHAO",
+    "sellerFollowers": null,
+    "sellerRating": null,
+    "sellerSold": 3,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 46,
+    "sellerReviewCount": 0,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/raymondsaechao/7496006434054769072",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "RAYMONDSAECHAO",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/767e06fc36714346870e43f4fff1afde~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/767e06fc36714346870e43f4fff1afde~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/2940fb2d4041470588a4ead6e1a2c3fc~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ef0fbd0dfba580b2c2359f866ef521cb~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/0faaf10dfaca02855c62b175ce7bf528~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/6d125484be8ba76194558e104b96fded~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/feb8103980a78ff0820ece53e4f46f04~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731985402564809136",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:22.724Z",
+    "lastTimeStamp": 1794307462,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732822598637097075",
+    "source": "keyword",
+    "rank": 4,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732822598637097075",
+    "title": "Pedigree Adult Complete Nutrition Dry Dog Food, Steak & Vegetable, 38 lb",
+    "description": null,
+    "currentPrice": 30.64,
+    "priceDisplay": "$30.64",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 2,
+    "gmvContribution": 61.28,
+    "sellerId": "7495066428891564147",
+    "sellerName": "The Lashes By Ki",
+    "sellerFollowers": null,
+    "sellerRating": 4.5,
+    "sellerSold": 52,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 50,
+    "sellerReviewCount": 6,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/the-lashes-by-ki/7495066428891564147",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "The Lashes By Ki",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/acb6d084da503196645c11e2b1a599a2~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/acb6d084da503196645c11e2b1a599a2~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/363540f4745946ec85ebd5cc5d30b459~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/0271ca83910b4429a9864a72e79170a3~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8b3f27f75ef949a48cc4149f26825b28~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ecb8aaaa67794511b368dffb67a8b761~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5f10d17d630240b78d8b2889322acd7d~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/98c307d6028a32dc17420bbf4f5e8716~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732822598664687731",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:23.345Z",
+    "lastTimeStamp": 1794307463,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732473720593617423",
+    "source": "keyword",
+    "rank": 3,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732473720593617423",
+    "title": "Pedigree Roasted Chicken Flavor Dry Dog Food For Adult Maintenance Complete Nutrition Vegetable Formula 40 lb",
+    "description": null,
+    "currentPrice": 44.17,
+    "priceDisplay": "$44.17",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 2,
+    "ratingsBreakdown": {
+      "totalCount": 2,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 2
+      }
+    },
+    "commentRate": 0.1429,
+    "soldCount": 14,
+    "gmvContribution": 618.38,
+    "sellerId": "7494707010647262735",
+    "sellerName": "SBDEC IEWNUCSUE4NS TOE",
+    "sellerFollowers": null,
+    "sellerRating": 4.2,
+    "sellerSold": 263,
+    "sellerResponseRatePct": 67,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 88,
+    "sellerProductCount": 97,
+    "sellerReviewCount": 34,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/sbdec-iewnucsue4ns-toe/7494707010647262735",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "SBDEC IEWNUCSUE4NS TOE",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/43083e6f955c4389b7e089e44cd22883~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/43083e6f955c4389b7e089e44cd22883~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ad9dae77b1904f168564f6fe3dc504c6~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1db92ddcc2b94fe5868579a93467d2dd~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e49146f832264ba683eb25de79ed12a0~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e182795326fb488286559e08ce74c393~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/362c03a13c6f473289ac5d20e230369e~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/dc08d3bc341d4e95b06103e85b7a1c56~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732473732349989391",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:23.716Z",
+    "lastTimeStamp": 1794307463,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732666411792044962",
+    "source": "keyword",
+    "rank": 6,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732666411792044962",
+    "title": "The Hydrate + Hold Set | Holiday 2026 Limited Edition",
+    "description": null,
+    "currentPrice": 72,
+    "priceDisplay": "$72.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 1,
+    "ratingsBreakdown": {
+      "totalCount": 1,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 1
+      }
+    },
+    "commentRate": 1,
+    "soldCount": 1,
+    "gmvContribution": 72,
+    "sellerId": "7495199044660923298",
+    "sellerName": "Living Proof, Inc.",
+    "sellerFollowers": 104662,
+    "sellerRating": 4.6,
+    "sellerSold": 65464,
+    "sellerResponseRatePct": 84,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 88,
+    "sellerProductCount": 51,
+    "sellerReviewCount": 2367,
+    "sellerVideoCount": 2000,
+    "sellerUrl": "https://shop.tiktok.com/us/store/living-proof-inc/7495199044660923298",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Living Proof, Inc.",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Shampoo & Conditioner > Shampoo & Conditioner Kits",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/56bd8681a0fc49638fea5a4d95d5fa58~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/56bd8681a0fc49638fea5a4d95d5fa58~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/42aa3bce546f49af89beef50fdba8020~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8f1bbe75b82a43e08817db7d30d2e9aa~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/aceccecc999347aca00e8d6e227ff5ad~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a845a8683add40fd9b3ac8acad6bca0a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7c239c9dc210480eb9efd5b77c183ccc~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ec40d879c544437d924140dbab0b09c1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ae3ba6a5dac844b89975a1d88f37cd4b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5f18da80180c45709b30f0d54ffbc150~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732666400961958818",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:24.154Z",
+    "lastTimeStamp": 1794307464,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732642561420988423",
+    "source": "keyword",
+    "rank": 6,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732642561420988423",
+    "title": "Small Matters Discovery Pack - Adult Dog Food for Small Dogs, Chicken & Salmon Medley + Lamb & Rice Medley + Beef & Chicken Veggie Feast Variety Packs, 3.5oz x 24 Packs",
+    "description": null,
+    "currentPrice": 34.2,
+    "priceDisplay": "$34.20",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 1,
+    "ratingsBreakdown": {
+      "totalCount": 1,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 1
+      }
+    },
+    "commentRate": 0.0114,
+    "soldCount": 88,
+    "gmvContribution": 3009.6,
+    "sellerId": "7494860390868747271",
+    "sellerName": "Small Matters",
+    "sellerFollowers": null,
+    "sellerRating": 5,
+    "sellerSold": 85,
+    "sellerResponseRatePct": 0,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 100,
+    "sellerProductCount": 6,
+    "sellerReviewCount": 2,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/small-matters/7494860390868747271",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Small Matters",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Wet",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/76b42290ee31b7d0fe6f0b040b96365f~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/76b42290ee31b7d0fe6f0b040b96365f~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/54e3cc27da164a65b44b486e700d2366~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/40f8a01fb5cd49eca5eac5505330a279~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/fb2c293c076c4658bc9222b75d9aa8da~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1033aec9bd03419188ab069d1ac2d218~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732781221464018951",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:24.226Z",
+    "lastTimeStamp": 1794307464,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732458608287847226",
+    "source": "keyword",
+    "rank": 7,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732458608287847226",
+    "title": "Pedigree Adult Dry Dog Food For Household Pets Meal Complete Nutrition Steak & Vegetable Flavor Diet 40 lb Bag",
+    "description": null,
+    "currentPrice": 29.91,
+    "priceDisplay": "$29.91",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 2,
+    "ratingsBreakdown": {
+      "totalCount": 2,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 2
+      }
+    },
+    "commentRate": 0.3333,
+    "soldCount": 6,
+    "gmvContribution": 179.46,
+    "sellerId": "7494534995304482618",
+    "sellerName": "WestFieldKM",
+    "sellerFollowers": null,
+    "sellerRating": 4.4,
+    "sellerSold": 413,
+    "sellerResponseRatePct": 71,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 85,
+    "sellerProductCount": 96,
+    "sellerReviewCount": 47,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/westfieldkm/7494534995304482618",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "WestFieldKM",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b2aa788c0d7149e1b3a019f7c76da73b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b2aa788c0d7149e1b3a019f7c76da73b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a47f31919360475082d50b666b42ef5f~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f9ddd80b45db45e29f3d96681ae99435~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/4205dfe99855428e9099c4600e92d312~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a99e87cdd58442e7ba752203a091b6c1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/864094b0c69b479ab5ecf6bbef6ed3d1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/59f42765342c4af3b6bb492892341d92~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732458611495113530",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:24.771Z",
+    "lastTimeStamp": 1794307464,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732416878426887029",
+    "source": "keyword",
+    "rank": 8,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732416878426887029",
+    "title": "(2 pack) Ol' Roy Complete Nutrition Chicken Flavor Dry Dog Food, 46 lb Bag",
+    "description": null,
+    "currentPrice": 34.83,
+    "priceDisplay": "$34.83",
+    "originalPrice": 51.6,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 1,
+    "ratingsBreakdown": {
+      "totalCount": 1,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 1
+      }
+    },
+    "commentRate": 0.1111,
+    "soldCount": 9,
+    "gmvContribution": 313.47,
+    "sellerId": "7494203800560764789",
+    "sellerName": "Velvet Coast",
+    "sellerFollowers": null,
+    "sellerRating": 4.3,
+    "sellerSold": 3274,
+    "sellerResponseRatePct": 75,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 82,
+    "sellerProductCount": 194,
+    "sellerReviewCount": 364,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/velvet-coast/7494203800560764789",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Velvet Coast",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Limited time deal"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/46c3a386997146e7a9d5fc9b20f385fb~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/46c3a386997146e7a9d5fc9b20f385fb~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7f7ddd28c3a24a499fa5ac55cebc86bc~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1bc0eec601d44f11b8e1ac7e619d8724~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ddc937674a0746be9d7a372b86977fe2~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/25d371a0020d4224a44061ea5a6e9c12~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1cd2556316884b7185b996529cf5bd4b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e6e2aa8ca32b4899ad86a797bdb10520~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/db990e84fad94f20a6ec9df0a3231daf~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/45657f41538944ac8a205eab164be343~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732416875169354613",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:25.306Z",
+    "lastTimeStamp": 1794307465,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732797379165065331",
+    "source": "keyword",
+    "rank": 10,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732797379165065331",
+    "title": "Purina ONE Lamb and Rice Formula Dry Dog Food for Digestive Support 31.1 Lbs",
+    "description": null,
+    "currentPrice": 50.97,
+    "priceDisplay": "$50.97",
+    "originalPrice": 56.63,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 5,
+    "reviewCount": 1,
+    "ratingsBreakdown": {
+      "totalCount": 1,
+      "overallScore": 5,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 1
+      }
+    },
+    "commentRate": 0.3333,
+    "soldCount": 3,
+    "gmvContribution": 152.91,
+    "sellerId": "7495066428891564147",
+    "sellerName": "The Lashes By Ki",
+    "sellerFollowers": null,
+    "sellerRating": 4.5,
+    "sellerSold": 52,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 50,
+    "sellerReviewCount": 6,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/the-lashes-by-ki/7495066428891564147",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "The Lashes By Ki",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c1ec5c42f4a343b297d221e7bdf128f7~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c1ec5c42f4a343b297d221e7bdf128f7~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/d38a017011814652a4cd2fc85a57f402~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/d4b7cf4a6cb74ebe95394bd3402b9092~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/57bba2a4cba64f4f9e7bb94cecb3786a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/65600b50ab3f425fbf6228efeb077aed~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/598e3ad2e65743768b44df7f727f3c90~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/44a99e448bcd49afa2dbc74ed979662a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/9079f667482748f1bf2707caab39530a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732797378842103923",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:26.019Z",
+    "lastTimeStamp": 1794307466,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732372458975171490",
+    "source": "keyword",
+    "rank": 9,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=living%20proof",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732372458975171490",
+    "title": "Perfect hair Day™ Style Refresh Mist",
+    "description": null,
+    "currentPrice": 23,
+    "priceDisplay": "$23.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.3,
+    "reviewCount": 64,
+    "ratingsBreakdown": {
+      "totalCount": 64,
+      "overallScore": 4.3,
+      "stars": {
+        "1": 6,
+        "2": 4,
+        "3": 4,
+        "4": 2,
+        "5": 48
+      }
+    },
+    "commentRate": 0.4103,
+    "soldCount": 156,
+    "gmvContribution": 3588,
+    "sellerId": "7495199044660923298",
+    "sellerName": "Living Proof, Inc.",
+    "sellerFollowers": 104662,
+    "sellerRating": 4.6,
+    "sellerSold": 65464,
+    "sellerResponseRatePct": 84,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 88,
+    "sellerProductCount": 51,
+    "sellerReviewCount": 2367,
+    "sellerVideoCount": 2000,
+    "sellerUrl": "https://shop.tiktok.com/us/store/living-proof-inc/7495199044660923298",
+    "sellerIsOfficial": true,
+    "businessName": null,
+    "brand": "Living Proof, Inc.",
+    "categoryPath": "Beauty & Personal Care > Haircare & Styling > Mousse & Gel",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c7cd3e917ae1450aa85b714071972310~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c7cd3e917ae1450aa85b714071972310~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/38d22cc23a9f4bb7945bedbe41b70c42~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f9492fc2a24643edbbe2833ee94ca6a4~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ef269dd4294845b7a2cd4a5011aedc4a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a23ab751fc924d3291cb5040a862b7db~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/948a8670d09a47d8a491070840063743~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/01fad8d4be3c456d89ab0e5d4430d588~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/1ef344d338824704b56a58637fa39bef~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732372459277226914",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732372459277292450",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:26.394Z",
+    "lastTimeStamp": 1794307466,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1731399341163843595",
+    "source": "keyword",
+    "rank": 3,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1731399341163843595",
+    "title": "Blackcraft Coffee 12oz 100% Arabica Roast Beans - Certified Organic Latin American Beverage, Blended with Rich Chocolate, Toasted Marshmallow, Hint of Graham Cracker for Campfire S'mores Nostalgia, Natural & Artificial Flavors",
+    "description": null,
+    "currentPrice": 19,
+    "priceDisplay": "$19.00",
+    "originalPrice": 22,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.3,
+    "reviewCount": 10,
+    "ratingsBreakdown": {
+      "totalCount": 10,
+      "overallScore": 4.3,
+      "stars": {
+        "1": 1,
+        "2": 0,
+        "3": 1,
+        "4": 1,
+        "5": 7
+      }
+    },
+    "commentRate": 1.25,
+    "soldCount": 8,
+    "gmvContribution": 152,
+    "sellerId": "7496137603159328779",
+    "sellerName": "Blackcraft Coffee",
+    "sellerFollowers": 29259,
+    "sellerRating": 4.7,
+    "sellerSold": 251,
+    "sellerResponseRatePct": 25,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 95,
+    "sellerProductCount": 33,
+    "sellerReviewCount": 22,
+    "sellerVideoCount": 381,
+    "sellerUrl": "https://shop.tiktok.com/us/store/blackcraft-coffee/7496137603159328779",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Blackcraft Coffee",
+    "categoryPath": "Food & Beverages > Drinks > Coffee > Coffee Beans/Tea Leaves > Roasted Whole Coffee Beans",
+    "specifications": null,
+    "tags": null,
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a8cc9c580a994e1b97a54deaa78401cf~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a8cc9c580a994e1b97a54deaa78401cf~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/ae5533d6d7bd4ff4bc5c0c5d88dcc756~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f42bc75fba76472694632763e90e3264~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/cf1402ab22c84308b31b44b2bd3a13b4~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3023d66393924cb0a9c12211d48990eb~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/06f941a55b1045048f2716dd9b25c0a8~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/8f649c2b6a364c99af2d69c5d7d6a2a3~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1731399347432624139",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1731399347432689675",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:28.381Z",
+    "lastTimeStamp": 1794307468,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732313722372002104",
+    "source": "keyword",
+    "rank": 7,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=black%20rifle%20coffee",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732313722372002104",
+    "title": "Bon Lalo Lakay Seed Coffee Drink - Nourishing Coffee Beans/Tea Leaves Infused, Vitamin-Rich Beverage for Youth Energy Support",
+    "description": null,
+    "currentPrice": 10.61,
+    "priceDisplay": "$10.61",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.3,
+    "reviewCount": 3,
+    "ratingsBreakdown": {
+      "totalCount": 3,
+      "overallScore": 4.3,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 2
+      }
+    },
+    "commentRate": 0.0938,
+    "soldCount": 32,
+    "gmvContribution": 339.52,
+    "sellerId": "7495820660164692280",
+    "sellerName": "$BlackDidy@",
+    "sellerFollowers": 989,
+    "sellerRating": 3.7,
+    "sellerSold": 151,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 62,
+    "sellerProductCount": 16,
+    "sellerReviewCount": 15,
+    "sellerVideoCount": 548,
+    "sellerUrl": "https://shop.tiktok.com/us/store/blackdidy/7495820660164692280",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "$BlackDidy@",
+    "categoryPath": "Food & Beverages > Drinks > Coffee > Coffee Beans/Tea Leaves > Tea Leaves > Tea Substitutes",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/04c4a37ee5434b7192052dd4f165b86a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/04c4a37ee5434b7192052dd4f165b86a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732313596996718904",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:30.395Z",
+    "lastTimeStamp": 1794307470,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732818242450854389",
+    "source": "keyword",
+    "rank": 1,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732818242450854389",
+    "title": "Jinx Grain Free Dry Dog Food - Real Salmon, Sweet Potato & Carrot, 4lb",
+    "description": null,
+    "currentPrice": 13.57,
+    "priceDisplay": "$13.57",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": null,
+    "soldCount": 0,
+    "gmvContribution": 0,
+    "sellerId": "7494829754781959669",
+    "sellerName": "WALKER491",
+    "sellerFollowers": null,
+    "sellerRating": null,
+    "sellerSold": 9,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 57,
+    "sellerReviewCount": 0,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/walker491/7494829754781959669",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "WALKER491",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Limited time deal"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7a879a669bcf443799ad4695ab619a38~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7a879a669bcf443799ad4695ab619a38~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/a227bd86ad914ea4ab053e0c36df5f10~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f749488089424bb483eaa9cbd89d63dc~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3f5f16eb02e743dd8c75d35ad18d576a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/7f0c76955d7f40d98ca36f3b74c6a127~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f4605cd80a49499cab1b2762fb6ca77a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732818241209602549",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:32.172Z",
+    "lastTimeStamp": 1794307472,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732797772134977651",
+    "source": "keyword",
+    "rank": 5,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732797772134977651",
+    "title": "Purina ONE Chicken and Rice Formula Natural Dog Food",
+    "description": null,
+    "currentPrice": 32.5,
+    "priceDisplay": "$32.50",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 0,
+    "reviewCount": 0,
+    "ratingsBreakdown": {
+      "totalCount": 0,
+      "overallScore": 0,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "commentRate": 0,
+    "soldCount": 1,
+    "gmvContribution": 32.5,
+    "sellerId": "7495066428891564147",
+    "sellerName": "The Lashes By Ki",
+    "sellerFollowers": null,
+    "sellerRating": 4.5,
+    "sellerSold": 52,
+    "sellerResponseRatePct": null,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": null,
+    "sellerProductCount": 50,
+    "sellerReviewCount": 6,
+    "sellerVideoCount": null,
+    "sellerUrl": "https://shop.tiktok.com/us/store/the-lashes-by-ki/7495066428891564147",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "The Lashes By Ki",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3c2e9a9fe07244a6bd11a057c88c2483~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3c2e9a9fe07244a6bd11a057c88c2483~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general.ttcdn-us.com/tos-alisg-i-aphluv4xwc-sg/eb01f89f7b3d1964a84a3068cf0d6b73~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/56c0b3c2df7b437a95ce9b6d03dfeb28~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c52ff311f30445f0b2b5f43467e07f19~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/9309a24fa66b48e1ba15c803f0567440~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/208d8a90f9b544bfbad2874d7be92654~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/5f90e463cc9141739bf86efd1d01e6ca~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e366b3306d0e425bba58b61f354f10d2~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e59cee8788c34b2a80884461470ac8e9~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732797811617665139",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732797811617730675",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "scrapeTimestamp": "2026-11-10T10:44:34.025Z",
+    "lastTimeStamp": 1794307474,
+    "error": null
+  },
+  {
+    "status": "Success",
+    "productId": "1732404829847589229",
+    "source": "keyword",
+    "rank": 9,
+    "countryCode": "US",
+    "inputUrl": "https://shop.tiktok.com/us/s?q=jinx%20dog%20food",
+    "productUrl": "https://www.tiktok.com/shop/pdp/_/1732404829847589229",
+    "title": "Alaskan Gold SUPER3+ Dry Dog Food, High-Protein Grain-Free Triple Deboned Salmon Blend, Batch Tested, Joint Support, Digestive Support, Dried Carrot & Dried Pumpkin, All-Natural for Puppies & Adult Dogs (Small/Large Breeds)",
+    "description": null,
+    "currentPrice": 7,
+    "priceDisplay": "$7.00",
+    "originalPrice": null,
+    "discountPercent": null,
+    "currency": "USD",
+    "freeShipping": null,
+    "rating": 4.6,
+    "reviewCount": 5,
+    "ratingsBreakdown": {
+      "totalCount": 5,
+      "overallScore": 4.6,
+      "stars": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 2,
+        "5": 3
+      }
+    },
+    "commentRate": 0.1852,
+    "soldCount": 27,
+    "gmvContribution": 189,
+    "sellerId": "7495877570870610285",
+    "sellerName": "Alaskan Gold Pet Food",
+    "sellerFollowers": 27,
+    "sellerRating": 4.4,
+    "sellerSold": 105,
+    "sellerResponseRatePct": 100,
+    "sellerShipsWithinDays": null,
+    "sellerPositiveFeedbackPct": 83,
+    "sellerProductCount": 3,
+    "sellerReviewCount": 22,
+    "sellerVideoCount": 240,
+    "sellerUrl": "https://shop.tiktok.com/us/store/alaskan-gold-pet-food/7495877570870610285",
+    "sellerIsOfficial": false,
+    "businessName": null,
+    "brand": "Alaskan Gold Pet Food",
+    "categoryPath": "Pet Supplies > Dog & Cat Food > Dog Food > Dry",
+    "specifications": null,
+    "tags": [
+      "Free shipping"
+    ],
+    "mainImage": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/05dd85ebea7c4ece9ce2086fdf1ee81b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+    "imageUrls": [
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/05dd85ebea7c4ece9ce2086fdf1ee81b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/089ce9516e384c35907fe7514b73fb2a~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/e437a9cb64fb49cf82ef2531d99a5534~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/c9b0a398dec947b2b06c6ae6939a8830~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/bae460de11f7440a9ab5060c77ac9b1b~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/fc1d908c91ad4ae49df27708fbce33e1~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f165ae703f054a1381f1dcffc5f188b9~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+      "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3fa4e3f0ce2940bdb9741ab2cb2f293c~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+    ],
+    "videoUrls": null,
+    "shippingOrigin": null,
+    "variants": [
+      {
+        "skuId": "1732405273781178733",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732405273781244269",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      },
+      {
+        "skuId": "1732437157522280813",
+        "price": null,
+        "currency": "USD",
+        "properties": null,
+        "available": null
+      }
+    ],
+    "variantOptions": null,
+    "totalStock": null,
+    "reviews": [
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      },
+      {
+        "_redacted": "review removed from sample: it carried reviewer name, user id and avatar"
+      }
+    ],
+    "scrapeTimestamp": "2026-11-10T10:44:35.378Z",
+    "lastTimeStamp": 1794307475,
+    "error": null
+  }
+]

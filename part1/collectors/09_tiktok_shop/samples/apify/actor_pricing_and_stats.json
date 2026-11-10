@@ -1,0 +1,45 @@
+{
+  "fetchedAt": "2026-11-10",
+  "actor": "lurkapi/tiktok-shop-scraper",
+  "title": "TikTok Shop Spy Scraper (Sales & Analytics)",
+  "buildNumber": "0.0.34",
+  "buildFinishedAt": "2026-10-26T15:03:00.868Z",
+  "stats": {
+    "totalUsers": 91,
+    "totalUsers30Days": 17,
+    "totalRuns": 11868,
+    "publicActorRunStats30Days": {
+      "ABORTED": 0,
+      "FAILED": 0,
+      "SUCCEEDED": 4977,
+      "TIMED-OUT": 39,
+      "TOTAL": 5016
+    }
+  },
+  "pricing": {
+    "pricingModel": "PAY_PER_EVENT",
+    "startedAt": "2026-05-24T11:02:34.921Z",
+    "events": {
+      "product-scraped-us": {
+        "eventTitle": "Product scraped (US)",
+        "priceUsdFreeTier": 0.00199
+      },
+      "hashtag-product": {
+        "eventTitle": "Hashtag product scraped",
+        "priceUsdFreeTier": 0.005
+      },
+      "creator-count": {
+        "eventTitle": "Creator count add-on",
+        "priceUsdFreeTier": 0.02
+      },
+      "review-extra": {
+        "eventTitle": "Extra review",
+        "priceUsdFreeTier": 0.002
+      },
+      "apify-actor-start": {
+        "eventTitle": "Actor Start",
+        "priceUsdFreeTier": 0.00005
+      }
+    }
+  }
+}

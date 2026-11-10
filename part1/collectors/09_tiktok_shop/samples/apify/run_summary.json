@@ -1,0 +1,24 @@
+{
+  "runId": "EXHk3uNv40Lsip1gL",
+  "actor": "lurkapi/tiktok-shop-scraper",
+  "buildNumber": "0.0.34",
+  "status": "SUCCEEDED",
+  "startedAt": "2026-11-10T07:09:47.159Z",
+  "finishedAt": "2026-11-10T07:10:08.776Z",
+  "runTimeSecs": 21.435,
+  "options": {
+    "build": "stable",
+    "timeoutSecs": 300,
+    "memoryMbytes": 1024,
+    "maxTotalChargeUsd": 0.05
+  },
+  "chargedEventCounts": {
+    "product-scraped-us": 10,
+    "hashtag-product": 0,
+    "creator-count": 0,
+    "review-extra": 0,
+    "apify-actor-start": 1
+  },
+  "usageTotalUsd": 0.019950000000000002,
+  "defaultDatasetId": "hSxSrjG2uDViiv3h7"
+}

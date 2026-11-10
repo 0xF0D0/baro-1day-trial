@@ -1,0 +1,6 @@
+[
+  {
+    "status": "Input produced 0 results — every URL/ID failed to resolve. Accepted shapes: product URL (tiktok.com/.../pdp/<id>, tiktok.com/view/product/<id>), product ID (15-20 digits), short link (vt.tiktok.com, vm.tiktok.com, tiktok.com/t/<id>), shop URL, keyword, hashtag, category. No product charges.",
+    "countryCode": "US"
+  }
+]
