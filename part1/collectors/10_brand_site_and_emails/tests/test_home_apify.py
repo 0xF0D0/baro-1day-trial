@@ -109,6 +109,62 @@ class PartTests(unittest.TestCase):
             self.assertEqual((part["state"], part["reason"], raws), ("could_not_look", reason, []), reason)
             self.assertEqual(part["route"], "home_apify")
 
+    def test_url_never_raises(self):
+        for u in (None, 5, "http://[bad", ["x"]):
+            it = item(url=u)
+            if u is None:
+                del it["url"]
+            part, raws = sc.home_apify_part("SUCCEEDED", [it], BR)
+            self.assertEqual((part["state"], part["reason"], raws), ("could_not_look", "blocked: host=None", []), repr(u))
+
+    def test_elements_are_strings(self):
+        it = item()
+        it["slots"]["announcement_bar"] = [{"outer_html": "<b>1</b>"}, {"outer_html": "<i>2</i>", "text": None},
+                                           {"outer_html": 7, "text": "t"}, "junk", None, 3]
+        _, raws = sc.home_apify_part("SUCCEEDED", [it], BR)
+        self.assertEqual(raws[0]["elements"], [{"outer_html": "<b>1</b>", "text": ""},
+                                               {"outer_html": "<i>2</i>", "text": ""},
+                                               {"outer_html": "", "text": "t"}])
+
+    def test_status_must_be_number_or_null(self):
+        part, _ = sc.home_apify_part("SUCCEEDED", [item(status=None)], BR)
+        self.assertEqual((part["state"], part["reason"]), ("ok", ""))
+        for bad in ("403", True, [200]):
+            part, raws = sc.home_apify_part("SUCCEEDED", [item(status=bad)], BR)
+            self.assertEqual((part["state"], part["reason"], raws), ("could_not_look", "home_status_unreadable", []), repr(bad))
+
+    def test_slots_missing_or_list(self):
+        for bad in ("missing", ["a"]):
+            it = item()
+            if bad == "missing":
+                del it["slots"]
+            else:
+                it["slots"] = bad
+            part, raws = sc.home_apify_part("SUCCEEDED", [it], BR)
+            self.assertEqual((part["state"], part["slots_not_found"]), ("partial", ["announcement_bar", "bundle_cards"]))
+            self.assertEqual([r["state"] for r in raws], ["not_found", "not_found"])
+
+    def test_rule_order(self):
+        part, _ = sc.home_apify_part("SUCCEEDED", [item(url="https://x.com/", status=403)], BR)
+        self.assertEqual(part["reason"], "blocked: host=x.com")
+        part, _ = sc.home_apify_part("SUCCEEDED", [item(status=404)], BR)
+        self.assertEqual(part["reason"], "http_404")
+
+    def test_market_gate(self):
+        cfg = json.loads(json.dumps(BR))
+        cfg["home"]["shopify_market_check"] = True
+        part, raws = sc.home_apify_part("SUCCEEDED", [item(market=["US", "USD"])], cfg)
+        self.assertEqual((part["state"], part["market"]), ("ok", {"country": "US", "currency": "USD"}))
+        self.assertEqual(len(raws), 2)
+        bad = [[None, None], ["US", None], [None, "USD"], ["US"], "US", None]
+        for m in bad:
+            part, raws = sc.home_apify_part("SUCCEEDED", [item(market=m)], cfg)
+            self.assertEqual((part["state"], part["reason"], raws), ("could_not_look", "market_unconfirmed", []), repr(m))
+        it = item()
+        del it["market"]
+        part, raws = sc.home_apify_part("SUCCEEDED", [it], cfg)
+        self.assertEqual((part["reason"], raws), ("market_unconfirmed", []))
+
 
 class RunTests(unittest.TestCase):
     def setUp(self):
@@ -165,6 +221,49 @@ class RunTests(unittest.TestCase):
             part, cost = sc.home_apify(BR)
         self.assertEqual((part["state"], part["reason"], cost), ("could_not_look", "home_not_returned", 0.002))
         self.assertEqual(self.buf.getvalue(), "")
+
+    def _failing(self, http_fn, wait=None):
+        patches = [mock.patch.object(sc, "read_token", return_value="SECRET-TOKEN-XYZ"), mock.patch.object(sc, "http", http_fn)]
+        if wait is not None:
+            patches.append(mock.patch.object(sc, "apify_wait", return_value=wait))
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+        part, cost = sc.home_apify(BR)
+        self.assertNotIn("SECRET-TOKEN-XYZ", json.dumps(part))
+        self.assertNotIn("SECRET-TOKEN-XYZ", self.buf.getvalue())
+        return part, cost
+
+    def test_start_raises(self):
+        def boom(*a, **k):
+            raise TimeoutError("SECRET-TOKEN-XYZ")
+        part, cost = self._failing(boom)
+        self.assertEqual((part["reason"], cost), ("apify_start_failed: TimeoutError", 0))
+
+    def test_wait_fails(self):
+        part, cost = self._failing(lambda *a, **k: (201, {}, json.dumps({"data": {"id": "R9"}}).encode()), wait=(None, 0.002))
+        self.assertEqual((part["state"], part["reason"], cost), ("could_not_look", "apify_wait_failed(run=R9)", 0.002))
+
+    def test_failed_run_requests_no_dataset(self):
+        calls = []
+
+        def fake(url, method="GET", *a, **k):
+            calls.append(url)
+            return 201, {}, json.dumps({"data": {"id": "R9"}}).encode()
+        run = {"data": {"id": "R9", "status": "FAILED", "usageTotalUsd": 0.004, "defaultDatasetId": "D"}}
+        part, cost = self._failing(fake, wait=(run, 0.004))
+        self.assertEqual((part["reason"], cost), ("apify_run_FAILED", 0.004))
+        self.assertFalse(any("/datasets/" in c for c in calls))
+        self.assertEqual(self.buf.getvalue(), "")
+
+    def test_dataset_http_500(self):
+        def fake(url, method="GET", *a, **k):
+            if method == "POST":
+                return 201, {}, json.dumps({"data": {"id": "R9"}}).encode()
+            return 500, {}, b"err"
+        run = {"data": {"id": "R9", "status": "SUCCEEDED", "usageTotalUsd": 0.003, "defaultDatasetId": "D"}}
+        part, cost = self._failing(fake, wait=(run, 0.003))
+        self.assertEqual((part["reason"], cost), ("apify_items_failed: http_500", 0.003))
 
 
 if __name__ == "__main__":

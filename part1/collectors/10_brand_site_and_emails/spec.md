@@ -236,21 +236,23 @@ Used instead of 4.1. Same slots, same records; nothing is opened in Chrome.
    - Anything other than 201 with `data.id`: `apify_start_failed: http_<status>` or `apify_start_failed: <exception type>`.
 3. Poll as in 4.4 step 3 (same constants and `apify_wait_failed(run=<id>)`), but stop `HOME_APIFY_RUN_TIMEOUT_S` + 120 s after the start.
 4. If `data.status` is `SUCCEEDED`, GET the dataset items once (4.4 step 4); a failure gives `apify_items_failed: http_<status>`, `<exception type>` or `not_a_list`.
-5. `cost_usd` of the step is `data.usageTotalUsd` of the final run object (0 when no run started). The run's `cost_usd` is this plus the prices cost.
+5. `cost_usd` of the step is `data.usageTotalUsd` of the final run object (0 when no run started). The run's `cost_usd` is this plus the prices cost, and the home cost is kept even when the prices step raises.
 
 | Home sub-part, checked in this order | State | Reason |
 |---|---|---|
 | Steps 1 to 4 failed | `could_not_look` | as given there |
 | `data.status` is not `SUCCEEDED` | `could_not_look` | `apify_run_<status>` |
 | Dataset empty (the page failed inside the actor) | `could_not_look` | `home_not_returned` |
-| The item's `url` host is not `home.host` | `could_not_look` | `blocked: host=<host>` |
+| The item's `url` host is not `home.host`; a missing, non-string or unparseable `url` gives host `None` and is handled here, never raised | `could_not_look` | `blocked: host=<host>` |
+| `status` is neither `null` nor a number (a boolean is not a number) | `could_not_look` | `home_status_unreadable` |
 | `status` is 403 or 429 | `could_not_look` | `blocked: http_<status>` |
 | `title` contains (case-insensitive) `attention required` or `just a moment` | `could_not_look` | `blocked: title=<phrase>` |
 | `status` is 400 or higher | `could_not_look` | `http_<status>` |
+| `shopify_market_check` is true and `market` is not a two-element list with a non-null country and currency | `could_not_look` | `market_unconfirmed` |
 | Every slot has at least one element | `ok` | empty |
 | Otherwise (a slot missing from the item or not a list counts as no elements) | `partial` | `slots_not_found(<names, in config order>)` |
 
-The records are the `offer_slot` records of section 5 with `route` `home_apify`, one per slot in config order, written only when the sub-part is `ok` or `partial`; `fetched_at` is when the dataset was read. `market` is recorded only when `shopify_market_check` is true and the item has it.
+The records are the `offer_slot` records of section 5 with `route` `home_apify`, one per slot in config order, written only when the sub-part is `ok` or `partial`; `fetched_at` is when the dataset was read. `market` is recorded only when `shopify_market_check` is true (then it is always confirmed, see the table). Each element is written as `{"outer_html": <string>, "text": <string>}`: a missing or non-string value becomes `""`, and an element that is not an object is skipped.
 
 ### 4.2 Klaviyo (`offers`, only when `klaviyo_company_id` is not `null`)
 1. GET `https://static-forms.klaviyo.com/forms/api/v7/<klaviyo_company_id>/full-forms`.
@@ -444,7 +446,7 @@ Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per bra
 ### Run result
 - `source` is `brand_site_and_emails`.
 - `expected_total` is `null`.
-- `cost_usd` is the Apify charge from 4.4 plus the one from 4.1a, and 0 for brands that use neither.
+- `cost_usd` is the Apify charge from 4.4 plus the one from 4.1a, and 0 for brands that use neither. The 4.1a charge is included even when a later step fails or raises.
 
 `extra`:
 ```json

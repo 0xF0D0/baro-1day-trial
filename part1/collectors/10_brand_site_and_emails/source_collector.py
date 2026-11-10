@@ -511,12 +511,17 @@ def home_apify_part(run_status, items, cfg):
     if not isinstance(it, dict):
         part["reason"] = "home_not_returned"
         return part, []
-    host = urlparse(it.get("url") if isinstance(it.get("url"), str) else "").hostname
+    try:
+        host = urlparse(it.get("url") if isinstance(it.get("url"), str) else "").hostname
+    except ValueError:
+        host = None
     status = it.get("status")
     title = (it.get("title") or "").lower() if isinstance(it.get("title"), str) else ""
     why = None
     if host != h["host"]:
         why = f"blocked: host={host}"
+    elif status is not None and (isinstance(status, bool) or not isinstance(status, (int, float))):
+        why = "home_status_unreadable"
     elif status in (403, 429):
         why = f"blocked: http_{status}"
     else:
@@ -524,19 +529,23 @@ def home_apify_part(run_status, items, cfg):
             if phrase in title:
                 why = f"blocked: title={phrase}"
                 break
-        if not why and isinstance(status, int) and status >= 400:
+        if not why and status is not None and status >= 400:
             why = f"http_{status}"
     if why:
         part["reason"] = why
         return part, []
     m = it.get("market")
-    if h["shopify_market_check"] and isinstance(m, list) and len(m) == 2:
+    if h["shopify_market_check"]:
+        if not (isinstance(m, list) and len(m) == 2 and m[0] is not None and m[1] is not None):
+            part["reason"] = "market_unconfirmed"
+            return part, []
         part["market"] = {"country": m[0], "currency": m[1]}
     slots = it.get("slots") if isinstance(it.get("slots"), dict) else {}
     raws, missing = [], []
     for name, sel in h["slots"].items():
         els = slots.get(name)
-        els = [{"outer_html": e.get("outer_html"), "text": e.get("text")} for e in els if isinstance(e, dict)] \
+        els = [{"outer_html": e["outer_html"] if isinstance(e.get("outer_html"), str) else "",
+                "text": e["text"] if isinstance(e.get("text"), str) else ""} for e in els if isinstance(e, dict)] \
             if isinstance(els, list) else []
         if not els:
             missing.append(name)
@@ -1251,7 +1260,7 @@ def run_brand(slug, inputs, names):
     part_path = out / f"{run_id}.jsonl.part"
     R.clear()
     R.update(fh=open(part_path, "w", encoding="utf-8"), kinds=Counter(), requests=0)
-    parts, cost, status, reason, crashed = {}, 0, None, "", False
+    parts, cost, home_cost, status, reason, crashed = {}, 0, 0, None, "", False
     try:
         log(f"[{slug}] start {run_id}")
         with sync_playwright() as pw:
@@ -1271,7 +1280,6 @@ def run_brand(slug, inputs, names):
                     parts["prices"], cost = apify_prices(cfg, out / f"{run_id}.apify")
                 else:
                     parts["prices"] = batiste_prices(cfg, out / f"{run_id}.batiste")
-                cost += home_cost
             finally:
                 browser.close()
         klaviyo = klaviyo_step(cfg, out / f"{run_id}.klaviyo") if cfg["klaviyo_company_id"] else None
@@ -1289,9 +1297,9 @@ def run_brand(slug, inputs, names):
               "started_at": started.strftime("%Y-%m-%dT%H:%M:%SZ"), "finished_at": utc_now(),
               "status": status, "reason": reason, "records": sum(R["kinds"].values()),
               "records_by_kind": dict(R["kinds"]), "expected_total": None, "requests": R["requests"],
-              "cost_usd": cost, "extra": {"parts": parts}}
+              "cost_usd": cost + home_cost, "extra": {"parts": parts}}
     (out / f"{run_id}.run.json").write_text(json.dumps(result, indent=2, ensure_ascii=False))
-    log(f"[{slug}] {status} | {reason} | {result['records_by_kind']} | cost_usd={cost}")
+    log(f"[{slug}] {status} | {reason} | {result['records_by_kind']} | cost_usd={result['cost_usd']}")
     return crashed
 
 
