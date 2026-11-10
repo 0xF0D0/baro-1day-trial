@@ -28,8 +28,17 @@ def run_input(path, query):
     return {"hashtags": [query], "resultsPerPage": 30, **OFF}
 
 
-def remove_personal(item):
+def cut_sound_title(item):
+    """Copy of the item where an original sound's title keeps only the part before the first " - " (the rest is a display name)."""
     item = copy.deepcopy(item)
+    m = item.get("musicMeta")
+    if isinstance(m, dict) and m.get("musicOriginal") is True and isinstance(m.get("musicName"), str) and " - " in m["musicName"]:
+        m["musicName"] = m["musicName"].split(" - ", 1)[0]
+    return item
+
+
+def remove_personal(item):
+    item = cut_sound_title(item)
     for parent, keys in (("authorMeta", ("nickName", "signature", "bioLink", "avatar", "originalAvatarUrl", "profileUrl")),
                          ("musicMeta", ("musicAuthor", "coverMediumUrl", "originalCoverMediumUrl"))):
         if isinstance(item.get(parent), dict):

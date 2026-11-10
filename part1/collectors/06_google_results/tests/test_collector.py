@@ -65,6 +65,78 @@ class CollectorTest(unittest.TestCase):
         self.assertIsNotNone(rec["raw"]["serp"])
         self.assertNotIn("personalInfo", json.dumps(rec["raw"]))
 
+    def test_redact_emails(self):
+        serp = {"organicResults": [{"url": "https://a.com/x@y.com", "link": "mailto:jane@corp.example", "title": "Mail jane.q+x@corp.example now",
+                                    "description": "sales@shop.example or Jane.Doe@mail.example.org",
+                                    "siteLinks": [{"title": "t", "description": "write to bob_1@careers.example"}],
+                                    "emphasizedKeywords": ["a@b.example", "plain"], "position": 1}, "odd"],
+                "paidResults": [{"description": "x@y.example"}], "other": [{"title": "also@z.example"}], "n": 1,
+                "aiOverview": {"content": "write support@brand.example", "url": "https://x.example/a@b.example"}}
+        before = json.dumps(serp)
+        out = sc.redact_emails(serp)
+        r = out["organicResults"][0]
+        self.assertEqual((r["url"], r["link"]), ("https://a.com/x@y.com", "mailto:jane@corp.example"))
+        self.assertEqual(r["title"], "Mail REDACTED@corp.example now")
+        self.assertEqual(r["description"], "REDACTED@shop.example or REDACTED@mail.example.org")
+        self.assertEqual(r["siteLinks"][0]["description"], "write to REDACTED@careers.example")
+        self.assertEqual(r["emphasizedKeywords"], ["REDACTED@b.example", "plain"])
+        self.assertEqual((r["position"], out["organicResults"][1]), (1, "odd"))
+        self.assertEqual(out["paidResults"][0]["description"], "REDACTED@y.example")
+        self.assertEqual(out["other"], [{"title": "REDACTED@z.example"}])
+        self.assertEqual(out["aiOverview"], {"content": "write REDACTED@brand.example", "url": "https://x.example/a@b.example"})
+        self.assertEqual(json.dumps(serp), before)
+        for odd in ({"a": 1}, {"organicResults": None}):
+            self.assertEqual(sc.redact_emails(odd), odd)
+
+    def test_is_personal_profile_url(self):
+        for u in ("https://www.facebook.com/jane.doe.12345", "https://m.facebook.com/jane.doe.12345/posts/9", "https://www.facebook.com/people/Jane-Doe/1000123/",
+                  "https://facebook.com/profile.php?id=1000123"):
+            self.assertTrue(sc.is_personal_profile_url(u), u)
+        for u in ("https://www.facebook.com/BrandPage/", "https://www.facebook.com/brand.page/posts/1", "https://www.facebook.com/groups/123/",
+                  "https://www.instagram.com/jane.doe.12345/", "https://notfacebook.com/jane.doe.12345", None, 5):
+            self.assertFalse(sc.is_personal_profile_url(u), u)
+
+    def test_redact_personal_pages(self):
+        keep = {"url": "https://www.facebook.com/BrandPage/", "title": "Brand", "description": "d"}
+        serp = {"organicResults": [
+            {"url": "https://www.facebook.com/jane.doe.12345/posts/77", "link": "https://www.facebook.com/jane.doe.12345/posts/77",
+             "displayedUrl": "https://www.facebook.com › jane.doe.12345 › posts", "title": "Jane Doe", "description": "post text", "position": 1},
+            {"url": "https://www.facebook.com/people/Jane-Doe/1000123/", "title": "t", "description": "d"},
+            {"url": "https://www.facebook.com/profile.php?id=1000123", "title": "t", "description": "d"}, keep, "odd"],
+            "paidResults": [{"url": "https://www.facebook.com/jane.doe.12345", "title": "t"}], "n": 1}
+        before = json.dumps(serp)
+        out = sc.redact_personal_pages(serp)
+        a, b, c = out["organicResults"][:3]
+        self.assertEqual(a["url"], "https://www.facebook.com/REDACTED/posts/77")
+        self.assertEqual(a["link"], a["url"])
+        self.assertEqual(a["displayedUrl"], "https://www.facebook.com › REDACTED › posts")
+        self.assertEqual((a["title"], a["description"], a["position"]), (None, None, 1))
+        self.assertEqual(b["url"], "https://www.facebook.com/people/REDACTED/REDACTED/")
+        self.assertEqual(c["url"], "https://www.facebook.com/profile.php?REDACTED")
+        self.assertEqual((b["title"], c["description"]), (None, None))
+        self.assertEqual(out["organicResults"][3:], [keep, "odd"])
+        self.assertEqual(out["paidResults"], [{"url": "https://www.facebook.com/REDACTED", "title": None, "description": None}])
+        self.assertEqual(sc.redact_personal_pages(serp), out)
+        self.assertEqual(json.dumps(serp), before)
+
+    def test_collect_writes_no_name_or_address(self):
+        import io
+        from unittest import mock
+        item = json.loads(json.dumps(next(i for i in ITEMS if i["searchQuery"]["term"] == "death wish coffee")))
+        item["organicResults"][0].update(url="https://www.facebook.com/jane.invented.12345/posts/1", title="Jane Invented", description="mail jane@corp.example")
+        item["organicResults"][1]["description"] = "write to bob.invented@corp.example"
+        run = {"status": "SUCCEEDED", "finishedAt": "2026-11-11T00:00:00.000Z", "chargedEventCounts": {"search-page-scraped": 1}}
+        st = {"token": "t", "requests": 0, "records": 0, "status": None, "cost": 0, "run_id": None}
+        out = io.StringIO()
+        with mock.patch.object(sc, "call") as call, mock.patch.object(sc, "read_run", return_value=run):
+            call.side_effect = [{"data": {"id": "r", "defaultDatasetId": "d"}}, [item]]
+            sc.collect(st, ["death wish coffee"], out)
+        text = out.getvalue()
+        for s in ("invented", "Invented", "jane@", "bob.invented@"):
+            self.assertNotIn(s, text)
+        self.assertIn("REDACTED@corp.example", text)
+        self.assertIn("https://www.facebook.com/REDACTED/posts/1", text)
+
 
 if __name__ == "__main__":
     unittest.main()

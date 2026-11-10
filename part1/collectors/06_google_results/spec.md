@@ -24,6 +24,8 @@ It does not request Google itself (F1), choose or change the search terms, extra
 | F8 | Charges reach the run record after its status does: the first read showing `SUCCEEDED` counted 2 of 3 pages; a later read counted 3 |
 | F9 | The Google autocomplete order changes within hours (4 of 10 suggestions for `death wish coffee` changed in 3 hours), so the terms are fixed in `brand_inputs.json` and never rebuilt |
 | F10 | A result for a person's profile page can carry `personalInfo` (`rawText`, `location`, `companyName`); seen once, on 2026-11-11, for the term `black rifle coffee owner` |
+| F11 | Result text can contain email addresses, among them a named employee's from a careers page (seen 2026-11-11) |
+| F12 | A result can be a private person's own Facebook post, with their name in the URL path (seen once, 2026-11-11) |
 
 Samples are in `part1/collectors/06_google_results/samples/`: `apify/trial_run_dataset.json` (F5 to F7), `apify/trial_run_summary.json` and `apify/trial_run_poll_log.md` (F3, F8), `apify/actor_pricing.json` (F2), `apify/start_rejected_min_charge.json` (F3), `google_search_captcha_sorry_page.html` (F1). F4 is from Apify's documentation.
 
@@ -65,7 +67,7 @@ Standard library `urllib.request`. Every request goes to `https://api.apify.com`
    - `actor_error` when its `#error` is not `false`;
    - `no_organic_results` when `organicResults` is missing or an empty list;
    - otherwise `null`: the page is good.
-6. **Names.** In every stored item, set each `organicResults[i].websiteTitle` that contains `·` to `null` (F7). `url` and `title` are kept: they are the public address and headline of the ranked page and are needed to check the record against Google. Also remove the key `personalInfo` from every entry of `organicResults`, `paidResults`, `paidProducts` and `suggestedResults` (F10): it holds a person's location and employer.
+6. **Names.** In every stored item, set each `organicResults[i].websiteTitle` that contains `·` to `null` (F7). `url` and `title` are kept: they are the public address and headline of the ranked page and are needed to check the record against Google. Also remove the key `personalInfo` from every entry of `organicResults`, `paidResults`, `paidProducts` and `suggestedResults` (F10): it holds a person's location and employer. Then, in the same lists: (a) an entry whose `url` is a person's own Facebook page (first path segment like `jane.doe.12345`, a path starting `/people/`, or `/profile.php`; F12) gets the name segment of the path replaced by `REDACTED` in `url` (and in `link` and `displayedUrl` when they hold it; for `/people/<name>/<id>` both name and id, for `/profile.php` the whole query), and `title` and `description` set to `null`; (b) in every string value anywhere in the item (result entries, the AI overview, related questions), except the values of the keys `url` and `link`, each email address is replaced by `REDACTED@<its domain>` (F11). The redacted URL depends only on the input, so the row key stays the same between runs.
 7. **Write** one record per term, 20 in total, unless the status is `could_not_look`; then write none.
 
 ## 5. Output
@@ -95,13 +97,16 @@ Run result: `source` is `google_results`, `expected_total` is `null`, `requests`
 | Anything else | `partial` | the counts that are not 0, joined with `; `: `missing=<n>`, `actor_error=<n>`, `no_organic_results=<n>`, then `apify_status=<status>` when it is not `SUCCEEDED` |
 
 ## 6. Tests
-Five pure functions, tested against the samples. No network.
+Eight pure functions, tested against the samples. No network.
 ```python
 def actor_input(keywords: list[str]) -> dict: ...
 def search_url(term: str) -> str: ...
 def match(keywords: list[str], items: list[dict]) -> list[tuple[dict | None, str | None]]: ...  # (item, error) per term
 def remove_names(item: dict) -> dict: ...  # returns a copy
 def drop_personal_info(serp: dict) -> dict: ...  # returns a copy, no `personalInfo` in any result entry
+def redact_personal_pages(serp: dict) -> dict: ...  # returns a copy; person's own Facebook page: name out of the URL, title/description None
+def redact_emails(serp: dict) -> dict: ...  # returns a copy; emails in any text of the item become REDACTED@domain
+def is_personal_profile_url(url: object) -> bool: ...
 ```
 
 | Input | Expected |

@@ -1,5 +1,5 @@
 """Raw collector for source 6 (Google search results via Apify). See spec.md."""
-import argparse, copy, json, sys, time, urllib.error, urllib.parse, urllib.request
+import argparse, copy, json, re, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -54,6 +54,76 @@ def drop_personal_info(serp):
             for r in serp[name]:
                 if isinstance(r, dict):
                     r.pop("personalInfo", None)
+    return serp
+
+
+EMAIL = re.compile(r"[A-Za-z0-9._%+\-]+@([A-Za-z0-9.\-]+\.[A-Za-z]{2,})")
+PROFILE_NAME = re.compile(r"^[A-Za-z]+(\.[A-Za-z]+)+\.\d+$")
+
+
+def _redact_emails(v, key=None):
+    if isinstance(v, str):
+        return v if key in ("url", "link") else EMAIL.sub(lambda m: "REDACTED@" + m.group(1), v)
+    if isinstance(v, list):
+        return [_redact_emails(x) for x in v]
+    if isinstance(v, dict):
+        return {k: _redact_emails(x, k) for k, x in v.items()}
+    return v
+
+
+def redact_emails(serp):
+    """Copy of the item where every email address in any text is `REDACTED@<domain>` (`url` and `link` values kept)."""
+    return _redact_emails(copy.deepcopy(serp))
+
+
+def _profile_parts(url):
+    """(name tokens in the path, redacted URL) when `url` is a personal Facebook profile, else None."""
+    if not isinstance(url, str):
+        return None
+    try:
+        u = urllib.parse.urlsplit(url)
+    except ValueError:
+        return None
+    host = (u.hostname or "").lower()
+    if host != "facebook.com" and not host.endswith(".facebook.com"):
+        return None
+    segs = u.path.split("/")
+    first = segs[1] if len(segs) > 1 else ""
+    if first == "profile.php":
+        return [u.query] if u.query else [], urllib.parse.urlunsplit((u.scheme, u.netloc, u.path, "REDACTED", u.fragment))
+    if first == "people":
+        names = [x for x in segs[2:4] if x]
+        for i in (2, 3):
+            if len(segs) > i and segs[i]:
+                segs[i] = "REDACTED"
+        return names, urllib.parse.urlunsplit((u.scheme, u.netloc, "/".join(segs), u.query, u.fragment))
+    if PROFILE_NAME.match(first):
+        segs[1] = "REDACTED"
+        return [first], urllib.parse.urlunsplit((u.scheme, u.netloc, "/".join(segs), u.query, u.fragment))
+    return None
+
+
+def is_personal_profile_url(url):
+    """True for a Facebook URL of a person's own page: `/<first.last.123>...`, `/people/...` or `/profile.php`."""
+    return _profile_parts(url) is not None
+
+
+def redact_personal_pages(serp):
+    """Copy of the item where an entry for a person's own Facebook page has the name removed from its URL and no title or description."""
+    serp = copy.deepcopy(serp)
+    for name in RESULT_LISTS:
+        if not isinstance(serp.get(name), list):
+            continue
+        for r in serp[name]:
+            parts = _profile_parts(r.get("url")) if isinstance(r, dict) else None
+            if parts is None:
+                continue
+            names, new_url = parts
+            for k in ("link", "displayedUrl"):
+                if isinstance(r.get(k), str):
+                    r[k] = new_url if r[k] == r["url"] else (re.sub("|".join(map(re.escape, names)), "REDACTED", r[k]) if names else r[k])
+            r["url"] = new_url
+            r["title"] = r["description"] = None
     return serp
 
 
@@ -149,7 +219,7 @@ def collect(st, keywords, out):
     fetched_at = finished[:19] + "Z" if finished else datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     for i, (term, (item, err)) in enumerate(zip(keywords, matched), 1):
         rec = {"key": term, "kind": "search_results_page", "url": search_url(term), "fetched_at": fetched_at,
-               "raw": {"keyword_index": i, "serp": remove_names(drop_personal_info(item)) if item else None, "error": err,
+               "raw": {"keyword_index": i, "serp": remove_names(redact_emails(redact_personal_pages(drop_personal_info(item)))) if item else None, "error": err,
                        "ads": "could_not_look"}}
         out.write(json.dumps(rec, ensure_ascii=False) + "\n")
         st["records"] += 1
