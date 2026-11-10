@@ -15,7 +15,7 @@ Commands, each one line: `docker compose up`, `replay.sh`, `verify.sh`, `benchma
 
 ## Storage and tiering
 
-**The insight that shaped cold storage.** The reducer's state is mostly counts, sums and maps keyed by order or customer, and an order belongs to one customer (our stated assumption). A folded **snapshot** therefore lets us remove a customer by subtraction instead of refolding history; `last_contact_ms` is a max, so the snapshot keeps the max per day. The only order-dependent, cross-customer part is inventory and oversold, so we keep a per-SKU movement log and refold just the SKUs a customer touched. That gives the layout below: day buckets of raw events, one snapshot per tenant, and two index tables that say which days hold a customer and which movements each SKU has. Objects are never edited in place: a change writes a new version under a new name, and one Postgres transaction switches the pointers.
+**The insight that shaped cold storage.** The reducer's state is mostly counts, sums and maps keyed by order or customer, and an order belongs to one customer (our stated assumption). A folded **snapshot** therefore lets us remove a customer by subtraction instead of refolding history; `last_contact_ms` is a max, so the snapshot keeps the max per day. The only order-dependent, cross-customer part is inventory and oversold, so we keep a per-SKU movement log and refold just the SKUs a customer touched. Hence the schema below. Objects are never edited in place: a change writes a new version under a new name, and one Postgres transaction switches the pointers.
 
 ```
 LB :8080 -> api nodes (2, stateless) -> Postgres (hot events, index tables, pointers, tombstones, locks)
@@ -23,11 +23,45 @@ LB :8080 -> api nodes (2, stateless) -> Postgres (hot events, index tables, poin
             worker (1): flush to cold, rebuild, sweep
 ```
 
-- **Hot tier.** One Postgres row per event: tenant ID, event ID, `occurred_at_ms`, a keyed HMAC of the customer ID, and the canonical event as AES-GCM ciphertext. Ingest commits before it answers `2xx`.
-- **Cold tier.** One encrypted object per tenant and UTC day (JSON lines in key order), plus one **snapshot** object: the fold state over every event before the tenant's `cold_until` boundary. Object names carry a random ID and are never reused.
-- **Moving down.** Every 5 minutes the worker flushes each tenant's oldest hot day once it is 96 hours behind the tenant's recent events. It writes the bucket and a new snapshot, then commits in one transaction: pointers, the two index tables, `cold_until`, and deletion of exactly the rows it moved.
-- **Reading.** State is the snapshot plus a fold of the hot rows (about 96–120 hours per tenant). Range reads merge the day buckets they need with hot rows, in `(occurred_at_ms, event_id)` order, with a signed cursor. Api nodes cache the decrypted snapshot per tenant for up to an hour, keyed by its immutable name; a janitor deletes expired entries and an erasure drops the tenant's entry.
-- **Index tables.** `customer_days` (which day buckets hold a customer) and `sku_moves` (encrypted inventory movements per keyed SKU) let an erasure open only the buckets it needs and refold only the SKUs it touches.
+### Cold schema
+
+**MinIO objects.** Each object is sealed with AES-GCM under the tenant DEK, with additional data binding the tenant and the object name. Names carry a random ID and are never reused.
+
+| Object | Name | Content |
+|---|---|---|
+| Day bucket | `<tenant>/buckets/<YYYY-MM-DD>/<id>.jsonl.enc` | That UTC day's canonical events, one JSON line each, sorted by `(occurred_at_ms, event_id)` |
+| Snapshot | `<tenant>/snapshot/<id>.json.enc` | `{version, cold_until, state}`. `state` is the fold over every event before `cold_until`. See the field list below. |
+
+The snapshot's `state` holds:
+- `event_count`;
+- `customers`, the set of customer keys (hex HMAC; no raw ID);
+- `orders`, `order_id` → gross, refunded and status;
+- `inventory` and `oversold` per SKU;
+- `messages_by_channel`;
+- `last_message_by_day`, which is day → latest message time and is used to recompute `last_contact_ms`;
+- `campaigns`, with spend, impressions and clicks;
+- `orphan_refunds` and `orphan_shipments`.
+
+**Postgres tables: what is current.** Plaintext columns are limited to tenant and event IDs, times, day numbers and keyed HMACs. Everything else is ciphertext.
+
+| Table | Primary key | Role |
+|---|---|---|
+| `tenant_cold` | tenant | `cold_until` (a UTC day boundary), current `snapshot_object`, `reducer_version`, `dirty` |
+| `cold_manifest` | tenant, day | current bucket `object`, `events`, sealed `bytes` |
+| `garbage` | object | objects a commit replaced, and `replaced_at`, for sweep |
+| `customer_days` | tenant, customer_key, day | which day buckets hold a customer |
+| `sku_moves` | tenant, sku_key, occurred_at_ms, event_id, line_no | one cold inventory movement. `value` is sealed `{sku, kind, amount}`: an adjustment, or a line of the first `order.created` |
+| `hot_events` | tenant, event_id | hot tier: `occurred_at_ms`, `customer_key`, sealed canonical event |
+| `tombstones` | tenant, customer_key | erased customers, `pending` or `done` |
+
+### How the tiers work
+
+- **Ingest.** One encrypted row in `hot_events`, committed before `2xx`.
+- **Moving down.** Every 5 minutes the worker flushes each tenant's oldest hot day once it is 96 hours behind the tenant's recent events. It writes the bucket and a new snapshot. One transaction then upserts `cold_manifest`, moves `tenant_cold`, inserts the day's `customer_days` and `sku_moves` rows, records the replaced objects in `garbage`, and deletes exactly the hot rows it moved.
+- **Reading.**
+  - **State** is the snapshot plus a fold of the hot rows, about 96–120 hours per tenant.
+  - **Range reads** merge the manifest's day buckets with hot rows in `(occurred_at_ms, event_id)` order, with a signed cursor.
+  - **Snapshot cache.** Api nodes cache the decrypted snapshot per tenant for up to an hour, keyed by its name. A janitor deletes expired entries, and an erasure drops the tenant's entry.
 
 ## Late-event correctness
 
@@ -47,7 +81,7 @@ Correctness never depends on the SPEC's 72-hour lateness or on observed delays; 
 
 - **Customer.** Synchronous, on any api node:
   1. Commit a tombstone. From then on, ingest drops that customer's events, including future arrivals.
-  2. Under the tenant's cold-writer lock, rewrite only the day buckets that `customer_days` lists, and remove the customer from the snapshot. Orders are removed whole; only the affected SKUs are refolded.
+  2. Under the tenant's cold-writer lock, rewrite only the day buckets that `customer_days` lists, and subtract the customer from the snapshot. Orders are removed whole; only the affected SKUs are refolded from `sku_moves`.
   3. Commit the new pointers and delete the customer's hot and index rows.
 
   `2xx` means the customer is gone from state, reads and every current object. A request that dies midway is retried by the client or finished by sweep.
@@ -58,7 +92,7 @@ Correctness never depends on the SPEC's 72-hour lateness or on observed delays; 
 
 ## Deep dive: crash safety
 
-**Claim.** Every change to stored data follows one rule: write new immutable objects, then make them current in one Postgres transaction. A `kill -9` at any point therefore leaves either the old version or the new one, plus unreferenced objects that sweep deletes. Ingest is a single `INSERT` committed before `2xx`.
+**Claim.** Every change to stored data follows one rule: write new objects (never edit one in place), then make them current in one Postgres transaction. A `kill -9` at any point therefore leaves either the old version or the new one, plus unreferenced objects that sweep deletes. Ingest is a single `INSERT` committed before `2xx`.
 
 **Scope.** Tier moves (flush) and compaction (rebuild), killed in the worker. Api, Postgres and MinIO kills are not exercised.
 
@@ -81,11 +115,6 @@ Correctness never depends on the SPEC's 72-hour lateness or on observed delays; 
 
 ## What is next
 
-1. **Run the benchmark on the medium and large sets.** On the large set, measure the hot-tail fold of the largest tenant.
-2. **Reducer v2.** The SPEC hints at it with `shipment.patch`. Events are stored unchanged and each snapshot records its reducer version, so the plan is:
-   - rebuild every tenant into v2 snapshots in the background;
-   - keep serving v1 until every tenant is done;
-   - switch in one transaction.
-
-   Readers see consistent v1 state until the switch. A new metric over hot and cold history would use the same backfill.
+1. Benchmark the medium and large sets, including the hot-tail fold of the largest tenant.
+2. Reducer v2, which the SPEC hints at with `shipment.patch`. Events are stored unchanged and snapshots record their version, so every tenant is rebuilt into v2 snapshots in the background and the switch happens in one transaction. Readers keep consistent v1 state until then; a new metric over hot and cold history would use the same backfill.
 3. Postgres row-level security, and the DEKs in a KMS.
