@@ -1,0 +1,4 @@
+{"customer_id": "cus_1", "data": {"order_id": "o1", "status": "shipped"}, "event_id": "e4", "occurred_at_ms": 4, "tenant_id": "t_edge", "type": "shipment.updated"}
+{"customer_id": "cus_1", "data": {"order_id": "o9"}, "event_id": "e2", "occurred_at_ms": 2, "tenant_id": "t_edge", "type": "shipment.updated"}
+{"customer_id": "cus_1", "data": {"order_id": "o9"}, "event_id": "e1", "occurred_at_ms": 1, "tenant_id": "t_edge", "type": "order.refunded"}
+{"customer_id": "cus_1", "data": {"email": "a@example.com", "lines": [{"qty": 1, "sku": "A", "unit_cents": 100}], "name": "A", "order_id": "o1"}, "event_id": "e3", "occurred_at_ms": 3, "tenant_id": "t_edge", "type": "order.created"}

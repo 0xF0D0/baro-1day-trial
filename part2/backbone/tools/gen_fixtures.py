@@ -70,6 +70,12 @@ def edge_cases():
                {"order_id": "o1", "status": "delivered", "carrier": "ups", "tracking": "T1"}),
             ev("e6", 6, "order.refunded", "cus_2", {"order_id": "o2", "amount_cents": 2000}),
         ],
+        "orphans_without_fields": [
+            ev("e1", 1, "order.refunded", "cus_1", {"order_id": "o9"}),
+            ev("e2", 2, "shipment.updated", "cus_1", {"order_id": "o9"}),
+            ev("e3", 3, "order.created", "cus_1", order("o1", [("A", 1, 100)])),
+            ev("e4", 4, "shipment.updated", "cus_1", {"order_id": "o1", "status": "shipped"}),
+        ],
         "unknown_and_null": [
             ev("e1", 1, "shipment.patch", "cus_9", {"order_id": "o1", "note": "x"}),
             ev("e2", 2, "ad.metric", None,

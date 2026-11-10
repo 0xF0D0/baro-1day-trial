@@ -164,8 +164,8 @@ func TestUnreadableKnownTypeCountsAsUnknown(t *testing.T) {
 		{"order without lines", "order.created", `{"order_id":"o1"}`},
 		{"order lines object", "order.created", `{"order_id":"o1","lines":{"sku":"a"}}`},
 		{"order line missing qty", "order.created", `{"order_id":"o1","lines":[{"sku":"a","unit_cents":5}]}`},
-		{"refund without amount", "order.refunded", `{"order_id":"o1"}`},
-		{"shipment without status", "shipment.updated", `{"order_id":"o1"}`},
+		{"refund without order_id", "order.refunded", `{"amount_cents":5}`},
+		{"shipment without order_id", "shipment.updated", `{"status":"shipped"}`},
 		{"inventory delta string", "inventory.adjusted", `{"sku":"a","delta":"3"}`},
 		{"message without channel", "message.received", `{"from":"x"}`},
 		{"ad without clicks", "ad.metric", `{"campaign_id":"c","spend_cents":1,"impressions":2}`},
@@ -187,6 +187,25 @@ func TestUnreadableKnownTypeCountsAsUnknown(t *testing.T) {
 				t.Fatalf("got %+v, want %+v", got, want)
 			}
 		})
+	}
+}
+
+func TestRefundAndShipmentWithExistingOrderAndMissingField(t *testing.T) {
+	events := []canon.Event{
+		{EventID: "e1", OccurredAtMs: 1, Type: "order.created",
+			Data: json.RawMessage(`{"order_id":"o1","lines":[{"sku":"A","qty":1,"unit_cents":100}]}`)},
+		{EventID: "e2", OccurredAtMs: 2, Type: "order.refunded", Data: json.RawMessage(`{"order_id":"o1"}`)},
+		{EventID: "e3", OccurredAtMs: 3, Type: "shipment.updated", Data: json.RawMessage(`{"order_id":"o1"}`)},
+	}
+	got, err := Fold("t_x", events, identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.EventCount != 3 || got.RefundedCents != 0 || got.OrphanRefunds != 0 || got.OrphanShipments != 0 {
+		t.Fatalf("got %+v", got)
+	}
+	if !reflect.DeepEqual(got.ShipmentStatusCounts, map[string]int64{"unfulfilled": 1}) {
+		t.Fatalf("shipment_status_counts = %v", got.ShipmentStatusCounts)
 	}
 }
 

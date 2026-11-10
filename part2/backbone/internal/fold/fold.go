@@ -83,14 +83,16 @@ type reqOrderCreated struct {
 	Lines   *[]reqLine `json:"lines"`
 }
 
+// AmountCents and Status stay raw: the reducer reads them only once the order
+// exists, so a bad value must not hide a good order_id.
 type reqOrderRefunded struct {
-	OrderID     *string `json:"order_id"`
-	AmountCents *int64  `json:"amount_cents"`
+	OrderID     *string         `json:"order_id"`
+	AmountCents json.RawMessage `json:"amount_cents"`
 }
 
 type reqShipmentUpdated struct {
-	OrderID *string `json:"order_id"`
-	Status  *string `json:"status"`
+	OrderID *string         `json:"order_id"`
+	Status  json.RawMessage `json:"status"`
 }
 
 type reqInventoryAdjusted struct {
@@ -109,10 +111,14 @@ type reqAdMetric struct {
 	Clicks      *int64  `json:"clicks"`
 }
 
-// Apply folds one event and always returns nil. A known type whose data lacks
-// a field the reducer reads, or has it with the wrong JSON type, is treated
-// like an unknown type: it is counted (with its customer) and changes nothing
-// else.
+// Apply folds one event and always returns nil. Fields are checked in the
+// order the reducer reads them, and a field the reducer never reaches is not
+// required. A known type whose data lacks a field the reducer reads, or has it
+// with the wrong JSON type, is treated like an unknown type: it is counted
+// (with its customer) and changes nothing else. For order.refunded and
+// shipment.updated, order_id is read first: a missing order is an orphan
+// whatever the other fields hold, and for an existing order a missing or
+// malformed amount_cents / status changes nothing.
 func (s *State) Apply(e canon.Event) error {
 	s.begin(e)
 	switch e.Type {
@@ -140,24 +146,34 @@ func (s *State) Apply(e canon.Event) error {
 		s.orders[*d.OrderID] = &order{gross: gross, status: "unfulfilled"}
 	case "order.refunded":
 		var d reqOrderRefunded
-		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil || d.AmountCents == nil {
+		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil {
 			return nil
 		}
-		if o, ok := s.orders[*d.OrderID]; ok {
-			o.refunded = min(o.gross, o.refunded+*d.AmountCents)
-		} else {
+		o, ok := s.orders[*d.OrderID]
+		if !ok {
 			s.orphanRefunds++
+			return nil
 		}
+		var amount *int64
+		if json.Unmarshal(d.AmountCents, &amount) != nil || amount == nil {
+			return nil
+		}
+		o.refunded = min(o.gross, o.refunded+*amount)
 	case "shipment.updated":
 		var d reqShipmentUpdated
-		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil || d.Status == nil {
+		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil {
 			return nil
 		}
-		if o, ok := s.orders[*d.OrderID]; ok {
-			o.status = *d.Status
-		} else {
+		o, ok := s.orders[*d.OrderID]
+		if !ok {
 			s.orphanShipments++
+			return nil
 		}
+		var status *string
+		if json.Unmarshal(d.Status, &status) != nil || status == nil {
+			return nil
+		}
+		o.status = *status
 	case "inventory.adjusted":
 		var d reqInventoryAdjusted
 		if json.Unmarshal(e.Data, &d) != nil || d.SKU == nil || d.Delta == nil {
