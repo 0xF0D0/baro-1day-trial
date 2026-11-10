@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"backbone/internal/canon"
+	"backbone/internal/fold"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -37,7 +38,10 @@ func eventAAD(tenantID, eventID string) []byte {
 
 // Ingest stores one event in a single READ COMMITTED transaction. It holds
 // the shared tenant-status lock, then (for customer events) the shared
-// customer lock, so erasure of either cannot interleave with the insert.
+// customer lock, so erasure of either cannot interleave with the insert,
+// and finally the shared cold-commit lock while it reads cold_until. An event
+// older than cold_until is late: it is deduplicated against its day bucket
+// and, when stored, marks the tenant dirty.
 func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestResult, error) {
 	tenant := sc.TenantID()
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
@@ -76,6 +80,39 @@ func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestRes
 		}
 	}
 
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`, lockKey("cold-commit", []byte(tenant))); err != nil {
+		return 0, fmt.Errorf("store: cold-commit lock: %w", err)
+	}
+	var coldUntil int64
+	var dirty bool
+	if err := tx.QueryRow(ctx, `SELECT cold_until, dirty FROM tenant_cold WHERE tenant_id = $1`, tenant).
+		Scan(&coldUntil, &dirty); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, ErrUnknownTenant
+		}
+		return 0, fmt.Errorf("store: read cold state: %w", err)
+	}
+	late := ev.OccurredAtMs < coldUntil
+	if late {
+		var object string
+		err := tx.QueryRow(ctx, `SELECT object FROM cold_manifest WHERE tenant_id = $1 AND day = $2`,
+			tenant, fold.Day(ev.OccurredAtMs)).Scan(&object)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return 0, fmt.Errorf("store: read cold manifest: %w", err)
+		}
+		if err == nil {
+			bucket, err := s.getBucket(ctx, sc, object)
+			if err != nil {
+				return 0, err
+			}
+			for _, b := range bucket {
+				if b.EventID == ev.EventID {
+					return Duplicate, nil
+				}
+			}
+		}
+	}
+
 	plain, err := json.Marshal(ev)
 	if err != nil {
 		return 0, fmt.Errorf("store: marshal event: %w", err)
@@ -87,6 +124,11 @@ func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestRes
 		tenant, ev.EventID, ev.OccurredAtMs, customerKey, sealed)
 	if err != nil {
 		return 0, fmt.Errorf("store: insert event: %w", err)
+	}
+	if late && tag.RowsAffected() > 0 {
+		if _, err := tx.Exec(ctx, `UPDATE tenant_cold SET dirty = true WHERE tenant_id = $1`, tenant); err != nil {
+			return 0, fmt.Errorf("store: mark dirty: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return 0, fmt.Errorf("store: ingest commit: %w", err)

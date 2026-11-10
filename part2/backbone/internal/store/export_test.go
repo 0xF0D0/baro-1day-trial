@@ -27,3 +27,22 @@ func (s *Store) PutSnapshot(ctx context.Context, sc Scope, coldUntil int64, snap
 func (s *Store) GetSnapshot(ctx context.Context, sc Scope, name string) (fold.Snapshot, error) {
 	return s.getSnapshot(ctx, sc, name)
 }
+
+// SetColdUntil sets the tenant's cold_until directly, without a flush.
+func (s *Store) SetColdUntil(ctx context.Context, tenant string, coldUntil int64) error {
+	_, err := s.pool.Exec(ctx, `UPDATE tenant_cold SET cold_until = $2 WHERE tenant_id = $1`, tenant, coldUntil)
+	return err
+}
+
+// AddManifestBucket writes a bucket with putBucket and records it in
+// cold_manifest, without a flush.
+func (s *Store) AddManifestBucket(ctx context.Context, sc Scope, day int64, events []canon.Event) error {
+	name, err := s.putBucket(ctx, sc, day, events)
+	if err != nil {
+		return err
+	}
+	_, err = s.pool.Exec(ctx,
+		`INSERT INTO cold_manifest (tenant_id, day, object, events, bytes) VALUES ($1, $2, $3, $4, 0)`,
+		sc.tenantID, day, name, len(events))
+	return err
+}
