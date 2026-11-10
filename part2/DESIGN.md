@@ -6,7 +6,7 @@ A Go service that ingests two vendors' webhooks for 200 tenants, keeps each tena
 
 | | Status |
 |---|---|
-| All five parts (ingest, tiers, reads, erasure, operations) | Built. `verify.py` passes on the supplied data at the final commit; earlier builds also passed fresh seeds 1, 2, 3, 7, 42 and 2026. |
+| All five parts (ingest, tiers, reads, erasure, operations) | Built. At the final commit `verify.py` passes on the supplied data and on a freshly generated seed (11); earlier builds also passed seeds 1, 2, 3, 7, 42 and 2026. |
 | Crash safety deep dive | Built: named crash points, a `kill -9` harness and a consistency checker. Results below. |
 | Measurements | Supplied data set only (`part2/docs/measurements.md`). Medium and large sets were not run. |
 | Other deep dives | Proposals only (last section). |
@@ -14,6 +14,8 @@ A Go service that ingests two vendors' webhooks for 200 tenants, keeps each tena
 Commands, each one line: `docker compose up`, `replay.sh`, `verify.sh`, `benchmark.sh`, `crash.sh` (see `README.md` and `RUNBOOK.md`).
 
 ## Storage and tiering
+
+**The insight that shaped cold storage.** The reducer's state is mostly counts, sums and maps keyed by order or customer, and an order belongs to one customer (our stated assumption). A folded **snapshot** therefore lets us remove a customer by subtraction instead of refolding history; `last_contact_ms` is a max, so the snapshot keeps the max per day. The only order-dependent, cross-customer part is inventory and oversold, so we keep a per-SKU movement log and refold just the SKUs a customer touched. That gives the layout below: day buckets of raw events, one snapshot per tenant, and two index tables that say which days hold a customer and which movements each SKU has. Objects are never edited in place: a change writes a new version under a new name, and one Postgres transaction switches the pointers.
 
 ```
 LB :8080 -> api nodes (2, stateless) -> Postgres (hot events, index tables, pointers, tombstones, locks)
@@ -61,45 +63,21 @@ Correctness never depends on the SPEC's 72-hour lateness or on observed delays; 
 **Scope.** Tier moves (flush) and compaction (rebuild), killed in the worker. Api, Postgres and MinIO kills are not exercised.
 
 **Evidence.**
-1. **Six named crash points**, in flush and rebuild: after the bucket write, after the snapshot write, and just before commit. `TestCrashPoints` hits each one on purpose and shows four things:
-   - nothing was committed: pointers, manifest, garbage, hot rows and index rows are unchanged;
-   - the next run completes;
-   - sweep removes the leftovers;
-   - an audit of the tenant is clean.
-2. **`crash.sh`** replays the supplied data with a 1-hour margin, 2-second flushes and 10-second sweeps. Meanwhile it `kill -9`s the worker at random and arms the crash points at a low probability. Last run:
-   - 11 kills landed on a running worker;
-   - flush crash points fired 26 times;
-   - about 40 rebuilds ran;
-   - `verify.py` passed.
-3. **A checker** compares storage with the replay's acknowledgements. Expected events are every acknowledged event minus erased customers and tenants. Stored events are hot and cold, counted per occurrence. It also checks:
-   - pointers, unreferenced objects and garbage;
-   - the index tables, rebuilt from the buckets;
-   - three tier invariants;
-   - that the served state equals a full fold.
-4. **Results.**
-   - Right after a final `kill -9`, before any repair: lost 0, duplicate 0, bad pointer 0, state, index and invariant mismatches 0. Only leftovers for sweep remained.
-   - After the settle and a grace-0 sweep: every count is 0, with expected = stored = 97,788 events.
+1. **Six named crash points** in flush and rebuild: after the bucket write, after the snapshot write, and just before commit. `TestCrashPoints` hits each one. Each time, nothing was committed, the next run completes, sweep removes the leftovers, and an audit of the tenant is clean.
+2. **`crash.sh`** replays the supplied data with a 1-hour margin, 2-second flushes and 10-second sweeps, while it `kill -9`s the worker at random and arms the crash points at a low probability. Last run on `main`: 12 kills landed on a running worker, 37 rebuilds ran, and `verify.py` passed.
+3. **A checker** compares storage with the replay's acknowledgements: every acknowledged event, minus erased customers and tenants, against hot and cold counted per occurrence. It also checks pointers, unreferenced objects, garbage, the index tables rebuilt from the buckets, three tier invariants, and the served state against a full fold.
+   - **Right after a final `kill -9`, before any repair:** lost, duplicates, bad pointers, and state, index and invariant mismatches are all 0. Only leftovers for sweep remain.
+   - **After the settle and a grace-0 sweep:** every count is 0, with expected = stored = 97,788.
 
 **Gap.** At the chaos run's probability the three rebuild crash points rarely fire, because there are about 40 rebuilds against thousands of flushes. The in-process test covers them.
 
 ## Other deep dives (proposals, not built)
 
-**Cold hydration.** A fully cold tenant's state is already one snapshot read, so the cost is a cold range scan. The plan:
-- measure per-day bucket GET, decrypt and parse times for a 1M-event tenant;
-- prefetch the next buckets of a range scan in parallel;
-- split large days into fixed-size encrypted chunks so a page reads one chunk instead of a whole day;
-- keep a small decrypted LRU of hot buckets on each api node.
+**Cold hydration.** A fully cold tenant's state is already one snapshot read, so the cost is the cold range scan. Measure bucket GET, decrypt and parse per day for a 1M-event tenant. Then prefetch the next buckets in parallel, split large days into fixed-size encrypted chunks so a page reads one chunk, and keep a small decrypted LRU of buckets on each api node.
 
-**Noisy neighbors.**
-- **Limits.** Run each service with a 1 GiB and 2-CPU limit.
-- **Fairness.** Ingest goes through a per-tenant token bucket, and Postgres connection pools are split between ingest and reads, so the largest tenant's burst cannot take every connection. The worker processes one tenant at a time with a time budget per pass, so a big rebuild yields between days.
-- **Evidence.** Plot small-tenant read p99 while the largest tenant ingests and rebuilds.
+**Noisy neighbors.** Give each service a 1 GiB and 2-CPU limit. Put a per-tenant token bucket on ingest and split the Postgres pools between ingest and reads, so one tenant's burst cannot take every connection. Have the worker take one tenant at a time with a time budget per pass, so a big rebuild yields between days. Prove it with small-tenant read p99 while the largest tenant ingests and rebuilds.
 
-**Beyond one node.**
-- **Placement.** Tenants map to shards by consistent hashing. Each shard has its own Postgres and a MinIO bucket prefix, and a small directory maps tenant to shard.
-- **Rebalancing.** Copy the tenant's cold objects and snapshot, dual-write ingest for the hot tail, then switch the directory entry in one step.
-- **Node failure mid-compaction.** This is the crash-safety rule again: an unfinished flush or rebuild leaves only unreferenced objects, and the next worker that takes the tenant's lock redoes it.
-- **Throughput.** A few thousand events per second is mostly connection count and fsync rate per shard.
+**Beyond one node.** Consistent hashing maps tenants to shards, each with its own Postgres and MinIO prefix, through a small tenant-to-shard directory. Rebalancing copies the cold objects and snapshot, dual-writes the hot tail, then switches the directory entry in one step. A node failure mid-compaction is the crash-safety rule again: an unfinished flush or rebuild leaves only unreferenced objects, and the next worker to take the tenant's lock redoes it.
 
 ## What is next
 
