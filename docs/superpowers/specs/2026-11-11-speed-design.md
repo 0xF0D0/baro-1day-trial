@@ -26,19 +26,19 @@ Nearly all of it is waiting we chose, not work.
 
 ### 2.1 Brands side by side
 
-`run.py` starts one process per brand for every collector except `07_search_interest`, which keeps one job for all
-brands: its source limits requests hard and it opens a visible window. The constant becomes
-`BRAND_SEQUENTIAL = ("07_search_interest",)`. The default of `--jobs` becomes 16.
+`run.py` starts one process per brand for every collector except two, which keep one job for all brands:
+`07_search_interest` (its source limits requests hard and it opens a visible window) and
+`01_google_ads_transparency` (its site answers HTTP 429 when pages are loaded less than 10 seconds apart, as that
+collector's research measured, so five sessions at once would run into it). The constant becomes
+`BRAND_SEQUENTIAL = ("01_google_ads_transparency", "07_search_interest")`. The default of `--jobs` becomes 16.
 
-This means several sessions on one site at once: five on Google's Ads Transparency Center, five on Meta's Ad
-Library, two on Ulta. Each brand of source 10 has its own site. The user decided this on 2026-11-11, knowing that
-Meta has shown a block page before.
+This means several sessions on one site at once: five on Meta's Ad Library, two on Ulta. Each brand of source 10
+has its own site. The user decided this on 2026-11-11, knowing that Meta has shown a block page before.
 
 ### 2.2 Shorter waits
 
 | Collector | Constant | Before | After |
 |---|---|---|---|
-| `01_google_ads_transparency` | `DETAIL_SPACING_S` | 10 | 2 |
 | `03_meta_ad_library` | `SITE_SPACING_S` | 15 | 5 |
 | `05_retail_shelf` | `ULTA_SPACING_S` | 3 | 2 |
 | `05_retail_shelf` | `APIFY_POLL_S` | 10 | 3 |
@@ -46,6 +46,9 @@ Meta has shown a block page before.
 | `04_amazon` | `POLL_S` | 10 | 3 |
 
 Inside one process a collector still sends its own requests one at a time, with the spacing above.
+
+`01_google_ads_transparency` keeps its 10 seconds between page loads: 3 seconds is known to be refused. It gets
+faster by asking for less (2.5).
 
 `04_amazon` reads the settled cost of its runs once, at the end of the brand: it waits until `CHARGE_READ_DELAY_S`
 after the last run's `finishedAt` and then reads each run once, instead of waiting after every run. The cost it
@@ -56,7 +59,7 @@ reports is the same.
 The old pace stays available, as the way back when a site objects.
 
 - A collector started with the environment variable `RADAR_CAREFUL` set to a non-empty value uses the "Before" values
-  of the four site-facing constants (`DETAIL_SPACING_S`, `SITE_SPACING_S`, `ULTA_SPACING_S`, `SPACING_S`). The two
+  of the three site-facing constants (`SITE_SPACING_S`, `ULTA_SPACING_S`, `SPACING_S`). The two
   Apify poll intervals are not affected: they do not touch a source site.
 - `run.py --careful` sets `RADAR_CAREFUL=1` for the collectors it starts and plans the jobs the old way: one job per
   brand only for `02_tiktok_ad_library`, `04_amazon`, `06_google_results`, `08_tiktok_posts`, `09_tiktok_shop`, and one
@@ -73,6 +76,15 @@ authentication error still stops the run: requests already answered before it in
 The default model stays `claude-opus-5-5`. On 12 texts the cheaper model took the same time per request and agreed
 less with the reviewed labels on the message kind (31 of 36 values against 34 of 36).
 
+### 2.5 Google ads: a detail is read once a day
+
+A pass of `01_google_ads_transparency` loaded 169 ad details for the five brands, 12 seconds each: 34 of its 35
+minutes. Nearly all of them had been read an hour before. Now an ad whose detail was fetched within the last 24
+hours (`DETAIL_REFRESH_HOURS`), according to the brand's earlier record files, is written from the list alone with
+`detail_state` `skipped_recent`. Its last detail stays in the earlier file, and the loader keeps the stored
+variation count, because the mapper only sets it from a fetched detail. A change in an ad's variations is
+therefore seen within a day instead of within an hour.
+
 ## 3. When a site blocks
 
 What exists, and stays: a collector that meets a block page, a CAPTCHA or a login wall stops there and records
@@ -80,9 +92,10 @@ What exists, and stays: a collector that meets a block page, a CAPTCHA or a logi
 
 What this adds: the way back, `--careful`, by hand.
 
+Asking for less is the first answer, and source 1 now does it (2.5).
+
 What is not built here, in the order it should be:
-1. Asking for less. Most of source 1's requests re-read ad details it already has; reading only ads not seen before
-   would cut its requests by an order of magnitude and matters more than any spacing.
+1. Asking for less in the other site-facing collectors, the same way.
 2. Backing off by itself: after a block, run that source carefully on the next passes and leave it out for some hours
    if it is blocked again.
 3. A second route for a source whose site keeps refusing: an Apify actor, as five sources already use.
@@ -93,7 +106,8 @@ fingerprint, solving CAPTCHAs). Being refused is recorded, not worked around.
 ## 4. Goals, non-goals
 
 Goals
-- A full pass in about 5 minutes, bounded by the Apify runs of source 4.
+- A full pass in about 5 minutes once the day's first pass has read the ad details, bounded by the Apify runs of
+  source 4. The first pass of a day still pays for source 1's details.
 - The old pace is one option away.
 - Nothing about what is collected or how it is recorded changes.
 
@@ -117,6 +131,8 @@ Non-goals
 3. Careful mode restores the spacing and the one-session-per-site rule together.
 4. The default label model is not changed.
 5. Label lines keep the order of the pending list, so a rerun writes the same file.
+6. Source 1's spacing was first cut to 2 seconds and then put back: the collector's own research had measured the
+   limit. Its time is cut by reading a detail once a day instead.
 
 ## 7. What is measured afterwards
 

@@ -35,9 +35,10 @@ applies them. Running it again adds no duplicates.
 |---|---|---|
 | `--brand <slug>` | only this brand | all five |
 | `--sources <list>` | only these collectors, by number or folder name: `1,5,10` | all ten |
-| `--jobs <n>` | how many collector processes at once | 8 |
+| `--jobs <n>` | how many collector processes at once | 16 |
 | `--timeout <minutes>` | stop a collector that runs longer | 60 |
 | `--no-label` | skip the label step | |
+| `--careful` | the slower pace: longer waits, and brands one after another on the sites we visit ourselves | |
 | `--collectors-dir <path>` | where the collectors are | `part1/collectors` |
 
 A cheap check: one brand, and two sources that cost nothing for it:
@@ -46,9 +47,12 @@ A cheap check: one brand, and two sources that cost nothing for it:
 
 ### What runs side by side
 
-Different collectors always do: they talk to different sites. Inside one collector, brands run one after another
-when the collector itself sends requests to the source's site (sources 1, 3, 5, 7, 10), because the rule is one
-request at a time per site. Collectors that only call the Apify API (sources 2, 4, 6, 8, 9) run one process per brand.
+Different collectors always do: they talk to different sites. Every collector also runs one process per brand,
+except sources 1 and 7, whose sites limit requests per client and so take the brands one after another. A site can
+therefore see several sessions at once (five on Meta's Ad Library, two on Ulta).
+
+When a site objects, the collector stops there and records "could not look". Run that source again at the slower
+pace: `--careful --sources 3` waits longer between requests and takes the brands one after another.
 
 ### What it prints
 

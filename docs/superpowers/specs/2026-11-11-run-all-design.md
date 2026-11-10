@@ -53,10 +53,13 @@ Brands are the slugs of `brands.json` in that directory.
 
 | Collector | Jobs | Why |
 |---|---|---|
-| `02_tiktok_ad_library`, `04_amazon`, `06_google_results`, `08_tiktok_posts`, `09_tiktok_shop` | one per brand (`--brand <slug>`) | they only call the Apify API, never the source's own site, so brands may run side by side |
-| every other collector | one (`--all`) | it sends requests to the source's site itself; the collectors' rule is one request at a time per site, so its brands run one after another inside the collector |
+| `01_google_ads_transparency`, `07_search_interest` | one (`--all`) | their sites limit requests per client, so their brands run one after another inside the collector |
+| every other collector | one per brand (`--brand <slug>`) | to finish in minutes; a site can then see several sessions at once (`2026-11-11-speed-design.md`) |
 
-The first list is a constant in `run.py` (`BRAND_PARALLEL`). A folder not in it gets one job.
+The first list is a constant in `run.py` (`BRAND_SEQUENTIAL`). With `--careful` the plan is the earlier one: one job
+per brand only for the collectors that call nothing but the Apify API (`02_tiktok_ad_library`, `04_amazon`,
+`06_google_results`, `08_tiktok_posts`, `09_tiktok_shop`) and one `--all` job for every other collector, and the
+collectors are started with `RADAR_CAREFUL=1`, which restores their earlier spacing.
 
 Different collectors always run side by side: they talk to different sites.
 
@@ -68,12 +71,12 @@ An unknown `--brand` is the same, and so is `--jobs` below 1 or `--timeout` not 
 
 ## 4. Command line
 
-    part1/run.py [--brand <slug>] [--sources <list>] [--jobs <n>] [--timeout <minutes>] [--no-label]
+    part1/run.py [--brand <slug>] [--sources <list>] [--jobs <n>] [--timeout <minutes>] [--no-label] [--careful]
                  [--collectors-dir <path>]
 
 | Option | Default |
 |---|---|
-| `--jobs` | 8 |
+| `--jobs` | 16 |
 | `--timeout` | 60 |
 | `--collectors-dir` | `part1/collectors` of this repository |
 
@@ -106,7 +109,8 @@ Non-goals
 Anti-goals
 - Hiding a failure: every job's exit, every run's status and the loader's own lines are printed, and the exit code
   says whether something failed.
-- Two requests at once to the same source site.
+- Two requests at once to the same source site from one collector process. Across brand processes it is allowed since
+  2026-11-11, and `--careful` takes it back.
 
 ## 8. Constraints carried over
 
@@ -118,7 +122,8 @@ Anti-goals
 
 ## 9. Calls made by the designer
 
-1. Brands run side by side only for collectors that call nothing but the Apify API.
+1. Brands run side by side for every collector but two (changed on 2026-11-11; before, only for collectors that call
+   nothing but the Apify API, which is what `--careful` still does).
 2. A timed-out collector is killed with its process group. It leaves no run result, so nothing is loaded for it and
    nothing is ended: the next pass looks again.
 3. The label step does not affect the exit code.
