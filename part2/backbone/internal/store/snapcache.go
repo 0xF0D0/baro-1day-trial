@@ -24,6 +24,8 @@ type snapCache struct {
 	ttl     time.Duration
 	now     func() time.Time
 	entries map[string]snapEntry
+	stop    chan struct{} // closes the janitor; nil when none runs
+	done    chan struct{}
 }
 
 func newSnapCache() *snapCache {
@@ -58,14 +60,73 @@ func (c *snapCache) drop(tenant string) {
 	c.mu.Unlock()
 }
 
+// sweep deletes every entry older than the TTL.
+func (c *snapCache) sweep() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.ttl <= 0 {
+		return
+	}
+	now := c.now()
+	for k, e := range c.entries {
+		if now.Sub(e.cachedAt) >= c.ttl {
+			delete(c.entries, k)
+		}
+	}
+}
+
+// stopJanitor stops the janitor goroutine, if any, and waits for it.
+func (c *snapCache) stopJanitor() {
+	c.mu.Lock()
+	stop, done := c.stop, c.done
+	c.stop, c.done = nil, nil
+	c.mu.Unlock()
+	if stop != nil {
+		close(stop)
+		<-done
+	}
+}
+
+func (c *snapCache) startJanitor(ttl time.Duration) {
+	every := ttl / 4
+	if every > time.Minute {
+		every = time.Minute
+	}
+	if every <= 0 {
+		every = time.Millisecond
+	}
+	stop, done := make(chan struct{}), make(chan struct{})
+	c.mu.Lock()
+	c.stop, c.done = stop, done
+	c.mu.Unlock()
+	go func() {
+		defer close(done)
+		t := time.NewTicker(every)
+		defer t.Stop()
+		for {
+			select {
+			case <-stop:
+				return
+			case <-t.C:
+				c.sweep()
+			}
+		}
+	}()
+}
+
 // SetSnapshotCacheTTL turns the snapshot cache on with the given entry
-// lifetime; 0 turns it off and empties it. Call it once after Open.
+// lifetime; 0 turns it off and empties it. A positive TTL starts a janitor
+// that deletes expired entries, replacing any earlier one; Close stops it.
 func (s *Store) SetSnapshotCacheTTL(ttl time.Duration) {
+	s.snaps.stopJanitor()
 	s.snaps.mu.Lock()
-	defer s.snaps.mu.Unlock()
 	s.snaps.ttl = ttl
 	if ttl <= 0 {
 		s.snaps.entries = map[string]snapEntry{}
+	}
+	s.snaps.mu.Unlock()
+	if ttl > 0 {
+		s.snaps.startJanitor(ttl)
 	}
 }
 

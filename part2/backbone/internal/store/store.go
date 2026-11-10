@@ -55,8 +55,11 @@ func Open(ctx context.Context, databaseURL string, kek *crypto.KEK, objects *col
 	return &Store{pool: pool, kek: kek, objects: objects, keys: map[string]*crypto.TenantKeys{}, snaps: newSnapCache()}, nil
 }
 
-// Close releases the pool.
-func (s *Store) Close() { s.pool.Close() }
+// Close stops the snapshot cache janitor and releases the pool.
+func (s *Store) Close() {
+	s.snaps.stopJanitor()
+	s.pool.Close()
+}
 
 // Ping checks that the database is reachable.
 func (s *Store) Ping(ctx context.Context) error { return s.pool.Ping(ctx) }

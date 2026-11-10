@@ -149,3 +149,40 @@ func TestEraseTenantDropsCacheEntry(t *testing.T) {
 		t.Fatal("entry kept after tenant erasure")
 	}
 }
+
+func TestJanitorRemovesExpiredEntryWithoutReads(t *testing.T) {
+	st, sc, events, _ := setupT18(t, 40)
+	st.SetSnapshotCacheTTL(time.Hour)
+	now := time.Now()
+	st.SetSnapCacheClock(func() time.Time { return now })
+	assertStateEqualsFold(t, st, sc, events)
+	if !st.SnapCacheHas("t_1") {
+		t.Fatal("no entry after a cold read")
+	}
+	now = now.Add(30 * time.Minute)
+	st.SnapCacheSweepOnce()
+	if !st.SnapCacheHas("t_1") {
+		t.Fatal("entry younger than the ttl was removed")
+	}
+	now = now.Add(31 * time.Minute)
+	st.SnapCacheSweepOnce() // no read in between
+	if st.SnapCacheHas("t_1") {
+		t.Fatal("entry older than the ttl survived the janitor pass")
+	}
+}
+
+func TestEraseCustomerDropsCacheEntry(t *testing.T) {
+	st, sc, events, cu := setupT18(t, 40)
+	st.SetSnapshotCacheTTL(time.Hour)
+	assertStateEqualsFold(t, st, sc, events)
+	if !st.SnapCacheHas("t_1") {
+		t.Fatal("no entry after a cold read")
+	}
+	cust := pickCustomer(t, events, cu, "cold")
+	if err := st.EraseCustomer(context.Background(), sc, cust); err != nil {
+		t.Fatal(err)
+	}
+	if st.SnapCacheHas("t_1") {
+		t.Fatal("entry kept after customer erasure")
+	}
+}

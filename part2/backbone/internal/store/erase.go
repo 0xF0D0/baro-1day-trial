@@ -14,17 +14,18 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// forgetKeys drops the tenant's cached keys.
+// forgetKeys drops the tenant's cached keys and cached snapshot, so that no
+// path that forgets an erased tenant's keys leaves decrypted data in memory.
 func (s *Store) forgetKeys(tenantID string) {
 	s.mu.Lock()
 	delete(s.keys, tenantID)
 	s.mu.Unlock()
+	s.snaps.drop(tenantID)
 }
 
 // forgetTenant drops everything cached for an erased tenant.
 func (s *Store) forgetTenant(tenantID string) {
 	s.forgetKeys(tenantID)
-	s.snaps.drop(tenantID)
 }
 
 // EraseCustomer removes every hot event of the customer and leaves a done
@@ -35,6 +36,7 @@ func (s *Store) EraseCustomer(ctx context.Context, sc Scope, customerID string) 
 	start := time.Now()
 	err := s.eraseCustomer(ctx, sc, customerID)
 	if err == nil {
+		s.snaps.drop(sc.TenantID())
 		metrics.ErasureSeconds.WithLabelValues("customer").Observe(time.Since(start).Seconds())
 	}
 	return err

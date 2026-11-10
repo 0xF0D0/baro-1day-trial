@@ -86,3 +86,6 @@ func (s *Store) FinishErasure(ctx context.Context, sc Scope, customerKey []byte)
 // SetRebuildAfterRead installs a hook that Rebuild calls after reading the late
 // rows and before writing objects. Pass nil to remove it.
 func SetRebuildAfterRead(f func()) { rebuildAfterRead = f }
+
+// SnapCacheSweepOnce runs one janitor pass synchronously.
+func (s *Store) SnapCacheSweepOnce() { s.snaps.sweep() }
