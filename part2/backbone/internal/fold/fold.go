@@ -4,7 +4,6 @@ package fold
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"backbone/internal/canon"
 )
@@ -71,87 +70,121 @@ func New(tenantID string, customerKey func(customerID string) string) *State {
 	}
 }
 
-func decode(e canon.Event, v any) error {
-	if err := json.Unmarshal(e.Data, v); err != nil {
-		return fmt.Errorf("fold: event %s (%s): %w", e.EventID, e.Type, err)
-	}
-	return nil
+// The req* types decode only the fields the reference reducer reads. Pointer
+// fields make a missing or null field distinguishable from a zero value.
+type reqLine struct {
+	SKU       *string `json:"sku"`
+	Qty       *int64  `json:"qty"`
+	UnitCents *int64  `json:"unit_cents"`
 }
 
-// Apply folds one event. It fails only when a known type's data cannot be decoded.
+type reqOrderCreated struct {
+	OrderID *string    `json:"order_id"`
+	Lines   *[]reqLine `json:"lines"`
+}
+
+type reqOrderRefunded struct {
+	OrderID     *string `json:"order_id"`
+	AmountCents *int64  `json:"amount_cents"`
+}
+
+type reqShipmentUpdated struct {
+	OrderID *string `json:"order_id"`
+	Status  *string `json:"status"`
+}
+
+type reqInventoryAdjusted struct {
+	SKU   *string `json:"sku"`
+	Delta *int64  `json:"delta"`
+}
+
+type reqMessageReceived struct {
+	Channel *string `json:"channel"`
+}
+
+type reqAdMetric struct {
+	CampaignID  *string `json:"campaign_id"`
+	SpendCents  *int64  `json:"spend_cents"`
+	Impressions *int64  `json:"impressions"`
+	Clicks      *int64  `json:"clicks"`
+}
+
+// Apply folds one event and always returns nil. A known type whose data lacks
+// a field the reducer reads, or has it with the wrong JSON type, is treated
+// like an unknown type: it is counted (with its customer) and changes nothing
+// else.
 func (s *State) Apply(e canon.Event) error {
+	s.begin(e)
 	switch e.Type {
 	case "order.created":
-		var d canon.OrderCreated
-		if err := decode(e, &d); err != nil {
-			return err
+		var d reqOrderCreated
+		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil || d.Lines == nil {
+			return nil
 		}
-		s.begin(e)
-		if _, ok := s.orders[d.OrderID]; ok {
+		for _, l := range *d.Lines {
+			if l.SKU == nil || l.Qty == nil || l.UnitCents == nil {
+				return nil
+			}
+		}
+		if _, ok := s.orders[*d.OrderID]; ok {
 			return nil
 		}
 		var gross int64
-		for _, l := range d.Lines {
-			gross += l.Qty * l.UnitCents
-			have := s.inventory[l.SKU]
-			take := min(have, l.Qty)
-			s.inventory[l.SKU] = have - take
-			s.oversold += l.Qty - take
+		for _, l := range *d.Lines {
+			gross += *l.Qty * *l.UnitCents
+			have := s.inventory[*l.SKU]
+			take := min(have, *l.Qty)
+			s.inventory[*l.SKU] = have - take
+			s.oversold += *l.Qty - take
 		}
-		s.orders[d.OrderID] = &order{gross: gross, status: "unfulfilled"}
+		s.orders[*d.OrderID] = &order{gross: gross, status: "unfulfilled"}
 	case "order.refunded":
-		var d canon.OrderRefunded
-		if err := decode(e, &d); err != nil {
-			return err
+		var d reqOrderRefunded
+		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil || d.AmountCents == nil {
+			return nil
 		}
-		s.begin(e)
-		if o, ok := s.orders[d.OrderID]; ok {
-			o.refunded = min(o.gross, o.refunded+d.AmountCents)
+		if o, ok := s.orders[*d.OrderID]; ok {
+			o.refunded = min(o.gross, o.refunded+*d.AmountCents)
 		} else {
 			s.orphanRefunds++
 		}
 	case "shipment.updated":
-		var d canon.ShipmentUpdated
-		if err := decode(e, &d); err != nil {
-			return err
+		var d reqShipmentUpdated
+		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil || d.Status == nil {
+			return nil
 		}
-		s.begin(e)
-		if o, ok := s.orders[d.OrderID]; ok {
-			o.status = d.Status
+		if o, ok := s.orders[*d.OrderID]; ok {
+			o.status = *d.Status
 		} else {
 			s.orphanShipments++
 		}
 	case "inventory.adjusted":
-		var d canon.InventoryAdjusted
-		if err := decode(e, &d); err != nil {
-			return err
+		var d reqInventoryAdjusted
+		if json.Unmarshal(e.Data, &d) != nil || d.SKU == nil || d.Delta == nil {
+			return nil
 		}
-		s.begin(e)
-		s.inventory[d.SKU] = max(0, s.inventory[d.SKU]+d.Delta)
+		s.inventory[*d.SKU] = max(0, s.inventory[*d.SKU]+*d.Delta)
 	case "message.received":
-		var d canon.MessageReceived
-		if err := decode(e, &d); err != nil {
-			return err
+		var d reqMessageReceived
+		if json.Unmarshal(e.Data, &d) != nil || d.Channel == nil {
+			return nil
 		}
-		s.begin(e)
-		s.messages[d.Channel]++
+		s.messages[*d.Channel]++
 		if s.lastContact == nil || e.OccurredAtMs > *s.lastContact {
 			t := e.OccurredAtMs
 			s.lastContact = &t
 		}
 	case "ad.metric":
-		var d canon.AdMetric
-		if err := decode(e, &d); err != nil {
-			return err
+		var d reqAdMetric
+		if json.Unmarshal(e.Data, &d) != nil || d.CampaignID == nil || d.SpendCents == nil ||
+			d.Impressions == nil || d.Clicks == nil {
+			return nil
 		}
-		s.begin(e)
-		c := s.campaigns[d.CampaignID]
-		c.SpendCents += d.SpendCents
-		c.Impressions += d.Impressions
-		c.Clicks += d.Clicks
-		s.campaigns[d.CampaignID] = c
-	default:
-		s.begin(e)
+		c := s.campaigns[*d.CampaignID]
+		c.SpendCents += *d.SpendCents
+		c.Impressions += *d.Impressions
+		c.Clicks += *d.Clicks
+		s.campaigns[*d.CampaignID] = c
 	}
 	return nil
 }

@@ -159,9 +159,48 @@ func TestEmptyResultShape(t *testing.T) {
 	}
 }
 
-func TestBadKnownDataIsError(t *testing.T) {
-	e := canon.Event{EventID: "e1", Type: "order.created", Data: json.RawMessage(`{"lines":"x"}`)}
-	if _, err := Fold("t", []canon.Event{e}, identity); err == nil {
-		t.Fatal("want error")
+func TestUnreadableKnownTypeCountsAsUnknown(t *testing.T) {
+	cases := []struct{ name, typ, data string }{
+		{"order without lines", "order.created", `{"order_id":"o1"}`},
+		{"order lines object", "order.created", `{"order_id":"o1","lines":{"sku":"a"}}`},
+		{"order line missing qty", "order.created", `{"order_id":"o1","lines":[{"sku":"a","unit_cents":5}]}`},
+		{"refund without amount", "order.refunded", `{"order_id":"o1"}`},
+		{"shipment without status", "shipment.updated", `{"order_id":"o1"}`},
+		{"inventory delta string", "inventory.adjusted", `{"sku":"a","delta":"3"}`},
+		{"message without channel", "message.received", `{"from":"x"}`},
+		{"ad without clicks", "ad.metric", `{"campaign_id":"c","spend_cents":1,"impressions":2}`},
+	}
+	want, err := Fold("t_x", nil, identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want.EventCount, want.CustomerCount = 1, 1
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cus := "cus_1"
+			e := canon.Event{EventID: "e1", Type: c.typ, CustomerID: &cus, Data: json.RawMessage(c.data)}
+			got, err := Fold("t_x", []canon.Event{e}, identity)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(got, want) {
+				t.Fatalf("got %+v, want %+v", got, want)
+			}
+		})
+	}
+}
+
+func TestWellFormedCrossVendorEventApplies(t *testing.T) {
+	events := []canon.Event{
+		{EventID: "e1", OccurredAtMs: 1, Type: "order.created", Data: json.RawMessage(`{"order_id":"o1","lines":[]}`)},
+		{EventID: "e2", OccurredAtMs: 2, Type: "shipment.updated",
+			Data: json.RawMessage(`{"order_id":"o1","status":"shipped","carrier":"x","note":"y"}`)},
+	}
+	got, err := Fold("t_x", events, identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got.ShipmentStatusCounts, map[string]int64{"shipped": 1}) {
+		t.Fatalf("shipment_status_counts = %v", got.ShipmentStatusCounts)
 	}
 }
