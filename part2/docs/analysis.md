@@ -1,171 +1,172 @@
-# Part 2 Brand Data Backbone 분석
+# Part 2 Brand Data Backbone: Analysis
 
-- 분석일: 2026-11-10
-- 자료: 과제 PDF 3~4쪽, 제공 폴더 `infrastructure/`(README, SPEC.md, 스크립트 4개, 데이터). 이 폴더는 아직 저장소에 넣지 않았다. 아래에서는 그 위치를 `$INFRA`로 쓴다.
-- 방법: 문서와 스크립트를 모두 읽었다. 그다음 SPEC을 그대로 옮긴 인메모리 oracle(`part2/analysis/oracle.py`)로 기대값을 재현했다. 실행 환경은 Apple M2 Pro, Python 3.14.2.
+- Date: 2026-11-10
+- Sources: the brief (PDF pages 3 and 4) and the supplied `infrastructure/` folder (README, SPEC.md, four scripts, data). That folder is not in this repository yet; below, its location is written as `$INFRA`.
+- Method: read every document and script, then reproduce the expected values with an in-memory oracle that implements the SPEC as written (`part2/analysis/oracle.py`). Machine: Apple M2 Pro, Python 3.14.2.
+- Status: §8 and §9 were a first design direction written before the design discussion. The decisions that followed are in `docs/superpowers/specs/2026-11-10-part2-brand-data-backbone-design.md`, which supersedes them.
 
-## 1. 요약
+## 1. Summary
 
-1. **SPEC만으로 정답이 완전히 정해진다.** oracle은 제공 데이터와 새로 만든 seed 7 데이터 모두에서 상태 200/200, 범위 조회 48/48이 일치했고 웹훅 응답 판정도 0건 어긋났다. 명세 밖에 숨은 규칙은 없고, 정규화 표와 예시 파일도 서로 어긋나지 않는다.
-2. 어려운 부분은 정답을 내는 로직이 아니다. 그 정답을 **내구성, 티어링, 암호화, 삭제, 격리를 지키면서** 내는 것이 어렵다.
-3. 설계를 바꾸는 함정이 6개 있다(§5): 72시간을 넘는 재전송, 소급 삭제, 순서에 의존하는 fold, 정렬 collation, 시뮬레이션 시계, 삭제된 테넌트의 응답 코드.
-4. 후속 변경 요청의 흔적이 있다(§6). 원본 이벤트를 바꾸지 않고 보관해야 하고, reducer 버전을 관리해야 한다.
-5. Deep dive는 **Crash safety**를 추천한다(§7).
+1. **The SPEC alone fully determines the answer.** On the supplied data and on freshly generated seed 7 data, the oracle matched 200/200 states and 48/48 range reads, with 0 mismatched webhook response decisions. There are no hidden rules outside the specification, and the normalization table agrees with the example file.
+2. The hard part is not the logic that produces the answer. It is producing that answer **while keeping durability, tiering, encryption, erasure and isolation correct**.
+3. Six traps change the design (§5): redeliveries past 72 hours, retroactive erasure, an order-dependent fold, sort collation, a simulated clock, and response codes for erased tenants.
+4. There are signs of a follow-up change request (§6). Raw events must be kept unchanged and the reducer version must be tracked.
+5. Recommended deep dive: **crash safety** (§7).
 
-## 2. 요구사항
+## 2. Requirements
 
-### 시스템 5개 파트
+### The five parts of the system
 
-| 파트 | 요구 | 확인 수단 |
+| Part | Requirement | How it is checked |
 |---|---|---|
-| 1. 수신 | 벤더 2종의 형식과 서명. 이벤트마다 테넌트 1개로 해석하거나 거부. 중복, 지연, 위조 처리. 내구 저장 후에만 ack, crash가 나도 ack된 이벤트는 유실 금지 | verify.py 1번(응답 코드) |
-| 2. 티어 저장 | hot과 S3 호환 cold(MinIO 가능). 내리고 다시 올리는 방식을 직접 선택. payload를 테넌트별 키로 암호화 | 설계와 측정(verify.py 범위 밖) |
-| 3. 조회 | 현재 상태, 두 티어에 걸친 시간 범위 조회((occurred_at_ms, event_id) 순서, 페이지네이션). 다른 테넌트 접근은 필터가 아니라 구조로 막기 | verify.py 2, 4, 5번 |
-| 4. 삭제 | 고객 또는 테넌트를 모든 티어와 파생 상태에서 지우기. 이후 이벤트가 되살리지 못하게. customer_id는 암호화된 payload 안에만 둔다. 물리 삭제 보장 시간 명시 | verify.py 2, 3번과 설계 |
-| 5. 운영 | 보고하는 숫자는 Prometheus 메트릭으로 노출. 1쪽 runbook(기동, 모니터링, 복구) | 설계와 측정 |
+| 1. Ingest | Two vendor formats and signatures. Resolve each event to exactly one tenant or reject it. Handle duplicates, late arrivals and forgeries. Acknowledge only after durable storage; a crash must never lose an acknowledged event | verify.py check 1 (response codes) |
+| 2. Tiered storage | Hot plus S3-compatible cold (MinIO is fine). Choose how data moves down and back up. Encrypt payloads with a per-tenant key | Design and measurements (outside verify.py) |
+| 3. Reads | Current state, and time-range reads across both tiers (ordered by `(occurred_at_ms, event_id)`, paginated). Block access to other tenants by structure, not by filtering | verify.py checks 2, 4, 5 |
+| 4. Erasure | Erase a customer or a tenant from every tier and every derived state, and keep later events from bringing it back. Keep `customer_id` only inside the encrypted payload. State a time bound for physical removal | verify.py checks 2, 3, and the design |
+| 5. Operations | Expose reported numbers as Prometheus metrics. A one-page runbook (start, monitor, recover) | Design and measurements |
 
-### Deep dive: 하나를 고르고 나머지는 한 문단씩
+### Deep dive: pick one, one paragraph for each of the others
 
-- **Cold hydration**: 완전히 cold인 테넌트(large 데이터에서 약 100만 이벤트)를 빨리 읽히게 하고 시간이 어디서 드는지 잰다.
-- **Crash safety**: 압축과 티어 이동 중에 `kill -9`를 걸어도 ack된 이벤트 유실, 중복, 반쯤 쓴 상태가 없음을 장애 주입 스크립트로 보인다.
-- **Noisy neighbors**: 메모리 1 GiB, CPU 2개 제한에서 가장 큰 테넌트를 수신하고 압축하는 동안 작은 테넌트의 읽기가 굶지 않음을 숫자로 보인다.
-- **Beyond one node**: 테넌트 1,000개, 초당 수천 이벤트를 전제로 샤드 배치, 리밸런싱, 압축 중 노드 장애를 설계하고 가능한 만큼 프로토타입한다.
+- **Cold hydration**: make a fully cold tenant (about 1 million events in the large data set) fast to read, and measure where the time goes.
+- **Crash safety**: show with a fault-injection script that `kill -9` during compaction and tier moves never loses an acknowledged event, never duplicates one, and never leaves a half-written state.
+- **Noisy neighbors**: show with numbers that, under a 1 GiB memory and 2 CPU limit, small tenants' reads are not starved while the largest tenant is ingesting and compacting.
+- **Beyond one node**: for 1,000 tenants and thousands of events per second, design shard placement, rebalancing and node failure during compaction, and prototype as much as possible.
 
-### 제출물
+### Deliverables
 
-- 설계 문서 최대 3쪽: 저장과 티어링, 지연 이벤트 정확성, 테넌트 격리, 삭제, 선택한 deep dive. 고르지 않은 deep dive는 각각 한 문단.
-- 구현했다면: `docker compose up`, replay·verify·benchmark를 각각 명령 하나로. 1쪽 runbook. 측정치(ingest 처리량, hot과 cold 읽기 지연, 티어별 이벤트당 바이트, 최대 메모리)와 측정 방법.
-- 설계만 했거나 일부만 구현했다면 구현된 동작과 실측값을 제안이나 계획과 분리해서 적는다.
-- 새 seed 데이터로 다시 돌릴 수 있다. 테넌트 파일 경로를 설정할 수 있어야 하고, 빈 저장소에서 시작해야 하며, 테넌트나 비밀값을 코드에 박으면 안 된다.
+- A design document of at most 3 pages: storage and tiering, late-event correctness, tenant isolation, erasure, the chosen deep dive. One paragraph for each deep dive not chosen.
+- If implemented: `docker compose up`, and replay, verify and benchmark as one command each. A one-page runbook. Measurements (ingest throughput, hot and cold read latency, bytes per event per tier, peak memory) and how they were taken.
+- If only designed or partly implemented: keep built behavior and measured numbers separate from proposals and plans.
+- It can be re-run with a new seed. The tenants file path must be configurable, it must start from empty storage, and tenants or secrets must not be hard-coded.
 
-## 3. 제공 자료
+## 3. Supplied material
 
-| 파일 | 내용 |
+| File | Contents |
 |---|---|
-| `SPEC.md` | 웹훅 형식, 서명, 정규화 표, 조회와 삭제 API |
-| `reducer.py` | `fold(tenant_id, events)`. 출력이 곧 정답 상태. 정수만 사용 |
-| `replay.py` | 전달 파일을 동시성 8로 재전송. 5xx와 연결 오류는 재시도하고 4xx는 재시도하지 않음. 삭제 요청 전에는 진행 중인 웹훅을 모두 기다림 |
-| `verify.py` | 응답 코드, 테넌트별 상태 hash, 삭제된 테넌트, 격리(무작위 25쌍), 범위 조회(event_id 목록 hash) 검사 |
-| `generate.py` | 결정적 생성기. `--seed`, `--scale small/medium/large`(약 13만, 130만, 650만 이벤트), `--cr-out` |
-| `data/tenants.json` | 테넌트 200개, api_token, 벤더별 계정과 서명 비밀, admin_token |
-| `data/deliveries.jsonl.gz` | 전달 100,560건 |
-| `data/expected/v1.json`, `ranges.json` | 상태 hash, 위조 seq 목록, lenient seq 목록, 범위 조회 48개 |
+| `SPEC.md` | Webhook formats, signatures, normalization table, read and erasure APIs |
+| `reducer.py` | `fold(tenant_id, events)`. Its output is the correct state. Integers only |
+| `replay.py` | Re-sends the delivery file with concurrency 8. Retries 5xx and connection errors, never 4xx. Waits for all in-flight webhooks before each erasure request |
+| `verify.py` | Checks response codes, per-tenant state hashes, erased tenants, isolation (25 random pairs) and range reads (hash of the event_id list) |
+| `generate.py` | Deterministic generator. `--seed`, `--scale small/medium/large` (about 130 thousand, 1.3 million, 6.5 million events), `--cr-out` |
+| `data/tenants.json` | 200 tenants, api_token, per-vendor accounts and signing secrets, admin_token |
+| `data/deliveries.jsonl.gz` | 100,560 deliveries |
+| `data/expected/v1.json`, `ranges.json` | State hashes, forged seq list, lenient seq list, 48 range reads |
 
-## 4. 데이터 사실(제공 데이터, small, seed 20261104)
+## 4. Data facts (supplied data, small, seed 20261104)
 
-| 항목 | 값 | 설계에 주는 의미 |
+| Item | Value | What it means for the design |
 |---|---|---|
-| 전달 | 100,560건: 웹훅 100,489(A 25,398, B 75,091), 고객 삭제 69, 테넌트 삭제 2 | |
-| 이벤트 | 고유 98,561건, 삭제 반영 후 보관 97,901건 | |
-| 중복 | 1,928개 이벤트가 정확히 2번씩. 본문은 항상 같고, 507건은 헤더가 다름(벤더 A의 `t`) | dedupe 키는 event_id. 서명 헤더는 무시 |
-| 위조 | 355건. 절반은 무작위 키, 절반은 **다음 테넌트의 진짜 키**로 서명 | 테넌트는 account나 shop_domain으로만 고르고, 그 테넌트의 키로 검증 |
-| 타입 | shipment.updated 50,791, order.created 17,800, inventory.adjusted 15,601, message.received 7,812, ads.metric 6,632, charge.refunded 966, **shipment.patch 887** | shipment.patch는 SPEC 표에 없는 unknown 타입 |
-| 크기 | 본문 216~472 B(평균 318), canonical JSON 평균 268 B | |
-| 테넌트 크기 | 1/(i+1)^1.1 분포. t_0000 20,631, t_0001 9,669, t_0002 6,218, 가장 작은 테넌트는 50건 안팎 | large에서는 t_0000이 약 100만 |
-| 도착 지연(첫 전달) | p50 5분, p96 10분, p99 23시간, 최대 71.9시간 | |
-| 순서 뒤바뀜 | 10,920건(11%)이 그 테넌트에서 이미 본 최대 발생 시각보다 이른 이벤트. 최대 71.6시간 앞섬 | §5.3 |
-| 재전송 지연 | 발생 후 최대 76.0시간, 72시간 초과 1건(seed 7은 75.8시간, 3건) | §5.1 |
-| 고객 삭제 | 23개 테넌트 × 3명. 요청 이전에 저장된 172건을 소급 제거, 요청 이후 도착한 110건 차단 | §5.2 |
-| 테넌트 삭제 | t_0166, t_0189. 삭제 이후 도착한 진짜 전달 25건(`lenient_seqs`) | §5.6 |
-| 시간축 | 이벤트 발생 2026-07-01부터 cutoff 2026-09-29까지(90일). 생성기는 120일치를 만들고 90일 이후 전달은 `--cr-out` 스트림으로 분리 | §5.5, §6 |
+| Deliveries | 100,560: 100,489 webhooks (A 25,398, B 75,091), 69 customer erasures, 2 tenant erasures | |
+| Events | 98,561 unique, 97,901 retained after erasure | |
+| Duplicates | 1,928 events delivered exactly twice. Bodies always identical; 507 have a different header (vendor A's `t`) | Deduplicate on event_id. Ignore the signature header |
+| Forgeries | 355. Half signed with a random key, half with **the next tenant's real key** | Pick the tenant only by account or shop_domain, and verify with that tenant's key |
+| Types | shipment.updated 50,791, order.created 17,800, inventory.adjusted 15,601, message.received 7,812, ads.metric 6,632, charge.refunded 966, **shipment.patch 887** | shipment.patch is an unknown type, not in the SPEC table |
+| Sizes | Bodies 216 to 472 B (mean 318), canonical JSON mean 268 B | |
+| Tenant sizes | Distributed as 1/(i+1)^1.1. t_0000 20,631, t_0001 9,669, t_0002 6,218, smallest tenants about 50 | In the large set t_0000 has about 1 million |
+| Arrival delay (first delivery) | p50 5 min, p96 10 min, p99 23 h, max 71.9 h | |
+| Out of order | 10,920 events (11%) arrive earlier in time than the latest event already seen for that tenant, by up to 71.6 h | §5.3 |
+| Redelivery delay | Up to 76.0 h after the event, 1 beyond 72 h (seed 7: 75.8 h, 3 beyond) | §5.1 |
+| Customer erasure | 23 tenants × 3 customers. 172 events stored before the request are removed retroactively; 110 arriving after it are blocked | §5.2 |
+| Tenant erasure | t_0166, t_0189. 25 genuine deliveries arrive after the erasure (`lenient_seqs`) | §5.6 |
+| Time span | Events from 2026-07-01 to the cutoff 2026-09-29 (90 days). The generator makes 120 days and splits deliveries after day 90 into the `--cr-out` stream | §5.5, §6 |
 
-seed 7(small): 전달 100,238건, 위조 350건. CR 스트림은 33,203건(위조 129, lenient 40)이고 seq가 0부터 다시 시작한다.
+Seed 7 (small): 100,238 deliveries, 350 forgeries. The CR stream has 33,203 deliveries (129 forgeries, 40 lenient), and its seq numbers restart at 0.
 
-## 5. 설계를 바꾸는 함정
+## 5. Traps that change the design
 
-### 5.1 재전송은 72시간 경계를 넘는다
-SPEC의 "late arrivals up to 72 hours"는 첫 전달 기준이다. generate.py는 중복 사본을 첫 전달 뒤 최대 6시간 안에 다시 보낸다(`at + randint(1000, 6 * HOUR)`). 그래서 재전송은 발생 후 최대 78시간 뒤에 올 수 있다.
-- 영향: dedupe 인덱스를 hot 구간에만 두면 cold로 내려간 이벤트의 늦은 재전송이 새 이벤트로 들어가 두 번 집계된다.
-- 대응: dedupe는 보관 중인 모든 이벤트를 덮어야 한다. (tenant, event_id) 인덱스를 영구로 두거나, cold 세그먼트의 event_id 필터까지 확인한다. 실제 벤더는 상한이 더 길 수 있으므로 상한 값에 기대지 않는다.
+### 5.1 Redeliveries cross the 72-hour line
+The SPEC's "late arrivals up to 72 hours" is about first deliveries. generate.py re-sends duplicates up to 6 hours after the first delivery (`at + randint(1000, 6 * HOUR)`), so a redelivery can arrive up to 78 hours after the event.
+- Impact: if the dedupe index covers only the hot window, a late redelivery of an event already moved to cold comes in as a new event and is counted twice.
+- Response: deduplication must cover every retained event. Keep a permanent (tenant, event_id) index, or also check cold segments' event_id filters. Real vendors may have a longer limit, so do not rely on the bound.
 
-### 5.2 삭제는 소급된다
-기대 상태는 "삭제된 고객의 이벤트를 모두 뺀 집합"을 fold한 값이다. 삭제 요청 이전 이벤트도 상태에서 빠져야 한다(172건).
-- 고객 삭제 후 그 테넌트 상태는 처음부터 다시 fold한다. 그 시점 이전 스냅샷도 무효다.
-- 이후 도착분(110건)은 tombstone으로 막는다. customer_id를 평문으로 둘 수 없으므로 tombstone과 조회 키는 테넌트 키로 만든 keyed hash(HMAC)로 둔다.
+### 5.2 Erasure is retroactive
+The expected state is the fold over "all events minus the erased customers' events". Events from before the erasure request must also leave the state (172 events).
+- After a customer erasure, the tenant's state is folded again from scratch. Snapshots from before that point are invalid too.
+- Later arrivals (110 events) are blocked by a tombstone. `customer_id` cannot be kept in plaintext, so tombstones and lookup keys are keyed hashes (HMAC) made with the tenant key.
 
-### 5.3 fold는 순서에 의존한다
-재고는 0 아래로 내려가지 않고 부족분은 oversold_units로 간다. 같은 order_id는 첫 order.created만 인정한다. 배송 상태는 마지막 값이 남고, 환불은 총액에서 잘린다. 그래서 이벤트를 도착 순으로 하나씩 더할 수 없고, 11%가 순서가 뒤바뀌어 온다.
-- 선택지 A: 읽을 때 전체를 fold하고 쓰기가 생기면 캐시를 무효화한다. 가장 단순하고 확실하다.
-- 선택지 B: 확정 구간 스냅샷에 꼬리만 다시 fold한다. 첫 전달은 72시간을 넘지 않으므로(측정 최대 71.6시간) 테넌트별 watermark W = (지금까지 본 최대 발생 시각 − 72시간 − 여유) 이전은 확정이다. 상태 = fold(W 시점 스냅샷, W 이후 이벤트). W 이전에 새 이벤트가 오면 규칙 위반이므로 스냅샷을 버리고 전체를 다시 fold하고 메트릭으로 센다.
-- 포팅 주의: reducer는 `customers.add`를 타입 분기보다 먼저 실행한다. 그래서 중복 order.created와 unknown 타입의 customer_id도 고객 수에 들어간다. 스냅샷에는 customer_id 집합이 들어가므로 스냅샷도 암호화한다. 포팅한 fold는 reducer.fold와 hash를 비교하는 테스트로 묶는다.
+### 5.3 The fold depends on order
+Inventory never goes below zero and the shortfall goes to `oversold_units`. For each order_id only the first order.created counts. The last shipment status wins, and refunds are capped at the gross amount. So events cannot be added one by one in arrival order, and 11% arrive out of order.
+- Option A: fold everything at read time and invalidate a cache on writes. Simplest and safest.
+- Option B: keep a snapshot of a settled range and refold only the tail. First deliveries are never more than 72 hours late (measured max 71.6 h), so everything before a per-tenant watermark W = (latest event time seen − 72 h − margin) is settled. State = fold(snapshot at W, events after W). A new event before W breaks the rule: drop the snapshot, refold everything, and count it in a metric.
+- Porting note: the reducer runs `customers.add` before branching on type. So duplicate order.created events and unknown types still count toward the customer count. The snapshot contains the customer_id set, so the snapshot is encrypted too. The ported fold is tested by comparing hashes with reducer.fold.
 
-### 5.4 정렬은 코드포인트 순서다
-event_id에는 `evt_…`(A)와 UUID(B)가 섞여 있고 reducer는 파이썬 문자열 비교로 정렬한다. Postgres 기본 collation(en_US.UTF-8 등)은 `_`와 `-`를 다르게 다뤄 순서가 달라질 수 있다. `COLLATE "C"`나 bytea를 쓴다. 범위 조회 검사(`ids_sha256`)는 개수뿐 아니라 순서까지 비교한다.
+### 5.4 Sorting is by code point
+event_ids mix `evt_…` (A) and UUIDs (B), and the reducer sorts with Python string comparison. Postgres's default collation (en_US.UTF-8 and the like) treats `_` and `-` differently and can change the order. Use `COLLATE "C"` or bytea. The range-read check (`ids_sha256`) compares order, not just counts.
 
-### 5.5 시계는 시뮬레이션이다
-이벤트 시각은 2026년 7~9월이고 실제 시각은 2026년 11월이다. 벽시계 기준으로 "최근 N일은 hot"이라고 정하면 모든 데이터가 즉시 cold가 된다. SPEC도 서명 timestamp 허용 오차를 두지 말라고 한다.
-- 티어링, watermark, 물리 삭제 주기는 테넌트별 이벤트 시각을 기준으로 정한다.
-- 시계는 주입할 수 있게 만든다. 운영에서는 벽시계, 재현에서는 이벤트 시각을 쓴다.
+### 5.5 The clock is simulated
+Event times are July to September 2026, while the real date is November 2026. A wall-clock rule such as "the last N days are hot" would send all data to cold at once. The SPEC also says not to enforce a signature timestamp tolerance.
+- Base tiering, watermarks and physical-removal cycles on each tenant's event time.
+- Make the clock injectable: the wall clock in production, event time in replay.
 
-### 5.6 삭제된 테넌트의 응답 코드
-- verify.py는 삭제된 테넌트를 **그 테넌트 자신의 토큰**으로 읽고 404나 410만 통과시킨다. 토큰 목록에서 지워서 401을 주면 실패한다.
-- 삭제 이후 진짜 전달은 2xx, 404, 410만 허용된다(401은 안 됨). 위조 전달은 여전히 4xx여야 한다. 그러니 서명 비밀(설정 파일 출처)은 데이터 키 파기와 별개로 남겨 두고, 서명 검증 다음에 삭제 여부를 본다.
-- 격리 검사는 401, 403, 404만 허용한다(410은 안 됨). 토큰과 경로의 테넌트가 다르면 삭제 여부를 보기 전에 404를 준다.
+### 5.6 Response codes for erased tenants
+- verify.py reads an erased tenant **with that tenant's own token** and accepts only 404 or 410. Removing the token and answering 401 fails.
+- Genuine deliveries after erasure may get only 2xx, 404 or 410 (not 401). Forged deliveries must still get 4xx. So the signing secrets (from the configuration file) stay apart from destroying the data key, and the erased check comes after signature verification.
+- The isolation check accepts only 401, 403 or 404 (not 410). When the token's tenant differs from the path's tenant, answer 404 before checking erasure.
 
-### 5.7 그 밖에
-- 서명은 받은 원본 바이트 기준이다. 파싱 후 다시 직렬화한 바이트로 검증하면 안 된다. 서명 확인 전에는 테넌트를 고르는 데 필요한 account나 shop_domain만 읽는다.
-- unknown 타입(shipment.patch)도 저장하고 ack하며 event_count와 events 조회에 포함한다. customer_id를 payload에서 꺼내므로 고객 삭제 대상이 되고, `data` 안에도 customer_id가 그대로 들어 있다. 따라서 payload 전체를 암호화한다.
-- 페이지네이션: t_0000 전체 구간은 20,631건이라 limit 1000이면 21페이지, large에서는 약 1,000페이지다. OFFSET 대신 (occurred_at_ms, event_id) keyset 커서를 쓴다. 커서는 불투명하게 만들고 테넌트에 묶는다(HMAC).
-- replay.py는 삭제 요청 전에 진행 중인 웹훅을 모두 기다린다. 실제 운영에는 이런 장벽이 없다. 제공 데이터는 삭제와 동시에 도착하는 경합을 시험하지 않지만, 설계는 tombstone으로 그 경합을 처리해야 한다.
-- CR 스트림의 seq는 0부터 다시 시작하므로 응답 파일을 따로 둔다.
+### 5.7 Other points
+- Signatures cover the raw received bytes. Verifying re-serialized bytes after parsing is wrong. Before the signature is checked, read only the account or shop_domain needed to pick the tenant.
+- Unknown types (shipment.patch) are stored, acknowledged, counted in event_count and returned by the events endpoint. Their customer_id comes from the payload, so they are subject to customer erasure, and the customer_id also sits inside `data`. So the whole payload is encrypted.
+- Pagination: t_0000's full range is 20,631 events, which is 21 pages at limit 1000, and about 1,000 pages in the large set. Use a keyset cursor on (occurred_at_ms, event_id) instead of OFFSET. Make the cursor opaque and bind it to the tenant (HMAC).
+- replay.py waits for all in-flight webhooks before an erasure request. Real traffic has no such barrier. The supplied data never tests events arriving at the same moment as an erasure, but the design must handle that race with tombstones.
+- The CR stream's seq numbers restart at 0, so keep its responses in a separate file.
 
-## 6. 후속 변경 요청 대비
+## 6. Preparing for a follow-up change request
 
-근거:
-- generate.py `--cr-out`: 90~120일 전달 스트림과 `invalid_cr.json`을 만든다.
-- verify.py `--invalid`: 도움말이 "for the change request"다.
-- shipment.patch: 45일째부터 나오고 `changes`에 carrier와 status가 들어 있다. v1 reducer는 무시하지만 예시 파일에는 들어 있다.
-- PDF 4쪽: 새 데이터로 시험할 수 있고, "hot과 cold 이력 전체에 대한 새 지표, 그리고 그 계산이 도는 동안 읽는 쪽이 무엇을 보는지"를 물을 수 있다고 적혀 있다.
+Evidence:
+- generate.py `--cr-out` produces a delivery stream for days 90 to 120 and `invalid_cr.json`.
+- verify.py `--invalid` is documented as "for the change request".
+- shipment.patch appears from day 45, with carrier and status in `changes`. The v1 reducer ignores it, but the example file includes it.
+- PDF page 4 says the work may be tested with new data, and may ask for "a new metric over the full hot and cold history, and what readers see while it is being computed".
 
-추정: v2 reducer가 shipment.patch를 반영하고, 그것을 hot과 cold 이력 전체에 다시 계산하는 동안 읽기가 어떻게 보이는지를 물을 것이다.
+Guess: a v2 reducer will apply shipment.patch, and the question will be how reads look while it is recomputed over the full hot and cold history.
 
-설계 요구:
-- canonical 이벤트는 바꾸지 않고 보관한다(unknown 타입 포함, data는 그대로).
-- 상태 스냅샷에 reducer 버전을 붙인다.
-- 새 버전은 백필이 끝날 때까지 기존 버전으로 응답하고, 끝나면 원자적으로 전환한다.
+Design requirements:
+- Store canonical events unchanged (including unknown types; `data` kept verbatim).
+- Tag state snapshots with the reducer version.
+- A new version keeps answering with the old version until its backfill finishes, then switches atomically.
 
-추정이므로 구현은 v1만 하고 설계 문서에 한 문단으로 적는다.
+Since this is a guess, only v1 is implemented, and the design document covers this in one paragraph.
 
-## 7. Deep dive 비교
+## 7. Deep dive comparison
 
-| 선택지 | 해야 할 일 | 증거 | 비용과 위험 | 필수 파트와 겹침 |
+| Option | Work | Evidence | Cost and risk | Overlap with required parts |
 |---|---|---|---|---|
-| Cold hydration | large 데이터 생성(생성기 RAM 약 4GB), cold 세그먼트 형식과 스냅샷, 단계별 시간 측정 | 단계별 지연 표 | 아래 기준점상 디코딩이 병목이라 바이너리나 열 형식이 필요할 수 있음 | 2번 티어, §6 백필 |
-| **Crash safety** | ack, 압축, 티어 이동, 삭제를 멱등 작업과 원자적 커밋으로 만들고 `kill -9` 주입 스크립트 작성 | 반복 kill 후 verify.py 통과, 중복과 고아 객체 검사 | small 데이터로 몇 분 안에 반복 가능 | 1, 2, 4번이 이미 같은 성질을 요구 |
-| Noisy neighbors | 1 GiB, 2 CPU 컨테이너 제한, large 데이터, 큰 테넌트 수신과 압축 중 작은 테넌트 읽기 p99 측정 | 지연 분포, 메모리 | 500만 전달 replay만 수십 분 이상 예상(미측정), 튜닝 반복 | 5번 메트릭 |
-| Beyond one node | 샤드 배치, 리밸런싱, 압축 중 노드 장애 설계와 소형 프로토타입 | 설계와 부분 프로토타입 | 프로토타입 범위가 모호하고 증거가 약함 | 적음 |
+| Cold hydration | Generate the large set (about 4 GB generator RAM), cold segment format and snapshots, per-stage timing | Per-stage latency table | Per the baseline below, decoding is the bottleneck, so a binary or columnar format may be needed | Part 2 tiering, §6 backfill |
+| **Crash safety** | Make ack, compaction, tier moves and erasure idempotent with atomic commits, and write a `kill -9` injection script | verify.py passes after repeated kills; checks for duplicates and orphan objects | Repeatable in minutes on small data | Parts 1, 2 and 4 already require the same properties |
+| Noisy neighbors | 1 GiB, 2 CPU container limits, the large set, p99 of small-tenant reads while a big tenant ingests and compacts | Latency distribution, memory | Replaying 5 million deliveries alone is expected to take tens of minutes or more (not measured); repeated tuning | Part 5 metrics |
+| Beyond one node | Design shard placement, rebalancing and node failure during compaction, plus a small prototype | Design and a partial prototype | Prototype scope is vague and the evidence weak | Little |
 
-**추천: Crash safety.**
-1. 1, 2, 4번 필수 요건이 이미 "ack된 이벤트 유실 금지"와 "반쯤 쓴 상태 금지"를 요구한다. 추가 작업은 대부분 검증 스크립트다.
-2. small 데이터로 몇 분 안에 반복해서 증명할 수 있다.
-3. 느리더라도 정확한 쪽을 먼저 하라는 과제 방향과 맞는다.
-4. Part 1을 마친 뒤 남는 시간이 짧다.
+**Recommendation: crash safety.**
+1. Required parts 1, 2 and 4 already demand "no acknowledged event lost" and "no half-written state". The extra work is mostly the verification script.
+2. It can be proven repeatedly in minutes on small data.
+3. It matches the brief's direction of being correct first, even if slower.
+4. The time left after Part 1 is short.
 
-차선은 Cold hydration이다. §6의 백필과 작업이 겹친다.
+Second choice: cold hydration, which overlaps with the §6 backfill.
 
-측정 기준점(`part2/analysis/fold_bench.py`, 이벤트 100만 건): `json.loads` 3.9초, `reducer.fold` 1.2초, zlib-6 압축 3.9초. 이벤트당 바이트는 JSON 274 B, zlib 49.7 B인데, 복제한 데이터라 실제보다 압축이 잘 된 값이다. fold 자체보다 디코딩이 더 비싸다.
+Baseline (`part2/analysis/fold_bench.py`, 1 million events): `json.loads` 3.9 s, `reducer.fold` 1.2 s, zlib level 6 compression 3.9 s. Bytes per event: JSON 274 B, zlib 49.7 B; the data is replicated, so it compresses better than real data would. Decoding costs more than the fold itself.
 
-## 8. 설계 방향 초안(미확정)
+## 8. First design direction (not final; superseded by the design spec)
 
-- **언어**: Python. reducer.py를 그대로 import해서 정답 기준으로 쓴다. 스냅샷에서 이어서 fold하는 버전은 포팅하고 reducer.fold와 hash를 비교해서 검증한다.
-- **hot**: Postgres(Part 1과 같은 엔진). 테넌트 해석과 서명 검증을 마친 뒤 `INSERT … ON CONFLICT DO NOTHING`을 커밋하고(`synchronous_commit=on`) 2xx를 준다. 평문 열은 tenant_id, event_id(C collation), occurred_at_ms, type, customer_key(HMAC)만 두고 payload와 customer_id는 암호문으로 둔다.
-- **cold**: MinIO. 테넌트×기간 단위로 정렬, 압축, AES-GCM 암호화한 세그먼트를 쓴다(AAD에 tenant와 segment id). Postgres 매니페스트를 단일 진실로 둔다. 내리기 순서: 결정적 키로 객체 쓰기 → 읽어서 확인 → 한 트랜잭션에서 매니페스트 등록과 hot 행 삭제. 중간에 crash가 나면 고아 객체만 남고 GC가 정리한다.
-- **상태**: 확정 구간 스냅샷(암호화, reducer 버전 태그)에 꼬리를 다시 fold한다. 삭제나 지연 규칙 위반이 생기면 전체를 다시 fold한다.
-- **격리**: 미들웨어가 토큰에서 TenantScope를 한 번 만들고, 저장소 API는 tenant_id 인자 없이 scope만 받는다. 2차로 Postgres RLS를 두고, 3차로 테넌트별 키를 둔다(다른 테넌트 데이터는 복호화 자체가 안 된다).
-- **암호화**: 마스터 키(KEK, 환경 변수나 파일을 시크릿 스토어 대역으로)가 테넌트 DEK를 감싼다. 고객 단위 키(crypto-shredding)를 추가할지 정해야 한다. 추가하면 삭제 즉시 모든 티어와 백업에서 복구가 불가능해지고, 물리 삭제는 다음 압축 때 일어난다.
-- **삭제**: 고객 삭제는 한 트랜잭션에서 tombstone 기록, hot 행 삭제, 스냅샷 무효화를 하고 cold 세그먼트 재작성을 예약한다. 테넌트 삭제는 DEK 파기, hot 삭제, cold prefix 삭제, 테넌트 tombstone(이후 410) 순으로 한다.
-- **메트릭**: 결과별 ingest 카운터, ack 지연 히스토그램, hot과 cold 읽기 지연, 티어별 바이트와 이벤트 수, 내리기와 압축 지연, 전체 재fold 횟수, RSS.
+- **Language**: Python. Import reducer.py as is and use it as the reference. Port a version that continues folding from a snapshot and verify it by comparing hashes with reducer.fold.
+- **Hot**: Postgres (the same engine as Part 1). After tenant resolution and signature verification, commit `INSERT … ON CONFLICT DO NOTHING` (`synchronous_commit=on`) and then answer 2xx. Plaintext columns are only tenant_id, event_id (C collation), occurred_at_ms, type and customer_key (HMAC); payload and customer_id are ciphertext.
+- **Cold**: MinIO. Segments per tenant × period, sorted, compressed and AES-GCM encrypted (AAD includes tenant and segment id). A Postgres manifest is the single source of truth. Move-down order: write the object under a deterministic key → read it back to check → in one transaction, register it in the manifest and delete the hot rows. A crash in between leaves only orphan objects, which GC cleans up.
+- **State**: refold the tail onto a snapshot of the settled range (encrypted, tagged with the reducer version). On an erasure or a lateness-rule violation, refold everything.
+- **Isolation**: middleware builds a TenantScope from the token once, and the storage API takes only the scope, with no tenant_id argument. Postgres RLS is a second layer and per-tenant keys a third (another tenant's data cannot even be decrypted).
+- **Encryption**: a master key (KEK, from an environment variable or file standing in for a secret store) wraps the tenant DEKs. Still to decide: whether to add per-customer keys (crypto-shredding). With them, data becomes unrecoverable in every tier and backup at erasure time, and physical removal happens at the next compaction.
+- **Erasure**: a customer erasure writes the tombstone, deletes hot rows and invalidates the snapshot in one transaction, and schedules cold segment rewrites. A tenant erasure destroys the DEK, deletes hot rows, deletes the cold prefix and writes a tenant tombstone (410 afterwards), in that order.
+- **Metrics**: ingest counters by outcome, ack latency histogram, hot and cold read latency, bytes and events per tier, move-down and compaction latency, full refold count, RSS.
 
-## 9. 정할 것
+## 9. Open decisions at the time (since decided in the design spec)
 
-1. 언어와 hot 저장소(권장: Python과 Postgres)
-2. 암호화 단위: 테넌트 DEK만 쓸지, 고객 DEK를 추가할지
-3. deep dive(권장: Crash safety)
-4. 물리 삭제 보장 시간(예: hot은 즉시, cold는 다음 압축 주기 안)
-5. `infrastructure/` 폴더를 저장소에 넣을지
-6. 시간 배분: Part 1을 마친 뒤 설계 문서만 쓸지, 구현까지 갈지
+1. Language and hot store (recommended: Python and Postgres)
+2. Encryption unit: tenant DEK only, or per-customer DEKs as well
+3. Deep dive (recommended: crash safety)
+4. Physical-removal time bound (for example: hot immediately, cold within the next compaction cycle)
+5. Whether to put the `infrastructure/` folder in the repository
+6. Time allocation: after Part 1, write only the design document, or implement as well
 
-## 재현
+## Reproduce
 
 ```sh
 python3 part2/analysis/oracle.py $INFRA
