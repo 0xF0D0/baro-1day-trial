@@ -50,6 +50,18 @@ part2/scripts/e2e.sh "$INFRA/data"
 python3 "$INFRA/generate.py" --seed 7 --out /path/to/seed7 && part2/scripts/e2e.sh /path/to/seed7
 ```
 
+## Crash test
+
+`part2/scripts/crash.sh <data-dir>` replays the data while the worker is hit with `kill -9` every 3 to 10 seconds and its six crash points are armed (`flush.after_bucket`, `flush.after_snapshot`, `flush.before_commit`, `rebuild.after_bucket`, `rebuild.after_snapshot`, `rebuild.before_commit`, each firing with probability `0.02`). After the replay it keeps the chaos going for `CHAOS_TAIL_S` (30s), stops it, and saves the worker log. It then recreates the worker disarmed with a garbage grace of 0, waits for one `sweep done`, stops the worker, and runs `verify.sh`, `tier-stats.sh` and the consistency checker. It exits 0 only if both `verify.py` and the checker pass.
+
+```sh
+INFRA=~/Downloads/BARO_Work_Trial/infrastructure part2/scripts/crash.sh "$INFRA/data"
+```
+
+Settings (environment, defaults): `FLUSH_MARGIN=1h`, `FLUSH_INTERVAL=2s`, `SWEEP_INTERVAL=10s`, `GARBAGE_GRACE=20s`, `CRASH_POINTS` (all six), `CRASH_PROBABILITY=0.02`, `KILL_MIN_S=3`, `KILL_MAX_S=10`, `CHAOS_TAIL_S=30`, `SETTLE_TIMEOUT_S=180`.
+
+The report, `part2/out/<name>/crash-report.txt` (also printed), holds the settings, the number of successful external kills, the crash point hits per name, the rebuilds and flush ticks seen, the replay `done:` line, `verify.py`'s summary lines, the tier-stats line and the checker's summary lines. The worker log is `worker-chaos.log` in the same directory. A run needs at least a few kills, a crash point hit and a rebuild to mean anything; the report shows them so you can check. The six crash points are also hit one by one, deterministically, in `TestCrashPoints`.
+
 ## Worker and tier statistics
 
 The `worker` compose service runs the same image with the `worker` binary. Every flush interval it walks the tenant registry and flushes one day at a time per tenant until nothing is left to flush, moving events older than the watermark from `hot_events` into encrypted day buckets in MinIO. The watermark is the rank-th largest event time among a tenant's hot events minus the margin, in event time, not wall-clock time. It logs one line per tick with the number of days flushed and the tick duration; a failing tenant is logged by tenant ID only, and the loop continues. Before flushing a tenant, the worker rebuilds it from its cold buckets if a late event marked it dirty. On a separate sweep interval it deletes `garbage` objects older than the grace period, deletes objects that nothing references (leftovers of crashed operations), finishes pending customer erasures, then runs Postgres maintenance (`VACUUM` of the hot tables, `pg_switch_wal()`, `CHECKPOINT`) and logs the totals and the sweep duration. One loop serves both intervals, so rebuild, flush and sweep never overlap. It stops cleanly on SIGTERM.
