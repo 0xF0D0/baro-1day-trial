@@ -49,7 +49,7 @@ type reqInt struct {
 func (r *reqInt) UnmarshalJSON(b []byte) error {
 	v, err := strconv.ParseInt(string(b), 10, 64)
 	if err != nil {
-		return malformed("not an integer: %s", b)
+		return malformed("a field is not an integer")
 	}
 	r.v, r.ok = v, true
 	return nil
@@ -63,10 +63,10 @@ type reqStr struct {
 
 func (r *reqStr) UnmarshalJSON(b []byte) error {
 	if len(b) > 0 && b[0] != '"' {
-		return malformed("not a string: %s", b)
+		return malformed("a field is not a string")
 	}
 	if err := json.Unmarshal(b, &r.v); err != nil {
-		return malformed("not a string: %s", b)
+		return malformed("a field is not a string")
 	}
 	r.ok = true
 	return nil
@@ -80,7 +80,7 @@ func decode(raw []byte, v any) error {
 		if errors.Is(err, ErrMalformed) {
 			return err
 		}
-		return malformed("%v", err)
+		return malformed("body is not valid JSON for the expected shape")
 	}
 	if d.More() {
 		return malformed("trailing data")
@@ -115,7 +115,7 @@ func customerIDOf(obj json.RawMessage) *string {
 func marshalData(v any) (json.RawMessage, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
-		return nil, malformed("%v", err)
+		return nil, malformed("data cannot be encoded")
 	}
 	return b, nil
 }

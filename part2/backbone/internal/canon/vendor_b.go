@@ -22,12 +22,15 @@ func FromVendorB(raw []byte, tenantID string) (Event, error) {
 	if !env.UUID.ok || !env.Event.ok || !env.Timestamp.ok || !isObject(env.Payload) {
 		return Event{}, malformed("vendor B envelope incomplete")
 	}
+	if strings.Contains(env.UUID.v, "\x00") {
+		return Event{}, malformed("event_uuid contains NUL")
+	}
 	if !strings.HasSuffix(env.Timestamp.v, "Z") {
-		return Event{}, malformed("timestamp is not UTC: %q", env.Timestamp.v)
+		return Event{}, malformed("timestamp is not UTC")
 	}
 	ts, err := time.Parse(time.RFC3339Nano, env.Timestamp.v)
 	if err != nil {
-		return Event{}, malformed("timestamp: %v", err)
+		return Event{}, malformed("timestamp is not RFC 3339")
 	}
 	ev := Event{EventID: env.UUID.v, TenantID: tenantID, Type: env.Event.v, OccurredAtMs: ts.UnixMilli()}
 	p := env.Payload

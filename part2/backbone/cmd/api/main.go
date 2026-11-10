@@ -61,7 +61,10 @@ func run(log *slog.Logger) error {
 	srv := &http.Server{
 		Addr:              cfg.Listen,
 		Handler:           api.NewServer(reg, st, log),
-		ReadHeaderTimeout: 10 * time.Second,
+		ReadHeaderTimeout: 10 * time.Second,  // slow-header clients are dropped quickly
+		ReadTimeout:       30 * time.Second,  // whole request, headers plus body
+		WriteTimeout:      60 * time.Second,  // the spec's 60-second read deadline
+		IdleTimeout:       120 * time.Second, // keep-alive connections are reaped after two idle minutes
 	}
 	errc := make(chan error, 1)
 	go func() { errc <- srv.ListenAndServe() }()
@@ -71,7 +74,8 @@ func run(log *slog.Logger) error {
 		return err
 	case <-ctx.Done():
 	}
-	sctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	// 8s leaves headroom inside Docker's default 10s stop grace period.
+	sctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(sctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err

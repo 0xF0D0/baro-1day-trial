@@ -188,3 +188,49 @@ func TestUnknownTypeNullCustomer(t *testing.T) {
 		t.Fatalf("customer_id not null: %s", out)
 	}
 }
+
+func TestMalformedErrorsCarryNoInput(t *testing.T) {
+	const leak = "LEAK_7f3a"
+	a := []string{
+		`{"id":"evt_1","type":"x","created":"` + leak + `","data":{"object":{}}}`,
+		`{"id":"evt_1","type":"x","created":12` + leak + `,"data":{"object":{}}}`,
+		`{"id":{"x":"` + leak + `"},"type":"x","created":1,"data":{"object":{}}}`,
+		`{"id":"evt_1","type":` + leak + `}`,
+		`{"id":"evt_1","type":"ads.metric","created":1,"data":{"object":{"campaign_id":"c","spend":"` + leak + `","impressions":1,"clicks":1}}}`,
+		`{"id":"evt_1","type":"ads.metric","created":1,"data":{"object":{"campaign_id":{"x":"` + leak + `"},"spend":1,"impressions":1,"clicks":1}}}`,
+	}
+	b := []string{
+		`{"event_uuid":"u1","event":"x","timestamp":"` + leak + `","payload":{}}`,
+		`{"event_uuid":"u1","event":"x","timestamp":"2026-07-01T00:00:00.000+09:00` + leak + `","payload":{}}`,
+		`{"event_uuid":"u1","event":"x","timestamp":"2026-07-01T00:00:00.000` + leak + `Z","payload":{}}`,
+		`{"event_uuid":"u1","event":"x","timestamp":"2026-07-01T00:00:00.000+09:00","payload":{}}`,
+		`{"event_uuid":"u1","event":"x","timestamp":"2026-07-01T00:00:00Z","payload":` + leak + `}`,
+	}
+	check := func(name, body string, f func([]byte, string) (Event, error)) {
+		_, err := f([]byte(body), "t1")
+		if !errors.Is(err, ErrMalformed) {
+			t.Errorf("%s %s: want ErrMalformed, got %v", name, body, err)
+			return
+		}
+		if strings.Contains(err.Error(), leak) {
+			t.Errorf("%s %s: error carries input: %v", name, body, err)
+		}
+	}
+	for _, s := range a {
+		check("A", s, FromVendorA)
+	}
+	for _, s := range b {
+		check("B", s, FromVendorB)
+	}
+}
+
+func TestNulInEventIDRejected(t *testing.T) {
+	_, err := FromVendorA([]byte(`{"id":"evt_\u0000x","type":"x","created":1,"data":{"object":{}}}`), "t1")
+	if !errors.Is(err, ErrMalformed) {
+		t.Errorf("vendor A: want ErrMalformed, got %v", err)
+	}
+	_, err = FromVendorB([]byte(`{"event_uuid":"evt_\u0000x","event":"x","timestamp":"2026-07-01T00:00:00Z","payload":{}}`), "t1")
+	if !errors.Is(err, ErrMalformed) {
+		t.Errorf("vendor B: want ErrMalformed, got %v", err)
+	}
+}

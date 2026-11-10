@@ -1,6 +1,9 @@
 package canon
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strings"
+)
 
 type vendorAEnvelope struct {
 	ID      reqStr `json:"id"`
@@ -19,6 +22,9 @@ func FromVendorA(raw []byte, tenantID string) (Event, error) {
 	}
 	if !env.ID.ok || !env.Type.ok || !env.Created.ok || !isObject(env.Data.Object) {
 		return Event{}, malformed("vendor A envelope incomplete")
+	}
+	if strings.Contains(env.ID.v, "\x00") {
+		return Event{}, malformed("id contains NUL")
 	}
 	ev := Event{EventID: env.ID.v, TenantID: tenantID, Type: env.Type.v, OccurredAtMs: env.Created.v}
 	obj := env.Data.Object

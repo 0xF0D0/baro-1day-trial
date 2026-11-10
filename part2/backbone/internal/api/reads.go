@@ -60,20 +60,16 @@ func (s *server) state(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	var events []canon.Event
+	// ScanAll yields events in canonical order, so they can be folded as they stream.
+	st := fold.New(sc.TenantID(), sc.Keys().CustomerKeyHex)
 	err := s.st.ScanAll(r.Context(), sc, func(ev canon.Event) error {
-		events = append(events, ev)
-		return nil
+		return st.Apply(ev)
 	})
 	if err != nil {
 		readErr(w, err)
 		return
 	}
-	res, err := fold.Fold(sc.TenantID(), events, sc.Keys().CustomerKeyHex)
-	if err != nil {
-		status(w, http.StatusInternalServerError)
-		return
-	}
+	res := st.Result()
 	writeJSON(w, res)
 }
 
