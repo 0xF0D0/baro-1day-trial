@@ -23,25 +23,25 @@ var (
 	}, []string{"vendor", "outcome"})
 	AckSeconds = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "backbone_ack_seconds", Help: "Time to answer a webhook with 200.",
-		Buckets: prometheus.DefBuckets,
+		Buckets: prometheus.ExponentialBuckets(0.0005, 2, 18),
 	}, []string{"vendor"})
 	ReadSeconds = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "backbone_read_seconds", Help: "State and range read time by kind and tier.",
-		Buckets: prometheus.DefBuckets,
+		Buckets: prometheus.ExponentialBuckets(0.0005, 2, 18),
 	}, []string{"kind", "tier"})
 	LateEventsTotal = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "backbone_late_events_total", Help: "Late events inserted behind the cold boundary.",
 	})
 	ErasureSeconds = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "backbone_erasure_seconds", Help: "Successful erasure time by kind.",
-		Buckets: prometheus.DefBuckets,
+		Buckets: prometheus.ExponentialBuckets(0.0005, 2, 18),
 	}, []string{"kind"})
 	SnapshotCacheTotal = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "backbone_snapshot_cache_total", Help: "Snapshot cache lookups by result.",
 	}, []string{"result"})
 	JobSeconds = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "backbone_job_seconds", Help: "Worker job duration.",
-		Buckets: []float64{.01, .05, .1, .5, 1, 5, 15, 60, 300},
+		Buckets: prometheus.ExponentialBuckets(0.01, 2, 19),
 	}, []string{"job"})
 	JobErrorsTotal = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "backbone_job_errors_total", Help: "Worker job failures by job and error class.",
