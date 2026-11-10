@@ -13,7 +13,8 @@ func LockKey(kind string, parts ...[]byte) int64 { return lockKey(kind, parts...
 // Test-only access to the object codec helpers.
 
 func (s *Store) PutBucket(ctx context.Context, sc Scope, day int64, events []canon.Event) (string, error) {
-	return s.putBucket(ctx, sc, day, events)
+	name, _, err := s.putBucket(ctx, sc, day, events)
+	return name, err
 }
 
 func (s *Store) GetBucket(ctx context.Context, sc Scope, name string) ([]canon.Event, error) {
@@ -37,13 +38,13 @@ func (s *Store) SetColdUntil(ctx context.Context, tenant string, coldUntil int64
 // AddManifestBucket writes a bucket with putBucket and records it in
 // cold_manifest, without a flush.
 func (s *Store) AddManifestBucket(ctx context.Context, sc Scope, day int64, events []canon.Event) error {
-	name, err := s.putBucket(ctx, sc, day, events)
+	name, size, err := s.putBucket(ctx, sc, day, events)
 	if err != nil {
 		return err
 	}
 	_, err = s.pool.Exec(ctx,
-		`INSERT INTO cold_manifest (tenant_id, day, object, events, bytes) VALUES ($1, $2, $3, $4, 0)`,
-		sc.tenantID, day, name, len(events))
+		`INSERT INTO cold_manifest (tenant_id, day, object, events, bytes) VALUES ($1, $2, $3, $4, $5)`,
+		sc.tenantID, day, name, len(events), size)
 	return err
 }
 

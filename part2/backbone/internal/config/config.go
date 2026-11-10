@@ -64,6 +64,9 @@ func Load(getenv func(string) string) (Config, error) {
 	if cfg.FlushInterval, err = duration(getenv, "BACKBONE_FLUSH_INTERVAL", 5*time.Minute); err != nil {
 		return Config{}, err
 	}
+	if cfg.FlushInterval <= 0 {
+		return Config{}, fmt.Errorf("BACKBONE_FLUSH_INTERVAL must be positive")
+	}
 	if cfg.FlushMargin, err = duration(getenv, "BACKBONE_FLUSH_MARGIN", 96*time.Hour); err != nil {
 		return Config{}, err
 	}
@@ -71,6 +74,9 @@ func Load(getenv func(string) string) (Config, error) {
 	if v := getenv("BACKBONE_WATERMARK_RANK"); v != "" {
 		if cfg.WatermarkRank, err = strconv.Atoi(v); err != nil {
 			return Config{}, fmt.Errorf("BACKBONE_WATERMARK_RANK: %w", err)
+		}
+		if cfg.WatermarkRank < 1 {
+			return Config{}, fmt.Errorf("BACKBONE_WATERMARK_RANK must be at least 1")
 		}
 	}
 	return cfg, nil

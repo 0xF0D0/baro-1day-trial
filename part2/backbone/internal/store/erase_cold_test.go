@@ -247,6 +247,10 @@ func TestEraseCustomerAcrossTiers(t *testing.T) {
 	if snapshotObject(t, st) == oldSnap {
 		t.Fatal("snapshot pointer unchanged")
 	}
+	var zero int
+	if err := st.Pool().QueryRow(ctx, `SELECT count(*) FROM cold_manifest WHERE tenant_id = 't_1' AND bytes <= 0`).Scan(&zero); err != nil || zero != 0 {
+		t.Fatalf("manifest rows without bytes: %d, %v", zero, err)
+	}
 	// Idempotent.
 	if err := st.EraseCustomer(ctx, sc, cust); err != nil {
 		t.Fatal(err)

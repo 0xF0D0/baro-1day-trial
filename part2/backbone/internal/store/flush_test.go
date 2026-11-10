@@ -53,6 +53,9 @@ func TestFlushMovesOneDay(t *testing.T) {
 	if n := count(t, st, `SELECT count(*) FROM cold_manifest WHERE tenant_id='t_1' AND day=$1`, d); n != 1 {
 		t.Fatalf("manifest rows for day D: %d", n)
 	}
+	if n := count(t, st, `SELECT count(*) FROM cold_manifest WHERE tenant_id='t_1' AND day=$1 AND bytes > 0`, d); n != 1 {
+		t.Fatalf("manifest bytes not recorded")
+	}
 	if n := count(t, st, `SELECT count(*) FROM hot_events WHERE tenant_id='t_1'`); n != 2 {
 		t.Fatalf("hot rows: %d", n)
 	}

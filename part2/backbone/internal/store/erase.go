@@ -71,6 +71,7 @@ func (s *Store) EraseCustomer(ctx context.Context, sc Scope, customerID string) 
 type coldPlan struct {
 	replaceDays map[int64]string // day -> new bucket object
 	replaceN    map[int64]int    // day -> remaining event count
+	replaceB    map[int64]int    // day -> new bucket size in bytes
 	deleteDays  []int64          // days whose bucket becomes empty
 	oldObjects  []string         // replaced buckets
 	oldSnapshot *string
@@ -130,8 +131,8 @@ func (s *Store) eraseCustomerCold(ctx context.Context, sc Scope, customerID stri
 		return nil
 	}
 	for day, obj := range plan.replaceDays {
-		if _, err := tx.Exec(ctx, `UPDATE cold_manifest SET object = $3, events = $4 WHERE tenant_id = $1 AND day = $2`,
-			tenant, day, obj, plan.replaceN[day]); err != nil {
+		if _, err := tx.Exec(ctx, `UPDATE cold_manifest SET object = $3, events = $4, bytes = $5 WHERE tenant_id = $1 AND day = $2`,
+			tenant, day, obj, plan.replaceN[day], plan.replaceB[day]); err != nil {
 			return fmt.Errorf("store: update manifest: %w", err)
 		}
 	}
@@ -185,7 +186,7 @@ func (s *Store) eraseCustomerCold(ctx context.Context, sc Scope, customerID stri
 // objects. It changes nothing in Postgres.
 func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customerID string, customerKey []byte) (coldPlan, error) {
 	tenant := sc.TenantID()
-	plan := coldPlan{replaceDays: map[int64]string{}, replaceN: map[int64]int{}}
+	plan := coldPlan{replaceDays: map[int64]string{}, replaceN: map[int64]int{}, replaceB: map[int64]int{}}
 
 	rows, err := tx.Query(ctx, `SELECT day FROM customer_days WHERE tenant_id = $1 AND customer_key = $2 ORDER BY day`,
 		tenant, customerKey)
@@ -249,12 +250,13 @@ func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customer
 			plan.deleteDays = append(plan.deleteDays, day)
 			continue
 		}
-		name, err := s.putBucket(ctx, sc, day, keep)
+		name, size, err := s.putBucket(ctx, sc, day, keep)
 		if err != nil {
 			return plan, err
 		}
 		plan.replaceDays[day] = name
 		plan.replaceN[day] = len(keep)
+		plan.replaceB[day] = size
 	}
 
 	// Latest remaining message time of each affected day, with fold semantics.

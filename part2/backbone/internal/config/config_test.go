@@ -70,3 +70,17 @@ func TestLoadMinioAndFlushDefaults(t *testing.T) {
 		t.Fatal("bad duration accepted")
 	}
 }
+
+func TestLoadRejectsNonPositiveFlushSettings(t *testing.T) {
+	for name, val := range map[string]string{
+		"BACKBONE_FLUSH_INTERVAL": "0s", "BACKBONE_WATERMARK_RANK": "0",
+	} {
+		for _, v := range []string{val, "-1" + map[bool]string{true: "s", false: ""}[name == "BACKBONE_FLUSH_INTERVAL"]} {
+			env := validEnv()
+			env[name] = v
+			if _, err := config.Load(func(k string) string { return env[k] }); err == nil {
+				t.Fatalf("%s=%q accepted", name, v)
+			}
+		}
+	}
+}

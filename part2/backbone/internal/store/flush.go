@@ -192,7 +192,7 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 	}
 
 	// New immutable objects, written before the commit that makes them current.
-	bucket, err := s.putBucket(ctx, sc, day, events)
+	bucket, bucketBytes, err := s.putBucket(ctx, sc, day, events)
 	if err != nil {
 		return false, err
 	}
@@ -224,8 +224,8 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 		return false, nil
 	}
 	if _, err := tx.Exec(ctx,
-		`INSERT INTO cold_manifest (tenant_id, day, object, events, bytes) VALUES ($1, $2, $3, $4, 0)`,
-		tenantID, day, bucket, len(events)); err != nil {
+		`INSERT INTO cold_manifest (tenant_id, day, object, events, bytes) VALUES ($1, $2, $3, $4, $5)`,
+		tenantID, day, bucket, len(events), bucketBytes); err != nil {
 		return false, fmt.Errorf("store: insert manifest: %w", err)
 	}
 	if _, err := tx.Exec(ctx,

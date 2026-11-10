@@ -22,24 +22,25 @@ type snapshotDoc struct {
 }
 
 // putBucket seals the day's events (JSON lines in key order) into a new
-// immutable object and returns its name.
-func (s *Store) putBucket(ctx context.Context, sc Scope, day int64, events []canon.Event) (string, error) {
+// immutable object and returns its name and the sealed object's size in bytes.
+func (s *Store) putBucket(ctx context.Context, sc Scope, day int64, events []canon.Event) (string, int, error) {
 	sorted := append([]canon.Event(nil), events...)
 	canon.Sort(sorted)
 	var buf bytes.Buffer
 	for _, e := range sorted {
 		line, err := json.Marshal(e)
 		if err != nil {
-			return "", fmt.Errorf("store: encode bucket event: %w", err)
+			return "", 0, fmt.Errorf("store: encode bucket event: %w", err)
 		}
 		buf.Write(line)
 		buf.WriteByte('\n')
 	}
 	name := cold.ObjectName(sc.tenantID, "bucket", day)
-	if err := s.objects.Put(ctx, name, sc.keys.Seal(objectAAD(sc.tenantID, name), buf.Bytes())); err != nil {
-		return "", fmt.Errorf("store: put bucket: %w", err)
+	sealed := sc.keys.Seal(objectAAD(sc.tenantID, name), buf.Bytes())
+	if err := s.objects.Put(ctx, name, sealed); err != nil {
+		return "", 0, fmt.Errorf("store: put bucket: %w", err)
 	}
-	return name, nil
+	return name, len(sealed), nil
 }
 
 // getBucket reads and opens a bucket object.
