@@ -13,10 +13,13 @@ Docker with Compose v2, Python 3 (only for the supplied `replay.py` and `verify.
 | `INFRA` | scripts | Path of the supplied `infrastructure/` folder (not in this repository). Required. |
 | `TENANTS_FILE` | compose | Absolute path of the `tenants.json` to load. Required for every `docker compose` command, including `down` and the Postgres-only command, because the compose file refuses to parse without it. The scripts set it from the data directory. |
 | `BACKBONE_TEST_DATABASE_URL` | Go tests | Postgres to test against, `postgres://postgres@127.0.0.1:55432/postgres?sslmode=disable` for the Postgres-only container below. Without it the store and api tests skip. |
+| `BACKBONE_TEST_MINIO_ENDPOINT`, `BACKBONE_TEST_SECRETS_DIR` | Go tests | MinIO to test against (`127.0.0.1:59000`) and the directory holding its `minio_user` and `minio_password` files (`part2/out/secrets`). Without them the cold-tier tests skip. |
 | `BACKBONE_TENANTS_FILE`, `BACKBONE_KEK_FILE`, `BACKBONE_DATABASE_URL` | api | Set by compose. `BACKBONE_LISTEN` is optional (default `:8080`). |
+| `BACKBONE_MINIO_ENDPOINT`, `BACKBONE_MINIO_USER_FILE`, `BACKBONE_MINIO_PASSWORD_FILE` | api | Required; set by compose (`minio:9000` and files under `/secrets`). `BACKBONE_MINIO_BUCKET` is optional (default `backbone`). |
+| `BACKBONE_FLUSH_INTERVAL`, `BACKBONE_FLUSH_MARGIN`, `BACKBONE_WATERMARK_RANK` | api | Optional cold-tier flush settings: durations such as `5m` and `96h` (defaults), and the rank-watermark count (default `100`). |
 | `TARGET` | replay, verify | Service URL, default `http://localhost:8080`. |
 
-The key-encryption key (32 random bytes) is created once by the `kek-init` service in the `secrets` volume.
+The `secrets-init` service creates three secrets once, in `part2/out/secrets` (gitignored): the key-encryption key `kek` (32 random bytes) and the MinIO credentials `minio_user` and `minio_password`. It never overwrites an existing file, and `down -v` does not remove them. MinIO runs from `bitnamilegacy/minio:2025.7.23-debian-12-r5` because Docker Hub no longer serves `minio/minio`; its S3 port is published on `127.0.0.1:59000`.
 
 ## Run
 
@@ -48,16 +51,16 @@ python3 "$INFRA/generate.py" --seed 7 --out /path/to/seed7 && part2/scripts/e2e.
 ```sh
 export TENANTS_FILE=$INFRA/data/tenants.json
 docker compose -f part2/docker-compose.yml down      # keep data
-docker compose -f part2/docker-compose.yml down -v   # also drop the database and the KEK
+docker compose -f part2/docker-compose.yml down -v   # also drop the database and the MinIO data (the secrets in `part2/out/secrets` stay)
 ```
 
 ## Go tests
 
-Postgres alone is published on `127.0.0.1:55432`:
+Postgres is published on `127.0.0.1:55432` and MinIO on `127.0.0.1:59000`; starting `minio` also creates the secrets the cold-tier tests read:
 
 ```sh
 export TENANTS_FILE=$INFRA/data/tenants.json
-docker compose -f part2/docker-compose.yml up -d --wait postgres
-(cd part2/backbone && BACKBONE_TEST_DATABASE_URL='postgres://postgres@127.0.0.1:55432/postgres?sslmode=disable' go test -race -count=1 ./...)
+docker compose -f part2/docker-compose.yml up -d --wait postgres minio
+(cd part2/backbone && BACKBONE_TEST_MINIO_ENDPOINT=127.0.0.1:59000 BACKBONE_TEST_SECRETS_DIR="$PWD/../out/secrets" BACKBONE_TEST_DATABASE_URL='postgres://postgres@127.0.0.1:55432/postgres?sslmode=disable' go test -race -count=1 ./...)
 docker compose -f part2/docker-compose.yml down
 ```
