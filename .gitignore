@@ -1,0 +1,6 @@
+.worktrees/
+.superpowers/
+.claude/worktrees/
+.claude/settings.local.json
+.venv/
+__pycache__/
