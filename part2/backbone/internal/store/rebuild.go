@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"backbone/internal/canon"
+	"backbone/internal/crashpoint"
 	"backbone/internal/fold"
 
 	"github.com/jackc/pgx/v5"
@@ -157,6 +158,7 @@ func (s *Store) Rebuild(ctx context.Context, tenantID string) (bool, error) {
 		if err != nil {
 			return false, err
 		}
+		crashpoint.Hit("rebuild.after_bucket")
 		rewrites[d] = rewritten{name, len(events), size}
 		if old, ok := oldObject[d]; ok {
 			replaced = append(replaced, old)
@@ -166,6 +168,7 @@ func (s *Store) Rebuild(ctx context.Context, tenantID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	crashpoint.Hit("rebuild.after_snapshot")
 	if oldSnapshot != nil {
 		replaced = append(replaced, *oldSnapshot)
 	}
@@ -242,6 +245,7 @@ func (s *Store) Rebuild(ctx context.Context, tenantID string) (bool, error) {
 			return false, fmt.Errorf("store: insert garbage: %w", err)
 		}
 	}
+	crashpoint.Hit("rebuild.before_commit")
 	if err := tx.Commit(ctx); err != nil {
 		return false, fmt.Errorf("store: rebuild commit: %w", err)
 	}

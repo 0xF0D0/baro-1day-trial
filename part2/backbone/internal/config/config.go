@@ -26,6 +26,9 @@ type Config struct {
 
 	SweepInterval time.Duration
 	GarbageGrace  time.Duration
+
+	CrashPoints      []string
+	CrashProbability float64
 }
 
 // Load builds a Config from getenv. It reports every missing required variable at once.
@@ -87,6 +90,19 @@ func Load(getenv func(string) string) (Config, error) {
 	}
 	if cfg.GarbageGrace < 0 {
 		return Config{}, fmt.Errorf("BACKBONE_GARBAGE_GRACE must not be negative")
+	}
+	for _, p := range strings.Split(getenv("BACKBONE_CRASH_POINTS"), ",") {
+		if p = strings.TrimSpace(p); p != "" {
+			cfg.CrashPoints = append(cfg.CrashPoints, p)
+		}
+	}
+	if v := getenv("BACKBONE_CRASH_PROBABILITY"); v != "" {
+		if cfg.CrashProbability, err = strconv.ParseFloat(v, 64); err != nil {
+			return Config{}, fmt.Errorf("BACKBONE_CRASH_PROBABILITY: %w", err)
+		}
+		if !(cfg.CrashProbability >= 0 && cfg.CrashProbability <= 1) {
+			return Config{}, fmt.Errorf("BACKBONE_CRASH_PROBABILITY must be within [0, 1]")
+		}
 	}
 	cfg.WatermarkRank = 100
 	if v := getenv("BACKBONE_WATERMARK_RANK"); v != "" {
