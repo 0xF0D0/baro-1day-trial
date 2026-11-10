@@ -184,3 +184,20 @@ CREATE TABLE IF NOT EXISTS run_scopes (
   reason text NOT NULL,
   PRIMARY KEY (source, brand, run_id, scope)
 );
+
+CREATE TABLE IF NOT EXISTS changes (
+  id bigserial PRIMARY KEY,
+  changed_at timestamptz NOT NULL,
+  run_id text NOT NULL,
+  source text NOT NULL,
+  brand text NOT NULL,
+  table_name text NOT NULL,
+  kind text NOT NULL,
+  key text NOT NULL,
+  change text NOT NULL CHECK (change IN ('appeared', 'ended', 'reappeared', 'changed')),
+  field text,
+  old_value text,
+  new_value text
+);
+CREATE INDEX IF NOT EXISTS changes_item ON changes (source, brand, table_name, kind, key, field, changed_at);
+CREATE INDEX IF NOT EXISTS changes_changed_at ON changes (changed_at);

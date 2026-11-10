@@ -4,7 +4,7 @@ import support
 import db
 import model
 
-TABLES = ("ads", "products", "reviews", "search_rankings", "search_interest", "posts", "runs", "run_scopes")
+TABLES = ("ads", "products", "reviews", "search_rankings", "search_interest", "posts", "runs", "run_scopes", "changes")
 
 
 class SchemaTest(support.DbTestCase):

@@ -3,6 +3,7 @@ import json
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
@@ -11,7 +12,7 @@ from psycopg.types.json import Jsonb
 
 import db
 from mappers import MAPPERS
-from model import COMMON_COLUMNS, TABLE_COLUMNS, MapError, Scope
+from model import COMMON_COLUMNS, TABLE_COLUMNS, TRACKED, MapError, Scope
 
 SOURCE_DATE_DAYS = 3
 
@@ -110,10 +111,30 @@ def _validate(mapper, mapped) -> None:
             raise ValueError(f"{row.key}: scope {row.scope!r} is not one of the returned scopes")
 
 
+def _change_text(value) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, float):
+        value = Decimal(str(value))
+    if isinstance(value, (int, Decimal)):
+        return format(Decimal(value).normalize(), "f")
+    return str(value)
+
+
+def _note(conn, run: dict, table: str, kind: str, key: str, change: str, field=None, old=None, new=None) -> None:
+    conn.execute(
+        "INSERT INTO changes (changed_at, run_id, source, brand, table_name, kind, key, change, field, old_value, new_value) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (run["started_at"], run["run_id"], run["source"], run["brand"], table, kind, key, change, field, old, new))
+
+
 def _write_rows(conn, run: dict, mapper, rows) -> tuple[int, int, int]:
     started = _dt(run["started_at"])
     inserted = updated = ended = 0
     latest = {}
+    looked = {}  # scope -> whether an earlier complete look at it exists
     for row in rows:  # the later record wins
         latest[(row.table, row.kind, row.key)] = row
     for row in latest.values():
@@ -124,10 +145,11 @@ def _write_rows(conn, run: dict, mapper, rows) -> tuple[int, int, int]:
             if started - shown > timedelta(days=SOURCE_DATE_DAYS):
                 ended_at = shown
         key = (run["source"], run["brand"], row.kind, row.key)
-        existing = conn.execute(
-            f"SELECT ended_at FROM {row.table} WHERE source = %s AND brand = %s AND kind = %s AND key = %s",
-            key).fetchone()
         own = list(row.columns)
+        tracked = [c for c in own if c in TRACKED[row.table]]
+        existing = conn.execute(
+            f"SELECT ended_at{''.join(', ' + c for c in tracked)} FROM {row.table} "
+            "WHERE source = %s AND brand = %s AND kind = %s AND key = %s", key).fetchone()
         if existing is None:
             names = list(COMMON_COLUMNS) + own
             values = [run["source"], run["brand"], row.kind, row.key, row.scope, row.url, row.fetched_at,
@@ -136,17 +158,40 @@ def _write_rows(conn, run: dict, mapper, rows) -> tuple[int, int, int]:
             conn.execute(f"INSERT INTO {row.table} ({', '.join(names)}) VALUES ({', '.join(['%s'] * len(names))})",
                          values)
             inserted += 1
+            if ended_at is None:
+                if row.scope not in looked:
+                    looked[row.scope] = conn.execute(
+                        "SELECT 1 FROM run_scopes s JOIN runs r USING (source, brand, run_id) "
+                        "WHERE s.source = %s AND s.brand = %s AND s.scope = %s AND s.status = 'ok' "
+                        "AND r.result = 'applied' AND s.run_id < %s",
+                        (run["source"], run["brand"], row.scope, run["run_id"])).fetchone() is not None
+                if looked[row.scope]:
+                    _note(conn, run, row.table, row.kind, row.key, "appeared")
         else:
             names = ["scope", "url", "fetched_at", "ended_at", "last_seen_at", "last_run_id", "raw"] + own
             values = [row.scope, row.url, row.fetched_at, ended_at, run["started_at"], run["run_id"],
                       Jsonb(row.raw)] + [row.columns[c] for c in own]
-            conn.execute(
+            after = conn.execute(
                 f"UPDATE {row.table} SET {', '.join(n + ' = %s' for n in names)} "
-                "WHERE source = %s AND brand = %s AND kind = %s AND key = %s", values + list(key))
+                f"WHERE source = %s AND brand = %s AND kind = %s AND key = %s RETURNING {', '.join(tracked) or 'true'}",
+                values + list(key)).fetchone()
             updated += 1
+            if existing[0] is not None and ended_at is None:
+                _note(conn, run, row.table, row.kind, row.key, "reappeared")
+            elif existing[0] is None and ended_at is not None:
+                _note(conn, run, row.table, row.kind, row.key, "ended")
+            for column, old, new in zip(tracked, existing[1:], after if tracked else ()):
+                if old != new:
+                    _note(conn, run, row.table, row.kind, row.key, "changed", column, _change_text(old), _change_text(new))
         if ended_at is not None and (existing is None or existing[0] is None):
             ended += 1
     return inserted, updated, ended
+
+
+def _note_ended(conn, run: dict, table: str, kind: str, keys) -> int:
+    for (key,) in keys:
+        _note(conn, run, table, kind, key, "ended")
+    return len(keys)
 
 
 def _end_absent(conn, run: dict, mapper, scopes) -> int:
@@ -156,19 +201,20 @@ def _end_absent(conn, run: dict, mapper, scopes) -> int:
         if policy != "absent" or table not in TABLE_COLUMNS:
             continue
         for scope in ok_scopes:
-            ended += conn.execute(
+            ended += _note_ended(conn, run, table, kind, conn.execute(
                 f"UPDATE {table} SET ended_at = %s WHERE source = %s AND brand = %s AND kind = %s AND scope = %s "
-                "AND last_run_id <> %s AND ended_at IS NULL",
-                (run["started_at"], run["source"], run["brand"], kind, scope, run["run_id"])).rowcount
+                "AND last_run_id <> %s AND ended_at IS NULL RETURNING key",
+                (run["started_at"], run["source"], run["brand"], kind, scope, run["run_id"])).fetchall())
     names = [s.name for s in scopes]
     for cover in (s.covers for s in scopes if s.status == "ok" and s.covers):
         for (table, kind), policy in mapper.ENDING.items():
             if policy != "absent" or table not in TABLE_COLUMNS:
                 continue
-            ended += conn.execute(
+            ended += _note_ended(conn, run, table, kind, conn.execute(
                 f"UPDATE {table} SET ended_at = %s WHERE source = %s AND brand = %s AND kind = %s "
-                "AND starts_with(scope, %s) AND NOT (scope = ANY(%s)) AND last_run_id <> %s AND ended_at IS NULL",
-                (run["started_at"], run["source"], run["brand"], kind, cover, names, run["run_id"])).rowcount
+                "AND starts_with(scope, %s) AND NOT (scope = ANY(%s)) AND last_run_id <> %s AND ended_at IS NULL "
+                "RETURNING key",
+                (run["started_at"], run["source"], run["brand"], kind, cover, names, run["run_id"])).fetchall())
     return ended
 
 
