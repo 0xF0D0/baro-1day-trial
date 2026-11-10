@@ -16,7 +16,8 @@ Docker with Compose v2, Python 3 (only for the supplied `replay.py` and `verify.
 | `BACKBONE_TEST_MINIO_ENDPOINT`, `BACKBONE_TEST_SECRETS_DIR` | Go tests | MinIO to test against (`127.0.0.1:59000`) and the directory holding its `minio_user` and `minio_password` files (`part2/out/secrets`). Without them the cold-tier tests skip. |
 | `BACKBONE_TENANTS_FILE`, `BACKBONE_KEK_FILE`, `BACKBONE_DATABASE_URL` | api | Set by compose. `BACKBONE_LISTEN` is optional (default `:8080`). |
 | `BACKBONE_MINIO_ENDPOINT`, `BACKBONE_MINIO_USER_FILE`, `BACKBONE_MINIO_PASSWORD_FILE` | api | Required; set by compose (`minio:9000` and files under `/secrets`). `BACKBONE_MINIO_BUCKET` is optional (default `backbone`). |
-| `BACKBONE_FLUSH_INTERVAL`, `BACKBONE_FLUSH_MARGIN`, `BACKBONE_WATERMARK_RANK` | api | Optional cold-tier flush settings: durations such as `5m` and `96h` (defaults), and the rank-watermark count (default `100`). |
+| `BACKBONE_FLUSH_INTERVAL`, `BACKBONE_FLUSH_MARGIN`, `BACKBONE_WATERMARK_RANK` | api, worker | Optional cold-tier flush settings: durations such as `5m` and `96h` (defaults), and the rank-watermark count (default `100`). The interval must be positive and the rank at least 1; otherwise the process refuses to start. The worker is the only process that flushes. |
+| `FLUSH_INTERVAL` | compose | Sets the worker's `BACKBONE_FLUSH_INTERVAL` (default `5m`). `e2e.sh` defaults it to `2s`. |
 | `TARGET` | replay, verify | Service URL, default `http://localhost:8080`. |
 
 The `secrets-init` service creates three secrets once, in `part2/out/secrets` (gitignored): the key-encryption key `kek` (32 random bytes) and the MinIO credentials `minio_user` and `minio_password`. It never overwrites an existing file, and `down -v` does not remove them. MinIO runs from `bitnamilegacy/minio:2025.7.23-debian-12-r5` because Docker Hub no longer serves `minio/minio`; its S3 port is published on `127.0.0.1:59000`.
@@ -37,12 +38,18 @@ Each script takes the data directory as its only argument.
 
 ## End to end
 
-`part2/scripts/e2e.sh <data-dir>` destroys the stack and its volumes, starts it from empty storage with that directory's `tenants.json`, replays and verifies. It exits with the verifier's exit code.
+`part2/scripts/e2e.sh <data-dir>` destroys the stack and its volumes, starts it from empty storage with that directory's `tenants.json`, replays, verifies and prints the tier statistics. It exits with the verifier's exit code.
 
 ```sh
 part2/scripts/e2e.sh "$INFRA/data"
 python3 "$INFRA/generate.py" --seed 7 --out /path/to/seed7 && part2/scripts/e2e.sh /path/to/seed7
 ```
+
+## Worker and tier statistics
+
+The `worker` compose service runs the same image with the `worker` binary. Every flush interval it walks the tenant registry and flushes one day at a time per tenant until nothing is left to flush, moving events older than the margin from `hot_events` into encrypted day buckets in MinIO. It logs one line per tick with the number of days flushed and the tick duration; a failing tenant is logged by tenant ID only, and the loop continues. It stops cleanly on SIGTERM.
+
+`part2/scripts/tier-stats.sh <data-dir>` prints `hot=<rows in hot_events> cold=<events in cold buckets> dirty=<tenants marked dirty>` from the running Postgres. `e2e.sh` uses a 2s flush interval (override with `FLUSH_INTERVAL`) so the cold tier is exercised during the replay, and runs `tier-stats.sh` after verify; its exit code is still the verifier's.
 
 ## Stop
 

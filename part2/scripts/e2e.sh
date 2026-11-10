@@ -8,7 +8,11 @@ DATA="$(cd "$DATA" && pwd)"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 COMPOSE="$HERE/../docker-compose.yml"
 export TENANTS_FILE="$DATA/tenants.json"
+export FLUSH_INTERVAL="${FLUSH_INTERVAL:-2s}"
 docker compose -f "$COMPOSE" down -v
 docker compose -f "$COMPOSE" up -d --build --wait
 "$HERE/replay.sh" "$DATA"
-"$HERE/verify.sh" "$DATA"
+rc=0
+"$HERE/verify.sh" "$DATA" || rc=$?
+"$HERE/tier-stats.sh" "$DATA" || true
+exit "$rc"

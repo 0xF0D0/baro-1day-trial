@@ -105,6 +105,29 @@ services:
       timeout: 3s
       retries: 30
 
+  worker:
+    build: ./backbone
+    entrypoint: ["/usr/local/bin/worker"]
+    environment:
+      - BACKBONE_DATABASE_URL=postgres://postgres@postgres:5432/postgres?sslmode=disable
+      - BACKBONE_TENANTS_FILE=/config/tenants.json
+      - BACKBONE_KEK_FILE=/secrets/kek
+      - BACKBONE_MINIO_ENDPOINT=minio:9000
+      - BACKBONE_MINIO_USER_FILE=/secrets/minio_user
+      - BACKBONE_MINIO_PASSWORD_FILE=/secrets/minio_password
+      - BACKBONE_FLUSH_INTERVAL=${FLUSH_INTERVAL:-5m}
+    volumes:
+      - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
+      - ./out/secrets:/secrets:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
   lb:
     image: nginx:1.27-alpine
     ports:
