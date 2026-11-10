@@ -12,7 +12,7 @@ TABLE_DEFAULTS = {"ads": {"source": "fake", "brand": "b", "kind": "ad", "channel
                   "search_rankings": {"source": "google_results", "brand": "b", "kind": "organic", "keyword": "k"}}
 
 
-class RadarViewsTest(DbTestCase):
+class RadarViewsBase(DbTestCase):
     def insert(self, table, key, **columns):
         values = {**COMMON, **TABLE_DEFAULTS[table], "key": key, **columns}
         names = ", ".join(values)
@@ -44,6 +44,8 @@ class RadarViewsTest(DbTestCase):
         rows = self._query(f"SELECT key, {', '.join(names)} FROM radar_running")
         return {r["key"]: tuple(r[n] for n in names) for r in rows}
 
+
+class RadarViewsTest(RadarViewsBase):
     def test_destination_and_subject(self):
         cases = [  # landing_domain, landing_url, destination, subject_type, subject
             ("livingproof.com", "https://www.livingproof.com/products/sheer-clean-mist?x=1#top", "brand_site", "product", "sheer-clean-mist"),
@@ -220,6 +222,68 @@ class RadarViewsTest(DbTestCase):
         self.ad("a")
         db.ensure_schema(self.conn)
         self.assertEqual(len(self.running("status")), 1)
+        self.assertEqual(self._query("SELECT count(*) AS n FROM radar_angles")[0]["n"], 0)
+        self.assertEqual(self._query("SELECT count(*) AS n FROM radar_response")[0]["n"], 0)
+
+
+class RadarAnglesTest(RadarViewsBase):
+    URL = "https://www.livingproof.com/products/mist"
+
+    def label(self, key, offer, message, voice, brand="b"):
+        self.conn.execute(
+            "INSERT INTO ad_angles (source, brand, kind, key, angle_offer, angle_message, angle_voice, text_sha256, "
+            "list_version, labeled_by, labeled_at) VALUES ('fake', %s, 'ad', %s, %s, %s, %s, 'h', 1, 't', now())",
+            (brand, key, offer, message, voice))
+        self.conn.commit()
+
+    def angles(self, where):
+        return {(r["angle_kind"], r["angle"]): r for r in self._query(f"SELECT * FROM radar_angles WHERE {where}")}
+
+    def numbers(self, r):
+        return (r["ads"], r["live"], r["started_last_7d"], r["oldest_days_live"], r["working"], r["not_working"])
+
+    def test_groups_and_counts(self):
+        # the latest look is 2026-11-10 (greatest last_seen_at over all ads)
+        self.ad("1", headline="one", landing_url=self.URL, landing_domain="livingproof.com", started_at="2026-11-08T00:00:00Z")
+        self.ad("2", headline="two", landing_url=self.URL, landing_domain="livingproof.com", started_at="2026-10-01T00:00:00Z")
+        self.ad("3", headline="three", landing_url=self.URL, landing_domain="livingproof.com",
+                started_at="2026-10-21T00:00:00Z", ended_at="2026-10-24T00:00:00Z")
+        self.ad("4", headline="four", landing_url=self.URL, landing_domain="livingproof.com", started_at="2026-10-31T00:00:00Z")
+        self.ad("5", headline="not labeled", landing_url=self.URL, landing_domain="livingproof.com", started_at="2026-11-09T00:00:00Z")
+        self.ad("6", headline="other brand", brand="c", landing_url=self.URL, landing_domain="livingproof.com",
+                started_at="2026-11-09T00:00:00Z")
+        self.label("1", "discount", "benefit", "brand")
+        self.label("2", "none", "benefit", "creator")
+        self.label("3", "none", "ingredient", "brand")
+        self.label("4", "discount", "none", "brand")
+        self.label("6", "discount", "benefit", "brand", brand="c")
+        rows = self.angles("brand = 'b' AND subject = 'mist'")
+        self.assertEqual(sorted(rows), [("message", "benefit"), ("message", "ingredient"), ("offer", "discount"),
+                                        ("voice", "brand"), ("voice", "creator")])
+        self.assertEqual(self.numbers(rows[("message", "benefit")]), (2, 2, 1, 40, 1, 0))
+        self.assertEqual(self.numbers(rows[("voice", "brand")]), (3, 2, 1, 10, 0, 1))
+        self.assertEqual(self.numbers(rows[("message", "ingredient")]), (1, 0, 0, 3, 0, 1))
+        self.assertEqual(self.numbers(rows[("voice", "creator")]), (1, 1, 0, 40, 1, 0))
+        self.assertEqual(rows[("offer", "discount")]["ads"], 2)
+        self.assertEqual({(r["subject_type"], r["subject"]) for r in rows.values()}, {("product", "mist")})
+        other = self.angles("brand = 'c'")
+        self.assertEqual(sorted(other), [("message", "benefit"), ("offer", "discount"), ("voice", "brand")])
+        self.assertEqual(other[("offer", "discount")]["ads"], 1)
+
+    def test_ads_without_a_subject_group_under_null(self):
+        self.ad("1", headline="one")
+        self.ad("2", headline="two")
+        self.label("1", "none", "convenience", "brand")
+        self.label("2", "none", "convenience", "creator")
+        rows = self._query("SELECT * FROM radar_angles WHERE brand = 'b' AND angle_kind = 'message'")
+        self.assertEqual(len(rows), 1)
+        r = rows[0]
+        self.assertEqual((r["subject_type"], r["subject"], r["angle"], r["ads"]), (None, None, "convenience", 2))
+
+    def test_columns(self):
+        self.assertEqual(self.columns("radar_angles"), [
+            "brand", "subject_type", "subject", "angle_kind", "angle", "ads", "live", "started_last_7d",
+            "oldest_days_live", "working", "not_working"])
 
 
 if __name__ == "__main__":

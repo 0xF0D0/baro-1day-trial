@@ -221,6 +221,7 @@ CREATE TABLE IF NOT EXISTS ad_angles (
 );
 
 -- Agent views. Dropped and created again on every ensure_schema, so the definitions in this file always win.
+DROP VIEW IF EXISTS radar_angles;
 DROP VIEW IF EXISTS radar_response;
 DROP VIEW IF EXISTS radar_running;
 
@@ -351,3 +352,25 @@ LEFT JOIN LATERAL (
   ORDER BY x.changed_at DESC, x.id DESC
   LIMIT 1
 ) c ON true;
+
+-- Angles of labeled ads, one row per kind and value (the value none is left out), grouped by brand and what is sold.
+CREATE VIEW radar_angles AS
+WITH latest AS (
+  SELECT max(last_seen_at) AS at FROM ads
+), angles AS (
+  SELECT r.brand, r.subject_type, r.subject, r.started, r.status, r.days_live, r.verdict, a.angle_kind, a.angle
+  FROM radar_running r
+  CROSS JOIN LATERAL (VALUES ('offer', r.angle_offer), ('message', r.angle_message), ('voice', r.angle_voice))
+              AS a(angle_kind, angle)
+  WHERE r.angle_state = 'labeled' AND a.angle IS NOT NULL AND a.angle <> 'none'
+)
+SELECT g.brand, g.subject_type, g.subject, g.angle_kind, g.angle,
+       count(*)::int AS ads,
+       (count(*) FILTER (WHERE g.status = 'live'))::int AS live,
+       (count(*) FILTER (WHERE g.started >= l.at - interval '7 days'))::int AS started_last_7d,
+       max(g.days_live)::int AS oldest_days_live,
+       (count(*) FILTER (WHERE g.verdict = 'working'))::int AS working,
+       (count(*) FILTER (WHERE g.verdict = 'not_working'))::int AS not_working
+FROM angles g
+CROSS JOIN latest l
+GROUP BY g.brand, g.subject_type, g.subject, g.angle_kind, g.angle;
