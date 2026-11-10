@@ -634,6 +634,20 @@ def apify_prices(cfg, out_dir):
 
 
 # ---------------------------------------------------------------- Batiste
+def wtb_failure(status, body):
+    """Error text for a non-200 where-to-buy response, and whether the loop must stop."""
+    if status == 403:
+        try:
+            detail = json.loads(body).get("detail")
+        except (ValueError, AttributeError):
+            detail = None
+        if isinstance(detail, str) and detail.startswith("Unauthorized ProductUIDs"):
+            return "unauthorized_product", False
+    if status in (403, 429):
+        return f"blocked: http_{status}", True
+    return f"http_{status}", True
+
+
 def batiste_prices(cfg, out_dir):
     c = cfg["prices"]
     part = {"state": "could_not_look", "reason": "", "route": "batiste_wtb", "records": None,
@@ -684,11 +698,13 @@ def batiste_prices(cfg, out_dir):
         if stopped:
             break
         r = res[ean]
+        keep_going = False
         try:
             status, _, b = http(WTB_URL.format(ean=ean, wtbid=c["wtbid"]), headers={"Accept": "application/json"})
             r["at"] = utc_now()
             if status != 200:
-                r["error"] = f"blocked: http_{status}" if status in (403, 429) else f"http_{status}"
+                r["error"], must_stop = wtb_failure(status, b)
+                keep_going = not must_stop
             else:
                 try:
                     resp = json.loads(b)
@@ -706,7 +722,7 @@ def batiste_prices(cfg, out_dir):
             break
         if r["error"]:
             r["state"] = "failed"
-            stopped = True
+            stopped = not keep_going
     stop_at = utc_now()
     if not_us:
         for r in res.values():
@@ -732,8 +748,11 @@ def batiste_prices(cfg, out_dir):
         r_ = []
         if failures:
             r_.append(f"product_pages_failed={failures}")
-        if failed:
-            r_.append(failed[0]["error"])
+        other = [r for r in failed if r["error"] != "unauthorized_product"]
+        if other:
+            r_.append(other[0]["error"])
+        if len(other) < len(failed):
+            r_.append(f"eans_unauthorized={len(failed) - len(other)}")
         if na:
             r_.append(f"eans_not_attempted={na}")
         part["reason"] = "; ".join(r_)
