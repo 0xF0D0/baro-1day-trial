@@ -12,3 +12,4 @@ CLAUDE.local.md
 part1/collectors/*/raw/
 part1/collectors/*/media/
 .pytest_cache/
+part2/out/
