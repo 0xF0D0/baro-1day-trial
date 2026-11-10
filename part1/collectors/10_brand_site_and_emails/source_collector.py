@@ -140,11 +140,16 @@ def apify_item_key(item):
 
 
 def apify_listed(log, listing_url):
-    pairs = {}
+    handled = set(re.findall(r"Product handled: (\S+)", log))
+    return len(handled) if handled else None
+
+
+def apify_found_per_page(log, listing_url):
+    pages = {}
     for n, url, page in re.findall(r"Found (\d+) products in the listing page: (\S+)\. Page: (\d+)", log):
         if url == listing_url:
-            pairs[(url, page)] = int(n)
-    return sum(pairs.values()) if pairs else None
+            pages[int(page)] = int(n)
+    return [pages[k] for k in sorted(pages)]
 
 
 def apify_prices_state(run_status, records, listed, max_hit, errors, log_read, counts):
@@ -509,7 +514,7 @@ def apify_prices(cfg, out_dir):
     """-> (part, cost_usd)."""
     listing_url = cfg["prices"]["listing_url"]
     part = {"state": "could_not_look", "reason": "", "route": "apify_ecommerce", "records": None,
-            "run_id": None, "run_status": None, "listed": None, "items": None,
+            "run_id": None, "run_status": None, "listed": None, "found_per_page": None, "items": None,
             "items_without_product_url": None, "duplicate_items": None, "items_without_price": None,
             "currency_not_reported": None, "errors": None}
     token = read_token()
@@ -631,6 +636,7 @@ def apify_prices(cfg, out_dir):
     max_hit = log_text is not None and "The maximum number of results per run has been reached" in log_text
     part["records"] = len(take)
     part["listed"] = listed
+    part["found_per_page"] = apify_found_per_page(log_text, listing_url) if log_text is not None else None
     part["state"], part["reason"] = apify_prices_state(data["status"], len(take), listed, max_hit, errors,
                                                        log_text is not None, counts)
     return part, cost

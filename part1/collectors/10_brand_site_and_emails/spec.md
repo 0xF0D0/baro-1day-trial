@@ -49,6 +49,7 @@ It does not extract prices, offer texts or email contents, does not decide what 
 | F19 | The inbox was searched once, at 2026-11-10T07:26:17Z, for the three sender domains. The spam folder was not searched. One email per brand was found. The Death Wish Coffee email arrived 3 s **before** the recorded `signup_at`, because `signup_at` was recorded after the submit click finished | export session log; `eml/`; `part1/data/email_signups.json` (`note`) |
 | F20 | `part1/data/email_signups.json` lists Batiste and Jinx as `not_signed_up` with `signup_at` `null`. Black Rifle is `submitted_unconfirmed`, although its email arrived 94 s after `signup_at` | `part1/data/email_signups.json`, `eml/` |
 | F21 | A run with the same input at 2026-11-10T15:49Z again returned 55 items, but 47 of the item URLs ended in `?variant=<digits>` (for example `/products/dark-roast-bundle?variant=42986248175712`), and the log had six `Found` lines for pages 1 to 6 (12, 10, 20, 30, 22, 5), which sum to 99; a run nine minutes later, again with 55 items, summed to 109 and reported `priceCurrency`. The pages' counts overlap, so `listed` no longer equals the item count and such a run is `partial` with `apify_count_mismatch` | runs of 2026-11-10T15:49Z and 15:58Z (not kept as samples) |
+| F22 | Run 4 (2026-11-10, the input of section 4.4) logged six page lines for the one listing, `Found` 10, 22, 22, 30, 20 and 5, and 55 distinct `Product handled` lines; it returned 55 items. Page counts of one listing overlap, so they are not summed | `apify/blackrifle_run4_log.txt` |
 
 Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - `products_*`;
@@ -56,7 +57,7 @@ Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - `klaviyo_forms_*.json`;
 - `batiste/`;
 - `batiste_wtb_availabilities_trimmed.json`;
-- `apify/blackrifle_run1_*` and `apify/blackrifle_run2_*`;
+- `apify/blackrifle_run1_*`, `apify/blackrifle_run2_*` and `apify/blackrifle_run4_log.txt` (six listing pages, 55 distinct products handled);
 - `eml/`.
 
 ## 3. Input
@@ -273,7 +274,7 @@ Order within a brand's run: (1) home page, (2) prices, (3) Klaviyo, (4) emails.
 7. Currency check on the items to be written:
    - If any `offers.priceCurrency` is neither `"USD"` nor `null`, `prices` is `could_not_look` with the reason `not_usd(<distinct values, sorted, comma-separated>)`, and no `product` record is written.
    - Otherwise write the records. The number of `null` values is `currency_not_reported`.
-8. `listed` is the sum of `N` over the distinct `(url, page)` pairs in log lines matching `Found (\d+) products in the listing page: (\S+)\. Page: (\d+)` whose url equals `listing_url`. It is `null` when there is no such line.
+8. `listed` is the number of distinct product URLs in log lines matching `Product handled: (\S+)`: what the actor says it handled. It is `null` when there is no such line. `found_per_page` keeps the `N` of the lines `Found (\d+) products in the listing page: (\S+)\. Page: (\d+)` for `listing_url`, one per page, for the record only: pages of one listing repeat products, so their sum is not a count (run 4: 10, 22, 22, 30, 20, 5 for 55 products). The size of the listing itself cannot be checked by the collector, because the site refuses its browser (F4).
 9. `cost_usd` is `data.usageTotalUsd` of the final run object.
 
 | `prices` state, checked in this order | State | Reason |
@@ -396,7 +397,7 @@ No network. Each check below ends the part when it fails.
 - `market` is `null` when there is no market check.
 - `klaviyo` is `null` when `klaviyo_company_id` is `null`.
 - For the other price routes, `prices` holds `state`, `reason`, `route`, `records` and the counters below.
-- For the Apify route: `run_id`, `run_status`, `listed`, `items`, `items_without_product_url`, `duplicate_items`, `items_without_price`, `currency_not_reported`, `errors` (the length of the errors dataset, or `null` if unread).
+- For the Apify route: `run_id`, `run_status`, `listed`, `found_per_page` (the per-page `N` of step 8, a list, for the record only; `null` if the log is unread), `items`, `items_without_product_url`, `duplicate_items`, `items_without_price`, `currency_not_reported`, `errors` (the length of the errors dataset, or `null` if unread).
 - For the Batiste route: `product_pages` (a list of `{"path", "state", "eans", "location", "error"}`), `eans`, `fetched`, `failed`, `not_attempted`.
 - When a part stops at an earlier check (for example `not_signed_up`), the counters it never reached are `null`.
 
@@ -431,7 +432,8 @@ def classify_batiste_page(status: int, location: str | None, html: str, wtbid: s
 def validate_wtb(resp: dict, ean: str) -> tuple[str, str]: ...    # (loc.Country, loc.ISOCurrencySymbol); raises ShapeError
 def parse_klaviyo(resp: dict) -> list[dict]: ...                  # raises ShapeError
 def apify_item_key(item: dict) -> str | None: ...
-def apify_listed(log: str, listing_url: str) -> int | None: ...
+def apify_listed(log: str, listing_url: str) -> int | None: ...  # distinct `Product handled` URLs
+def apify_found_per_page(log: str, listing_url: str) -> list[int]: ...  # `Found N` per page, in page order
 def extract_slots(page, slots: dict[str, str]) -> list[dict]: ... # raw of each offer_slot record
 def read_eml(path: str, manifest_gmail_id: str) -> dict | None: ...  # gmail_id, received_at, from_domain, sha256; None when invalid
 def emails_part(signup: dict | None, sender_domains: list[str], manifest: dict | None, emls: list[dict | None]) -> tuple[str, str, list[dict]]: ...  # state, reason, in-window messages
@@ -460,7 +462,9 @@ def redact_apify_run(run: dict) -> dict: ...
 | `klaviyo_forms_livingproof.json`, `_deathwish`, `_blackrifle`, `_jinx` | 5, 16, 16, 0 forms; first `form_id` `TgsYXf`, `YcKPdA`, `SzW6gs` |
 | a Klaviyo response with `form_id` removed from one form | `ShapeError` |
 | `apify/blackrifle_run2_items.json` | 55 keys, all distinct; first `product/www.blackriflecoffee.com/fall-coffee-lineup` |
-| `apify/blackrifle_run2_log.txt`, `apify/blackrifle_run1_log.txt` | `apify_listed` 55 and 10; the max-results line only in run 1 |
+| `apify/blackrifle_run4_log.txt`, `_run2_log.txt`, `_run1_log.txt` | `apify_listed` 55, 55 and 5; `apify_found_per_page` `[10, 22, 22, 30, 20, 5]`, `[55]`, `[10]`; the max-results line only in run 1 |
+| a log with no `Product handled` line | `apify_listed` `None`; `apify_found_per_page` `[]` |
+| `apify_prices_state("SUCCEEDED", 55, 55, False, 0, True, counts)` with run 4's `listed` and all counts 0 | `("ok", "")` |
 | `apify_prices_state("SUCCEEDED", 55, 55, False, 0, True, counts)` with `currency_not_reported` 55 and the other counts 0 | `("partial", "currency_not_reported(n=55)")` |
 | the same with `currency_not_reported` 0 | `("ok", "")` |
 | `apify_prices_state("SUCCEEDED", 5, 10, True, 0, True, counts)` with all counts 0 | `("partial", "apify_max_results_reached; apify_count_mismatch(got=5,listed=10)")` |
@@ -531,7 +535,7 @@ Stop work and report, with the exact response, when any of these happen. Do not 
 - A `products.json` page 1 has exactly 250 products, or 0 products. Paging past page 1, and an empty store, were never observed.
 - On the first implementation run, a home slot is `not_found`, the Living Proof, Death Wish Coffee, Jinx or Batiste home is blocked, or a market check is not `US`/`USD`.
 - The Black Rifle home is not blocked. Its slots (F5) were never checked in headless Chrome.
-- An Apify item has keys outside the union of the F15 and F16 shapes, an `inputUrl` other than `listing_url`, or an `unblocker-proxy-per-product` charge. Or the log has no `Found` line, or `listed` differs from the item count.
+- An Apify item has keys outside the union of the F15 and F16 shapes, an `inputUrl` other than `listing_url`, or an `unblocker-proxy-per-product` charge. Or the log has no `Product handled` line, or `listed` differs from the item count.
 - A Klaviyo response has top-level keys other than those in F8.
 - A Batiste product page returns 200 without the widget tag, or redirects somewhere other than `https://www.batistehair.com/batiste-products`.
 - `email_signups.json` gets a `signup_at` for Batiste or Jinx. Their sender domain must be taken from their first real email, added to `email_sender_domains` and to the export query, before the part can be collected.

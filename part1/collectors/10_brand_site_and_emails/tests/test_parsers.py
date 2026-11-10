@@ -61,7 +61,15 @@ class ParserTests(unittest.TestCase):
                          "product/www.blackriflecoffee.com/dark-roast-bundle")
         self.assertIsNone(sc.apify_item_key({"url": base + "?ref=home"}))
         url = "https://www.blackriflecoffee.com/collections/coffee"
-        self.assertEqual(sc.apify_listed((SAMPLES / "apify/blackrifle_run2_log.txt").read_text(), url), 55)
+        log = lambda n: (SAMPLES / f"apify/blackrifle_run{n}_log.txt").read_text()
+        self.assertEqual(sc.apify_listed(log(4), url), 55)
+        self.assertEqual(sc.apify_found_per_page(log(4), url), [10, 22, 22, 30, 20, 5])
+        self.assertEqual(sc.apify_listed(log(2), url), 55)
+        self.assertEqual(sc.apify_found_per_page(log(2), url), [55])
+        self.assertEqual(sc.apify_listed(log(1), url), 5)
+        self.assertEqual(sc.apify_found_per_page(log(1), url), [10])
+        self.assertIsNone(sc.apify_listed("INFO  nothing here\n", url))
+        self.assertEqual(sc.apify_found_per_page("INFO  nothing here\n", url), [])
 
     def test_apify_prices_state(self):
         c = dict(items_without_product_url=0, duplicate_items=0, items_without_price=0, currency_not_reported=55)
@@ -69,6 +77,10 @@ class ParserTests(unittest.TestCase):
                          ("partial", "currency_not_reported(n=55)"))
         c["currency_not_reported"] = 0
         self.assertEqual(sc.apify_prices_state("SUCCEEDED", 55, 55, False, 0, True, c), ("ok", ""))
+        # run 4: pages 10, 22, 22, 30, 20, 5 for 55 handled products
+        self.assertEqual(sc.apify_prices_state("SUCCEEDED", 55, sc.apify_listed(
+            (SAMPLES / "apify/blackrifle_run4_log.txt").read_text(), "https://www.blackriflecoffee.com/collections/coffee"),
+            False, 0, True, c), ("ok", ""))
         self.assertEqual(sc.apify_prices_state("SUCCEEDED", 5, 10, True, 0, True, c),
                          ("partial", "apify_max_results_reached; apify_count_mismatch(got=5,listed=10)"))
         self.assertEqual(sc.apify_prices_state("FAILED", 0, None, False, None, False, c),
