@@ -70,6 +70,9 @@ func Load(getenv func(string) string) (Config, error) {
 	if cfg.FlushMargin, err = duration(getenv, "BACKBONE_FLUSH_MARGIN", 96*time.Hour); err != nil {
 		return Config{}, err
 	}
+	if cfg.FlushMargin < 0 {
+		return Config{}, fmt.Errorf("BACKBONE_FLUSH_MARGIN must not be negative")
+	}
 	cfg.WatermarkRank = 100
 	if v := getenv("BACKBONE_WATERMARK_RANK"); v != "" {
 		if cfg.WatermarkRank, err = strconv.Atoi(v); err != nil {

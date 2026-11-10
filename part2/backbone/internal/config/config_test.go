@@ -84,3 +84,15 @@ func TestLoadRejectsNonPositiveFlushSettings(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadRejectsNegativeFlushMargin(t *testing.T) {
+	env := validEnv()
+	env["BACKBONE_FLUSH_MARGIN"] = "-1h"
+	if _, err := config.Load(func(k string) string { return env[k] }); err == nil {
+		t.Fatal("negative margin accepted")
+	}
+	env["BACKBONE_FLUSH_MARGIN"] = "0s"
+	if _, err := config.Load(func(k string) string { return env[k] }); err != nil {
+		t.Fatalf("zero margin rejected: %v", err)
+	}
+}

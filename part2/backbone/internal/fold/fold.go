@@ -113,8 +113,8 @@ type reqAdMetric struct {
 	Clicks      *int64  `json:"clicks"`
 }
 
-// Apply folds one event and always returns nil. Fields are checked in the
-// order the reducer reads them, and a field the reducer never reaches is not
+// ApplyMoves folds one event and returns the inventory movements it caused.
+// Fields are checked in the order the reducer reads them, and a field the reducer never reaches is not
 // required. A known type whose data lacks a field the reducer reads, or has it
 // with the wrong JSON type, is treated like an unknown type: it is counted
 // (with its customer) and changes nothing else. For order.refunded and
@@ -212,7 +212,8 @@ func (s *State) ApplyMoves(e canon.Event) []Move {
 	return moves
 }
 
-// Apply folds one event and always returns nil. See ApplyMoves.
+// Apply folds one event, discarding the movements ApplyMoves reports. It always
+// returns nil; the error result exists for callers that treat folding as fallible.
 func (s *State) Apply(e canon.Event) error {
 	s.ApplyMoves(e)
 	return nil

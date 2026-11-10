@@ -101,11 +101,23 @@ func TestStateEmptyTenant(t *testing.T) {
 func TestStateDirtyUsesFullFold(t *testing.T) {
 	ctx := context.Background()
 	st, sc := newScope(t)
-	events := loadFixture(t)
-	ingestAll(t, st, sc, events)
+	const base = 1_700_000_000_000 - 1_700_000_000_000%msDay
+	order := mkEvent("evt-order", base+msDay/2, "")
+	order.Data = json.RawMessage(`{"order_id":"o-1","lines":[{"sku":"X","qty":5,"unit_cents":100}]}`)
+	filler := mkEvent("evt-filler", base+4*msDay, "")
+	filler.Type = "inventory.adjusted"
+	filler.Data = json.RawMessage(`{"sku":"Y","delta":1}`)
+	ingestAll(t, st, sc, []canon.Event{order, filler})
 	flushN(t, st, 30)
 	cu := coldUntil(t, st, "t_1")
-	late := lateEvent("evt-late-state", cu-msDay/2)
+	if cu <= order.OccurredAtMs || cu > filler.OccurredAtMs {
+		t.Fatalf("cold_until %d: order not cold or filler not hot", cu)
+	}
+	// The late adjustment sorts before the order, so a full fold lets the stock
+	// cover the order; a snapshot taken after the order cannot see that.
+	late := mkEvent("evt-late-state", order.OccurredAtMs-msDay/4, "")
+	late.Type = "inventory.adjusted"
+	late.Data = json.RawMessage(`{"sku":"X","delta":5}`)
 	ingestAll(t, st, sc, []canon.Event{late})
 	var dirty bool
 	if err := st.Pool().QueryRow(ctx, `SELECT dirty FROM tenant_cold WHERE tenant_id='t_1'`).Scan(&dirty); err != nil || !dirty {
@@ -115,12 +127,28 @@ func TestStateDirtyUsesFullFold(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want, err := fold.Fold("t_1", append(append([]canon.Event(nil), events...), late), sc.Keys().CustomerKeyHex)
+	all := []canon.Event{order, filler, late}
+	want, err := fold.Fold("t_1", all, sc.Keys().CustomerKeyHex)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("dirty state differs from full fold:\n got %+v\nwant %+v", got, want)
+	}
+	// Guard: the fast path (snapshot of the cold events, then the hot rows) must
+	// give a different answer, or this test cannot tell the paths apart.
+	cold := fold.New("t_1", sc.Keys().CustomerKeyHex)
+	if err := cold.Apply(order); err != nil {
+		t.Fatal(err)
+	}
+	naive := fold.Restore("t_1", sc.Keys().CustomerKeyHex, cold.Snapshot())
+	for _, e := range []canon.Event{late, filler} {
+		if err := naive.Apply(e); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if reflect.DeepEqual(naive.Result(), want) {
+		t.Fatal("snapshot-then-hot equals the full fold: test does not discriminate")
 	}
 }
 
