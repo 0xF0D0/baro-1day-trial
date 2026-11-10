@@ -1,0 +1,196 @@
+{
+ "_note": "Trimmed from https://www.deathwishcoffee.com/products.json?limit=250&page=1 (fetched 2026-11-10, US, normal Chrome). 3 of 165 products kept; variants cut to the first 3; images cut to the first URL; body_html cut to 200 chars.",
+ "products": [
+  {
+   "id": 7173098373175,
+   "title": "Peppermint Mocha Coffee",
+   "handle": "peppermint-mocha-coffee",
+   "vendor": "Death Wish Coffee",
+   "product_type": "Coffee",
+   "tags": [
+    "Bagged",
+    "LTO Coffee",
+    "Peppermint Mocha"
+   ],
+   "published_at": "2026-11-04T09:26:35-05:00",
+   "updated_at": "2026-11-10T00:12:50-05:00",
+   "options": [
+    {
+     "name": "Size",
+     "position": 1,
+     "values": [
+      "1 bag",
+      "2 bags",
+      "5 bags"
+     ]
+    }
+   ],
+   "n_variants_total": 3,
+   "variants": [
+    {
+     "id": 41276131115063,
+     "title": "1 bag",
+     "sku": "LGPEPM09",
+     "price": "13.99",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 283,
+     "option1": "1 bag",
+     "option2": null,
+     "option3": null
+    },
+    {
+     "id": 41276131147831,
+     "title": "2 bags",
+     "sku": "LGPEPM18K",
+     "price": "27.98",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 567,
+     "option1": "2 bags",
+     "option2": null,
+     "option3": null
+    },
+    {
+     "id": 41276131180599,
+     "title": "5 bags",
+     "sku": "LGPEPM45K",
+     "price": "69.95",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 1417,
+     "option1": "5 bags",
+     "option2": null,
+     "option3": null
+    }
+   ],
+   "n_images_total": 3,
+   "images": [
+    "https://cdn.shopify.com/s/files/1/0271/7209/files/Peppermint_Mocha_9oz_Ground_Angle_Cathedral_DTC_A1_FT.jpg?v=1764780253"
+   ],
+   "body_html": "<h4>Mint to be your holiday escape.</h4>\n<p>Don't let overbearing in-laws hack away at your holiday cheer. Leave it in mint condition for the mind games to come with a heavy-handed dose of deeply deli"
+  },
+  {
+   "id": 15414106062903,
+   "title": "Power Surge Ground Bundle",
+   "handle": "power-surge-mug-ground-bundle",
+   "vendor": "Deneen Pottery",
+   "product_type": "Bundle",
+   "tags": [
+    "Bagged",
+    "Bundle",
+    "Coffee & Mug Bundles",
+    "HCM",
+    "Merch",
+    "Mug",
+    "Power Surge"
+   ],
+   "published_at": "2026-10-28T09:21:26-04:00",
+   "updated_at": "2026-11-10T00:12:50-05:00",
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ],
+   "n_variants_total": 1,
+   "variants": [
+    {
+     "id": 67671513137207,
+     "title": "Default Title",
+     "sku": "LKGPSMUG26",
+     "price": "52.99",
+     "compare_at_price": "57.99",
+     "available": true,
+     "grams": 1361,
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null
+    }
+   ],
+   "n_images_total": 7,
+   "images": [
+    "https://cdn.shopify.com/s/files/1/0271/7209/files/DeathWishCoffee_October26_Product_PowerSurge_Mugandgrounds_Web_2.jpg?v=1793114964"
+   ],
+   "body_html": "<h4>Power through anything.</h4>\n<p>Some days don’t ease in. They hit all at once. Deadlines. Detours. The never-ending list waiting for you the second work “ends.” Somewhere in between holding it all"
+  },
+  {
+   "id": 10200955748407,
+   "title": "Knit Happens Holiday Sweater",
+   "handle": "knit-happens-holiday-sweater",
+   "vendor": "Roody",
+   "product_type": "Apparel",
+   "tags": [
+    "Apparel",
+    "Gingerdead",
+    "Men",
+    "Merch",
+    "Unisex",
+    "Women"
+   ],
+   "published_at": "2026-11-02T09:52:06-05:00",
+   "updated_at": "2026-11-10T00:12:50-05:00",
+   "options": [
+    {
+     "name": "Size",
+     "position": 1,
+     "values": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "2XL",
+      "3XL"
+     ]
+    }
+   ],
+   "n_variants_total": 6,
+   "variants": [
+    {
+     "id": 50230280224823,
+     "title": "S",
+     "sku": "USDWGD02",
+     "price": "59.99",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 510,
+     "option1": "S",
+     "option2": null,
+     "option3": null
+    },
+    {
+     "id": 50230280257591,
+     "title": "M",
+     "sku": "USDWGD03",
+     "price": "59.99",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 539,
+     "option1": "M",
+     "option2": null,
+     "option3": null
+    },
+    {
+     "id": 50230280290359,
+     "title": "L",
+     "sku": "USDWGD04",
+     "price": "59.99",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 567,
+     "option1": "L",
+     "option2": null,
+     "option3": null
+    }
+   ],
+   "n_images_total": 7,
+   "images": [
+    "https://cdn.shopify.com/s/files/1/0271/7209/files/DeathWishCoffee_October26_Product_Sweater_GingerDead_Front2_Web.jpg?v=1793303084"
+   ],
+   "body_html": "<h4>Ugly sweater. Uglier cookies.</h4>\n<p>The holiday party dress code just got a little more sinister. Packed with half-eaten Gingerdead men, cinnamon sticks and snowflakes, all circling a gingerbrea"
+  }
+ ]
+}

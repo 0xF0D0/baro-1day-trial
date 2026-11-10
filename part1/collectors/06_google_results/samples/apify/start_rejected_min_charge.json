@@ -1,0 +1,11 @@
+{
+ "request": "POST https://api.apify.com/v2/acts/apify~google-search-scraper/runs?maxTotalChargeUsd=0.05&timeout=300 (2026-11-10, body = trial_input.json)",
+ "http_status": 400,
+ "body": {
+  "error": {
+   "type": "max-total-charge-usd-below-minimum",
+   "message": "Maximum cost per run is less than the allowed minimum of $0.50"
+  }
+ },
+ "effect": "No run was created; account usage did not change."
+}

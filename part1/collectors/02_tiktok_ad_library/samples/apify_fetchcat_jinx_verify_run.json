@@ -1,0 +1,368 @@
+{
+ "_note": "One approved verification run for the jinx brand input (2026-11-10 10:43 UTC). Start request with build=0.1.30, timeout=300, memory=512, maxTotalChargeUsd=0.25, waitForFinish=60. settle_reads: run object re-read every ~2.6 s after the run was seen as SUCCEEDED. usage_reads: later reads, seconds after finishedAt. userId, consoleUrl, containerUrl and generalAccess removed. In the dataset, @mentions other than '@Jinx' were replaced with '@<removed-in-sample>'.",
+ "request": {
+  "method": "POST",
+  "url": "https://api.apify.com/v2/acts/fetch_cat~tiktok-ads-library-scraper/runs",
+  "params": {
+   "build": "0.1.30",
+   "timeout": 300,
+   "memory": 512,
+   "maxTotalChargeUsd": 0.25,
+   "waitForFinish": 60
+  },
+  "body": {
+   "keywords": [
+    "Jinx",
+    "thinkjinx"
+   ],
+   "regions": [
+    "US"
+   ],
+   "period": "180",
+   "sortBy": "for_you",
+   "maxItems": 1000
+  }
+ },
+ "start_response_status": "SUCCEEDED",
+ "run_final": {
+  "id": "CqD4awVk4Ma6Duo2B",
+  "actId": "RnxYr0I6hkNVQk9ee",
+  "startedAt": "2026-11-10T10:43:08.909Z",
+  "finishedAt": "2026-11-10T10:43:12.910Z",
+  "status": "SUCCEEDED",
+  "meta": {
+   "origin": "API",
+   "userAgent": "Python-urllib/3.14"
+  },
+  "stats": {
+   "inputBodyLen": 241,
+   "migrationCount": 0,
+   "rebootCount": 0,
+   "restartCount": 0,
+   "durationMillis": 3850,
+   "resurrectCount": 0,
+   "runTimeSecs": 3.85,
+   "metamorph": 0,
+   "computeUnits": 0.0005347222222222222,
+   "memAvgBytes": 64011079.97495304,
+   "memMaxBytes": 87490560,
+   "memCurrentBytes": 0,
+   "cpuAvgUsage": 41.654829478536634,
+   "cpuMaxUsage": 72.88310234755988,
+   "cpuCurrentUsage": 0,
+   "netRxBytes": 26310,
+   "netTxBytes": 10289
+  },
+  "options": {
+   "build": "0.1.30",
+   "timeoutSecs": 300,
+   "memoryMbytes": 512,
+   "maxTotalChargeUsd": 0.25,
+   "maxItems": 1217,
+   "isMaxTotalChargeUsdSetByUser": true,
+   "diskMbytes": 1024
+  },
+  "buildId": "UvwnWzwWuJyRI8iU1",
+  "exitCode": 0,
+  "defaultKeyValueStoreId": "bX1SljmVLdOyCWrwX",
+  "defaultDatasetId": "OFvV5ZEXqQAqzTTqp",
+  "defaultRequestQueueId": "WAYVZqUWcR8msC37N",
+  "storageIds": {
+   "keyValueStores": {
+    "default": "bX1SljmVLdOyCWrwX"
+   },
+   "datasets": {
+    "default": "OFvV5ZEXqQAqzTTqp"
+   },
+   "requestQueues": {
+    "default": "WAYVZqUWcR8msC37N"
+   }
+  },
+  "pricingInfo": {
+   "pricingModel": "PAY_PER_EVENT",
+   "startedAt": "2026-06-27T19:40:47.472Z",
+   "createdAt": "2026-06-27T19:40:47.554Z",
+   "apifyMarginPercentage": 0.2,
+   "pricingPerEvent": {
+    "actorChargeEvents": {
+     "apify-actor-start": {
+      "eventTitle": "Actor Start",
+      "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+      "isOneTimeEvent": true,
+      "eventPriceUsd": 0.005
+     },
+     "apify-default-dataset-item": {
+      "eventTitle": "Ad record",
+      "eventDescription": "Per TikTok ad record saved in the default dataset.",
+      "isPrimaryEvent": true,
+      "eventPriceUsd": 0.00020537
+     }
+    }
+   }
+  },
+  "chargedEventCounts": {
+   "apify-actor-start": 1,
+   "apify-default-dataset-item": 5
+  },
+  "platformUsageBillingModel": "DEVELOPER",
+  "accountedChargedEventCounts": {
+   "apify-actor-start": 1,
+   "apify-default-dataset-item": 0
+  },
+  "standby": null,
+  "buildNumber": "0.1.30",
+  "usageTotalUsd": 0.005,
+  "eventUsage": {
+   "apify-actor-start": {
+    "eventTitle": "Actor Start",
+    "eventTotalUsd": 0.005
+   },
+   "apify-default-dataset-item": {
+    "eventTitle": "Ad record",
+    "eventTotalUsd": 0
+   }
+  },
+  "output": {
+   "ads": "https://api.apify.com/v2/datasets/OFvV5ZEXqQAqzTTqp/items?view=overview&signature=MC4wLjF6ZVg4Tm5PU1hzQjJOUFdVZnZtOQ",
+   "runSummary": "https://api.apify.com/v2/key-value-stores/bX1SljmVLdOyCWrwX/records/RUN_SUMMARY?signature=MQMI01fYNHMHwz27JMSC"
+  }
+ },
+ "run_summary": {
+  "status": "SUCCEEDED",
+  "requestedSources": 2,
+  "processedSources": 2,
+  "saved": 5,
+  "duplicatesSkipped": 0,
+  "failed": 0,
+  "emptySources": 1,
+  "errors": [],
+  "warnings": [],
+  "startedAt": "2026-11-10T10:43:11.495Z",
+  "finishedAt": "2026-11-10T10:43:12.794Z"
+ },
+ "settle_reads": [
+  {
+   "t_after_finish_seen_s": 2.0,
+   "chargedEventCounts": {
+    "apify-actor-start": 1,
+    "apify-default-dataset-item": 0
+   },
+   "usageTotalUsd": 0.005
+  },
+  {
+   "t_after_finish_seen_s": 4.6,
+   "chargedEventCounts": {
+    "apify-actor-start": 1,
+    "apify-default-dataset-item": 0
+   },
+   "usageTotalUsd": 0.005
+  },
+  {
+   "t_after_finish_seen_s": 7.2,
+   "chargedEventCounts": {
+    "apify-actor-start": 1,
+    "apify-default-dataset-item": 0
+   },
+   "usageTotalUsd": 0.005
+  },
+  {
+   "t_after_finish_seen_s": 9.8,
+   "chargedEventCounts": {
+    "apify-actor-start": 1,
+    "apify-default-dataset-item": 0
+   },
+   "usageTotalUsd": 0.005
+  },
+  {
+   "t_after_finish_seen_s": 12.4,
+   "chargedEventCounts": {
+    "apify-actor-start": 1,
+    "apify-default-dataset-item": 5
+   },
+   "usageTotalUsd": 0.005
+  }
+ ],
+ "usage_reads": [
+  {
+   "s_after_finishedAt": 24.1,
+   "usageTotalUsd": 0.00602685,
+   "counts": {
+    "apify-actor-start": 1,
+    "apify-default-dataset-item": 5
+   }
+  }
+ ],
+ "dataset": [
+  {
+   "adId": "7619486503161118737",
+   "detailUrl": "https://ads.tiktok.com/business/creativecenter/topads/7619486503161118737",
+   "advertiserName": null,
+   "brandName": null,
+   "adText": "oh and fact number 11 is that he is so incredibly cute, but I have a feeling you already knew that :) Jinx Cat is now available only at Walmart @Jinx #JinxPartner #WalmartPets #IYWYK",
+   "landingPageUrl": null,
+   "videoId": "v12044gd0000d6eap8nog65k5hm9vsvg",
+   "videoUrl": "https://v16m-default.tiktokcdn.com/c4fdfe0f4aea7aa65f2190431f363de4/6af349d4/video/tos/alisg/tos-alisg-ve-37c799-sg/o8IjJlEcQ28bi9GfCAefLsAkQlI5ZISFHVOTrI/?a=0&bti=NTU4QDM1NGA%3D&&bt=1334&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=ZGlnODo4OTtnNmY8OWRmN0BpanY8a245cjtkOTMzZzczNEA2MDYuNTZiXi4xNC0xYl5eYSNzc2oyMmRrbWJhLS1kMS9zcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00088000",
+   "videoUrls": {
+    "540p": "https://v16m-default.tiktokcdn.com/55ac1f4887925f2c1b0e236643cc9979/6af349d4/video/tos/alisg/tos-alisg-ve-37c799-sg/oYTOiQ5rE0VfCfsIIFCc7HAcQjLYvkebjAJGlI/?a=0&bti=NTU4QDM1NGA%3D&&bt=440&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=ZTxmZzxkODc6ZGhpNzU7ZUBpanY8a245cjtkOTMzZzczNEBjLzQ0NmAyX2AxXmM2Xy01YSNzc2oyMmRrbWJhLS1kMS9zcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00088000",
+    "720p": "https://v16m-default.tiktokcdn.com/c4fdfe0f4aea7aa65f2190431f363de4/6af349d4/video/tos/alisg/tos-alisg-ve-37c799-sg/o8IjJlEcQ28bi9GfCAefLsAkQlI5ZISFHVOTrI/?a=0&bti=NTU4QDM1NGA%3D&&bt=1334&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=ZGlnODo4OTtnNmY8OWRmN0BpanY8a245cjtkOTMzZzczNEA2MDYuNTZiXi4xNC0xYl5eYSNzc2oyMmRrbWJhLS1kMS9zcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00088000"
+   },
+   "mediaExpiresAt": "2026-11-10T16:44:04.000Z",
+   "coverImageUrl": "https://p16-common-sign.tiktokcdn.com/tos-maliva-p-0068c799-us/oEkCOa2AkVTMeYhHjQfjoF8lIzHW5WQTAg8gf6~tplv-noop.image?dr=18692&refresh_token=5485ab91&x-expires=1794329044&x-signature=gquU2ULeZcewl%2FOaXvOt1tqKWxs%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v12044gd0000d6eap8nog65k5hm9vsvg",
+   "durationSeconds": 52.434,
+   "width": 720,
+   "height": 1280,
+   "likes": 237,
+   "ctr": 0.45,
+   "costIndex": 1,
+   "industryKey": "label_19000000000",
+   "objectiveKey": "campaign_objective_reach",
+   "countryCode": "US",
+   "language": null,
+   "adFormat": null,
+   "keyword": "Jinx",
+   "periodDays": 180,
+   "rank": 1,
+   "isSearchResult": false,
+   "source": "creative_center",
+   "sourcePage": 1,
+   "scrapedAt": "2026-11-10T10:43:11.545Z"
+  },
+  {
+   "adId": "7609180755211075600",
+   "detailUrl": "https://ads.tiktok.com/business/creativecenter/topads/7609180755211075600",
+   "advertiserName": null,
+   "brandName": null,
+   "adText": "POV: ur gf wants to have a BABY  @Jinx is now available only at Walmart #jinxpartner #WalmartPets #IYWYK",
+   "landingPageUrl": null,
+   "videoId": "v15044gf0000d6bssrfog65grup8ci5g",
+   "videoUrl": "https://v16m-default.tiktokcdn.com/3a0a85ce8eeb03fbe75f84d7a0ae14dd/6af349de/video/tos/alisg/tos-alisg-ve-37c799-sg/o8AEQuSXh3pEfBTKwCBeGI2mVlzRiciAM3KEL7/?a=0&bti=NTU4QDM1NGA%3D&&bt=1327&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=Njs5Zmc4OmRkNDc0N2ZoZ0Bpamw7eGo5cnV2OTMzaTczNEA2YzYxLzUyXmExNTE1LmBfYSMyYG1vMmRjcF9hLS1kMTJzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00090000",
+   "videoUrls": {
+    "540p": "https://v16m-default.tiktokcdn.com/2d1b3dd3a29530e3955185c85c7ee03f/6af349de/video/tos/alisg/tos-alisg-ve-37c799-sg/oQAGME8UpE3enkthADBRMHBlFg5QVIfRbE2vvW/?a=0&bti=NTU4QDM1NGA%3D&&bt=447&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=OzNpOjo6PGllOWdpNjNmN0Bpamw7eGo5cnV2OTMzaTczNEA1M2ItNmExNWMxXjUyMDNfYSMyYG1vMmRjcF9hLS1kMTJzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00090000",
+    "720p": "https://v16m-default.tiktokcdn.com/3a0a85ce8eeb03fbe75f84d7a0ae14dd/6af349de/video/tos/alisg/tos-alisg-ve-37c799-sg/o8AEQuSXh3pEfBTKwCBeGI2mVlzRiciAM3KEL7/?a=0&bti=NTU4QDM1NGA%3D&&bt=1327&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=Njs5Zmc4OmRkNDc0N2ZoZ0Bpamw7eGo5cnV2OTMzaTczNEA2YzYxLzUyXmExNTE1LmBfYSMyYG1vMmRjcF9hLS1kMTJzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00090000"
+   },
+   "mediaExpiresAt": "2026-11-10T16:44:14.000Z",
+   "coverImageUrl": "https://p16-common-sign.tiktokcdn.com/tos-maliva-p-0068c799-us/oopeIXkEADEUMAjyWziBfFqh5EV7tQ2vR8lU8C~tplv-noop.image?dr=18692&refresh_token=00faa154&x-expires=1794329054&x-signature=ittrAufjTXkCXBhmKBxrs0mKZhQ%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v15044gf0000d6bssrfog65grup8ci5g",
+   "durationSeconds": 62.867,
+   "width": 720,
+   "height": 1280,
+   "likes": 1183,
+   "ctr": 0.39,
+   "costIndex": 1,
+   "industryKey": "label_23122000000",
+   "objectiveKey": "campaign_objective_reach",
+   "countryCode": "US",
+   "language": null,
+   "adFormat": null,
+   "keyword": "Jinx",
+   "periodDays": 180,
+   "rank": 2,
+   "isSearchResult": false,
+   "source": "creative_center",
+   "sourcePage": 1,
+   "scrapedAt": "2026-11-10T10:43:11.545Z"
+  },
+  {
+   "adId": "7610264657370497041",
+   "detailUrl": "https://ads.tiktok.com/business/creativecenter/topads/7610264657370497041",
+   "advertiserName": null,
+   "brandName": null,
+   "adText": "During the #SpringFestival travel rush, known as \"chunyun\" in Chinese, we boarded train K7041 en route to China's far north. Quilts, yangko dancing, and cheerful conversation filled the carriage, creating an unexpected mobile festival amid chunyun, which is often described as the world's largest annual human migration. #China #MegaProject",
+   "landingPageUrl": null,
+   "videoId": "v09300g40001d68lhjvog65rf2auo4mg",
+   "videoUrl": "https://v16m-default.tiktokcdn.com/18ebe0d8969b09407b5b6da19473a84d/6af34aa2/video/tos/alisg/tos-alisg-ve-37c813-sg/o4je2EfJJkEQt2B2wPQXIsFEc8sEwpgRDQBVBu/?a=0&bti=NTU4QDM1NGA%3D&&bt=1420&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=NTs4ODllaGc5OGhoO2hpNEBpajd4NXU5cm1vOTQzNzM2M0AyMl8wNjQ0NmAxXi4xNS8zYSNqbF5jMmRzZTVhLS1kLTZzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00098000",
+   "videoUrls": {
+    "720p": "https://v16m-default.tiktokcdn.com/18ebe0d8969b09407b5b6da19473a84d/6af34aa2/video/tos/alisg/tos-alisg-ve-37c813-sg/o4je2EfJJkEQt2B2wPQXIsFEc8sEwpgRDQBVBu/?a=0&bti=NTU4QDM1NGA%3D&&bt=1420&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=NTs4ODllaGc5OGhoO2hpNEBpajd4NXU5cm1vOTQzNzM2M0AyMl8wNjQ0NmAxXi4xNS8zYSNqbF5jMmRzZTVhLS1kLTZzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00098000"
+   },
+   "mediaExpiresAt": "2026-11-10T16:47:30.000Z",
+   "coverImageUrl": "https://p16-common-sign.tiktokcdn.com/tos-maliva-p-85c255/oM2XGRjEVPEEkqjpEeCIBWJFwfOCHgwJBDtBQs~tplv-noop.image?dr=18692&refresh_token=cecd86b0&x-expires=1794329250&x-signature=up2pIQJQ%2Bpa758eno4TJkd9gPSs%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v09300g40001d68lhjvog65rf2auo4mg",
+   "durationSeconds": 258.112,
+   "width": 1024,
+   "height": 576,
+   "likes": 4582,
+   "ctr": 0.96,
+   "costIndex": 0,
+   "industryKey": "label_23109000000",
+   "objectiveKey": "campaign_objective_reach",
+   "countryCode": "US",
+   "language": null,
+   "adFormat": null,
+   "keyword": "Jinx",
+   "periodDays": 180,
+   "rank": 3,
+   "isSearchResult": false,
+   "source": "creative_center",
+   "sourcePage": 1,
+   "scrapedAt": "2026-11-10T10:43:11.545Z"
+  },
+  {
+   "adId": "7549144945502552072",
+   "detailUrl": "https://ads.tiktok.com/business/creativecenter/topads/7549144945502552072",
+   "advertiserName": null,
+   "brandName": "shorttv",
+   "adText": "Continue Watch",
+   "landingPageUrl": null,
+   "videoId": "v1c033g50000dacl2qfog65k03tspnl0",
+   "videoUrl": "https://v16m-default.tiktokcdn.com/4678b6572f6b07ff07bedc7bc1d1e3b6/6af34ad3/video/tos/useast2a/tos-useast2a-ve-0051c799-euttp/okk0u0ATPAACQoBdBJQ84nEwdimmyfXzZoiIA1/?a=0&bti=NTU4QDM1NGA%3D&&bt=1359&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=Omk2PGlkNDo3N2RlM2hnaEBpM3F2Nm45cnRvZDMzODYzNEA1MC42YmFiXzMxXjNhMS9fYSNpbXEtMmRjL2BhLS1kMGBzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e000a0000",
+   "videoUrls": {
+    "360p": "https://v16m-default.tiktokcdn.com/9a526c08b8c25c4c86d64a027676741f/6af34ad3/video/tos/alisg/tos-alisg-ve-51c800-sg/o0p0hpgqQEJ6xnoDLcTG5DXCfIeQgz4fAAPFXb/?a=0&bti=NTU4QDM1NGA%3D&&bt=544&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=Ojs5aTc4Ojg5PDc1Njk2OkBpM3F2Nm45cnRvZDMzODYzNEAwYS9eMDIyXjExLzMvMi8xYSNpbXEtMmRjL2BhLS1kMGBzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e000a0000",
+    "480p": "https://v16m-default.tiktokcdn.com/e9a6733dc3c7944b9347098b38ed9452/6af34ad3/video/tos/alisg/tos-alisg-ve-51c800-sg/ocendeD11A6kB2J3AgWUecAMp8hTmSXQGMFf5R/?a=0&bti=NTU4QDM1NGA%3D&&bt=785&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=Zjk2NjlmNDNlODMzNDNoNEBpM3F2Nm45cnRvZDMzODYzNEA2YzIyXl9gXzYxNC0xXzVfYSNpbXEtMmRjL2BhLS1kMGBzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e000a0000",
+    "540p": "https://v16m-default.tiktokcdn.com/08fef8715cfae39ff65d78a8956d792c/6af34ad3/video/tos/alisg/tos-alisg-ve-51c800-sg/o0noIOA0AwoEMvm1mioJPQkA8dpBfi04yoZudB/?a=0&bti=NTU4QDM1NGA%3D&&bt=1029&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=ZmVlZ2ZkNzU1NmU6M2U2aUBpM3F2Nm45cnRvZDMzODYzNEAzLWA2MF8vXjQxNi4yMDYzYSNpbXEtMmRjL2BhLS1kMGBzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e000a0000",
+    "720p": "https://v16m-default.tiktokcdn.com/4678b6572f6b07ff07bedc7bc1d1e3b6/6af34ad3/video/tos/useast2a/tos-useast2a-ve-0051c799-euttp/okk0u0ATPAACQoBdBJQ84nEwdimmyfXzZoiIA1/?a=0&bti=NTU4QDM1NGA%3D&&bt=1359&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=Omk2PGlkNDo3N2RlM2hnaEBpM3F2Nm45cnRvZDMzODYzNEA1MC42YmFiXzMxXjNhMS9fYSNpbXEtMmRjL2BhLS1kMGBzcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e000a0000"
+   },
+   "mediaExpiresAt": "2026-11-10T16:48:19.000Z",
+   "coverImageUrl": "https://p19-common-sign.tiktokcdn.com/tos-useast2a-p-0051c799-euttp/oE6LI4QMeB8DZgnBUVqZGvUQWuWcebAMeTCNDA~tplv-noop.image?dr=18692&refresh_token=01f44d2e&x-expires=1794329299&x-signature=k7t4GkeB4ylzq5jDdX3neML5X8A%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v1c033g50000dacl2qfog65k03tspnl0",
+   "durationSeconds": 307.41,
+   "width": 720,
+   "height": 1280,
+   "likes": 70039,
+   "ctr": 0.09,
+   "costIndex": 2,
+   "industryKey": "label_23112000000",
+   "objectiveKey": "campaign_objective_conversion",
+   "countryCode": "US",
+   "language": null,
+   "adFormat": null,
+   "keyword": "Jinx",
+   "periodDays": 180,
+   "rank": 4,
+   "isSearchResult": false,
+   "source": "creative_center",
+   "sourcePage": 1,
+   "scrapedAt": "2026-11-10T10:43:11.545Z"
+  },
+  {
+   "adId": "7634260292117282834",
+   "detailUrl": "https://ads.tiktok.com/business/creativecenter/topads/7634260292117282834",
+   "advertiserName": null,
+   "brandName": null,
+   "adText": "tonight, we eat ramen 🍜😊#jinyaramenbar #foodreview #perkinsrowebr ",
+   "landingPageUrl": null,
+   "videoId": "v12044gd0000d7dg9n7og65khbbjfae0",
+   "videoUrl": "https://v16m-default.tiktokcdn.com/1084b88b39a8970eb5efda56c18a5125/6af34a0f/video/tos/alisg/tos-alisg-ve-37c799-sg/o4ASdcBVgiE7vjib3aBt4UPEmE0dQs3YBiqIc/?a=0&bti=NTU4QDM1NGA%3D&&bt=1564&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=ZDg0Zjg8ZGg5Ozw3Omg6NEBpM2RtZW45cnFqOjMzZzczNEA0Mi9fL19jNl8xNDY1MV5jYSNiY19lMmQ0NmFhLS1kMS9zcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00090000",
+   "videoUrls": {
+    "540p": "https://v16m-default.tiktokcdn.com/0e2fd2ddbdda035b36db08bd8358c653/6af34a0f/video/tos/alisg/tos-alisg-ve-37c799-sg/oAEOISUfw4UQ5bERcB2pFgFT4NIDafgDAvpCbB/?a=0&bti=NTU4QDM1NGA%3D&&bt=522&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=Ojw3PDVoMzg8aTloaWk6OkBpM2RtZW45cnFqOjMzZzczNEAxXjEvMC4vX2MxL2I0YDYwYSNiY19lMmQ0NmFhLS1kMS9zcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00090000",
+    "720p": "https://v16m-default.tiktokcdn.com/1084b88b39a8970eb5efda56c18a5125/6af34a0f/video/tos/alisg/tos-alisg-ve-37c799-sg/o4ASdcBVgiE7vjib3aBt4UPEmE0dQs3YBiqIc/?a=0&bti=NTU4QDM1NGA%3D&&bt=1564&ft=cApXJCz7ThWHmakLLGZmo0P&mime_type=video_mp4&rc=ZDg0Zjg8ZGg5Ozw3Omg6NEBpM2RtZW45cnFqOjMzZzczNEA0Mi9fL19jNl8xNDY1MV5jYSNiY19lMmQ0NmFhLS1kMS9zcw%3D%3D&vvpl=1&l=20261110184311FF6636B8007210670AE8&btag=e00090000"
+   },
+   "mediaExpiresAt": "2026-11-10T16:45:03.000Z",
+   "coverImageUrl": "https://p16-common-sign.tiktokcdn.com/tos-maliva-p-0068c799-us/ogXvQ4FewaScAUM2DHDAQT2pRFpgDBOE0wE5fC~tplv-noop.image?dr=18692&refresh_token=7d0c9b14&x-expires=1794329103&x-signature=X%2BFDZk9waXe2UqfycTFUJ7bRml0%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v12044gd0000d7dg9n7og65khbbjfae0",
+   "durationSeconds": 111.5,
+   "width": 720,
+   "height": 1280,
+   "likes": 458,
+   "ctr": 0.47,
+   "costIndex": 1,
+   "industryKey": "label_27100000000",
+   "objectiveKey": "campaign_objective_video_view",
+   "countryCode": "US",
+   "language": null,
+   "adFormat": null,
+   "keyword": "Jinx",
+   "periodDays": 180,
+   "rank": 5,
+   "isSearchResult": false,
+   "source": "creative_center",
+   "sourcePage": 1,
+   "scrapedAt": "2026-11-10T10:43:11.545Z"
+  }
+ ]
+}

@@ -1,0 +1,411 @@
+[
+ {
+  "path": "/products/dry-shampoo-light/fragrance-free-light",
+  "status": 200,
+  "title": "Fragrance Free Light Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724007341"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.84
+ },
+ {
+  "path": "/products/dry-shampoo-light/mellow-melon",
+  "status": 200,
+  "title": "Light Mellow Melon Dry Shampoo |Batiste\u2122",
+  "n_tags": 1,
+  "ids": [
+   "5010724002773,5010724003428"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.55
+ },
+ {
+  "path": "/products/dry-shampoo/black-hint-of-color",
+  "status": 200,
+  "title": "Black Hint of Color Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724008317"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.61
+ },
+ {
+  "path": "/products/dry-shampoo/color-beautiful-brunette",
+  "status": 200,
+  "title": "Beautiful Brunette for Brown Hair | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526743,5010724527313"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 2.55
+ },
+ {
+  "path": "/products/dry-shampoo/color-brilliant-blonde",
+  "status": 200,
+  "title": "Brillant Blonde for Blonde Hair | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526736,5010724527306,5010724528143"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 1.55
+ },
+ {
+  "path": "/products/dry-shampoo/color-divine-dark",
+  "status": 200,
+  "title": "Divine Dark Tint for Dark Hair | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526750,5010724527320,5010724538364,5010724528150,5010724003282"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.55
+ },
+ {
+  "path": "/products/dry-shampoo/color-protecting",
+  "status": 200,
+  "title": "Color Protecting Dry Shampoo | Added-Benefit | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724538296"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.59
+ },
+ {
+  "path": "/products/dry-shampoo/cucumber-dry-shampoo",
+  "status": 200,
+  "title": "Cucumber Cooler | Batiste\u2122",
+  "n_tags": 1,
+  "ids": [
+   "5010724002353"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.6
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-bare",
+  "status": 200,
+  "title": "Bare Scented Dry Shampoo | Batiste\u2122  Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526705,5010724527146,5010724538333,5010724532133"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.7
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-blush",
+  "status": 200,
+  "title": "Blush Floral Scented Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724527344,5010724538326,5010724527399"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.58
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-courtside-couture",
+  "status": 200,
+  "title": "Courtside Couture Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724005651"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.52
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-fresh",
+  "status": 200,
+  "title": "Fresh Scented Dry Shampoo |  Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526712,5010724527153,5010724538340"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.53
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-original",
+  "status": 200,
+  "title": "Original Classic Clean Scent | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526675,5010724526774,5010724538302,5010724527504,5010724532119,5010724003251,5010724538913"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.54
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-pink-pineapple",
+  "status": 200,
+  "title": "Pink Pineapple Scented Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724527351,5010724538357"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.61
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-rose-gold",
+  "status": 200,
+  "title": "Rose Gold Radiant Rose Scented Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526729,5010724527160"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.86
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-tropical",
+  "status": 200,
+  "title": "Tropical Coconut Scented Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526699,5010724526781,5010724538319,5010724527535,5010724003244"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.54
+ },
+ {
+  "path": "/products/dry-shampoo/fragrance-wildflower",
+  "status": 200,
+  "title": "Dry Shampoo and Hair Care Products | Batiste\u2122 Dry Shampoo",
+  "n_tags": 0,
+  "ids": [],
+  "wtbid": [],
+  "s": 1.27
+ },
+ {
+  "path": "/products/dry-shampoo/lakeside-dry-shampoo",
+  "status": 200,
+  "title": "Lakeside Retreat Dry Shampoo | Batiste\u2122",
+  "n_tags": 1,
+  "ids": [
+   "5010724539767"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.56
+ },
+ {
+  "path": "/products/dry-shampoo/overnight-dry-shampoo",
+  "status": 200,
+  "title": "Overnight Deep Cleanse Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526903"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.58
+ },
+ {
+  "path": "/products/dry-shampoo/powder-bare-scent",
+  "status": 200,
+  "title": "Bare Scent Powder Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724008515"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.59
+ },
+ {
+  "path": "/products/dry-shampoo/powder-dark-color",
+  "status": 200,
+  "title": "Dark Hint of Color Powder Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724008348,5010724008355"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.62
+ },
+ {
+  "path": "/products/dry-shampoo/powder-original-scent",
+  "status": 200,
+  "title": "Original Scent Powder Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724008287"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.53
+ },
+ {
+  "path": "/products/dry-shampoo/sunset-rodeo-scent",
+  "status": 200,
+  "title": "Sunset Rodeo Scent Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724008416"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.63
+ },
+ {
+  "path": "/products/dry-shampoo/sweat-dry-shampoo",
+  "status": 200,
+  "title": "Sweat Activated Dry Shampoo | Batiste\u2122",
+  "n_tags": 1,
+  "ids": [
+   "5010724539729,5010724004708,5010724539743"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.57
+ },
+ {
+  "path": "/products/dry-shampoo/texturizing-dry-shampoo",
+  "status": 200,
+  "title": "Texturizing Dry Shampoo | Added-Benefit | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526965"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.56
+ },
+ {
+  "path": "/products/dry-shampoo/touch-dry-shampoo",
+  "status": 200,
+  "title": "Touch Activated Dry Shampoo | Batiste\u2122",
+  "n_tags": 1,
+  "ids": [
+   "5010724539736,5010724539750"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.64
+ },
+ {
+  "path": "/products/dry-shampoo/vanilla-souffle-scent",
+  "status": 200,
+  "title": "Vanilla Souffl\u00e9 Scent Dry Shampoo | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724009253"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.58
+ },
+ {
+  "path": "/products/dry-shampoo/volumizing",
+  "status": 200,
+  "title": "Volumizing Dry Shampoo | Added-Benefit | Batiste\u2122 Dry Shampoo",
+  "n_tags": 1,
+  "ids": [
+   "5010724526767,5010724527337,5010724004685,5010724533420,5010724538906"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.54
+ },
+ {
+  "path": "/products/dry-shampoo/zen-matcha-dry-shampoo",
+  "status": 200,
+  "title": "Light Zen Matcha Dry Shampoo  | Batiste\u2122",
+  "n_tags": 1,
+  "ids": [
+   "5010724003008"
+  ],
+  "wtbid": [
+   "679a839e96a96e0f672b1fcc"
+  ],
+  "s": 0.59
+ },
+ {
+  "path": "/products/leave-in-hair-mask/overnight-hair-mask",
+  "status": 200,
+  "title": "Dry Shampoo and Hair Care Products | Batiste\u2122 Dry Shampoo",
+  "n_tags": 0,
+  "ids": [],
+  "wtbid": [],
+  "s": 1.11
+ },
+ {
+  "path": "/products/leave-in-hair-mask/repair-hair-mask",
+  "status": 200,
+  "title": "Dry Shampoo and Hair Care Products | Batiste\u2122 Dry Shampoo",
+  "n_tags": 0,
+  "ids": [],
+  "wtbid": [],
+  "s": 1.25
+ },
+ {
+  "path": "/products/leave-in-hair-mask/smooth-hair-mask",
+  "status": 200,
+  "title": "Dry Shampoo and Hair Care Products | Batiste\u2122 Dry Shampoo",
+  "n_tags": 0,
+  "ids": [],
+  "wtbid": [],
+  "s": 1.25
+ },
+ {
+  "path": "/products/leave-in-hair-mask/strengthening-hair-mask",
+  "status": 200,
+  "title": "Dry Shampoo and Hair Care Products | Batiste\u2122 Dry Shampoo",
+  "n_tags": 0,
+  "ids": [],
+  "wtbid": [],
+  "s": 1.13
+ }
+]

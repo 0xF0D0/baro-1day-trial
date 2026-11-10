@@ -1,0 +1,1289 @@
+{
+ "_note": "Apify clockworks/tiktok-scraper, input hashtags=['deathwishcoffee'], resultsPerPage=10, run DyYwrr03sEqM1ZF2r (2026-11-10T07:11:49Z). All 10 items in the order returned. Values replaced with '<removed>': author id/nickName/signature/bioLink/avatar URLs, music author and signed URLs, video cover and subtitle signed URLs, mention id/nickName, locationMeta values. Everything else is as returned.",
+ "items": [
+  {
+   "id": "7699600078079593750",
+   "text": "Death wish coffee in Miami ? Who’s had it ? And does it get you ready for the gym or workout ?",
+   "textLanguage": "en",
+   "createTime": 1792702849,
+   "createTimeISO": "2026-10-22T21:00:49.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "liamgiddy",
+    "profileUrl": "https://www.tiktok.com/@liamgiddy",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 571,
+    "friends": 0,
+    "fans": 31400,
+    "heart": 501700,
+    "video": 955,
+    "digg": 24900,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7699600082909842198"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@liamgiddy/video/7699600078079593750",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 30,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "ASR",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 29,
+   "shareCount": 1,
+   "playCount": 398,
+   "collectCount": 2,
+   "commentCount": 1,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7659403101610183949",
+   "text": "You bring the ambition. We'll bring the caffeine. ☠️\nPower Surge packs 210mg of naturally occurring caffeine per serving from organic Robusta beans for a smooth, bold cup that works as hard as you do. #DeathWishCoffee #PowerSurge #FuelYourAmbition #Coffee #BusyMom",
+   "textLanguage": "en",
+   "createTime": 1783343765,
+   "createTimeISO": "2026-07-06T13:16:05.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 0,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 2073,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7659403135705811726"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7659403101610183949",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 24,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 34,
+   "shareCount": 5,
+   "playCount": 1810,
+   "collectCount": 7,
+   "commentCount": 1,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "powersurge",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "fuelyourambition",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "busymom",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7303967277945572654",
+   "text": "If regular coffee doesn't wake you up. Try this Death Wish Coffee, I bought it from Amazon ☕️\n#deathwishcoffee @Death Wish Coffee #icedcoffee #food #notamorningperson #lifestyle #ConSantanderConecto ",
+   "textLanguage": "en",
+   "createTime": 1700587422,
+   "createTimeISO": "2023-11-21T17:23:42.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "vi0letred",
+    "profileUrl": "https://www.tiktok.com/@vi0letred",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 4185,
+    "friends": 0,
+    "fans": 140300,
+    "heart": 3000000,
+    "video": 978,
+    "digg": 25000,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "Aesthetic",
+    "musicAuthor": "<removed>",
+    "musicOriginal": false,
+    "musicAlbum": "<removed>",
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7072513628145977346"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@vi0letred/video/7303967277945572654",
+   "videoMeta": {
+    "height": 1016,
+    "width": 576,
+    "duration": 121,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "LC",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     },
+     {
+      "language": "eng-US",
+      "source": "MT",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 529,
+   "shareCount": 92,
+   "playCount": 52400,
+   "collectCount": 139,
+   "commentCount": 31,
+   "repostCount": 0,
+   "mentions": [
+    "@Death Wish Coffee"
+   ],
+   "detailedMentions": [
+    {
+     "name": "deathwishcoffee",
+     "profileUrl": "https://www.tiktok.com/@6793564987732739078",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "icedcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "food",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "notamorningperson",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "lifestyle",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "consantanderconecto",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7699966149005462798",
+   "text": "Death Wish Coffee Co. Gingerbread is such a good seasonal coffee! 🤎 rich, flavorful, and perfect for cozy fall mornings. If you love gingerbread and a bold cup of coffee, this is definitely worth trying! \n\n #co#coffeeo#coffeetoke#DeathWishGingerdeadKe@Keurige@Death Wish Coffee",
+   "textLanguage": "en",
+   "createTime": 1792788104,
+   "createTimeISO": "2026-10-23T20:41:44.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "carlytriesthings",
+    "profileUrl": "https://www.tiktok.com/@carlytriesthings",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 1626,
+    "friends": 0,
+    "fans": 4182,
+    "heart": 286700,
+    "video": 335,
+    "digg": 26000,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7699966265502206733"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@carlytriesthings/video/7699966149005462798",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 94,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 17,
+   "shareCount": 0,
+   "playCount": 261,
+   "collectCount": 3,
+   "commentCount": 4,
+   "repostCount": 0,
+   "mentions": [
+    "@Keurig",
+    "@Death Wish Coffee"
+   ],
+   "detailedMentions": [
+    {
+     "name": "keurig",
+     "profileUrl": "https://www.tiktok.com/@6852280789012317190",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    },
+    {
+     "name": "deathwishcoffee",
+     "profileUrl": "https://www.tiktok.com/@6793564987732739078",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffeetok",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishgingerdead",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": true,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7697602374378081550",
+   "text": "Need a little @Death Wish Coffee  to get going #wakeup #mornings #saturday #coffee ",
+   "textLanguage": "en",
+   "createTime": 1792237802,
+   "createTimeISO": "2026-10-17T11:50:02.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "averagejeff01",
+    "profileUrl": "https://www.tiktok.com/@averagejeff01",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 37,
+    "friends": 0,
+    "fans": 1822,
+    "heart": 300200,
+    "video": 632,
+    "digg": 2420,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7673569355799497486"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@averagejeff01/video/7697602374378081550",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 10,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 26,
+   "shareCount": 7,
+   "playCount": 518,
+   "collectCount": 5,
+   "commentCount": 2,
+   "repostCount": 0,
+   "mentions": [
+    "@Death Wish Coffee"
+   ],
+   "detailedMentions": [
+    {
+     "name": "deathwishcoffee",
+     "profileUrl": "https://www.tiktok.com/@6793564987732739078",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "wakeup",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "mornings",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "saturday",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7594597323573923085",
+   "text": "Don't waste your money on the big brands! They taste awful and cost more money!\n\n#starbucks #deathwish #deathwishcoffee #coffee #memphis ",
+   "textLanguage": "en",
+   "createTime": 1768255021,
+   "createTimeISO": "2026-01-12T21:57:01.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "memphisgrindhouse",
+    "profileUrl": "https://www.tiktok.com/@memphisgrindhouse",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 41,
+    "friends": 0,
+    "fans": 1855,
+    "heart": 14200,
+    "video": 256,
+    "digg": 561,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7594597411864005389"
+   },
+   "locationMeta": {
+    "address": "<removed>",
+    "city": "<removed>",
+    "cityCode": "<removed>",
+    "countryCode": "<removed>",
+    "locationName": "<removed>",
+    "locationId": "<removed>"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@memphisgrindhouse/video/7594597323573923085",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 48,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "ASR",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 980,
+   "shareCount": 72,
+   "playCount": 16700,
+   "collectCount": 65,
+   "commentCount": 105,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "starbucks",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwish",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "memphis",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7704412939951901966",
+   "text": "It’s here. It’s limited. It’s the only holiday tradition you won’t have to fake enthusiasm for. Peppermint Mocha, available now. 🖤\n\n#peppermintmocha #peppermintcoffee #holidaycoffee #deathwishcoffee",
+   "textLanguage": "en",
+   "createTime": 1793974800,
+   "createTimeISO": "2026-11-06T14:20:00.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "deathwishcoffee",
+    "profileUrl": "https://www.tiktok.com/@deathwishcoffee",
+    "nickName": "<removed>",
+    "verified": true,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 372,
+    "friends": 0,
+    "fans": 371900,
+    "heart": 2100000,
+    "video": 1054,
+    "digg": 2073,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound - Death Wish Coffee",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7704413143594306317"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@deathwishcoffee/video/7704412939951901966",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 12,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 48,
+   "shareCount": 3,
+   "playCount": 481,
+   "collectCount": 2,
+   "commentCount": 0,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7664991699701206302",
+   "text": "#onthisday ",
+   "textLanguage": "un",
+   "createTime": 1784644983,
+   "createTimeISO": "2026-07-21T14:43:03.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "jada.roundss",
+    "profileUrl": "https://www.tiktok.com/@jada.roundss",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 793,
+    "friends": 0,
+    "fans": 316600,
+    "heart": 8200000,
+    "video": 884,
+    "digg": 19800,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "Ice cream mailbox",
+    "musicAuthor": "<removed>",
+    "musicOriginal": false,
+    "musicAlbum": "<removed>",
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7664175335580141569"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@jada.roundss/video/7664991699701206302",
+   "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 6,
+    "coverUrl": "<removed>",
+    "definition": "540p",
+    "format": "mp4",
+    "subtitleLinks": [],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 681,
+   "shareCount": 1,
+   "playCount": 22300,
+   "collectCount": 48,
+   "commentCount": 21,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "onthisday",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7623471337998191903",
+   "text": "It tastes so good tho 😫 @Death Wish Coffee \n#coffee #justagirl #deathwishcoffee #fyp #xyzabc ",
+   "textLanguage": "en",
+   "createTime": 1774977772,
+   "createTimeISO": "2026-03-31T17:22:52.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "amiyatok",
+    "profileUrl": "https://www.tiktok.com/@amiyatok",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 187,
+    "friends": 0,
+    "fans": 483,
+    "heart": 88500,
+    "video": 433,
+    "digg": 8617,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "a girl who loves",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7282924447647615750"
+   },
+   "locationMeta": {
+    "address": "<removed>",
+    "city": "<removed>",
+    "cityCode": "<removed>",
+    "countryCode": "<removed>",
+    "locationName": "<removed>",
+    "locationId": "<removed>"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@amiyatok/video/7623471337998191903",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 5,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "ASR",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 76,
+   "shareCount": 3,
+   "playCount": 2266,
+   "collectCount": 6,
+   "commentCount": 11,
+   "repostCount": 0,
+   "mentions": [
+    "@Death Wish Coffee"
+   ],
+   "detailedMentions": [
+    {
+     "name": "deathwishcoffee",
+     "profileUrl": "https://www.tiktok.com/@6793564987732739078",
+     "id": "<removed>",
+     "nickName": "<removed>"
+    }
+   ],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "justagirl",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "deathwishcoffee",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "fyp",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "xyzabc",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  },
+  {
+   "id": "7675775165254339871",
+   "text": "Do you know??? #usa#unitedstates#cancer#causing#coffee",
+   "textLanguage": "en",
+   "createTime": 1787155682,
+   "createTimeISO": "2026-08-19T16:08:02.000Z",
+   "isAd": false,
+   "hasTikTokShopProduct": false,
+   "authorMeta": {
+    "id": "<removed>",
+    "name": "usa.top.list",
+    "profileUrl": "https://www.tiktok.com/@usa.top.list",
+    "nickName": "<removed>",
+    "verified": false,
+    "signature": "<removed>",
+    "bioLink": null,
+    "avatar": "<removed>",
+    "privateAccount": false,
+    "createTime": null,
+    "hasActiveStory": false,
+    "following": 0,
+    "friends": 0,
+    "fans": 359500,
+    "heart": 6400000,
+    "video": 844,
+    "digg": 0,
+    "followDatasetUrl": null,
+    "originalAvatarUrl": "<removed>"
+   },
+   "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "<removed>",
+    "musicOriginal": true,
+    "playUrl": "<removed>",
+    "coverMediumUrl": "<removed>",
+    "originalCoverMediumUrl": "<removed>",
+    "musicId": "7675775112334838558"
+   },
+   "webVideoUrl": "https://www.tiktok.com/@usa.top.list/video/7675775165254339871",
+   "videoMeta": {
+    "height": 1280,
+    "width": 720,
+    "duration": 93,
+    "coverUrl": "<removed>",
+    "definition": "720p",
+    "format": "mp4",
+    "subtitleLinks": [
+     {
+      "language": "eng-US",
+      "source": "ASR",
+      "downloadLink": "<removed>",
+      "tiktokLink": "<removed>"
+     }
+    ],
+    "transcriptionLink": null,
+    "aiVideoDescription": null,
+    "aiVideoSummary": null,
+    "originalCoverUrl": "<removed>"
+   },
+   "diggCount": 8238,
+   "shareCount": 11000,
+   "playCount": 608300,
+   "collectCount": 2503,
+   "commentCount": 382,
+   "repostCount": 0,
+   "mentions": [],
+   "detailedMentions": [],
+   "hashtags": [
+    {
+     "id": null,
+     "name": "usa",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "unitedstates",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "cancer",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "causing",
+     "title": null,
+     "cover": null
+    },
+    {
+     "id": null,
+     "name": "coffee",
+     "title": null,
+     "cover": null
+    }
+   ],
+   "effectStickers": [
+    {
+     "ID": "297650135053",
+     "name": "lola lite",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "14519845",
+     "name": "Bold Glamour",
+     "stickerStats": {
+      "useCount": 0
+     }
+    },
+    {
+     "ID": "4862422160",
+     "name": "no filter soft",
+     "stickerStats": {
+      "useCount": 0
+     }
+    }
+   ],
+   "isSlideshow": false,
+   "isPinned": false,
+   "isSponsored": false,
+   "shortDramaSeriesInfo": null,
+   "mediaUrls": [],
+   "input": "deathwishcoffee",
+   "isStory": false,
+   "searchHashtag": {
+    "name": "deathwishcoffee",
+    "views": 40300000
+   },
+   "commentsDatasetUrl": null
+  }
+ ]
+}

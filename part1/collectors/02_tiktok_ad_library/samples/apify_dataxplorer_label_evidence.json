@@ -1,0 +1,32 @@
+{
+ "_note": "Rows for the same two ads from actor data_xplorer/tiktok-ads-scraper (Top Ads mode, 2026-11-10). Its readable labels show what fetch_cat's ctr and costIndex mean: ctr 0.39 = 'Top 39%', costIndex 1 = 'Medium'. All 13 ads present in both actors had equal likes, ctr and cost.",
+ "cost_label_pairs_seen": {
+  "2": "High",
+  "1": "Medium",
+  "0": "Low"
+ },
+ "rows": [
+  {
+   "id": "7609180755211075600",
+   "like": 1183,
+   "cost": 1,
+   "cost_readable": "Medium",
+   "ctr": 0.39,
+   "ctr_readable": "Top 39%",
+   "objective_key": "campaign_objective_reach",
+   "industry_key": "label_23122000000",
+   "industry": "Beauty & Personal Care"
+  },
+  {
+   "id": "7619486503161118737",
+   "like": 237,
+   "cost": 1,
+   "cost_readable": "Medium",
+   "ctr": 0.45,
+   "ctr_readable": "Top 45%",
+   "objective_key": "campaign_objective_reach",
+   "industry_key": "label_19000000000",
+   "industry": "Pets"
+  }
+ ]
+}

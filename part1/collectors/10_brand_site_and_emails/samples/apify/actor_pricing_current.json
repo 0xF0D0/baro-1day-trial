@@ -1,0 +1,283 @@
+{
+ "_note": "From GET https://api.apify.com/v2/acts/apify~e-commerce-scraping-tool on 2026-11-10 (free call, no run started). Only the current (last) pricingInfos entry is kept; the other 21 are older price versions.",
+ "actor": {
+  "id": "2APbAvDfNDOWXbkWf",
+  "username": "apify",
+  "name": "e-commerce-scraping-tool",
+  "title": "E-commerce Scraping Tool",
+  "latestBuild": "0.0.137",
+  "modifiedAt": "2026-11-09T13:16:36.662Z",
+  "defaultRunOptions": {
+   "build": "latest",
+   "timeoutSecs": 900,
+   "memoryMbytes": 512,
+   "maxItems": null,
+   "maxTotalChargeUsd": null
+  }
+ },
+ "currentPricingInfo": {
+  "minimalMaxTotalChargeUsd": 1,
+  "pricingModel": "PAY_PER_EVENT",
+  "isPriceChangeNotificationSuppressed": false,
+  "reasonForChange": "E-commerce Scraping Tool now scrapes stores that block even residential proxies by auto-switching to an Unblocker proxy. Those products cost $0.00075–$0.0015 extra each, by plan. Other sites cost the same. Cap spend with maxProductResults.",
+  "apifyMarginPercentage": 0.2,
+  "pricingPerEvent": {
+   "actorChargeEvents": {
+    "push-product": {
+     "eventTitle": "Product Details",
+     "eventDescription": "The fee per product successfully scraped from an e-commerce store. These requests will use http with a datacenter proxy",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.006
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.0015
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.00125
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.001
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.00075
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.0005
+      }
+     },
+     "isPrimaryEvent": true
+    },
+    "start-actor": {
+     "eventTitle": "Actor Start",
+     "eventDescription": "The price to start an actor run",
+     "isOneTimeEvent": true,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.0001
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 9e-05
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 8e-05
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 7e-05
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 6e-05
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 5e-05
+      }
+     }
+    },
+    "product-search": {
+     "eventTitle": "Product Listing",
+     "eventDescription": "This is the fee per listing page scraped - product lists, search results pages, or category pages where you need a quick overview of many products. The cost is for each pagination page, not the number of products scraped. Example (Starter Plan) - If you scrape 5,000 listing pages from a batch of category URLs, the additional fee would be $2.10",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.0005
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.00042
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.00034
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.00026
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.00022
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.00019
+      }
+     }
+    },
+    "residential-proxy-per-product": {
+     "eventTitle": "Residential Proxy per Product",
+     "eventDescription": "This is an additional fee if the e-commerce website requires using residential proxy to overcome bot detection. This is a flat fee per product. Example (Starter Plan) if you scrape 10,000 products that require a residential proxy, the additional fee would be $10.",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.003
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.001
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.0009
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.0008
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.0007
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.0006
+      }
+     }
+    },
+    "browser-rendering-per-product": {
+     "eventTitle": "Browser Rendering per Product",
+     "eventDescription": "This is the additional fee if the e-commerce website requires browser rendering to scrape product details. This is a flat fee per product. Example (Starter Plan) if you scrape 50,000 products that require using browser rendering, the additional fee would be $28.50.",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.0006
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.00057
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.00054
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.00051
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.00045
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.000375
+      }
+     }
+    },
+    "push-review": {
+     "eventTitle": "Review Details",
+     "eventDescription": "This is a flat fee per review scraped.",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.002
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.001
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.00085
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.0007
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.00056
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.0004
+      }
+     }
+    },
+    "push-seller": {
+     "eventTitle": "Seller Details",
+     "eventDescription": "This is a flat fee per seller page scraped",
+     "isOneTimeEvent": true,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.003
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.002
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.00125
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.001
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.0008
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.0005
+      }
+     }
+    },
+    "ai-summary": {
+     "eventTitle": "AI Summary",
+     "eventDescription": "This service charges a fee specifically for the AI-powered analysis.",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.0075
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.004
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.0035
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.00275
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.00225
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.002
+      }
+     }
+    },
+    "push-influencer-post": {
+     "eventTitle": "Influencer post details",
+     "eventDescription": "This is a flat fee per post scraped.",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.002
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.001
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.00085
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.0007
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.00055
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.0005
+      }
+     }
+    },
+    "unblocker-proxy-per-product": {
+     "eventTitle": "Unblocker Proxy",
+     "eventDescription": "This is an additional fee if the e-commerce website blocks even residential proxies and requires an unblocker proxy to bypass bot detection. This is a flat fee per product.",
+     "isOneTimeEvent": false,
+     "eventTieredPricingUsd": {
+      "FREE": {
+       "tieredEventPriceUsd": 0.0015
+      },
+      "BRONZE": {
+       "tieredEventPriceUsd": 0.0015
+      },
+      "SILVER": {
+       "tieredEventPriceUsd": 0.00125
+      },
+      "GOLD": {
+       "tieredEventPriceUsd": 0.001
+      },
+      "PLATINUM": {
+       "tieredEventPriceUsd": 0.00085
+      },
+      "DIAMOND": {
+       "tieredEventPriceUsd": 0.00075
+      }
+     }
+    }
+   }
+  },
+  "startedAt": "2026-10-19T00:00:00.000Z",
+  "createdAt": "2026-10-19T16:19:07.720Z",
+  "notifiedAboutChangeAt": "2026-10-19T16:30:33.000Z"
+ }
+}

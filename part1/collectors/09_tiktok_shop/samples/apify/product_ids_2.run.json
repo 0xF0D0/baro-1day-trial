@@ -1,0 +1,33 @@
+{
+  "id": "l1UEKc0b7lh5XMrat",
+  "actId": "ck2XzglohISFcueEX",
+  "buildNumber": "0.0.34",
+  "status": "SUCCEEDED",
+  "statusMessage": null,
+  "exitCode": 0,
+  "startedAt": "2026-11-10T10:57:11.897Z",
+  "finishedAt": "2026-11-10T10:57:20.634Z",
+  "defaultDatasetId": "W2gkTenEgfUu48tfZ",
+  "options": {
+    "build": "stable",
+    "timeoutSecs": 600,
+    "memoryMbytes": 1024,
+    "maxTotalChargeUsd": 0.0045
+  },
+  "runTimeSecs": 8.594,
+  "chargedEventCounts": {
+    "product-scraped-us": 2,
+    "hashtag-product": 0,
+    "creator-count": 0,
+    "review-extra": 0,
+    "apify-actor-start": 1
+  },
+  "accountedChargedEventCounts": {
+    "product-scraped-us": 2,
+    "hashtag-product": 0,
+    "creator-count": 0,
+    "review-extra": 0,
+    "apify-actor-start": 1
+  },
+  "usageTotalUsd": 0.00403
+}

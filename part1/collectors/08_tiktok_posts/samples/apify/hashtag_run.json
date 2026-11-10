@@ -1,0 +1,57 @@
+{
+ "_note": "Run record from POST /v2/acts/clockworks~tiktok-scraper/runs?maxTotalChargeUsd=0.50. userId, usage breakdown and container fields removed.",
+ "input": {
+  "hashtags": [
+   "deathwishcoffee"
+  ],
+  "resultsPerPage": 10,
+  "shouldDownloadVideos": false,
+  "shouldDownloadCovers": false,
+  "shouldDownloadSlideshowImages": false,
+  "shouldDownloadAvatars": false,
+  "shouldDownloadMusicCovers": false,
+  "downloadSubtitlesOptions": "NEVER_DOWNLOAD_SUBTITLES",
+  "commentsPerPost": 0,
+  "scrapeRelatedVideos": false,
+  "scrapeAdditionalAuthorMeta": false,
+  "proxyCountryCode": "None"
+ },
+ "run": {
+  "id": "DyYwrr03sEqM1ZF2r",
+  "actId": "GdWCkxBtKWOsKjdch",
+  "status": "SUCCEEDED",
+  "statusMessage": "Scraped 1/1 hashtags",
+  "startedAt": "2026-11-10T07:11:49.114Z",
+  "finishedAt": "2026-11-10T07:12:03.684Z",
+  "buildNumber": "0.0.646",
+  "defaultDatasetId": "5nK0yLKM5DfLCxXds",
+  "options": {
+   "build": "latest",
+   "timeoutSecs": 0,
+   "memoryMbytes": 4096,
+   "maxTotalChargeUsd": 0.5,
+   "maxItems": null,
+   "isMaxTotalChargeUsdSetByUser": true,
+   "diskMbytes": 8192
+  },
+  "chargedEventCounts": {
+   "result": 10,
+   "filter-applied": 0,
+   "popularity-filter-applied": 0,
+   "follower-dataset-item": 0,
+   "mobile-filter-sorting-applied": 0,
+   "video-download": 0,
+   "comment-dataset-item": 0,
+   "scrape-as-in-country": 0,
+   "transcription-minute": 0,
+   "ai-video-description": 0,
+   "ai-video-summary": 0,
+   "actor-start": 1
+  },
+  "usageTotalUsd": 0.038000000000000006
+ },
+ "pricing_free_tier_usd": {
+  "result": 0.0037,
+  "actor-start": 0.001
+ }
+}

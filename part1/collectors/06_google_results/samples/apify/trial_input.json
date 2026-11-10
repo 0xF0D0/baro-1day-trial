@@ -1,0 +1,21 @@
+{
+  "queries": "batiste dry shampoo\ndeath wish coffee\njinx dog food",
+  "maxPagesPerQuery": 1,
+  "countryCode": "us",
+  "languageCode": "en",
+  "focusOnPaidAds": true,
+  "mobileResults": false,
+  "includeUnfilteredResults": false,
+  "saveHtml": false,
+  "saveHtmlToKeyValueStore": true,
+  "includeIcons": false,
+  "aiOverview": {"scrapeFullAiOverview": false},
+  "aiModeSearch": {"enableAiMode": false},
+  "geminiSearch": {"enableGemini": false},
+  "perplexitySearch": {"enablePerplexity": false, "returnImages": false, "returnRelatedQuestions": false},
+  "chatGptSearch": {"enableChatGpt": false},
+  "copilotSearch": {"enableCopilot": false},
+  "maximumLeadsEnrichmentRecords": 0,
+  "verifyLeadsEnrichmentEmails": false,
+  "websiteContentScraper": {"enable": false}
+}

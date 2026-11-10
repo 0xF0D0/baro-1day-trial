@@ -1,0 +1,48 @@
+{
+  "batiste": {
+    "home": {"url": "https://www.batistehair.com/", "host": "www.batistehair.com", "shopify_market_check": false,
+             "slots": {"community_signup": "div#footer-signup"}},
+    "klaviyo_company_id": null,
+    "prices": {"route": "batiste_wtb", "listing_url": "https://www.batistehair.com/batiste-products", "wtbid": "679a839e96a96e0f672b1fcc"},
+    "email_sender_domains": []
+  },
+  "living-proof": {
+    "home": {"url": "https://www.livingproof.com/", "host": "www.livingproof.com", "shopify_market_check": true,
+             "slots": {"announcement_bar": "div.announcement__text:not(.ticker__comparitor) > p",
+                       "banner_heading": "div.banner-image__heading",
+                       "free_shipping_message": "p.cart__message[data-limit]",
+                       "footer_newsletter": "form[id^=\"NewsletterForm--newsletter\"]",
+                       "gift_with_purchase": "div.gwp-block.gwp-popup"}},
+    "klaviyo_company_id": "H99sYH",
+    "prices": {"route": "shopify_products_json", "host": "www.livingproof.com"},
+    "email_sender_domains": ["livingproof.com"]
+  },
+  "death-wish-coffee": {
+    "home": {"url": "https://www.deathwishcoffee.com/", "host": "www.deathwishcoffee.com", "shopify_market_check": true,
+             "slots": {"announcement_bar": "p.announcement-bar__message",
+                       "banner_heading": "h2.banner__heading",
+                       "footer_newsletter": "div.newsletter__wrapper"}},
+    "klaviyo_company_id": "Q6RhjR",
+    "prices": {"route": "shopify_products_json", "host": "www.deathwishcoffee.com"},
+    "email_sender_domains": ["deathwishcoffee.com"]
+  },
+  "black-rifle-coffee": {
+    "home": {"url": "https://www.blackriflecoffee.com/", "host": "www.blackriflecoffee.com", "shopify_market_check": false,
+             "slots": {"announcement_bar": "announcement-bar .swiper-slide",
+                       "bundle_cards": "product-carousel product-card"}},
+    "klaviyo_company_id": "XU3JTE",
+    "prices": {"route": "apify_ecommerce", "listing_url": "https://www.blackriflecoffee.com/collections/coffee"},
+    "email_sender_domains": ["blackriflecoffee.com"]
+  },
+  "jinx": {
+    "home": {"url": "https://www.thinkjinx.com/", "host": "www.thinkjinx.com", "shopify_market_check": true,
+             "slots": {"announcement_bar": "announcement-bar",
+                       "hero_retailer_button": "a.btn--primary[href*=\"walmart.com\"]",
+                       "free_shipping_message": "div.drawer__message[data-free-shipping-limit]",
+                       "column_heading": "h2.column__heading",
+                       "cart_note": "em.cart__note"}},
+    "klaviyo_company_id": "V2u2jn",
+    "prices": {"route": "shopify_products_json", "host": "www.thinkjinx.com"},
+    "email_sender_domains": []
+  }
+}

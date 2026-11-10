@@ -1,0 +1,5286 @@
+{
+ "captured_utc": "2026-11-10T10:48:51Z",
+ "status": 200,
+ "request": "GET https://display.powerreviews.com/m/6406/l/en_US/product/pimprod2037265/reviews?paging.from=0&paging.size=10&filters=&search=&sort=Newest&image_only=false&page_locale=en_US&native_only=true&apikey=<from page request>",
+ "made_from": "in-page fetch on the product page of pimprod2037265",
+ "pii_note": "details.nickname and details.location set to null; media set to null; rollup.faceoff_* removed (they quote review text with reviewer context)",
+ "response": {
+  "configuration": {
+   "localizations": {
+    "review_display.4.0.snapshot.rating_count_plural": "{0} Star Ratings",
+    "review_display.4.0.share_your_photo.confirmation.message": "Your photo has been submitted for approval. \nCheck back soon to see it live!",
+    "review_display.4.0.sorting.lowest_rated_label": "Lowest Rated",
+    "review_display.4.0.flagging.form_label": "What's the issue?",
+    "qa_display.4.0.search.no_results.header": "No results but…",
+    "review_display.4.0.badging.verified_reviewer_asset": "",
+    "review_display.4.0.flagging_form.email_error": "Email address is required",
+    "qa_display.4.0.button.ask_question": "Ask a Question",
+    "qa_display.4.0.search.input.placeholder": "Search for...",
+    "review_display.4.0.translation.revert_button": "Show original",
+    "review_display.4.0.common.yes": "Yes",
+    "qa_display.4.0.button.show_more": "Show more",
+    "review_display.4.0.flagging_form.button_label.flag": "Flag",
+    "review_display.4.0.common.by": "By",
+    "review_display.4.0.filtering.dropdown_v2.mobile_modal.submit_filters": "See Results",
+    "review_display.4.0.image_display.collapse": "Collapse all photos",
+    "review_display.4.0.pagination.next": "Next",
+    "qa_display.4.0.error_alert.heading_plural": "There are {0} errors in this form",
+    "services.powerreviews.powerred_by": "powered by",
+    "review_display.4.0.sorting.dropdown_aria_label": "Sort reviews by:",
+    "review_display.4.0.share_your_photo.manage.fields.location": "location",
+    "qa_display.4.0.button.add_answer": "Add your answer",
+    "cd.common.forms.validation_message.heading_singular": "There is an error in this form",
+    "cd.common.media.merchant_logo": "Merchant Logo",
+    "review_display.4.0.common.rating_count_singular": "1 Rating",
+    "review_display.4.0.disclosures.sampling": "Submitted as part of a free sample program",
+    "review_display.4.0.disclosure.communitycontent": "Community Content",
+    "review_display.4.0.flagging.flag_button_label": "Flag",
+    "review_display.4.0.modal.flag_image": "Flag Image",
+    "review_display.4.0.flagging.options.profanity": "Profanity",
+    "cd.common.forms.validation_message.invalid_field": "{} is invalid.",
+    "review_display.4.0.filtering.filter_by_source.all_reviews": "All reviews",
+    "review_display.4.0.description.comments_for": "Comments about",
+    "review_display.4.0.snapshot.histogram_star_label_three": "3 Stars",
+    "review_display.4.0.search.results_heading": "{0} results",
+    "review_display.4.0.snapshot.msqs.more": "more",
+    "cd.common.rating_label": "Give",
+    "qa_display.4.0.search.label.long": "Search for answers to your question",
+    "review_display.4.0.bottom_line.bottom_line": "Bottom Line",
+    "review_display.4.0.snapshot.filter_star_text": "Show only {0} star reviews",
+    "qa_display.4.0.common.months_ago": "{0} months ago",
+    "qa_display.4.0.q_icon.label": "Question",
+    "review_display.4.0.helpful.helpful_vote_label": "{0} helpful votes, give this review a helpful vote",
+    "review_display.4.0.updated_review.description_text": "This is an updated review",
+    "review_display.4.0.snapshot.brand_score.title": "{0} Brand Score",
+    "qa_display.4.0.common.days_ago": "{0} days ago",
+    "review_display.4.0.ai_summary.heading": "Customers say",
+    "review_display.4.0.translation.loading_aria_text": "Loading translation",
+    "cd.common.media.product_image": "Product Image",
+    "review_display.4.0.snapshot.brand_score.description": "There are no reviews on this product, but here is how {0} is rated overall in the {1} category.",
+    "review_display.4.0.pagination.displaying_review_singular": "Displaying Review",
+    "review_display.4.0.description.service_comments": "Comments about the Service",
+    "review_display.4.0.flagging.options.not_a_product_review": "Not A Product Review",
+    "review_display.4.0.image_display.click_to_view": "Click to View",
+    "review_display.4.0.filtering.no_reviews_relevant_to_filters": "No reviews relevant to applied filters",
+    "services.powerreviews.error.adblock_interference": "An error occurred while submitting this form. An ad blocker might be interfering with our fraud prevention measures. Please temporarily disable your ad blocker and try again.",
+    "qa_display.4.0.error_alert.heading_singular": "There is an error in this form",
+    "qa_display.4.0.description.asked_by": "Asked by",
+    "review_display.4.0.sorting.oldest_label": "Oldest",
+    "qa_display.4.0.button.show_more_answers_singular": "Show {0} more answer",
+    "review_display.4.0.modal.media_carousel.slide_label": "{0} of {1}",
+    "services.powerreviews.date_format": "mm/dd/yyyy",
+    "review_display.4.0.snapshot.msqs.remove_filter": "{0} Reviews tagged with {1}. Filtering by reviews tagged with {1}, Clear applied filter",
+    "review_display.4.0.filtering.dropdown_v2.dropdown.label": "Filters",
+    "review_display.4.0.snapshot.versus": "Versus",
+    "review_display.4.0.share_your_photo.upload.button_label": "Upload",
+    "review_display.4.0.filtering.filter_by_source.native_reviews": "Reviewed at Ulta.com",
+    "cd.common.forms.validation_message.required_field": "{} is required",
+    "review_display.4.0.badging.staff_reviewer_text": "Staff Reviewer",
+    "qa_display.4.0.description.common_question": "as a Common Question",
+    "review_display.4.0.filtering.filter_by_variant": "Filter Reviews By Variant",
+    "review_display.4.0.flagging_form.required_error": "Email address is required",
+    "review_display.4.0.snapshot.rating_count_singular": "1 Star Rating",
+    "review_display.4.0.flagging.options.copyright_violation": "Copyright Violation",
+    "review_display.4.0.share_your_photo.confirmation.heading": "Thanks {0}!",
+    "review_display.4.0.badging.staff_reviewer_asset": "",
+    "review_display.4.0.flagging_form.email_address_label": "Email Address",
+    "qa_display.4.0.button.search.results": "Search for {0} returned {1} result",
+    "qa_display.4.0.badging.author_type_text.product_owner": "Product Owner",
+    "review_display.4.0.review_tag_groups.pros": "Pros",
+    "review_display.4.0.badging.staff_expert_asset": "",
+    "review_display.4.0.common.year_ago": "{0} year ago",
+    "review_display.4.0.badging.verified_reviewer_text": "Verified Reviewer",
+    "review_display.4.0.modal.media_carousel.button.condense_review": "view less",
+    "review_display.4.0.search.no_results.header": "Sorry, no results were found",
+    "review_display.4.0.disclosure.sampling": "Submitted as part of a free sample program",
+    "review_display.4.0.modal.button.next": "Next",
+    "review_display.4.0.flagging.flag_this_review": "Flag this review",
+    "review_display.4.0.snapshot.active_filters": "Filters applied",
+    "review_display.4.0.flagging_form.other_label": "Other",
+    "qa_display.4.0.error_alert.required_field": "{0} is required",
+    "qa_display.4.0.description.added_by": "Added by",
+    "review_display.4.0.flagging_form.whats_the_issue_label": "What's the issue",
+    "review_display.4.0.helpful.already_voted": "Already Voted",
+    "review_display.4.0.helpful.thank_you": "Thank you for your feedback. Please note only your first review will count.",
+    "review_display.4.0.common.read_complete_review": "Read complete review",
+    "review_display.4.0.modal.aria_label": "Review Image Display",
+    "review_display.4.0.search.button.text": "Search Reviews",
+    "review_display.4.0.image_display.gallery_image.alt_text": "View Gallery Image {0}",
+    "review_display.4.0.modal.back_to_media": "Back to media",
+    "qa_display.4.0.snippet.answered_question_count_singular": "{0} answered question",
+    "review_display.4.0.spotlight_review.heading": "Review Spotlight",
+    "qa_display.4.0.badging.author_type_text.verified_reply": "Verified Reply",
+    "review_display.4.0.flagging_form.copyright_label": "Copyright Violation",
+    "review_display.4.0.flagging.options.other": "Other",
+    "review_display.4.0.badging.site_member_asset": "",
+    "review_display.4.0.share_your_photo.manage.fields.error_required": "{0} is required",
+    "review_display.4.0.snapshot.by": "by",
+    "qa_display.4.0.button.show_more_answers_plural": "Show {0} more answers",
+    "review_display.4.0.media_card.heading": "Media",
+    "review_display.4.0.ai_summary.powered_by": "Powered by PowerReviews AI",
+    "review_display.4.0.facebook.comment": "Comment on this review with Facebook",
+    "review_display.4.0.modal.close_button_text": "Close",
+    "review_display.4.0.merchant_response.merchant_response": "Merchant Response",
+    "review_display.4.0.common.read_all_reviews": "Read all {0} reviews",
+    "cd.common.media.play_video": "Play Video",
+    "cd.common.nickname_pii_warning_message": "Make sure to not include your full name",
+    "review_display.4.0.modal.read_review": "Read review",
+    "review_display.4.0.share_your_photo.manage.submit.button_label": "Submit and Share",
+    "review_display.4.0.snippet.write_a_review": "Write a Review",
+    "review_display.4.0.disclosure.rrc": "Submitted as part of a loyalty program",
+    "review_display.4.0.spotlight_review.original_review.heading": "Original Review",
+    "review_display.4.0.badging.verified_buyer_asset": "",
+    "review_display.4.0.common.day_ago": "{0} day ago",
+    "review_display.4.0.common.reviewed_at": "Reviewed at",
+    "review_display.4.0.filters.most_helpful_negative_review": "Most Helpful Negative Review",
+    "review_display.4.0.share_your_photo.manage.legal": "By submitting, you represent that you agree to our Terms and our Privacy Policy.",
+    "qa_display.4.0.helpful.helpful_vote_label": "{0} helpful votes, give this answer a helpful vote",
+    "review_display.4.0.rating_only.heading.no_reviews": "No {0} Star Customer Reviews Yet",
+    "review_display.4.0.share_your_photo.manage.fields.email": "email",
+    "review_display.4.0.badging.site_member_text": "Site member",
+    "qa_display.4.0.button.search.results_plural": "Search for {0} returned {1} results",
+    "qa_display.4.0.common.years_ago": "{0} years ago",
+    "review_display.4.0.flagging_form.wrong_product_label": "Wrong Product",
+    "review_display.4.0.translation.loading_text": "Loading...",
+    "review_display.4.0.description.comments_for_product": "Comments about the Product",
+    "review_display.4.0.helpful.unhelpful_vote_label": "{0} unhelpful votes, give this review an unhelpful vote",
+    "review_display.4.0.modal.is_flagged": "Flagged",
+    "qa_display.4.0.sorting.dropdown_field_label": "Sort By",
+    "review_display.4.0.sorting.sort_by_native_language_label": "Language",
+    "cd.common.media.user_media_alt": "User submitted media",
+    "review_display.4.0.snapshot.incentivized_reviews_count_disclaimer": "{0} of {1} reviews came from incentivized reviewers",
+    "review_display.4.0.snapshot.brand_score.accessible_rating_text": "Rated {0} out of 5",
+    "qa_display.4.0.badging.author_type_text.community": "Open Reply",
+    "review_display.4.0.flagging_form.not_product_review_label": "Not a Product Review",
+    "qa_display.4.0.search.clear_search": "Clear Search",
+    "review_display.4.0.snapshot.msqs.apply_filter": "{0} Reviews tagged with {1}. Show only reviews tagged with {1}",
+    "services.powerreviews.agree_with_terms": "I agree with the terms and privacy policy",
+    "review_display.4.0.flagging.email_label": "Email Address:",
+    "review_display.4.0.snapshot.histogram_star_label_two": "2 Stars",
+    "review_display.4.0.snapshot.histogram_star_label_five": "5 Stars",
+    "review_display.4.0.translation.error_text": "Attempt to translate failed.",
+    "review_display.4.0.snapshot.most_liked_positive_review": "Most Helpful Positive Review",
+    "review_display.4.0.flagging_form.profanity_label": "Profanity",
+    "review_display.4.0.disclosure.sweepstakes": "Submitted as part of a sweepstakes entry",
+    "review_display.4.0.common.rated_x_out_of_y": "Rated {0} out of 5 stars",
+    "qa_display.4.0.button.search.button": "Go",
+    "qa_display.4.0.helpful.thank_you": "Thank you for your feedback. Please note only your first vote will count.",
+    "review_display.4.0.stars_singular": "{0} Star",
+    "qa_display.4.0.common.year_ago": "{0} year ago",
+    "review_display.4.0.flagging_form.inappropriate_image_label": "Inappropriate Image",
+    "review_display.4.0.filtering.dropdown.active_filters_label_plural": "{} filters selected",
+    "review_display.4.0.filtering.dropdown.active_filters_label_singular": "1 filter selected",
+    "review_display.4.0.review_tag_groups.best_uses": "Best for",
+    "review_display.4.0.share_your_photo.manage.fields.caption": "caption",
+    "review_display.4.0.share_your_photo.upload.subheading": "Upload your photo from one of the sources below",
+    "review_display.4.0.sorting.sort_by_images_label": "Images",
+    "review_display.4.0.write_the_first_review": "Write the First Review",
+    "review_display.4.0.language_toggle.label": "Language",
+    "review_display.4.0.snippet.recommended_text": "{0} of respondents would recommend this to a friend",
+    "qa_display.4.0.common.brand_answer_highlight": "Official Answer By {0}",
+    "review_display.4.0.flagging_form.heading": "Flagging Form",
+    "qa_display.4.0.common.month_ago": "{0} month ago",
+    "review_display.4.0.helpful.helpful_question": "Was this review helpful to you?",
+    "review_display.4.0.flagging_form.already_flagged_text": "You Flagged This Review",
+    "review_display.4.0.helpful.helpful_votes": "{0} out of {1} thought this was helpful",
+    "qa_display.4.0.search.no_results.ask_question_delay_text": "It may be Answered within 48 hours.",
+    "review_display.4.0.common.reviewed_by_plural": "Reviewed by {0} customers",
+    "review_display.4.0.disclosures.sweepstakes": "Submitted as part of a sweepstakes entry",
+    "review_display.4.0.sorting.most_helpful_label": "Most Helpful",
+    "review_display.4.0.helpful.click_for_unhelpful_vote": "Click to give this review an unhelpful vote",
+    "review_display.4.0.common.days_ago": "{0} days ago",
+    "review_display.4.0.description.official_response_by_brand": "Official Response by {0}",
+    "qa_display.4.0.ask_question_delay_text": "Expect an answer in about 48 hours",
+    "review_display.4.0.flagging.options.duplicate": "Duplicate",
+    "services.powerreviews.powerred_by_link": "<a href=\"javascript:showSmallPopup('https://www.powerreviews.com/legal/index_en_US.html');\"><img border=\"0\"  src=\"/images/poweredby_gray_en_US.gif\" /></a>",
+    "review_display.4.0.image_display.show_more": "Show more photos",
+    "review_display.4.0.snapshot.ratings_distribution": "Ratings Distribution",
+    "qa_display.4.0.sorting.dropdown_aria_label": "Sort Questions By",
+    "qa_display.4.0.common.text": "Questions & Answers",
+    "cd.common.forms.validation_message.restricted_word": "One or more words were flagged by our profanity/restricted word filter : {0}. Please update your review and resubmit with a word that is not profane.",
+    "review_display.4.0.share_your_photo.manege.rotate.button_label": "Rotate image",
+    "review_display.4.0.updated_review.original_review_link_text": "Read Original",
+    "review_display.4.0.modal.media_carousel.powered_by": "Powered by",
+    "review_display.4.0.filters.most_helpful_positive_review": "Most Helpful Positive Review",
+    "review_display.4.0.image_display.consumer_photos": "Buyer Images & Videos",
+    "review_display.4.0.error.review.helpful_voting": "You may only submit one vote per review",
+    "review_display.4.0.share_your_photo.upload.heading": "Share your photo",
+    "review_display.4.0.share_your_photo.manage.fields.error_invalid": "{0} is invalid",
+    "review_display.4.0.modal.shop_all": "Shop All Products",
+    "review_display.4.0.snapshot.histogram_star_label_one": "1 Star",
+    "review_display.4.0.translation.translate_retry": "Retry?",
+    "review_display.4.0.flagging.thank_you_message": "You Flagged This Review",
+    "review_display.4.0.filtering.filter_by_source.label": "Filter Reviews By Source",
+    "review_display.4.0.common.review_count_plural": "{0} Reviews",
+    "review_display.4.0.common.from": "From",
+    "cd.common.media.uploaded_media_item": "Uploaded Media item",
+    "qa_display.4.0.button.search.placeholder": "Search for...",
+    "review_display.4.0.review_tag_groups.cons": "Cons",
+    "qa_display.4.0.search.button.aria_label": "Submit search",
+    "review_display.4.0.translation.translate_button": "Show translation",
+    "review_display.4.0.flagging_form.button_label.cancel": "Cancel",
+    "review_display.4.0.sorting.most_recent_label": "Most Recent",
+    "review_display.4.0.filtering.reviews_relevant_to_filters_plural": "Read {0} reviews relevant to applied filters",
+    "review_display.4.0.common.variants.comments_for": "Comments for {0}",
+    "review_display.4.0.common.rating_count_plural": "{0} Ratings",
+    "review_display.4.0.modal.media_carousel.button.expand_review": "view more",
+    "review_display.4.0.common.reviewed_by_singular": "Reviewed by {0} customer",
+    "review_display.4.0.snapshot.msqs.less": "less",
+    "review_display.4.0.snapshot.header": "Review Snapshot",
+    "review_display.4.0.share_your_photo.manage.fields.name": "name",
+    "review_display.4.0.common.months_ago": "{0} months ago",
+    "review_display.4.0.flagging_form.comments_label": "Comments",
+    "review_display.4.0.search.input.placeholder": "Enter Search Terms",
+    "qa_display.4.0.sorting.most_recent_label": "Newest",
+    "review_display.4.0.badging.staff_expert_text": "Staff Expert",
+    "review_display.4.0.pagination.back_to_top": "Back to Top",
+    "qa_display.4.0.sorting.questions_showing_amount": "Showing {0} out of {1} Questions",
+    "review_display.4.0.common.less_details": "Less Details",
+    "review_display.4.0.snapshot.msqs.filter_tooltip": "Show reviews with this tag",
+    "qa_display.4.0.want_to_know": "What do you want to know about this product?",
+    "review_display.4.0.snapshot.histogram_star_label_four": "4 Stars",
+    "review_display.4.0.filtering.dropdown_v2.mobile_modal.cancel_filters": "Cancel",
+    "qa_display.4.0.helpful.unhelpful_vote_label": "{0} unhelpful votes, give this answer an unhelpful vote",
+    "review_display.4.0.share_your_photo.manage.image_alt_tag": "Uploaded media item",
+    "cd.common.media.user_media_alt_collection": "User submitted media {0} of {1}",
+    "qa_display.4.0.q_icon.icon": "Q",
+    "review_display.4.0.snapshot.brand_score.description_brand_level": "There are no reviews on this product, but here is how {0} is rated overall.",
+    "review_display.4.0.share_your_photo.manage.subheading": "Point out what we should be looking at",
+    "review_display.4.0.common.or": "or",
+    "review_display.4.0.no_reviews": "No Reviews",
+    "review_display.4.0.modal.shop_now": "Shop Now",
+    "review_display.4.0.stars_plural": "{0} Stars",
+    "review_display.4.0.search.label": "Search Reviews",
+    "cd.common.media.media_caption": "Media Caption",
+    "review_display.4.0.snapshot.clear_filters": "Clear All",
+    "cd.common.media.customer_media": "Customer Media",
+    "review_display.4.0.write_a_review": "Write a Review",
+    "review_display.4.0.badging.verified_buyer_text": "Verified Buyer",
+    "review_display.4.0.share_your_photo.cta.button_label": "Add Your Photo",
+    "review_display.4.0.common.more_details": "More Details",
+    "review_display.4.0.share_your_photo.dialog.close.button_label": "Close",
+    "review_display.4.0.bottom_line.not_recommended": "No, I would not recommend to a friend",
+    "review_display.4.0.flagging.cancel_button_label": "Cancel",
+    "cd.common.media.error.invalid_file_type": "Invalid file types skipped",
+    "review_display.4.0.common.month_ago": "{0} month ago",
+    "qa_display.4.0.search.no_results.ask_question_text": "You can be the first to ask a new question.",
+    "review_display.4.0.sorting.highest_rated_label": "Highest Rated",
+    "review_display.4.0.filtering.reviews_relevant_to_filters_singular": "Read {0} review relevant to applied filters",
+    "review_display.4.0.share_your_photo.manage.remove.button_label": "Remove image",
+    "qa_display.4.0.helpful.helpful_question": "Was this answer helpful to you",
+    "review_display.4.0.common.no": "No",
+    "review_display.4.0.rating_only.subheading.no_reviews": "See other relevant reviews below",
+    "review_display.4.0.flagging_form.customer_image_label": "Customer Image",
+    "review_display.4.0.common.read_less_review": "Read less review",
+    "qa_display.4.0.common.headline": "Q&A",
+    "qa_display.4.0.common.day_ago": "{0} day ago",
+    "review_display.4.0.common.date_format": "",
+    "qa_display.4.0.helpful.already_voted": "Already voted",
+    "review_display.4.0.share_your_photo.manage.heading": "Add a Caption",
+    "review_display.4.0.bottom_line.recommended": "Yes, I would recommend to a friend",
+    "review_display.4.0.spotlight_review.back_to_updated_review.button_label": "Back to updated review",
+    "review_display.4.0.pagination.previous": "Previous",
+    "review_display.4.0.common.remove_star_filter": "Filtering by {0} star reviews, remove filter",
+    "review_display.4.0.flagging_form.duplicate_label": "Duplicate",
+    "qa_display.4.0.search.label.short": "Search",
+    "qa_display.4.0.sorting.most_answers_label": "Most Answers",
+    "review_display.4.0.flagging_form.spam_label": "Spam",
+    "review_display.4.0.search.clear_button.text": "Clear Search",
+    "qa_display.4.0.sorting.oldest_label": "Oldest",
+    "review_display.4.0.common.no_ratings": "No Ratings",
+    "review_display.4.0.filtering.dropdown.apply_filter": "Filter reviews by {}",
+    "review_display.4.0.flagging.comments_label": "Comments:",
+    "review_display.4.0.description.responded": "Responded",
+    "review_display.4.0.pagination.show_more_reviews": "Show More Reviews",
+    "review_display.4.0.common.submitted": "Submitted",
+    "qa_display.4.0.button.search.label": "Search",
+    "cd.common.media.product_image.unavailable": "Product Image Unavailable",
+    "review_display.4.0.pagination.displaying_reviews_plural": "Displaying Reviews",
+    "qa_display.4.0.button.cancel": "Cancel",
+    "qa_display.4.0.button.submit": "Submit",
+    "review_display.4.0.common.years_ago": "{0} years ago",
+    "review_display.4.0.sorting.dropdown_field_label": "Sort by:",
+    "review_display.4.0.snapshot.most_liked_negative_review": "Most Helpful Critical Review",
+    "cd.common.forms.validation_message.heading_plural": "There are {} errors in this form",
+    "review_display.4.0.filtering.all_variants": "All Variants",
+    "review_display.4.0.modal.button.previous": "Previous",
+    "review_display.4.0.flagging.options.customer_image": "Customer Image",
+    "review_display.4.0.helpful.click_for_helpful_vote": "Click to give this review a helpful vote",
+    "review_display.4.0.flagging.options.wrong_product": "Wrong Option",
+    "review_display.4.0.snapshot.no_tags": "No {0}",
+    "services.powerreviews.powerred_by_link_self_service": "<a href=\"javascript:showSmallPopup('https://www.powerreviews.com/legal/index_prx_en_US.html');\"><img border=\"0\"  src=\"/images/poweredby_gray_en_US.gif\" /></a>",
+    "review_display.4.0.common.review_count_singular": "1 Review",
+    "review_display.4.0.filtering.dropdown_v2.mobile_modal.clear_filters": "Clear Filters",
+    "review_display.4.0.flagging.options.spam": "Spam",
+    "qa_display.4.0.common.thank_you_text": "Thank you for submitting your question.",
+    "qa_display.4.0.snippet.answered_question_count_plural": "{0} Answered Questions"
+   },
+   "properties": {
+    "ENABLE_CONTENT_TRANSLATION": false,
+    "REVIEW_DISPLAY_DESCRIPTION_CHARACTER_COUNT": "0",
+    "B2C_NATIVE_CONTENT_FILTER": true,
+    "ENABLE_ADA_COMPLIANT_QUESTION_ITEM": false,
+    "ENABLE_INCENTIVIZED_SUMMARY_DISPLAY": false,
+    "ENABLE_ENHANCED_SNAPSHOT_STYLES": false,
+    "CD4_ENABLED_HISTOGRAM_SLIDER_KEYS": "",
+    "READSERVICES_B2C_BRAND_SCORE": false,
+    "ENABLE_REVIEW_SNIPPET_SLIDER": false,
+    "REVIEW_MEDIA_MODAL_STYLE": "CARD",
+    "PUBLISH_SERVICE_COMMENTS": true,
+    "REVIEWS_PER_PAGE": "5",
+    "CLIENT_SIDE_STRUCTURED_DATA_FORMAT": "JSONLD",
+    "ENABLE_REVIEW_FILTERING": true,
+    "B2C_READSERVICES_GET_ALL_CONTENT_SCROLL": false,
+    "CD4_IRL_IMAGE_GALLERY_STYLE": "GRID",
+    "ALLOW_CUSTOMER_IMAGES": true,
+    "ENABLE_LANGUAGE_SHARING": false,
+    "CD4_ADA_HEADING_LEVEL": "H4",
+    "AI_SUMMARY_TAGS_ENABLED": false,
+    "SOCIAL_IRL_MEDIA_UPLOAD": false,
+    "REVIEW_WRAPPER_URL": "",
+    "B2C_IGNORE_INVALID_LOCALE": false,
+    "CD4_DEMOGRAPHIC_DISPLAY_KEYS": "age,agerange,skintone,skintype,eyecolor,hairtype,whatisyourhairtype,bodytype,whatbodytypedescribesyoubest,skintintshade,pantlength,height,weight,brasize,cupsize,describeyourself,whatsizedidyouorder",
+    "SOCIAL_MEASUREMENT_COOKIE_DOMAIN": "",
+    "PUFFERFISH_KILLER_STATUS": "CDM",
+    "ACCESSIBILITY_UPDATES_WCAG2_2": false,
+    "CONTENT_TRANSLATION_LANGUAGES": "",
+    "ENABLE_FRONT_END_IOVATION_VALIDATION": false,
+    "ENABLE_CONTENT_COLLECTION_MODAL": false,
+    "IS_ATTRIBUTION_URL_DISABLED": true,
+    "CD4_REVIEW_IMAGE_GALLERY_STYLE": "GRID",
+    "DISABLE_CD4_HEADING_STRUCTURES": false,
+    "ENABLE_DEMOGRAPHIC_DISPLAY": true,
+    "REVIEW_DISPLAY_LIST_TYPE": "DEFAULT",
+    "FILTER_SCROLLING_ENABLED": true,
+    "ENABLE_LANGUAGE_TOGGLE": false,
+    "REVIEW_DISPLAY_PAGINATION_TYPE": "DEFAULT",
+    "IMAGE_SNIPPET_MAX": "7",
+    "CD4_REVIEW_DETAILS_LAYOUT": "ABSOLUTE",
+    "ENABLE_RATING_ONLY_COLLECTION": false,
+    "ENABLE_CLIENT_SIDE_STRUCTURED_DATA": true,
+    "CD4_CDN_TTL_HOURS": "6",
+    "AI_SUMMARY_ENABLED": false,
+    "REVIEW_DISPLAY_SNAPSHOT_TYPE": "DEFAULT",
+    "DEFAULT_REVIEW_SORT_ORDER": "Newest",
+    "IRL_ADD_PHOTO_BUTTON_POSITION": "BOTTOM",
+    "FACE_OFF_ENABLED": true,
+    "ENABLE_REVIEW_IMAGE_DISPLAY": true,
+    "SOCIAL_MEASUREMENT_DATA": "ENABLED",
+    "CORS_ALLOW_MULTIPLE_ORIGINS_DISPLAY": false,
+    "CD4_CDN_CONFIG_LOOKUP_TTL_HOURS": "24",
+    "DEFAULT_LANGUAGE_CONTENT_TRANSLATION": "en_US",
+    "ALLOW_POST_TO_PINTEREST_WAR": false,
+    "IS_COBRANDED": true,
+    "REVIEW_DISPLAY_ATTRIBUTION_TYPE": "LOGO",
+    "REVIEW_FILTERING_TYPE": "BUTTONS",
+    "STAR_STYLES": "GOLD_NON_ACCESSIBILITY_COMPLIANT",
+    "WCAG2_STAR_CONTRAST_ENABLED": false,
+    "QUESTIONS_PER_PAGE": "5",
+    "SHOPPABLE_CAROUSEL_ENABLED": false,
+    "ALLOW_CUSTOMER_VIDEOS": true
+   },
+   "features": {
+    "search_supported_locales": [
+     "ca_ES",
+     "de_DE",
+     "de_AT",
+     "de_CH",
+     "en_AE",
+     "en_AU",
+     "en_CA",
+     "en_CH",
+     "en_DE",
+     "en_FI",
+     "en_GB",
+     "en_GR",
+     "en_HK",
+     "en_IE",
+     "en_IN",
+     "en_JP",
+     "en_KW",
+     "en_MY",
+     "en_PH",
+     "en_PK",
+     "en_NZ",
+     "en_NL",
+     "en_NO",
+     "en_SE",
+     "en_FR",
+     "en_BE",
+     "en_IT",
+     "en_ES",
+     "en_AT",
+     "en_SA",
+     "en_SG",
+     "en_US",
+     "en_ZA",
+     "fr_CA",
+     "fr_FR",
+     "fr_BE",
+     "fr_CH",
+     "fr_LU",
+     "hi_IN",
+     "nl_NL",
+     "nl_BE",
+     "pt_BR",
+     "pt_PT",
+     "ar_AE",
+     "ar_AR",
+     "ar_EG",
+     "ar_SA",
+     "cs_CZ",
+     "da_DK",
+     "el_GR",
+     "es_AR",
+     "es_ES",
+     "es_MX",
+     "es_US",
+     "es_UY",
+     "hu_HU",
+     "it_CH",
+     "it_IT",
+     "jp_JP",
+     "ja_JP",
+     "ko_KR",
+     "no_NO",
+     "pl_PL",
+     "ru_RU",
+     "ru_KZ",
+     "sv_SE",
+     "th_TH",
+     "tr_TR",
+     "zh_CN",
+     "zh_HK",
+     "zh_TW",
+     "ro_RO",
+     "ii_ID",
+     "fi_FI",
+     "lt_LT",
+     "lv_LV",
+     "zh_SG",
+     "zh_MY"
+    ]
+   }
+  },
+  "name": "review",
+  "paging": {
+   "total_results": 3016,
+   "pages_total": 302,
+   "page_size": 10,
+   "current_page_number": 1,
+   "next_page_url": "/m/6406/l/en_US/product/pimprod2037265/reviews?paging.from=10&paging.size=10&filters=&search=&sort=Newest&image_only=false&page_locale=en_US&native_only=true"
+  },
+  "results": [
+   {
+    "page_id": "pimprod2037265",
+    "rollup": {
+     "properties": [
+      {
+       "display_type": "default",
+       "key": "beautyroutine",
+       "name": "My Beauty Routine Takes",
+       "type": "tag",
+       "values": [
+        {
+         "label": "30 Minutes",
+         "count": 3
+        },
+        {
+         "label": "1+ Hour",
+         "count": 2
+        }
+       ],
+       "display_values": [
+        "1+ Hour",
+        "10 Minutes",
+        "30 Minutes"
+       ]
+      },
+      {
+       "display_type": "default",
+       "key": "bestuses",
+       "name": "Best For",
+       "type": "tag",
+       "values": [
+        {
+         "label": "Oily Hair",
+         "count": 642
+        },
+        {
+         "label": "Fine Hair",
+         "count": 332
+        },
+        {
+         "label": "Daily Use",
+         "count": 319
+        },
+        {
+         "label": "Thick Hair",
+         "count": 192
+        },
+        {
+         "label": "Curly Hair",
+         "count": 99
+        },
+        {
+         "label": "On-the-go",
+         "count": 4
+        },
+        {
+         "label": "Between shampoos",
+         "count": 3
+        },
+        {
+         "label": "Women",
+         "count": 3
+        },
+        {
+         "label": "Second day hair",
+         "count": 2
+        },
+        {
+         "label": "everyday",
+         "count": 2
+        },
+        {
+         "label": "In between washes",
+         "count": 2
+        },
+        {
+         "label": "All hair",
+         "count": 2
+        },
+        {
+         "label": "Blonde hair",
+         "count": 2
+        },
+        {
+         "label": "All hair types",
+         "count": 2
+        },
+        {
+         "label": "Dirty hair",
+         "count": 2
+        },
+        {
+         "label": "Men",
+         "count": 2
+        },
+        {
+         "label": "Any hair type",
+         "count": 2
+        },
+        {
+         "label": "Limpness/Lifelessness",
+         "count": 1
+        },
+        {
+         "label": "Everyday",
+         "count": 1
+        },
+        {
+         "label": "Use at night before bed and a little more in am.",
+         "count": 1
+        },
+        {
+         "label": "On dry hair days after washing",
+         "count": 1
+        },
+        {
+         "label": "Use on days I don't wash my hair",
+         "count": 1
+        },
+        {
+         "label": "Day 2 -3 refresh",
+         "count": 1
+        },
+        {
+         "label": "great for in between washes",
+         "count": 1
+        },
+        {
+         "label": "Off days when you don't want to wash your hair",
+         "count": 1
+        },
+        {
+         "label": "Anytime you need it!  Oh and it leaves your hair",
+         "count": 1
+        },
+        {
+         "label": "feeling fresh not perfumed!",
+         "count": 1
+        },
+        {
+         "label": "Don't shampoo for a day",
+         "count": 1
+        },
+        {
+         "label": "When I workout and don't want to shower mi hair.",
+         "count": 1
+        },
+        {
+         "label": "Oily hair",
+         "count": 1
+        },
+        {
+         "label": "Straight hair",
+         "count": 1
+        },
+        {
+         "label": "When you don't have time to wash your hair",
+         "count": 1
+        },
+        {
+         "label": "add volume, cleanse hair in between washes",
+         "count": 1
+        },
+        {
+         "label": "Best when hair is a few days dirty",
+         "count": 1
+        },
+        {
+         "label": "Great in between shampoos or freshener",
+         "count": 1
+        },
+        {
+         "label": "Whenever your hair feels a little oily",
+         "count": 1
+        },
+        {
+         "label": "Non shower days or to give volume to flat roots",
+         "count": 1
+        },
+        {
+         "label": "after sleeping on it to give it a boost",
+         "count": 1
+        },
+        {
+         "label": "For oily hair",
+         "count": 1
+        },
+        {
+         "label": "Make sure you wait the 30 seconds",
+         "count": 1
+        },
+        {
+         "label": "So you don't have to wash hair everyday",
+         "count": 1
+        },
+        {
+         "label": "Then you, in the words of Taylor, Shake it off!",
+         "count": 1
+        },
+        {
+         "label": "I love using this before going to the gym",
+         "count": 1
+        },
+        {
+         "label": "Between shampoos and deep conditioning products",
+         "count": 1
+        },
+        {
+         "label": "none",
+         "count": 1
+        },
+        {
+         "label": "when I want my hair to smell good",
+         "count": 1
+        },
+        {
+         "label": "when I want to give my hair a break",
+         "count": 1
+        },
+        {
+         "label": "Volume, styling, cleaning, amazing smell",
+         "count": 1
+        },
+        {
+         "label": "No time to wash hair,",
+         "count": 1
+        },
+        {
+         "label": "Great for those non-shampoo days",
+         "count": 1
+        },
+        {
+         "label": "time crunch",
+         "count": 1
+        },
+        {
+         "label": "Maybe updos?",
+         "count": 1
+        },
+        {
+         "label": "Great for in between washes",
+         "count": 1
+        },
+        {
+         "label": "Any time!",
+         "count": 1
+        },
+        {
+         "label": "after waking up",
+         "count": 1
+        },
+        {
+         "label": "Gets rid of Oil in Hair",
+         "count": 1
+        },
+        {
+         "label": "Prevent Oily Hair",
+         "count": 1
+        },
+        {
+         "label": "second and third day after shampoo",
+         "count": 1
+        },
+        {
+         "label": "Make hair appear cleaner when it looks greasy",
+         "count": 1
+        },
+        {
+         "label": "Plumps up flat hair",
+         "count": 1
+        },
+        {
+         "label": "It life in my hair",
+         "count": 1
+        },
+        {
+         "label": "Color treated hair miracle!",
+         "count": 1
+        },
+        {
+         "label": "When I need my hair clean or just want extra wow",
+         "count": 1
+        },
+        {
+         "label": "Revives your hair for work or play",
+         "count": 1
+        },
+        {
+         "label": "Give life to hair",
+         "count": 1
+        },
+        {
+         "label": "Take away excess oil",
+         "count": 1
+        },
+        {
+         "label": "Clean After A Hospital Stay !",
+         "count": 1
+        },
+        {
+         "label": "Baby fine hair.",
+         "count": 1
+        },
+        {
+         "label": "NONE",
+         "count": 1
+        },
+        {
+         "label": "All Hair Types",
+         "count": 1
+        },
+        {
+         "label": "Not Daily Use but great for every other day use",
+         "count": 1
+        },
+        {
+         "label": "When unable to shower",
+         "count": 1
+        },
+        {
+         "label": "Any hair type!Works great on my wavy/greasy hair",
+         "count": 1
+        },
+        {
+         "label": "gives me an extra day that saves me from washing",
+         "count": 1
+        },
+        {
+         "label": "After a workout",
+         "count": 1
+        },
+        {
+         "label": "Inbetween Shower days",
+         "count": 1
+        },
+        {
+         "label": "Pricey but worth it",
+         "count": 1
+        },
+        {
+         "label": "As needed",
+         "count": 1
+        },
+        {
+         "label": "Not sure",
+         "count": 1
+        },
+        {
+         "label": "skip a shampoo",
+         "count": 1
+        },
+        {
+         "label": "Any hair",
+         "count": 1
+        },
+        {
+         "label": "3rd or 4th day hair extender",
+         "count": 1
+        },
+        {
+         "label": "All hair types.",
+         "count": 1
+        },
+        {
+         "label": "Extra day between shampoos",
+         "count": 1
+        },
+        {
+         "label": "Days you​ don't​ have​ time to wash your hair​",
+         "count": 1
+        },
+        {
+         "label": "oily hair",
+         "count": 1
+        },
+        {
+         "label": "Greasy hair",
+         "count": 1
+        },
+        {
+         "label": "Any type hair",
+         "count": 1
+        },
+        {
+         "label": "I only know of my own, finer now, thiner now, ..",
+         "count": 1
+        },
+        {
+         "label": "Shampoo vacation day",
+         "count": 1
+        },
+        {
+         "label": "I can go 2  days sometimes without washing hair",
+         "count": 1
+        },
+        {
+         "label": "4/5 times a week",
+         "count": 1
+        },
+        {
+         "label": "Extends Shampoo By One Day",
+         "count": 1
+        },
+        {
+         "label": "Skipping the shower",
+         "count": 1
+        },
+        {
+         "label": "Skip washing your hair",
+         "count": 1
+        },
+        {
+         "label": "Truly Extends a Shampoo or Blow Out",
+         "count": 1
+        },
+        {
+         "label": "colored hair",
+         "count": 1
+        },
+        {
+         "label": "wavy hair",
+         "count": 1
+        },
+        {
+         "label": "Anyone can use this!",
+         "count": 1
+        },
+        {
+         "label": "Quick on the go",
+         "count": 1
+        },
+        {
+         "label": "Wouldn't know, never got to try this",
+         "count": 1
+        },
+        {
+         "label": "Blow out",
+         "count": 1
+        },
+        {
+         "label": "Blonde Hair",
+         "count": 1
+        },
+        {
+         "label": "ANY type of hair!",
+         "count": 1
+        },
+        {
+         "label": "After Workout",
+         "count": 1
+        },
+        {
+         "label": "Humidity",
+         "count": 1
+        },
+        {
+         "label": "Helps Keep Hair Healthy",
+         "count": 1
+        },
+        {
+         "label": "Save Money",
+         "count": 1
+        },
+        {
+         "label": "To Save Time",
+         "count": 1
+        },
+        {
+         "label": "2nd Day Hair",
+         "count": 1
+        },
+        {
+         "label": "After A Light Workout",
+         "count": 1
+        }
+       ],
+       "display_values": [
+        "2nd Day Hair",
+        "3rd or 4th day hair extender",
+        "4/5 times a week",
+        "ANY type of hair!",
+        "After A Light Workout",
+        "After Workout",
+        "After a workout",
+        "All Hair Types",
+        "All hair",
+        "All hair types",
+        "All hair types.",
+        "Any hair",
+        "Any hair type",
+        "Any hair type!Works great on my wavy/greasy hair",
+        "Any time!",
+        "Any type hair",
+        "Anyone can use this!",
+        "Anytime you need it!  Oh and it leaves your hair",
+        "As needed",
+        "Baby fine hair.",
+        "Best when hair is a few days dirty",
+        "Between shampoos",
+        "Between shampoos and deep conditioning products",
+        "Blonde Hair",
+        "Blonde hair",
+        "Blow out",
+        "Clean After A Hospital Stay !",
+        "Color treated hair miracle!",
+        "Color-treated Hair",
+        "Curly Hair",
+        "Daily Use",
+        "Day 2 -3 refresh",
+        "Days you​ don't​ have​ time to wash your hair​",
+        "Dirty hair",
+        "Don't shampoo for a day",
+        "Dry/Damaged Hair",
+        "Everyday",
+        "Extends Shampoo By One Day",
+        "Extra day between shampoos",
+        "Fine Hair",
+        "Flaking/Dandruff",
+        "For oily hair",
+        "Frizziness/Flyaways",
+        "Gets rid of Oil in Hair",
+        "Give life to hair",
+        "Greasy hair",
+        "Great for in between washes",
+        "Great for those non-shampoo days",
+        "Great in between shampoos or freshener",
+        "Hair Loss",
+        "Helps Keep Hair Healthy",
+        "Humidity",
+        "I can go 2  days sometimes without washing hair",
+        "I love using this before going to the gym",
+        "I only know of my own, finer now, thiner now, ..",
+        "In between washes",
+        "Inbetween Shower days",
+        "It life in my hair",
+        "Limpness/Lifelessness",
+        "Make hair appear cleaner when it looks greasy",
+        "Make sure you wait the 30 seconds",
+        "Maybe updos?",
+        "Men",
+        "NONE",
+        "No time to wash hair,",
+        "Non shower days or to give volume to flat roots",
+        "Normal Hair",
+        "Not Daily Use but great for every other day use",
+        "Not sure",
+        "Off days when you don't want to wash your hair",
+        "Oily Hair",
+        "Oily Skin",
+        "Oily hair",
+        "On dry hair days after washing",
+        "On-the-go",
+        "Plumps up flat hair",
+        "Prevent Oily Hair",
+        "Pricey but worth it",
+        "Quick on the go",
+        "Revives your hair for work or play",
+        "Save Money",
+        "Second day hair",
+        "Shampoo vacation day",
+        "Skip washing your hair",
+        "Skipping the shower",
+        "So you don't have to wash hair everyday",
+        "Straight hair",
+        "Take away excess oil",
+        "Then you, in the words of Taylor, Shake it off!",
+        "Thick Hair",
+        "To Save Time",
+        "Truly Extends a Shampoo or Blow Out",
+        "Use at night before bed and a little more in am.",
+        "Use on days I don't wash my hair",
+        "Volume, styling, cleaning, amazing smell",
+        "Weekly Use",
+        "When I need my hair clean or just want extra wow",
+        "When I workout and don't want to shower mi hair.",
+        "When unable to shower",
+        "When you don't have time to wash your hair",
+        "Whenever your hair feels a little oily",
+        "Women",
+        "Wouldn't know, never got to try this",
+        "add volume, cleanse hair in between washes",
+        "after sleeping on it to give it a boost",
+        "after waking up",
+        "colored hair",
+        "everyday",
+        "feeling fresh not perfumed!",
+        "gives me an extra day that saves me from washing",
+        "great for in between washes",
+        "none",
+        "oily hair",
+        "second and third day after shampoo",
+        "skip a shampoo",
+        "time crunch",
+        "wavy hair",
+        "when I want my hair to smell good",
+        "when I want to give my hair a break"
+       ]
+      },
+      {
+       "display_type": "default",
+       "key": "cons",
+       "name": "Cons",
+       "type": "tag",
+       "values": [
+        {
+         "label": "Dries Hair Out",
+         "count": 52
+        },
+        {
+         "label": "Doesn't Work",
+         "count": 47
+        },
+        {
+         "label": "Smells Bad",
+         "count": 20
+        },
+        {
+         "label": "Pricey / Poor Value",
+         "count": 16
+        },
+        {
+         "label": "Price",
+         "count": 13
+        },
+        {
+         "label": "Harsh",
+         "count": 12
+        },
+        {
+         "label": "Pricey",
+         "count": 11
+        },
+        {
+         "label": "Cost",
+         "count": 9
+        },
+        {
+         "label": "Doesn't Lather Well",
+         "count": 9
+        },
+        {
+         "label": "Expensive",
+         "count": 8
+        },
+        {
+         "label": "None",
+         "count": 8
+        },
+        {
+         "label": "Strong smell",
+         "count": 4
+        },
+        {
+         "label": "Greasy",
+         "count": 4
+        },
+        {
+         "label": "expensive",
+         "count": 4
+        },
+        {
+         "label": "Leaves residue",
+         "count": 3
+        },
+        {
+         "label": "White Residue",
+         "count": 3
+        },
+        {
+         "label": "Scent",
+         "count": 2
+        },
+        {
+         "label": "price",
+         "count": 2
+        },
+        {
+         "label": "A little pricey",
+         "count": 2
+        },
+        {
+         "label": "Runs out quickly",
+         "count": 2
+        },
+        {
+         "label": "White residue",
+         "count": 2
+        },
+        {
+         "label": "Leaves Residue",
+         "count": 2
+        },
+        {
+         "label": "The smell. I do not like the smell at all.",
+         "count": 1
+        },
+        {
+         "label": "Nozzle stopped working",
+         "count": 1
+        },
+        {
+         "label": "defective bottle",
+         "count": 1
+        },
+        {
+         "label": "Itchy",
+         "count": 1
+        },
+        {
+         "label": "Hard to use",
+         "count": 1
+        },
+        {
+         "label": "PRICE",
+         "count": 1
+        },
+        {
+         "label": "Powder mess if not rubbed in good",
+         "count": 1
+        },
+        {
+         "label": "smells terriible",
+         "count": 1
+        },
+        {
+         "label": "Pricey but worth it",
+         "count": 1
+        },
+        {
+         "label": "Price- but it's worth it!",
+         "count": 1
+        },
+        {
+         "label": "Sticky, made hair look ashy",
+         "count": 1
+        },
+        {
+         "label": "Price point...ouch",
+         "count": 1
+        },
+        {
+         "label": "It's Expensive but Well Worth It !",
+         "count": 1
+        },
+        {
+         "label": "feels sticky",
+         "count": 1
+        },
+        {
+         "label": "Wish it was less expensive or have it on sale so",
+         "count": 1
+        },
+        {
+         "label": "Visible on dark hair",
+         "count": 1
+        },
+        {
+         "label": "Too expensive.",
+         "count": 1
+        },
+        {
+         "label": "Buildup",
+         "count": 1
+        },
+        {
+         "label": "Chalky",
+         "count": 1
+        },
+        {
+         "label": "LAST about 5-10 uses... very SHORT uses.",
+         "count": 1
+        },
+        {
+         "label": "Super pricey for the amount that you get.",
+         "count": 1
+        },
+        {
+         "label": "Anything negative is wrong",
+         "count": 1
+        },
+        {
+         "label": "Kind of expensive",
+         "count": 1
+        },
+        {
+         "label": "Still some residue",
+         "count": 1
+        },
+        {
+         "label": "Used up way too fast",
+         "count": 1
+        },
+        {
+         "label": "EXPENSIVE",
+         "count": 1
+        },
+        {
+         "label": "gritty",
+         "count": 1
+        },
+        {
+         "label": "white cast",
+         "count": 1
+        },
+        {
+         "label": "Could smell better",
+         "count": 1
+        },
+        {
+         "label": "Fragrance",
+         "count": 1
+        },
+        {
+         "label": "After spray takes too long to dissipate",
+         "count": 1
+        },
+        {
+         "label": "White residue but blends easy",
+         "count": 1
+        },
+        {
+         "label": "Is there such a thing for this dry shampoo?",
+         "count": 1
+        },
+        {
+         "label": "It is expensive....but worth it!",
+         "count": 1
+        },
+        {
+         "label": "None aware of at this time",
+         "count": 1
+        },
+        {
+         "label": "If you don't shake it it can spray white residue",
+         "count": 1
+        },
+        {
+         "label": "dries my hair out",
+         "count": 1
+        },
+        {
+         "label": "formula irritates scalp",
+         "count": 1
+        },
+        {
+         "label": "a little bit on the pricey side!",
+         "count": 1
+        },
+        {
+         "label": "Wish they made a bigger bottle",
+         "count": 1
+        },
+        {
+         "label": "Costly!",
+         "count": 1
+        },
+        {
+         "label": "Leaves a residue on dark hair after a few uses",
+         "count": 1
+        },
+        {
+         "label": "It's expensive",
+         "count": 1
+        },
+        {
+         "label": "Feels like residue left in hair",
+         "count": 1
+        },
+        {
+         "label": "Leaves hair powdery",
+         "count": 1
+        },
+        {
+         "label": "Smell",
+         "count": 1
+        },
+        {
+         "label": "Little expensive",
+         "count": 1
+        },
+        {
+         "label": "Can only be used once",
+         "count": 1
+        },
+        {
+         "label": "Doesn't have a great fragrance",
+         "count": 1
+        },
+        {
+         "label": "Leaves hair coated in goop",
+         "count": 1
+        },
+        {
+         "label": "Sprays all over the place",
+         "count": 1
+        },
+        {
+         "label": "Sticky",
+         "count": 1
+        },
+        {
+         "label": "does use up quickly",
+         "count": 1
+        },
+        {
+         "label": "Residue Lands On Environment Where Sprayed",
+         "count": 1
+        },
+        {
+         "label": "Strong Odor",
+         "count": 1
+        },
+        {
+         "label": "You Have to Use a Lot of It",
+         "count": 1
+        },
+        {
+         "label": "Doesn't last too long",
+         "count": 1
+        },
+        {
+         "label": "runs out quickly",
+         "count": 1
+        },
+        {
+         "label": "Does not work",
+         "count": 1
+        },
+        {
+         "label": "Dries hair",
+         "count": 1
+        },
+        {
+         "label": "Helmet Head",
+         "count": 1
+        },
+        {
+         "label": "Makes hair stiff",
+         "count": 1
+        },
+        {
+         "label": "Sprays on white but just blow dry=disappears.",
+         "count": 1
+        },
+        {
+         "label": "none",
+         "count": 1
+        },
+        {
+         "label": "Expensive for size of product",
+         "count": 1
+        },
+        {
+         "label": "it's a bit expensive for me",
+         "count": 1
+        },
+        {
+         "label": "small",
+         "count": 1
+        },
+        {
+         "label": "White residue if too close",
+         "count": 1
+        },
+        {
+         "label": "Avoid at all costs",
+         "count": 1
+        },
+        {
+         "label": "DO NOT BUY",
+         "count": 1
+        },
+        {
+         "label": "Horrible",
+         "count": 1
+        },
+        {
+         "label": "leaves white cast",
+         "count": 1
+        },
+        {
+         "label": "High price",
+         "count": 1
+        },
+        {
+         "label": "Product too small",
+         "count": 1
+        },
+        {
+         "label": "None!",
+         "count": 1
+        },
+        {
+         "label": "leaves build-up and residue",
+         "count": 1
+        },
+        {
+         "label": "Dries scalp",
+         "count": 1
+        },
+        {
+         "label": "Not really any. Best dry shampoo",
+         "count": 1
+        },
+        {
+         "label": "Hard to remove white appearance",
+         "count": 1
+        },
+        {
+         "label": "Overly purfumy scent",
+         "count": 1
+        },
+        {
+         "label": "Heavy, leaves a residue",
+         "count": 1
+        },
+        {
+         "label": "Strong Smell at first",
+         "count": 1
+        },
+        {
+         "label": "Does leave a white cast",
+         "count": 1
+        },
+        {
+         "label": "If you use too much it can look powdery in your",
+         "count": 1
+        },
+        {
+         "label": "Small package",
+         "count": 1
+        },
+        {
+         "label": "Has a hint of a pepper smell",
+         "count": 1
+        },
+        {
+         "label": "Small container",
+         "count": 1
+        },
+        {
+         "label": "Costs a lot for the size of can",
+         "count": 1
+        },
+        {
+         "label": "Visible residue",
+         "count": 1
+        },
+        {
+         "label": "Pricey for the amount of uses",
+         "count": 1
+        },
+        {
+         "label": "No cons!",
+         "count": 1
+        },
+        {
+         "label": "Pretty expensive",
+         "count": 1
+        },
+        {
+         "label": "Thick Residue",
+         "count": 1
+        },
+        {
+         "label": "The scent is a little over powerful.",
+         "count": 1
+        },
+        {
+         "label": "Adds frizz",
+         "count": 1
+        },
+        {
+         "label": "Need a lot of product to make hair feel clean",
+         "count": 1
+        },
+        {
+         "label": "A Tad Stiff",
+         "count": 1
+        },
+        {
+         "label": "Too wet",
+         "count": 1
+        },
+        {
+         "label": "No Volume",
+         "count": 1
+        },
+        {
+         "label": "You have to brush off the white, but not bad",
+         "count": 1
+        },
+        {
+         "label": "Whitish residue",
+         "count": 1
+        },
+        {
+         "label": "Cannot think of any cons",
+         "count": 1
+        },
+        {
+         "label": "Runs out fast. Have to buy frequently",
+         "count": 1
+        },
+        {
+         "label": "Not that many uses in one can..",
+         "count": 1
+        },
+        {
+         "label": "too powdery",
+         "count": 1
+        },
+        {
+         "label": "No Cons!!!",
+         "count": 1
+        },
+        {
+         "label": "Adds some build up",
+         "count": 1
+        },
+        {
+         "label": "Can doesn't last long",
+         "count": 1
+        },
+        {
+         "label": "White Powder in Dark Hair",
+         "count": 1
+        },
+        {
+         "label": "small bottle",
+         "count": 1
+        },
+        {
+         "label": "Not worth the money",
+         "count": 1
+        },
+        {
+         "label": "Not enough in the bottle",
+         "count": 1
+        },
+        {
+         "label": "Too Expensive",
+         "count": 1
+        },
+        {
+         "label": "Left white residue on my hair & clothes",
+         "count": 1
+        },
+        {
+         "label": "Very powdery even after combing out.",
+         "count": 1
+        },
+        {
+         "label": "Bottle costly for number of applications",
+         "count": 1
+        },
+        {
+         "label": "Do not run your fingers through your hair.",
+         "count": 1
+        },
+        {
+         "label": "Expensve",
+         "count": 1
+        },
+        {
+         "label": "Hard to wash out",
+         "count": 1
+        },
+        {
+         "label": "Doesn't last long",
+         "count": 1
+        },
+        {
+         "label": "Very drying to my roots",
+         "count": 1
+        },
+        {
+         "label": "Price is a little steep for a broke college kid",
+         "count": 1
+        },
+        {
+         "label": "Leaves your hair white",
+         "count": 1
+        },
+        {
+         "label": "Small amount of product",
+         "count": 1
+        },
+        {
+         "label": "Still looks greasy after use",
+         "count": 1
+        },
+        {
+         "label": "Overwhelming​ scent when spraying​",
+         "count": 1
+        },
+        {
+         "label": "A Little Pricey",
+         "count": 1
+        },
+        {
+         "label": "I have to use a lot.",
+         "count": 1
+        },
+        {
+         "label": "Has a faint white cast",
+         "count": 1
+        },
+        {
+         "label": "leaves hair feeling gitty",
+         "count": 1
+        },
+        {
+         "label": "looks like you dumped baby powder in your hair",
+         "count": 1
+        },
+        {
+         "label": "Hair is dry and tangled after washing.",
+         "count": 1
+        },
+        {
+         "label": "makes scalp itch, and eyes burn",
+         "count": 1
+        },
+        {
+         "label": "No cons whatsoever!",
+         "count": 1
+        },
+        {
+         "label": "leaves itchy residue on scalp",
+         "count": 1
+        },
+        {
+         "label": "Small amount in bottle",
+         "count": 1
+        },
+        {
+         "label": "Heavy",
+         "count": 1
+        },
+        {
+         "label": "doesn't add volume",
+         "count": 1
+        },
+        {
+         "label": "Expensive for amount",
+         "count": 1
+        },
+        {
+         "label": "Too expensive",
+         "count": 1
+        },
+        {
+         "label": "Sprayer stopped working",
+         "count": 1
+        },
+        {
+         "label": "The scent is unpleasant",
+         "count": 1
+        },
+        {
+         "label": "Reside",
+         "count": 1
+        },
+        {
+         "label": "Your hair will look a little dull",
+         "count": 1
+        },
+        {
+         "label": "Jammed so don't really know how well it works",
+         "count": 1
+        },
+        {
+         "label": "Gave me dandruff.",
+         "count": 1
+        },
+        {
+         "label": "Price (high)",
+         "count": 1
+        },
+        {
+         "label": "Doesn't add texture",
+         "count": 1
+        },
+        {
+         "label": "the smell is different",
+         "count": 1
+        },
+        {
+         "label": "Overpriced compared to similar products",
+         "count": 1
+        },
+        {
+         "label": "Runs Out Quick",
+         "count": 1
+        },
+        {
+         "label": "Not enough product in the bottle for the price",
+         "count": 1
+        },
+        {
+         "label": "A little more than I would like to pay",
+         "count": 1
+        },
+        {
+         "label": "Leaves a white residue in my dark hair",
+         "count": 1
+        },
+        {
+         "label": "Need to use a lot of it",
+         "count": 1
+        },
+        {
+         "label": "Does Not have a smell at all",
+         "count": 1
+        },
+        {
+         "label": "Wish it had color options..",
+         "count": 1
+        },
+        {
+         "label": "pretty expensive",
+         "count": 1
+        },
+        {
+         "label": "Strong Smell",
+         "count": 1
+        },
+        {
+         "label": "Pricebut It's Worth I",
+         "count": 1
+        },
+        {
+         "label": "Doesn't add volume",
+         "count": 1
+        },
+        {
+         "label": "Heavy Perfume Smell",
+         "count": 1
+        },
+        {
+         "label": "Too Much Whit Film",
+         "count": 1
+        },
+        {
+         "label": "If You Use Too Much Your",
+         "count": 1
+        }
+       ],
+       "display_values": [
+        "A Little Pricey",
+        "A Tad Stiff",
+        "A little more than I would like to pay",
+        "A little pricey",
+        "Abrasive",
+        "Adds frizz",
+        "Adds some build up",
+        "After spray takes too long to dissipate",
+        "Anything negative is wrong",
+        "Avoid at all costs",
+        "Bottle costly for number of applications",
+        "Buildup",
+        "Can doesn't last long",
+        "Can only be used once",
+        "Cannot think of any cons",
+        "Chalky",
+        "Complicated To Use",
+        "Cost",
+        "Costly!",
+        "Costs a lot for the size of can",
+        "Could smell better",
+        "DO NOT BUY",
+        "Do not run your fingers through your hair.",
+        "Does Not have a smell at all",
+        "Does leave a white cast",
+        "Does not work",
+        "Doesn't Lather Well",
+        "Doesn't Work",
+        "Doesn't add texture",
+        "Doesn't add volume",
+        "Doesn't have a great fragrance",
+        "Doesn't last long",
+        "Doesn't last too long",
+        "Dries Hair Out",
+        "Dries hair",
+        "Dries scalp",
+        "EXPENSIVE",
+        "Expensive",
+        "Expensive for amount",
+        "Expensive for size of product",
+        "Expensve",
+        "Feels like residue left in hair",
+        "Fragrance",
+        "Gave me dandruff.",
+        "Greasy",
+        "Hair is dry and tangled after washing.",
+        "Hard to remove white appearance",
+        "Hard to use",
+        "Hard to wash out",
+        "Harsh",
+        "Has a faint white cast",
+        "Has a hint of a pepper smell",
+        "Heavy",
+        "Heavy Perfume Smell",
+        "Heavy, leaves a residue",
+        "Helmet Head",
+        "High price",
+        "Horrible",
+        "I have to use a lot.",
+        "If You Use Too Much Your",
+        "If you don't shake it it can spray white residue",
+        "If you use too much it can look powdery in your",
+        "Is there such a thing for this dry shampoo?",
+        "It is expensive....but worth it!",
+        "It's Expensive but Well Worth It !",
+        "It's expensive",
+        "Itchy",
+        "Jammed so don't really know how well it works",
+        "Kind of expensive",
+        "LAST about 5-10 uses... very SHORT uses.",
+        "Leaves Residue",
+        "Leaves a residue on dark hair after a few uses",
+        "Leaves a white residue in my dark hair",
+        "Leaves hair coated in goop",
+        "Leaves hair powdery",
+        "Leaves residue",
+        "Leaves your hair white",
+        "Left white residue on my hair & clothes",
+        "Little expensive",
+        "Makes hair stiff",
+        "Need a lot of product to make hair feel clean",
+        "Need to use a lot of it",
+        "No Cons!!!",
+        "No Volume",
+        "No cons whatsoever!",
+        "No cons!",
+        "None",
+        "None aware of at this time",
+        "None!",
+        "Not Effective",
+        "Not enough in the bottle",
+        "Not enough product in the bottle for the price",
+        "Not really any. Best dry shampoo",
+        "Not that many uses in one can..",
+        "Not worth the money",
+        "Nozzle stopped working",
+        "Overly purfumy scent",
+        "Overpriced compared to similar products",
+        "Overwhelming​ scent when spraying​",
+        "PRICE",
+        "Poor Texture",
+        "Powder mess if not rubbed in good",
+        "Pretty expensive",
+        "Price",
+        "Price (high)",
+        "Price is a little steep for a broke college kid",
+        "Price point...ouch",
+        "Price- but it's worth it!",
+        "Pricebut It's Worth I",
+        "Pricey",
+        "Pricey / Poor Value",
+        "Pricey but worth it",
+        "Pricey for the amount of uses",
+        "Product too small",
+        "Reside",
+        "Residue Lands On Environment Where Sprayed",
+        "Runs Out Quick",
+        "Runs out fast. Have to buy frequently",
+        "Runs out quickly",
+        "Scent",
+        "Small amount in bottle",
+        "Small amount of product",
+        "Small container",
+        "Small package",
+        "Smell",
+        "Smells Bad",
+        "Sprayer stopped working",
+        "Sprays all over the place",
+        "Sprays on white but just blow dry=disappears.",
+        "Sticky",
+        "Sticky, made hair look ashy",
+        "Still looks greasy after use",
+        "Still some residue",
+        "Strong Odor",
+        "Strong Smell",
+        "Strong Smell at first",
+        "Strong smell",
+        "Super pricey for the amount that you get.",
+        "The scent is a little over powerful.",
+        "The scent is unpleasant",
+        "The smell. I do not like the smell at all.",
+        "Thick Residue",
+        "Too Expensive",
+        "Too Much Whit Film",
+        "Too expensive",
+        "Too expensive.",
+        "Too wet",
+        "Used up way too fast",
+        "Very drying to my roots",
+        "Very powdery even after combing out.",
+        "Visible on dark hair",
+        "Visible residue",
+        "White Powder in Dark Hair",
+        "White Residue",
+        "White residue",
+        "White residue but blends easy",
+        "White residue if too close",
+        "Whitish residue",
+        "Wish it had color options..",
+        "Wish it was less expensive or have it on sale so",
+        "Wish they made a bigger bottle",
+        "You Have to Use a Lot of It",
+        "You have to brush off the white, but not bad",
+        "Your hair will look a little dull",
+        "a little bit on the pricey side!",
+        "defective bottle",
+        "does use up quickly",
+        "doesn't add volume",
+        "dries my hair out",
+        "expensive",
+        "feels sticky",
+        "formula irritates scalp",
+        "gritty",
+        "it's a bit expensive for me",
+        "leaves build-up and residue",
+        "leaves hair feeling gitty",
+        "leaves itchy residue on scalp",
+        "leaves white cast",
+        "looks like you dumped baby powder in your hair",
+        "makes scalp itch, and eyes burn",
+        "none",
+        "pretty expensive",
+        "price",
+        "runs out quickly",
+        "small",
+        "small bottle",
+        "smells terriible",
+        "the smell is different",
+        "too powdery",
+        "white cast"
+       ]
+      },
+      {
+       "display_type": "default",
+       "key": "describeyourself",
+       "name": "Describe Yourself",
+       "type": "tag",
+       "values": [
+        {
+         "label": "Beauty Conscious",
+         "count": 531
+        },
+        {
+         "label": "Product Junkie",
+         "count": 279
+        },
+        {
+         "label": "Survivalist / Minimalist",
+         "count": 232
+        },
+        {
+         "label": "Minimalist",
+         "count": 60
+        },
+        {
+         "label": "Professional Stylist",
+         "count": 15
+        },
+        {
+         "label": "Blonde",
+         "count": 3
+        },
+        {
+         "label": "Oily hair",
+         "count": 2
+        },
+        {
+         "label": "Fine Hair",
+         "count": 2
+        },
+        {
+         "label": "Oily Hair",
+         "count": 2
+        },
+        {
+         "label": "Fine hair",
+         "count": 2
+        },
+        {
+         "label": "Brand Buyer",
+         "count": 2
+        },
+        {
+         "label": "Oily",
+         "count": 1
+        },
+        {
+         "label": "Wavy/straight hair",
+         "count": 1
+        },
+        {
+         "label": "Thin/fine hair that gets oily easily",
+         "count": 1
+        },
+        {
+         "label": "50ish with long hair and bangs",
+         "count": 1
+        },
+        {
+         "label": "Long, thin, straight hair",
+         "count": 1
+        },
+        {
+         "label": "36 y.o. Mom of 4, business owner",
+         "count": 1
+        },
+        {
+         "label": "Busy is an understatement",
+         "count": 1
+        },
+        {
+         "label": "Aged 18-22",
+         "count": 1
+        },
+        {
+         "label": "Woman",
+         "count": 1
+        },
+        {
+         "label": "Middle aged lady with greasy roots and dry ends",
+         "count": 1
+        },
+        {
+         "label": "Older female with short, thin hair",
+         "count": 1
+        },
+        {
+         "label": "Brunette",
+         "count": 1
+        },
+        {
+         "label": "30's",
+         "count": 1
+        },
+        {
+         "label": "Extremely oily scalp",
+         "count": 1
+        },
+        {
+         "label": "Older / Senior",
+         "count": 1
+        },
+        {
+         "label": "Early 40's, highlights and low lights in hair",
+         "count": 1
+        },
+        {
+         "label": "hair length past shoulders",
+         "count": 1
+        },
+        {
+         "label": "Oily, thin hair",
+         "count": 1
+        },
+        {
+         "label": "Blonde Hair, Medium Lengh, Wavy",
+         "count": 1
+        },
+        {
+         "label": "Fine hair, but lots of it!",
+         "count": 1
+        },
+        {
+         "label": "Long blonde hair",
+         "count": 1
+        },
+        {
+         "label": "Stay-at-home mom, naturally curly hair",
+         "count": 1
+        },
+        {
+         "label": "colored hair",
+         "count": 1
+        },
+        {
+         "label": "short hair",
+         "count": 1
+        },
+        {
+         "label": "thick hair",
+         "count": 1
+        },
+        {
+         "label": "wavy hair",
+         "count": 1
+        },
+        {
+         "label": "60+ with a chronic illness.",
+         "count": 1
+        },
+        {
+         "label": "blonde highlights- medium length",
+         "count": 1
+        },
+        {
+         "label": "Curly hair",
+         "count": 1
+        },
+        {
+         "label": "Transitioning hair",
+         "count": 1
+        },
+        {
+         "label": "Straight Hair",
+         "count": 1
+        },
+        {
+         "label": "Big hair girl- always looking for the next best",
+         "count": 1
+        },
+        {
+         "label": "I am in my 70s and very active.",
+         "count": 1
+        },
+        {
+         "label": "36 year old female with thin hair and extension.",
+         "count": 1
+        },
+        {
+         "label": "Blondish hair",
+         "count": 1
+        },
+        {
+         "label": "38 year old female",
+         "count": 1
+        },
+        {
+         "label": "Professional dental field",
+         "count": 1
+        },
+        {
+         "label": "curly, long, medium thickness, keratin treated",
+         "count": 1
+        },
+        {
+         "label": "dry hair",
+         "count": 1
+        },
+        {
+         "label": "Blonde thin hair",
+         "count": 1
+        },
+        {
+         "label": "Beauty conscious",
+         "count": 1
+        },
+        {
+         "label": "natural style",
+         "count": 1
+        },
+        {
+         "label": "Sensitive scalp",
+         "count": 1
+        },
+        {
+         "label": "55+ brown hair",
+         "count": 1
+        },
+        {
+         "label": "Busy working mom",
+         "count": 1
+        },
+        {
+         "label": "Religious dry shampoo user",
+         "count": 1
+        },
+        {
+         "label": "a good listener",
+         "count": 1
+        },
+        {
+         "label": "Average",
+         "count": 1
+        },
+        {
+         "label": "Don't style hair too often",
+         "count": 1
+        },
+        {
+         "label": "Like to go 2 days without washing hair",
+         "count": 1
+        },
+        {
+         "label": "Gray blonde",
+         "count": 1
+        },
+        {
+         "label": "55 with thin hair",
+         "count": 1
+        },
+        {
+         "label": "LOOOOONG straight hair (to my butt and I'm 5'9\")",
+         "count": 1
+        },
+        {
+         "label": "bothered by strong scents",
+         "count": 1
+        },
+        {
+         "label": "hair tends to be more oily",
+         "count": 1
+        },
+        {
+         "label": "medium brown hair color",
+         "count": 1
+        },
+        {
+         "label": "virgin hair",
+         "count": 1
+        },
+        {
+         "label": "Don't mind spending money but expect results",
+         "count": 1
+        },
+        {
+         "label": "Long fine hair",
+         "count": 1
+        },
+        {
+         "label": "45, mom of 2, CO, beauty product lover",
+         "count": 1
+        },
+        {
+         "label": "Budget buyer",
+         "count": 1
+        },
+        {
+         "label": "Budget Shopper",
+         "count": 1
+        }
+       ],
+       "display_values": [
+        "30's",
+        "36 y.o. Mom of 4, business owner",
+        "36 year old female with thin hair and extension.",
+        "38 year old female",
+        "45, mom of 2, CO, beauty product lover",
+        "50ish with long hair and bangs",
+        "55 with thin hair",
+        "55+ brown hair",
+        "60+ with a chronic illness.",
+        "Aged 18-22",
+        "Average",
+        "Beauty Conscious",
+        "Beauty conscious",
+        "Big hair girl- always looking for the next best",
+        "Blonde",
+        "Blonde Hair, Medium Lengh, Wavy",
+        "Blonde thin hair",
+        "Blondish hair",
+        "Brand Buyer",
+        "Brunette",
+        "Budget Shopper",
+        "Budget buyer",
+        "Busy is an understatement",
+        "Busy working mom",
+        "Casual Dresser",
+        "Comfort-seeking",
+        "Curly hair",
+        "Don't mind spending money but expect results",
+        "Don't style hair too often",
+        "Early 40's, highlights and low lights in hair",
+        "Energetic/Active",
+        "Extremely oily scalp",
+        "Fine Hair",
+        "Fine hair",
+        "Fine hair, but lots of it!",
+        "Gray blonde",
+        "I am in my 70s and very active.",
+        "LOOOOONG straight hair (to my butt and I'm 5'9\")",
+        "Like to go 2 days without washing hair",
+        "Long blonde hair",
+        "Long fine hair",
+        "Long, thin, straight hair",
+        "Middle aged lady with greasy roots and dry ends",
+        "Minimalist",
+        "Oily",
+        "Oily Hair",
+        "Oily hair",
+        "Oily, thin hair",
+        "Older / Senior",
+        "Older female with short, thin hair",
+        "Product Junkie",
+        "Professional Stylist",
+        "Professional dental field",
+        "Religious dry shampoo user",
+        "Sensitive scalp",
+        "Stay-at-home mom, naturally curly hair",
+        "Straight Hair",
+        "Stylish/Fashionista",
+        "Survivalist / Minimalist",
+        "Thin/fine hair that gets oily easily",
+        "Transitioning hair",
+        "Trendy/Stylish Dresser",
+        "Wavy/straight hair",
+        "Woman",
+        "Youthful",
+        "a good listener",
+        "blonde highlights- medium length",
+        "bothered by strong scents",
+        "colored hair",
+        "curly, long, medium thickness, keratin treated",
+        "dry hair",
+        "hair length past shoulders",
+        "hair tends to be more oily",
+        "medium brown hair color",
+        "natural style",
+        "short hair",
+        "thick hair",
+        "virgin hair",
+        "wavy hair"
+       ]
+      },
+      {
+       "display_type": "default",
+       "key": "hairtype",
+       "name": "Hair Type",
+       "type": "tag",
+       "values": [
+        {
+         "label": "Straight Hair",
+         "count": 911
+        },
+        {
+         "label": "Wavy Hair",
+         "count": 896
+        },
+        {
+         "label": "Very Curly Hair",
+         "count": 91
+        }
+       ],
+       "display_values": [
+        "Straight Hair",
+        "Very Curly Hair",
+        "Wavy Hair"
+       ]
+      },
+      {
+       "display_type": "default",
+       "key": "pros",
+       "name": "Pros",
+       "type": "tag",
+       "values": [
+        {
+         "label": "Great Smell",
+         "count": 880
+        },
+        {
+         "label": "Cleans Thoroughly",
+         "count": 812
+        },
+        {
+         "label": "Adds Volume",
+         "count": 707
+        },
+        {
+         "label": "Gentle",
+         "count": 330
+        },
+        {
+         "label": "Adds Shine",
+         "count": 93
+        },
+        {
+         "label": "Improves Hair Health",
+         "count": 91
+        },
+        {
+         "label": "Lathers Well",
+         "count": 22
+        },
+        {
+         "label": "Smells Great",
+         "count": 13
+        },
+        {
+         "label": "Smells great",
+         "count": 8
+        },
+        {
+         "label": "Effective",
+         "count": 7
+        },
+        {
+         "label": "smells great",
+         "count": 7
+        },
+        {
+         "label": "No residue",
+         "count": 7
+        },
+        {
+         "label": "Lightweight",
+         "count": 7
+        },
+        {
+         "label": "Easy To Use",
+         "count": 6
+        },
+        {
+         "label": "Cleans hair",
+         "count": 5
+        },
+        {
+         "label": "Works",
+         "count": 5
+        },
+        {
+         "label": "A little goes a long way",
+         "count": 4
+        },
+        {
+         "label": "adds volume",
+         "count": 4
+        },
+        {
+         "label": "Great smell",
+         "count": 4
+        },
+        {
+         "label": "No white residue",
+         "count": 4
+        },
+        {
+         "label": "smells good",
+         "count": 4
+        },
+        {
+         "label": "Works great",
+         "count": 3
+        },
+        {
+         "label": "Scent",
+         "count": 3
+        },
+        {
+         "label": "Lasts all day",
+         "count": 3
+        },
+        {
+         "label": "Smell",
+         "count": 2
+        },
+        {
+         "label": "works well",
+         "count": 2
+        },
+        {
+         "label": "Hair feels clean",
+         "count": 2
+        },
+        {
+         "label": "Great scent",
+         "count": 2
+        },
+        {
+         "label": "Long lasting",
+         "count": 2
+        },
+        {
+         "label": "cleans hair",
+         "count": 2
+        },
+        {
+         "label": "Works as advertised",
+         "count": 2
+        },
+        {
+         "label": "No white cast",
+         "count": 2
+        },
+        {
+         "label": "High Quality",
+         "count": 2
+        },
+        {
+         "label": "absorbs oil",
+         "count": 2
+        },
+        {
+         "label": "Clean hair",
+         "count": 2
+        },
+        {
+         "label": "Smells great!",
+         "count": 2
+        },
+        {
+         "label": "Smells Amazing",
+         "count": 2
+        },
+        {
+         "label": "Adds body",
+         "count": 2
+        },
+        {
+         "label": "no residue",
+         "count": 2
+        },
+        {
+         "label": "Absorbs oil",
+         "count": 2
+        },
+        {
+         "label": "Easy to use",
+         "count": 2
+        },
+        {
+         "label": "Removes oil",
+         "count": 2
+        },
+        {
+         "label": "Good Value",
+         "count": 1
+        },
+        {
+         "label": "My hair looks newly washed! It's super effective",
+         "count": 1
+        },
+        {
+         "label": "Adds lift",
+         "count": 1
+        },
+        {
+         "label": "Doesn't make my hair stiff",
+         "count": 1
+        },
+        {
+         "label": "Doesn't weigh down my hair",
+         "count": 1
+        },
+        {
+         "label": "Works even on Day 4-5",
+         "count": 1
+        },
+        {
+         "label": "Absorption",
+         "count": 1
+        },
+        {
+         "label": "Good Formula",
+         "count": 1
+        },
+        {
+         "label": "Good quality",
+         "count": 1
+        },
+        {
+         "label": "Actually cleans hairs",
+         "count": 1
+        },
+        {
+         "label": "No residue if used correctly",
+         "count": 1
+        },
+        {
+         "label": "Reduces look of oily hair",
+         "count": 1
+        },
+        {
+         "label": "Does not leave powder behind",
+         "count": 1
+        },
+        {
+         "label": "Works well",
+         "count": 1
+        },
+        {
+         "label": "hair feels clean and refreshed",
+         "count": 1
+        },
+        {
+         "label": "Consistency",
+         "count": 1
+        },
+        {
+         "label": "Easy and convenient",
+         "count": 1
+        },
+        {
+         "label": "It works",
+         "count": 1
+        },
+        {
+         "label": "Soaks up the oil",
+         "count": 1
+        },
+        {
+         "label": "Combats oil",
+         "count": 1
+        },
+        {
+         "label": "Long Lasting",
+         "count": 1
+        },
+        {
+         "label": "no white powder cast",
+         "count": 1
+        },
+        {
+         "label": "Fast and Easy",
+         "count": 1
+        },
+        {
+         "label": "Works to actually clean the oil out of my hair.",
+         "count": 1
+        },
+        {
+         "label": "It really works",
+         "count": 1
+        },
+        {
+         "label": "Works on long hair",
+         "count": 1
+        },
+        {
+         "label": "Works on oily hair",
+         "count": 1
+        },
+        {
+         "label": "Your hair smells fresh",
+         "count": 1
+        },
+        {
+         "label": "Actually makes your hair feel clean, not powdery",
+         "count": 1
+        },
+        {
+         "label": "Good Price / Value",
+         "count": 1
+        },
+        {
+         "label": "Easy to distribute in dark hair",
+         "count": 1
+        },
+        {
+         "label": "Really soaks up the oils in my hair",
+         "count": 1
+        },
+        {
+         "label": "great citrus smell",
+         "count": 1
+        },
+        {
+         "label": "no powdery flakes",
+         "count": 1
+        },
+        {
+         "label": "seems to intensify blonde highlights",
+         "count": 1
+        },
+        {
+         "label": "Does what it's supposed to",
+         "count": 1
+        },
+        {
+         "label": "Doesn't grease up hair",
+         "count": 1
+        },
+        {
+         "label": "Smells delicious",
+         "count": 1
+        },
+        {
+         "label": "Really cleans your roots so hair IS clean!",
+         "count": 1
+        },
+        {
+         "label": "Non greasy feeling",
+         "count": 1
+        },
+        {
+         "label": "good pressure application",
+         "count": 1
+        },
+        {
+         "label": "Scent is delightful!",
+         "count": 1
+        },
+        {
+         "label": "no white residue",
+         "count": 1
+        },
+        {
+         "label": "Mi hair looks clean and smell good.",
+         "count": 1
+        },
+        {
+         "label": "Easy",
+         "count": 1
+        },
+        {
+         "label": "Cleans, and smells amazing",
+         "count": 1
+        },
+        {
+         "label": "Cleans",
+         "count": 1
+        },
+        {
+         "label": "Good for sensitive scalp",
+         "count": 1
+        },
+        {
+         "label": "Cleans hair without any residue",
+         "count": 1
+        },
+        {
+         "label": "No white resude",
+         "count": 1
+        },
+        {
+         "label": "Best dry shampoo I've ever used",
+         "count": 1
+        },
+        {
+         "label": "none",
+         "count": 1
+        },
+        {
+         "label": "Convenient to use",
+         "count": 1
+        },
+        {
+         "label": "I can go 3-4 days in between washes",
+         "count": 1
+        },
+        {
+         "label": "amount, smell, purpose, use",
+         "count": 1
+        },
+        {
+         "label": "Good for oily hair",
+         "count": 1
+        },
+        {
+         "label": "Soaks up oil with little product",
+         "count": 1
+        },
+        {
+         "label": "Works well with darker hair!",
+         "count": 1
+        },
+        {
+         "label": "Gets rid of oils",
+         "count": 1
+        },
+        {
+         "label": "Herbal scent",
+         "count": 1
+        },
+        {
+         "label": "No white residue if instructions are followed",
+         "count": 1
+        },
+        {
+         "label": "Does not dry your hair out and easily can extend",
+         "count": 1
+        },
+        {
+         "label": "Time between washings",
+         "count": 1
+        },
+        {
+         "label": "Doesn't smell bad",
+         "count": 1
+        },
+        {
+         "label": "Volumizing",
+         "count": 1
+        },
+        {
+         "label": "Lightweight powder, great scent",
+         "count": 1
+        },
+        {
+         "label": "Clean Feel",
+         "count": 1
+        },
+        {
+         "label": "Hair doesn't feel super weighed down",
+         "count": 1
+        },
+        {
+         "label": "Not too much residue",
+         "count": 1
+        },
+        {
+         "label": "Doesn't leave the chalky feel",
+         "count": 1
+        },
+        {
+         "label": "Makes your hair feel clean",
+         "count": 1
+        },
+        {
+         "label": "Absorbs Oil",
+         "count": 1
+        },
+        {
+         "label": "Blow Out Effect",
+         "count": 1
+        },
+        {
+         "label": "Looks Like a Fresh Wash",
+         "count": 1
+        },
+        {
+         "label": "Smells amazing, absorbs oil, gives volume",
+         "count": 1
+        },
+        {
+         "label": "does what it says",
+         "count": 1
+        },
+        {
+         "label": "takes away grease",
+         "count": 1
+        },
+        {
+         "label": "unscented",
+         "count": 1
+        },
+        {
+         "label": "Actually works",
+         "count": 1
+        },
+        {
+         "label": "Smells Fresh, Disappears Quickly, Really extends",
+         "count": 1
+        },
+        {
+         "label": "doesn't leave your hair white",
+         "count": 1
+        },
+        {
+         "label": "not sticky",
+         "count": 1
+        },
+        {
+         "label": "Allows me to skip a day (or 2) between shampoos",
+         "count": 1
+        },
+        {
+         "label": "Great for thin hair",
+         "count": 1
+        },
+        {
+         "label": "Extends washes",
+         "count": 1
+        },
+        {
+         "label": "Keeps hair looking fresh",
+         "count": 1
+        },
+        {
+         "label": "Perfect!!",
+         "count": 1
+        },
+        {
+         "label": "No build up",
+         "count": 1
+        },
+        {
+         "label": "Works FAST",
+         "count": 1
+        },
+        {
+         "label": "Blends easily",
+         "count": 1
+        },
+        {
+         "label": "No smell",
+         "count": 1
+        },
+        {
+         "label": "I like it and it does not leave a residue.",
+         "count": 1
+        },
+        {
+         "label": "Hair isn't weighed down",
+         "count": 1
+        },
+        {
+         "label": "Love love love!",
+         "count": 1
+        },
+        {
+         "label": "Not powdery",
+         "count": 1
+        },
+        {
+         "label": "Not tacky",
+         "count": 1
+        },
+        {
+         "label": "Silly smooth hair",
+         "count": 1
+        },
+        {
+         "label": "Works amazing",
+         "count": 1
+        },
+        {
+         "label": "It works!",
+         "count": 1
+        },
+        {
+         "label": "I love this product",
+         "count": 1
+        },
+        {
+         "label": "Hair looks like it was just washed!",
+         "count": 1
+        },
+        {
+         "label": "Minimal white cast",
+         "count": 1
+        },
+        {
+         "label": "Noncrunchy",
+         "count": 1
+        },
+        {
+         "label": "Soaks up oils",
+         "count": 1
+        },
+        {
+         "label": "No heavy residue & lasts more than 1 day",
+         "count": 1
+        },
+        {
+         "label": "scalp feels clean",
+         "count": 1
+        },
+        {
+         "label": "Nice smell and feel",
+         "count": 1
+        },
+        {
+         "label": "This product actually cleans your hair!",
+         "count": 1
+        },
+        {
+         "label": "Amazing Smell",
+         "count": 1
+        },
+        {
+         "label": "Clean",
+         "count": 1
+        },
+        {
+         "label": "Refreshing",
+         "count": 1
+        },
+        {
+         "label": "makes your hair smell super good!",
+         "count": 1
+        },
+        {
+         "label": "works so good!",
+         "count": 1
+        },
+        {
+         "label": "Actually cleans dry hair",
+         "count": 1
+        },
+        {
+         "label": "Smells amazing",
+         "count": 1
+        },
+        {
+         "label": "Works on every hair type: super thin - thick",
+         "count": 1
+        },
+        {
+         "label": "Not sticky or drying like most smells great",
+         "count": 1
+        },
+        {
+         "label": "Actually makes hair look clean",
+         "count": 1
+        },
+        {
+         "label": "Clean smell",
+         "count": 1
+        },
+        {
+         "label": "Makes 2nd day hair look great",
+         "count": 1
+        },
+        {
+         "label": "Actually removes oil",
+         "count": 1
+        },
+        {
+         "label": "Hair feels natural even after a couple uses",
+         "count": 1
+        },
+        {
+         "label": "Adds volume, removes oil, hair feels fresh",
+         "count": 1
+        },
+        {
+         "label": "It works to clean, smells Amazing",
+         "count": 1
+        },
+        {
+         "label": "Great for oily hair!",
+         "count": 1
+        },
+        {
+         "label": "It makes your hair look refreshed",
+         "count": 1
+        },
+        {
+         "label": "Great fragrance",
+         "count": 1
+        },
+        {
+         "label": "Light, yet efffective",
+         "count": 1
+        },
+        {
+         "label": "clean smell",
+         "count": 1
+        },
+        {
+         "label": "easy to use",
+         "count": 1
+        },
+        {
+         "label": "eliminates oiliness",
+         "count": 1
+        },
+        {
+         "label": "makes hair manageable",
+         "count": 1
+        },
+        {
+         "label": "Leaves hair feeling clean",
+         "count": 1
+        },
+        {
+         "label": "Adds Body",
+         "count": 1
+        },
+        {
+         "label": "Dries Oil",
+         "count": 1
+        },
+        {
+         "label": "My hair looks great after styling.",
+         "count": 1
+        },
+        {
+         "label": "Adds body to my hair",
+         "count": 1
+        },
+        {
+         "label": "Freshly washed look",
+         "count": 1
+        },
+        {
+         "label": "Long lasting results",
+         "count": 1
+        },
+        {
+         "label": "Quick and easy application",
+         "count": 1
+        },
+        {
+         "label": "Very effective, smells good, gives some volume",
+         "count": 1
+        },
+        {
+         "label": "cleans well",
+         "count": 1
+        },
+        {
+         "label": "Love the smell and how great it does the job!",
+         "count": 1
+        },
+        {
+         "label": "Smells Fresh",
+         "count": 1
+        },
+        {
+         "label": "It absorbs well and makes easy to hold style.",
+         "count": 1
+        },
+        {
+         "label": "Doesn't turn dark hair white",
+         "count": 1
+        },
+        {
+         "label": "Smells great, not overpowering",
+         "count": 1
+        },
+        {
+         "label": "Actually absorbs moisture and grease",
+         "count": 1
+        },
+        {
+         "label": "Doesn't leave hair dry or brittle",
+         "count": 1
+        },
+        {
+         "label": "No residue or flakes",
+         "count": 1
+        },
+        {
+         "label": "My hair looked and felt refreshed after using.",
+         "count": 1
+        },
+        {
+         "label": "Volumized",
+         "count": 1
+        },
+        {
+         "label": "Doesn't Add the White Look to your hair",
+         "count": 1
+        },
+        {
+         "label": "Doesn't itch",
+         "count": 1
+        },
+        {
+         "label": "Prevents Oil Build UP",
+         "count": 1
+        },
+        {
+         "label": "Makes hair look cleaner",
+         "count": 1
+        },
+        {
+         "label": "Volume",
+         "count": 1
+        },
+        {
+         "label": "Puts life in 2nd day hair",
+         "count": 1
+        },
+        {
+         "label": "little to no residue on medium brown hair",
+         "count": 1
+        },
+        {
+         "label": "scent is much lighter than other dry shampoos",
+         "count": 1
+        },
+        {
+         "label": "Non sticky, no residue, no build up!",
+         "count": 1
+        },
+        {
+         "label": "Makes my hair clean and full adds texture",
+         "count": 1
+        },
+        {
+         "label": "gets rid of oil",
+         "count": 1
+        },
+        {
+         "label": "Gives amazing volume",
+         "count": 1
+        },
+        {
+         "label": "Let's my hair stay clean and textured for longer",
+         "count": 1
+        },
+        {
+         "label": "Cleans Hair",
+         "count": 1
+        },
+        {
+         "label": "Best dry shampoo",
+         "count": 1
+        },
+        {
+         "label": "No grey cast",
+         "count": 1
+        },
+        {
+         "label": "Does what's needed for the dry shampoo look",
+         "count": 1
+        },
+        {
+         "label": "Absorbs oils and orders",
+         "count": 1
+        },
+        {
+         "label": "Adds texture for updos",
+         "count": 1
+        },
+        {
+         "label": "Adds volume",
+         "count": 1
+        },
+        {
+         "label": "Does not ruin hair style",
+         "count": 1
+        },
+        {
+         "label": "No gritty feel",
+         "count": 1
+        },
+        {
+         "label": "Not heavily perfumed",
+         "count": 1
+        },
+        {
+         "label": "smells great & makes your hair look great!",
+         "count": 1
+        },
+        {
+         "label": "Works great!",
+         "count": 1
+        },
+        {
+         "label": "Great for very oily hair",
+         "count": 1
+        },
+        {
+         "label": "Took away the Oiliness",
+         "count": 1
+        },
+        {
+         "label": "Absorbs oils",
+         "count": 1
+        },
+        {
+         "label": "doesnt flake",
+         "count": 1
+        },
+        {
+         "label": "Doesnt make my hair feel stiff",
+         "count": 1
+        },
+        {
+         "label": "keeps hair looking clean longer.",
+         "count": 1
+        },
+        {
+         "label": "Can be used sparingly",
+         "count": 1
+        },
+        {
+         "label": "It's a little pricey but very worth it!",
+         "count": 1
+        },
+        {
+         "label": "Super fluff",
+         "count": 1
+        },
+        {
+         "label": "Took greasy-ness away!",
+         "count": 1
+        },
+        {
+         "label": "Cleans hair & Lasts for days",
+         "count": 1
+        },
+        {
+         "label": "Hair is thicker",
+         "count": 1
+        },
+        {
+         "label": "No leftover residue",
+         "count": 1
+        },
+        {
+         "label": "Covers greasy hair great!",
+         "count": 1
+        },
+        {
+         "label": "Soaks up oil",
+         "count": 1
+        },
+        {
+         "label": "Doesn't feel stiff",
+         "count": 1
+        },
+        {
+         "label": "Doesn't look white",
+         "count": 1
+        },
+        {
+         "label": "Not powdery feeling",
+         "count": 1
+        },
+        {
+         "label": "A little goes a long way!",
+         "count": 1
+        },
+        {
+         "label": "Absorbs oil very well",
+         "count": 1
+        },
+        {
+         "label": "Non Greasy",
+         "count": 1
+        },
+        {
+         "label": "Looks so clean!",
+         "count": 1
+        },
+        {
+         "label": "Easy to Use",
+         "count": 1
+        },
+        {
+         "label": "No residue left on hair",
+         "count": 1
+        },
+        {
+         "label": "Doesn't leave hair white",
+         "count": 1
+        },
+        {
+         "label": "Washes out easily",
+         "count": 1
+        },
+        {
+         "label": "Perfect for oily hair",
+         "count": 1
+        },
+        {
+         "label": "Absorbs quickly",
+         "count": 1
+        },
+        {
+         "label": "Blends Easily",
+         "count": 1
+        },
+        {
+         "label": "Great For Blonde Hair",
+         "count": 1
+        },
+        {
+         "label": "Doesn't dry hair out",
+         "count": 1
+        },
+        {
+         "label": "No White Residue",
+         "count": 1
+        },
+        {
+         "label": "Feels Clean",
+         "count": 1
+        },
+        {
+         "label": "Eliminates Oil on Scalp",
+         "count": 1
+        },
+        {
+         "label": "Lasts All Day",
+         "count": 1
+        },
+        {
+         "label": "Revitalize your hair",
+         "count": 1
+        },
+        {
+         "label": "Didn't make any difference when I used it",
+         "count": 1
+        },
+        {
+         "label": "Adds days to blow out",
+         "count": 1
+        },
+        {
+         "label": "Doesn't leave a white residue on my hair",
+         "count": 1
+        },
+        {
+         "label": "Good for fine hair",
+         "count": 1
+        },
+        {
+         "label": "Great in-between shampoos solution",
+         "count": 1
+        },
+        {
+         "label": "Smells ok.",
+         "count": 1
+        },
+        {
+         "label": "Absorbs oil/grease",
+         "count": 1
+        },
+        {
+         "label": "Clean. Fresh. Pick me up. Smells AMAZING.",
+         "count": 1
+        },
+        {
+         "label": "Cute packaging",
+         "count": 1
+        },
+        {
+         "label": "Somewhat nice smell",
+         "count": 1
+        },
+        {
+         "label": "Absorbs oil like no other",
+         "count": 1
+        },
+        {
+         "label": "SMELLS BOMB AF",
+         "count": 1
+        },
+        {
+         "label": "Does not leave a powdery residue",
+         "count": 1
+        },
+        {
+         "label": "Gives texture & volume for styling",
+         "count": 1
+        },
+        {
+         "label": "Good, clean scent",
+         "count": 1
+        },
+        {
+         "label": "Takes the oil out of my hair",
+         "count": 1
+        },
+        {
+         "label": "Kept hair looking clean​ and smelling​ fresh",
+         "count": 1
+        },
+        {
+         "label": "lightweight",
+         "count": 1
+        },
+        {
+         "label": "price",
+         "count": 1
+        },
+        {
+         "label": "quantity",
+         "count": 1
+        },
+        {
+         "label": "Hair actually feels clean",
+         "count": 1
+        },
+        {
+         "label": "Prolongs each wash",
+         "count": 1
+        },
+        {
+         "label": "Cleans well",
+         "count": 1
+        },
+        {
+         "label": "Leaves hair fresh",
+         "count": 1
+        },
+        {
+         "label": "Doesn't leave a residue",
+         "count": 1
+        },
+        {
+         "label": "Keeps hair looking good between shampoos",
+         "count": 1
+        },
+        {
+         "label": "No Heaviness in Hair",
+         "count": 1
+        },
+        {
+         "label": "Soft hair",
+         "count": 1
+        },
+        {
+         "label": "Doesn't make my hair feel greasy.",
+         "count": 1
+        },
+        {
+         "label": "No flakes.",
+         "count": 1
+        },
+        {
+         "label": "Doesn't dry hair out.",
+         "count": 1
+        },
+        {
+         "label": "Feels good in hair.  Not sticky or greasy.",
+         "count": 1
+        },
+        {
+         "label": "I never really was ever satisfied w a dry shampo",
+         "count": 1
+        },
+        {
+         "label": "until Living Prof!",
+         "count": 1
+        },
+        {
+         "label": "This dry shampoo is easy to use",
+         "count": 1
+        },
+        {
+         "label": "It doesn't leave a white residue",
+         "count": 1
+        },
+        {
+         "label": "Oil disappears",
+         "count": 1
+        },
+        {
+         "label": "Eliminates greasy hair",
+         "count": 1
+        },
+        {
+         "label": "Makes hair feel clean",
+         "count": 1
+        },
+        {
+         "label": "Keeps scalp dry and clean",
+         "count": 1
+        },
+        {
+         "label": "Minimal residue",
+         "count": 1
+        },
+        {
+         "label": "Eliminates oil",
+         "count": 1
+        },
+        {
+         "label": "No White Mess!",
+         "count": 1
+        },
+        {
+         "label": "Not gritty like other dry shampoo",
+         "count": 1
+        },
+        {
+         "label": "Gives some body to my thin hair",
+         "count": 1
+        },
+        {
+         "label": "Reduces greasy hair",
+         "count": 1
+        },
+        {
+         "label": "lengthens time between washings",
+         "count": 1
+        },
+        {
+         "label": "The Best Dry Shampoo Period.",
+         "count": 1
+        },
+        {
+         "label": "Takes the oil out",
+         "count": 1
+        },
+        {
+         "label": "less powdery residue than other dry shampoos",
+         "count": 1
+        },
+        {
+         "label": "Leaves hair looking and feeling clean",
+         "count": 1
+        },
+        {
+         "label": "Removes smells",
+         "count": 1
+        },
+        {
+         "label": "It didn't make my hair feel stiff and dry",
+         "count": 1
+        },
+        {
+         "label": "Lasts all day,smells delightful, works great",
+         "count": 1
+        },
+        {
+         "label": "Actually washes my hair",
+         "count": 1
+        },
+        {
+         "label": "Medium Volume",
+         "count": 1
+        },
+        {
+         "label": "Lasts all day!",
+         "count": 1
+        },
+        {
+         "label": "Fresh feeling, smells great, hair feels clean",
+         "count": 1
+        },
+        {
+         "label": "best dry shampoo I've tried",
+         "count": 1
+        },
+        {
+         "label": "my hair doesn't look oily even though not washed",
+         "count": 1
+        },
+        {
+         "label": "Doesn't make my head itchy like others",
+         "count": 1
+        },
+        {
+         "label": "Can't feel it on my scalp (doesn't feel heavy)",
+         "count": 1
+        },
+        {
+         "label": "Doesn't dull my shine",
+         "count": 1
+        },
+        {
+         "label": "Doesn't feel sticky or weigh hair down.",
+         "count": 1
+        },
+        {
+         "label": "White powder distributes well",
+         "count": 1
+        },
+        {
+         "label": "Doesn't leave white cast",
+         "count": 1
+        },
+        {
+         "label": "LOOOONG time between washes",
+         "count": 1
+        },
+        {
+         "label": "Diminishes Grease",
+         "count": 1
+        },
+        {
+         "label": "Soaks Up Natural Oil",
+         "count": 1
+        },
+        {
+         "label": "Easy To Straighten Aterwa",
+         "count": 1
+        },
+        {
+         "label": "Feels Soft",
+         "count": 1
+        },
+        {
+         "label": "Great look",
+         "count": 1
+        },
+        {
+         "label": "Smells Clean",
+         "count": 1
+        },
+        {
+         "label": "Little Residue",
+         "count": 1
+        },
+        {
+         "label": "Drying The Hair",
+         "count": 1
+        },
+        {
+         "label": "Feel",
+         "count": 1
+        },
+        {
+         "label": "Fragrance",
+         "count": 1
+        },
+        {
+         "label": "Quality",
+         "count": 1
+        },
+        {
+         "label": "Leaves No Residue",
+         "count": 1
+        },
+        {
+         "label": "Eliminates Oil From Hair",
+         "count": 1
+        },
+        {
+         "label": "Smells Good",
+         "count": 1
+        }
+       ],
+       "display_values": [
+        "A little goes a long way",
+        "A little goes a long way!",
+        "Absorbs Oil",
+        "Absorbs oil",
+        "Absorbs oil like no other",
+        "Absorbs oil very well",
+        "Absorbs oil/grease",
+        "Absorbs oils",
+        "Absorbs oils and orders",
+        "Absorbs quickly",
+        "Absorption",
+        "Actually absorbs moisture and grease",
+        "Actually cleans dry hair",
+        "Actually cleans hairs",
+        "Actually makes hair look clean",
+        "Actually makes your hair feel clean, not powdery",
+        "Actually removes oil",
+        "Actually washes my hair",
+        "Actually works",
+        "Adds Body",
+        "Adds Shine",
+        "Adds Volume",
+        "Adds body",
+        "Adds body to my hair",
+        "Adds days to blow out",
+        "Adds lift",
+        "Adds texture for updos",
+        "Adds volume",
+        "Adds volume, removes oil, hair feels fresh",
+        "Allows me to skip a day (or 2) between shampoos",
+        "Amazing Smell",
+        "Best dry shampoo",
+        "Best dry shampoo I've ever used",
+        "Blends Easily",
+        "Blends easily",
+        "Blow Out Effect",
+        "Can be used sparingly",
+        "Can't feel it on my scalp (doesn't feel heavy)",
+        "Clean",
+        "Clean Feel",
+        "Clean hair",
+        "Clean smell",
+        "Clean. Fresh. Pick me up. Smells AMAZING.",
+        "Cleans",
+        "Cleans Hair",
+        "Cleans Thoroughly",
+        "Cleans hair",
+        "Cleans hair & Lasts for days",
+        "Cleans hair without any residue",
+        "Cleans well",
+        "Cleans, and smells amazing",
+        "Combats oil",
+        "Consistency",
+        "Convenient to use",
+        "Covers greasy hair great!",
+        "Cute packaging",
+        "Didn't make any difference when I used it",
+        "Diminishes Grease",
+        "Does not dry your hair out and easily can extend",
+        "Does not leave a powdery residue",
+        "Does not leave powder behind",
+        "Does not ruin hair style",
+        "Does what it's supposed to",
+        "Does what's needed for the dry shampoo look",
+        "Doesn't Add the White Look to your hair",
+        "Doesn't dry hair out",
+        "Doesn't dry hair out.",
+        "Doesn't dull my shine",
+        "Doesn't feel sticky or weigh hair down.",
+        "Doesn't feel stiff",
+        "Doesn't grease up hair",
+        "Doesn't itch",
+        "Doesn't leave a residue",
+        "Doesn't leave a white residue on my hair",
+        "Doesn't leave hair dry or brittle",
+        "Doesn't leave hair white",
+        "Doesn't leave the chalky feel",
+        "Doesn't leave white cast",
+        "Doesn't look white",
+        "Doesn't make my hair feel greasy.",
+        "Doesn't make my hair stiff",
+        "Doesn't make my head itchy like others",
+        "Doesn't smell bad",
+        "Doesn't turn dark hair white",
+        "Doesn't weigh down my hair",
+        "Doesnt make my hair feel stiff",
+        "Dries Oil",
+        "Drying The Hair",
+        "Easy",
+        "Easy To Straighten Aterwa",
+        "Easy To Use",
+        "Easy and convenient",
+        "Easy to Use",
+        "Easy to distribute in dark hair",
+        "Easy to use",
+        "Effective",
+        "Eliminates Oil From Hair",
+        "Eliminates Oil on Scalp",
+        "Eliminates greasy hair",
+        "Eliminates oil",
+        "Extends washes",
+        "Fast and Easy",
+        "Feel",
+        "Feels Clean",
+        "Feels Soft",
+        "Feels good in hair.  Not sticky or greasy.",
+        "Fragrance",
+        "Fresh feeling, smells great, hair feels clean",
+        "Freshly washed look",
+        "Gentle",
+        "Gets rid of oils",
+        "Gives amazing volume",
+        "Gives some body to my thin hair",
+        "Gives texture & volume for styling",
+        "Good Formula",
+        "Good Price / Value",
+        "Good Value",
+        "Good for fine hair",
+        "Good for oily hair",
+        "Good for sensitive scalp",
+        "Good quality",
+        "Good, clean scent",
+        "Great For Blonde Hair",
+        "Great Smell",
+        "Great for oily hair!",
+        "Great for thin hair",
+        "Great for very oily hair",
+        "Great fragrance",
+        "Great in-between shampoos solution",
+        "Great look",
+        "Great scent",
+        "Great smell",
+        "Hair actually feels clean",
+        "Hair doesn't feel super weighed down",
+        "Hair feels clean",
+        "Hair feels natural even after a couple uses",
+        "Hair is thicker",
+        "Hair isn't weighed down",
+        "Hair looks like it was just washed!",
+        "Herbal scent",
+        "High Quality",
+        "I can go 3-4 days in between washes",
+        "I like it and it does not leave a residue.",
+        "I love this product",
+        "I never really was ever satisfied w a dry shampo",
+        "Improves Hair Health",
+        "It absorbs well and makes easy to hold style.",
+        "It didn't make my hair feel stiff and dry",
+        "It doesn't leave a white residue",
+        "It makes your hair look refreshed",
+        "It really works",
+        "It works",
+        "It works to clean, smells Amazing",
+        "It works!",
+        "It's a little pricey but very worth it!",
+        "Keeps hair looking fresh",
+        "Keeps hair looking good between shampoos",
+        "Keeps scalp dry and clean",
+        "Kept hair looking clean​ and smelling​ fresh",
+        "LOOOONG time between washes",
+        "Lasts All Day",
+        "Lasts all day",
+        "Lasts all day!",
+        "Lasts all day,smells delightful, works great",
+        "Lathers Well",
+        "Leaves No Residue",
+        "Leaves hair feeling clean",
+        "Leaves hair fresh",
+        "Leaves hair looking and feeling clean",
+        "Let's my hair stay clean and textured for longer",
+        "Light, yet efffective",
+        "Lightweight",
+        "Lightweight powder, great scent",
+        "Little Residue",
+        "Long Lasting",
+        "Long lasting",
+        "Long lasting results",
+        "Looks Like a Fresh Wash",
+        "Looks so clean!",
+        "Love love love!",
+        "Love the smell and how great it does the job!",
+        "Makes 2nd day hair look great",
+        "Makes hair feel clean",
+        "Makes hair look cleaner",
+        "Makes my hair clean and full adds texture",
+        "Makes your hair feel clean",
+        "Medium Volume",
+        "Mi hair looks clean and smell good.",
+        "Minimal residue",
+        "Minimal white cast",
+        "My hair looked and felt refreshed after using.",
+        "My hair looks great after styling.",
+        "My hair looks newly washed! It's super effective",
+        "Nice smell and feel",
+        "No Heaviness in Hair",
+        "No White Mess!",
+        "No White Residue",
+        "No build up",
+        "No flakes.",
+        "No grey cast",
+        "No gritty feel",
+        "No heavy residue & lasts more than 1 day",
+        "No leftover residue",
+        "No residue",
+        "No residue if used correctly",
+        "No residue left on hair",
+        "No residue or flakes",
+        "No smell",
+        "No white cast",
+        "No white residue",
+        "No white residue if instructions are followed",
+        "No white resude",
+        "Non Greasy",
+        "Non greasy feeling",
+        "Non sticky, no residue, no build up!",
+        "Noncrunchy",
+        "Not gritty like other dry shampoo",
+        "Not heavily perfumed",
+        "Not powdery",
+        "Not powdery feeling",
+        "Not sticky or drying like most smells great",
+        "Not tacky",
+        "Not too much residue",
+        "Oil disappears",
+        "Perfect for oily hair",
+        "Perfect!!",
+        "Prevents Oil Build UP",
+        "Prolongs each wash",
+        "Puts life in 2nd day hair",
+        "Quality",
+        "Quick and easy application",
+        "Really cleans your roots so hair IS clean!",
+        "Really soaks up the oils in my hair",
+        "Reduces greasy hair",
+        "Reduces look of oily hair",
+        "Refreshing",
+        "Removes oil",
+        "Removes smells",
+        "Revitalize your hair",
+        "SMELLS BOMB AF",
+        "Scent",
+        "Scent is delightful!",
+        "Silly smooth hair",
+        "Smell",
+        "Smells Amazing",
+        "Smells Clean",
+        "Smells Fresh",
+        "Smells Fresh, Disappears Quickly, Really extends",
+        "Smells Good",
+        "Smells Great",
+        "Smells amazing",
+        "Smells amazing, absorbs oil, gives volume",
+        "Smells delicious",
+        "Smells great",
+        "Smells great!",
+        "Smells great, not overpowering",
+        "Smells ok.",
+        "Soaks Up Natural Oil",
+        "Soaks up oil",
+        "Soaks up oil with little product",
+        "Soaks up oils",
+        "Soaks up the oil",
+        "Soft hair",
+        "Somewhat nice smell",
+        "Super fluff",
+        "Takes the oil out",
+        "Takes the oil out of my hair",
+        "The Best Dry Shampoo Period.",
+        "This dry shampoo is easy to use",
+        "This product actually cleans your hair!",
+        "Time between washings",
+        "Took away the Oiliness",
+        "Took greasy-ness away!",
+        "Very effective, smells good, gives some volume",
+        "Volume",
+        "Volumized",
+        "Volumizing",
+        "Washes out easily",
+        "White powder distributes well",
+        "Works",
+        "Works FAST",
+        "Works amazing",
+        "Works as advertised",
+        "Works even on Day 4-5",
+        "Works great",
+        "Works great!",
+        "Works on every hair type: super thin - thick",
+        "Works on long hair",
+        "Works on oily hair",
+        "Works to actually clean the oil out of my hair.",
+        "Works well",
+        "Works well with darker hair!",
+        "Your hair smells fresh",
+        "absorbs oil",
+        "adds volume",
+        "amount, smell, purpose, use",
+        "best dry shampoo I've tried",
+        "clean smell",
+        "cleans hair",
+        "cleans well",
+        "does what it says",
+        "doesn't leave your hair white",
+        "doesnt flake",
+        "easy to use",
+        "eliminates oiliness",
+        "gets rid of oil",
+        "good pressure application",
+        "great citrus smell",
+        "hair feels clean and refreshed",
+        "keeps hair looking clean longer.",
+        "lengthens time between washings",
+        "less powdery residue than other dry shampoos",
+        "lightweight",
+        "little to no residue on medium brown hair",
+        "makes hair manageable",
+        "makes your hair smell super good!",
+        "my hair doesn't look oily even though not washed",
+        "no powdery flakes",
+        "no residue",
+        "no white powder cast",
+        "no white residue",
+        "none",
+        "not sticky",
+        "price",
+        "quantity",
+        "scalp feels clean",
+        "scent is much lighter than other dry shampoos",
+        "seems to intensify blonde highlights",
+        "smells good",
+        "smells great",
+        "smells great & makes your hair look great!",
+        "takes away grease",
+        "unscented",
+        "until Living Prof!",
+        "works so good!",
+        "works well"
+       ]
+      }
+     ],
+     "rating_histogram": [
+      155,
+      131,
+      115,
+      274,
+      2341
+     ],
+     "review_histogram": [
+      155,
+      131,
+      115,
+      274,
+      2341
+     ],
+     "rating_count": 3016,
+     "review_count": 3016,
+     "average_rating": 4.5,
+     "recommended_ratio": 0.91,
+     "media": [
+      {
+       "id": "561481919",
+       "review_id": 561481976,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/hfpqgiywyddsiaqgfch9.jpg",
+       "headline": "Absolute Fav",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1756742714556
+      },
+      {
+       "id": "550760730",
+       "review_id": 550760729,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/iwq0lweqgyvovlmwvhst.jpg",
+       "headline": "Yes",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1743402016494
+      },
+      {
+       "id": "537369535",
+       "review_id": 537369608,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/aqtbrcvis6luyktu4qnn.jpg",
+       "headline": "I absolutely love this!!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1730845334120
+      },
+      {
+       "id": "499603491",
+       "review_id": 499603501,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/ctn8q2d5t6jcpdjtd9ai.jpg",
+       "headline": "Soft and Clean",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1706518693987
+      },
+      {
+       "id": "475505610",
+       "review_id": 475505542,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/rn3jjm5joepr8extkkxa.jpg",
+       "headline": "This should not be labeled as dry shampoo",
+       "rating": 1,
+       "helpful_votes": 1,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1696963374651
+      },
+      {
+       "id": "449940444",
+       "review_id": 449940404,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/drgjxl30rwe66wfawrz4.jpg",
+       "headline": "Best ever dry shampoo!!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1680015715344
+      },
+      {
+       "id": "448293394",
+       "review_id": 448293278,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/rvvmq7nhwdamzalbceyk.jpg",
+       "headline": "Freshly washed hair look",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1678643320436
+      },
+      {
+       "id": "448293460",
+       "review_id": 448293278,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/pyvvbzrahpbkhpwwk1xk.jpg",
+       "headline": "Freshly washed hair look",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1678643320436
+      },
+      {
+       "id": "447192729",
+       "review_id": 447192816,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/hgsufhb9ilci7k9rm9c3.jpg",
+       "headline": "High Quality Dry Shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1678288419796
+      },
+      {
+       "id": "446697471",
+       "review_id": 446697456,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/zdzxrzlk1qvwiiqzxdmv.jpg",
+       "headline": "Smells so fresh",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1678137463444
+      },
+      {
+       "id": "446675301",
+       "review_id": 446675310,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/x5m63tzvkxnej6xfolwq.jpg",
+       "headline": "Love Living Proof products!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1678128395478
+      },
+      {
+       "id": "446675237",
+       "review_id": 446675310,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/m04jtikjqdiehvfntss3.jpg",
+       "headline": "Love Living Proof products!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1678128395478
+      },
+      {
+       "id": "446640221",
+       "review_id": 446640028,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/u4utsrdoplkzump2qjoh.jpg",
+       "headline": "Brought my day 4 hair back to life!",
+       "rating": 4,
+       "helpful_votes": 2,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Before",
+       "nickname": "REDACTED",
+       "created_date": 1678068639597
+      },
+      {
+       "id": "446640149",
+       "review_id": 446640028,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/nw7dva3assgelfbdo7ji.jpg",
+       "headline": "Brought my day 4 hair back to life!",
+       "rating": 4,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "After",
+       "nickname": "REDACTED",
+       "created_date": 1678068639597
+      },
+      {
+       "id": "446553537",
+       "review_id": 446553536,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/tnm4nqnridozgavtz4ym.jpg",
+       "headline": "fights the bad smell",
+       "rating": 4,
+       "helpful_votes": 0,
+       "not_helpful_votes": 1,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677973307676
+      },
+      {
+       "id": "446553542",
+       "review_id": 446553536,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/eec88g0d85vykpyaj7wu.jpg",
+       "headline": "fights the bad smell",
+       "rating": 4,
+       "helpful_votes": 1,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677973307676
+      },
+      {
+       "id": "446546761",
+       "review_id": 446546701,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/inkwbnyq50kjdhsqf5tr.jpg",
+       "headline": "Perfect dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Love it",
+       "nickname": "REDACTED",
+       "created_date": 1677965385886
+      },
+      {
+       "id": "446465928",
+       "review_id": 446466080,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/dbspnescadozs8bro9yt.jpg",
+       "headline": "Perfect for in between wash days",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "This is after working out. Made my hair not oily and gave it a nice, clean feeling. Def recommend this dry shampoo",
+       "nickname": "REDACTED",
+       "created_date": 1677888687750
+      },
+      {
+       "id": "446416784",
+       "review_id": 446416774,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/god4uiv9i3f9hvae1hw9.jpg",
+       "headline": "Does its job! Specially with the oils",
+       "rating": 4,
+       "helpful_votes": 1,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "This is 5th day hair, I get slightly more life and volume with this dry shampoo.",
+       "nickname": "REDACTED",
+       "created_date": 1677870531465
+      },
+      {
+       "id": "446397130",
+       "review_id": 446397103,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/t1rzwfkoj3geqqmfn8u1.jpg",
+       "headline": "Wow!!!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677858827982
+      },
+      {
+       "id": "446109699",
+       "review_id": 446109648,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/dbierfrtlab0if7epipv.jpg",
+       "headline": "great product",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677725059826
+      },
+      {
+       "id": "446109683",
+       "review_id": 446109648,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/rh9yflmlplemj45ppztl.jpg",
+       "headline": "great product",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677725059826
+      },
+      {
+       "id": "446045874",
+       "review_id": 446045849,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/ezmx5ffuqto1szoou3ux.jpg",
+       "headline": "I love using this dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677697073377
+      },
+      {
+       "id": "445622645",
+       "review_id": 445622720,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/fx5sjcfji4g3gqvb59ad.jpg",
+       "headline": "Love this dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677602313497
+      },
+      {
+       "id": "445619793",
+       "review_id": 445619922,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/bwdjruz6t2hgdgwbdlkb.jpg",
+       "headline": "I need it!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677599306427
+      },
+      {
+       "id": "445472099",
+       "review_id": 445472135,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/psqx1l4cqmnw2znlytlw.jpg",
+       "headline": "The only one and number 1",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677439399019
+      },
+      {
+       "id": "445411936",
+       "review_id": 445411749,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/otn7nq2aka2muypyjzvk.jpg",
+       "headline": "No white residue",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Dry Shampoo",
+       "nickname": "REDACTED",
+       "created_date": 1677373756059
+      },
+      {
+       "id": "445389508",
+       "review_id": 445389444,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/zpw4z8y1jdt9zwkbclad.jpg",
+       "headline": "Great Dry Shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Day 3 Hair with this Dry Shampoo",
+       "nickname": "REDACTED",
+       "created_date": 1677347217163
+      },
+      {
+       "id": "445375828",
+       "review_id": 445375893,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/wuetpfomhe1q3bnvc8su.jpg",
+       "headline": "Perfect Dry Shampoo without Being Overly Fragranced",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677337863342
+      },
+      {
+       "id": "445336586",
+       "review_id": 445336647,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/rrnpy5diov9mcjnly3kb.jpg",
+       "headline": "Amazing!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677280578438
+      },
+      {
+       "id": "445332525",
+       "review_id": 445332336,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/dehorb9dhxksbxllbvew.jpg",
+       "headline": "Definitely best dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Living proof dry shampoo",
+       "nickname": "REDACTED",
+       "created_date": 1677274849779
+      },
+      {
+       "id": "445332337",
+       "review_id": 445332336,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/udy2bxbit8okkbbrgrt0.jpg",
+       "headline": "Definitely best dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Living proof dry shampoo",
+       "nickname": "REDACTED",
+       "created_date": 1677274849779
+      },
+      {
+       "id": "445318699",
+       "review_id": 445318783,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/c1yjdxev5j2nwnnbufbv.jpg",
+       "headline": "Highly recommend this dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677263956095
+      },
+      {
+       "id": "445132982",
+       "review_id": 445133000,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/hmu9brumhekhrz7d73xb.jpg",
+       "headline": "10/10 recommend!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677104592878
+      },
+      {
+       "id": "445116545",
+       "review_id": 445116612,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/vowgfv77ht2uubgdgef4.jpg",
+       "headline": "Great dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677090218316
+      },
+      {
+       "id": "445087854",
+       "review_id": 445087678,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/xvljmre8qzioxyfh9eef.jpg",
+       "headline": "Works really well!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1677053979429
+      },
+      {
+       "id": "444846944",
+       "review_id": 444846956,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/pqgco6mmneh3icf21kkm.jpg",
+       "headline": "10/10",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1676845148278
+      },
+      {
+       "id": "444435378",
+       "review_id": 444435480,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/tp9azmikchv6psrhsrqx.jpg",
+       "headline": "One of the best.",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1676570642210
+      },
+      {
+       "id": "443817026",
+       "review_id": 443817123,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/dmb9o6yjyzwzpd5swsta.jpg",
+       "headline": "Can hold hair for 2 days easily.",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Really good!",
+       "nickname": "REDACTED",
+       "created_date": 1676431749916
+      },
+      {
+       "id": "443315950",
+       "review_id": 443315915,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/praaczpfrgixwj9i9twa.jpg",
+       "headline": "Amazing dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1676043025969
+      },
+      {
+       "id": "443217979",
+       "review_id": 443218108,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/qfqgpwyudjaq8vv0xf0y.jpg",
+       "headline": "Love!!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675978447155
+      },
+      {
+       "id": "443214951",
+       "review_id": 443214898,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/n1i0yznadlgpjioztbu3.jpg",
+       "headline": "Love this",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675975512795
+      },
+      {
+       "id": "443193280",
+       "review_id": 443193133,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/tiv45juavfwx9uwqxcza.jpg",
+       "headline": "great dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675962274305
+      },
+      {
+       "id": "443191243",
+       "review_id": 443191320,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/ictxial7b3uogu5rj5fy.jpg",
+       "headline": "Great for refreshing & volume",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675958542484
+      },
+      {
+       "id": "443172125",
+       "review_id": 443172150,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/cnf5berrmns0teoaxyuo.jpg",
+       "headline": "Love this dry shampoo!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "The bottle.",
+       "nickname": "REDACTED",
+       "created_date": 1675912252974
+      },
+      {
+       "id": "443172065",
+       "review_id": 443172150,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/thvzrpdutzkeiwkmuffk.jpg",
+       "headline": "Love this dry shampoo!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "After using dry shampoo!",
+       "nickname": "REDACTED",
+       "created_date": 1675912252974
+      },
+      {
+       "id": "443166990",
+       "review_id": 443166971,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/kc2orbn71dfka5zpwxgj.jpg",
+       "headline": "Nice Dry Shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675904159964
+      },
+      {
+       "id": "443107255",
+       "review_id": 443107281,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/tf5xudjftyp5zohewlw1.jpg",
+       "headline": "Clean soft hair",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675805956188
+      },
+      {
+       "id": "443107124",
+       "review_id": 443107076,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/ibjpdjjfids0lktwopu3.jpg",
+       "headline": "Clean soft hair",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675805753409
+      },
+      {
+       "id": "443097652",
+       "review_id": 443097692,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/nzqa0jiavyd25lnhllpe.jpg",
+       "headline": "Love this dry Shampoo!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675795200966
+      },
+      {
+       "id": "443097450",
+       "review_id": 443097384,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/ot0ul8s7qhf3m5ltmlx9.jpg",
+       "headline": "Shampoo in a bottle",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "After",
+       "nickname": "REDACTED",
+       "created_date": 1675794943166
+      },
+      {
+       "id": "443097328",
+       "review_id": 443097384,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/uhhhavpqdjg2freoe4tb.jpg",
+       "headline": "Shampoo in a bottle",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Before",
+       "nickname": "REDACTED",
+       "created_date": 1675794943166
+      },
+      {
+       "id": "443055132",
+       "review_id": 443055049,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/na35jgr7jv8rmbgvcz7n.jpg",
+       "headline": "Dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Dry shampoo",
+       "nickname": "REDACTED",
+       "created_date": 1675718876548
+      },
+      {
+       "id": "443048363",
+       "review_id": 443048278,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/vtqdit8t5oq7mgnetlx4.jpg",
+       "headline": "The best dry shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675710250145
+      },
+      {
+       "id": "442947970",
+       "review_id": 442947960,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/bgtay6py3rzxi55fyt6a.jpg",
+       "headline": "Perfect Dry Shampoo",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1675565356401
+      },
+      {
+       "id": "345333386",
+       "review_id": 345333369,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/f76rt2sl8bkjd56rg4tq.jpg",
+       "headline": "I received this product for free in exchange for giving my h",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1621637946549
+      },
+      {
+       "id": "335588382",
+       "review_id": 335588348,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/of42mvw7vqku3r3rk2tb.jpg",
+       "headline": "Love living proof!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1615734549118
+      },
+      {
+       "id": "280531337",
+       "review_id": 280531327,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/epmt29stn3eg8affnveg.jpg",
+       "headline": "Love this, but",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1592247459980
+      },
+      {
+       "id": "280531328",
+       "review_id": 280531327,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/o2keafi7gdrhrlgpqj3i.jpg",
+       "headline": "Love this, but",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1592247459980
+      },
+      {
+       "id": "280531336",
+       "review_id": 280531327,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/cz6gy4rpvro5odshzfq9.jpg",
+       "headline": "Love this, but",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1592247459980
+      },
+      {
+       "id": "233580654",
+       "review_id": 233580653,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/gu8kd4xrkkfn9plwl4kn.jpg",
+       "headline": "THE best !!!",
+       "rating": 5,
+       "helpful_votes": 1,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "Three days in a row using Living proof!! And my hair looking better as ever.",
+       "nickname": "REDACTED",
+       "created_date": 1552877171838
+      },
+      {
+       "id": "215998147",
+       "review_id": 215998186,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/nvgixogrf3mfhw4vzskd.jpg",
+       "headline": "I would buy this again",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1543177265150
+      },
+      {
+       "id": "213990510",
+       "review_id": 213990600,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/rnvjp9n9j0vcrwhqy3lt.jpg",
+       "headline": "This is the best dry shampoo i've ever bought.",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1540835629704
+      },
+      {
+       "id": "195757430",
+       "review_id": 195757429,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/yk4wzlqcdtrtpvixbviw.jpg",
+       "headline": "Only Dry Shampoo That Works!",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "2nd day without a wash",
+       "nickname": "REDACTED",
+       "created_date": 1533786485059
+      },
+      {
+       "id": "193589625",
+       "review_id": 193589608,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/by6x5nduxefczopyqodf.jpg",
+       "headline": "Love it",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "nickname": "REDACTED",
+       "created_date": 1532795718520
+      },
+      {
+       "id": "190734198",
+       "review_id": 190734243,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/u5wymcplsiitc6c2hplg.jpg",
+       "headline": "My favorite dry shampoo ever",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "",
+       "nickname": "REDACTED",
+       "created_date": 1510343226405
+      },
+      {
+       "id": "190734092",
+       "review_id": 190734083,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/mycydgodf3gmwq4f15uo.jpg",
+       "headline": "I am in love with this product.",
+       "rating": 5,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "",
+       "nickname": "REDACTED",
+       "created_date": 1496981809473
+      },
+      {
+       "id": "190734023",
+       "review_id": 190734013,
+       "uri": "//res.cloudinary.com/powerreviews/image/upload/f_auto,q_auto,h_768,w_auto/d_portal-no-product-image_ttlfpi.svg/prod/j6obhvkiqbjyv2qukthe.jpg",
+       "headline": "I used it up too quickly",
+       "rating": 1,
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "type": "image",
+       "caption": "",
+       "nickname": "REDACTED",
+       "created_date": 1492987892220
+      }
+     ],
+     "name": "Perfect Hair Day Dry Shampoo",
+     "native_review_count": 3016,
+     "native_sampling_review_count": 0,
+     "native_sweepstakes_review_count": 0,
+     "native_community_content_review_count": 0,
+     "syndicated_review_count": 0,
+     "syndicated_sampling_review_count": 0,
+     "syndicated_sweepstakes_review_count": 0,
+     "syndicated_community_content_review_count": 0,
+     "native_staff_review_count": 0,
+     "syndicated_staff_review_count": 0,
+     "locale": "en_US"
+    },
+    "reviews": [
+     {
+      "ugc_id": 589696061,
+      "legacy_id": 443821007,
+      "review_id": 589696061,
+      "internal_review_id": 443821007,
+      "details": {
+       "comments": "I received a deluxe sample of this dry shampoo and unfortunately it was not a good fit for me. The fragrance was extremely strong and lingered in my bathroom long after use. The scent was overwhelming enough that it triggered a headache and left me feeling nauseated. I know fragrance preferences are subjective, but this product's scent was much too intense for me. Because of that, I would not purchase this product or explore other products from this brand.",
+       "headline": "Strong perfumy smell!",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1793644785662,
+       "updated_date": 1793866727510,
+       "bottom_line": "No",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "rating": 1,
+       "helpful_score": 1784
+      }
+     },
+     {
+      "ugc_id": 586004868,
+      "legacy_id": 441057741,
+      "review_id": 586004868,
+      "internal_review_id": 441057741,
+      "details": {
+       "comments": "Iconic dry shampoo in a great new scent that feels perfect for fall and going into winter. I love this stuff so much. It does not leave a white cast in my brunette hair and really does let me skip wash days. Gifted by livingproof",
+       "headline": "Iconic",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787677271616,
+       "updated_date": 1790347270315,
+       "bottom_line": "Yes",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 2,
+       "not_helpful_votes": 0,
+       "rating": 5,
+       "helpful_score": 1581
+      }
+     },
+     {
+      "ugc_id": 585896712,
+      "legacy_id": 440986352,
+      "review_id": 585896712,
+      "internal_review_id": 440986352,
+      "details": {
+       "comments": "Such a great dry shampoo gifted by livingproof for oily hair! I wash my hair every day and already love Living Proof, but this one smells amazing and instantly makes my hair look fresh, clean, and refreshed. Definitely a new favorite!",
+       "headline": "My favorite scent and dry shampoo",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787404849550,
+       "updated_date": 1793672188207,
+       "bottom_line": "Yes",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 4,
+       "not_helpful_votes": 0,
+       "rating": 5,
+       "helpful_score": 1587
+      }
+     },
+     {
+      "ugc_id": 585829093,
+      "legacy_id": 440940492,
+      "review_id": 585829093,
+      "internal_review_id": 440940492,
+      "details": {
+       "comments": "It It's great! It leaves my hair feeling really clean, refreshed, and lightweight after washing. I love how fresh my hair feels without that dry, stripped feeling. It also leaves my hair feeling soft and healthy, making it a great addition to my hair care routine. Definitely a product I've been enjoying! gifted by livingproof",
+       "headline": "Great product",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787264034177,
+       "updated_date": 1790347307210,
+       "bottom_line": "Yes",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 1,
+       "not_helpful_votes": 0,
+       "rating": 5,
+       "helpful_score": 1684
+      }
+     },
+     {
+      "ugc_id": 585807096,
+      "legacy_id": 440923617,
+      "review_id": 585807096,
+      "internal_review_id": 440923617,
+      "details": {
+       "comments": "complimentary from livingproof. I love this dry shampoo and go through them throughout the year so getting 2 for a discount is even better! The perfect holiday gift for anyone! Love how these smell and how they leave my hair looking and feeling.",
+       "headline": "The perfect dry shampoo for everyday use without buildup",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787239536569,
+       "updated_date": 1790347314563,
+       "bottom_line": "Yes",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 1,
+       "not_helpful_votes": 0,
+       "rating": 5,
+       "helpful_score": 1600
+      }
+     },
+     {
+      "ugc_id": 585755756,
+      "legacy_id": 440883219,
+      "review_id": 585755756,
+      "internal_review_id": 440883219,
+      "details": {
+       "comments": "This stuff works alright, I guess. But the smell, ugh, the smell…. It's not necessarily a \"bad\" smell, i just personally can't stand it. Also, the smell is too much. This product would definitely irritate anyone who's sensitive/allergic to overbearing scents.",
+       "headline": "Overwhelming Scent",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787164566041,
+       "updated_date": 1787874790996,
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 1,
+       "not_helpful_votes": 0,
+       "rating": 2,
+       "helpful_score": 1617
+      }
+     },
+     {
+      "ugc_id": 585743776,
+      "legacy_id": 440875491,
+      "review_id": 585743776,
+      "internal_review_id": 440875491,
+      "details": {
+       "comments": "I really enjoyed using the Living Proof Classic Clean PhD Dry Shampoo. It instantly refreshed my hair, absorbed excess oil, and made my roots look cleaner without leaving a heavy or powdery residue. My hair felt soft, fresh, and had a little extra volume afterward. I also love how convenient the set is for keeping my hair looking fresh between washes. gifted by livingproof",
+       "headline": "I love thissss",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787147533066,
+       "updated_date": 1787148246220,
+       "bottom_line": "Yes",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "rating": 5,
+       "helpful_score": 1724
+      }
+     },
+     {
+      "ugc_id": 585691048,
+      "legacy_id": 440834819,
+      "review_id": 585691048,
+      "internal_review_id": 440834819,
+      "details": {
+       "comments": "I absolutely love this dry shampoo! It actually makes my hair feel clean and refreshed instead of just covering up oily roots. It gives my hair a little extra volume without leaving behind that heavy, powdery feeling or making it look dull. It's perfect for extending my style an extra day (or two 😅), and I love that my hair still feels soft and smells fresh afterward. I've tried so many dry shampoos, and I always come back to Living Proof. Definitely a staple for me! Gifted by livingproof",
+       "headline": "My favorite dry shampoo",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787061168495,
+       "updated_date": 1787066713062,
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "rating": 5,
+       "helpful_score": 1804
+      }
+     },
+     {
+      "ugc_id": 585683613,
+      "legacy_id": 440828884,
+      "review_id": 585683613,
+      "internal_review_id": 440828884,
+      "details": {
+       "comments": "This is good enough. I was hoping I'd like the fragrance more than I do. The fig note is more green than juicy unfortunately. It still smells good and the dry shampoo does a good job of making the hair feel clean. complimentary from livingproof gifted by livingproof",
+       "headline": "Good",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787051953444,
+       "updated_date": 1787052312481,
+       "bottom_line": "Yes",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "rating": 4,
+       "helpful_score": 1624
+      }
+     },
+     {
+      "ugc_id": 585664933,
+      "legacy_id": 440815687,
+      "review_id": 585664933,
+      "internal_review_id": 440815687,
+      "details": {
+       "comments": "I was genuinely surprised by how much volume this dry shampoo added to my hair. It didn't leave any visible residue, and my hair still felt and looked clean and refreshed. If dry shampoo usually isn't your thing, I definitely recommend trying this one! gifted by livingproof",
+       "headline": "Love it!",
+       "nickname": null,
+       "properties": [],
+       "locale": "en_US",
+       "location": null,
+       "created_date": 1787014976500,
+       "updated_date": 1787040666755,
+       "bottom_line": "Yes",
+       "product_page_id": "pimprod2037265"
+      },
+      "badges": {
+       "is_staff_reviewer": false,
+       "is_verified_buyer": false,
+       "is_verified_reviewer": false
+      },
+      "media": [],
+      "metrics": {
+       "helpful_votes": 0,
+       "not_helpful_votes": 0,
+       "rating": 5,
+       "helpful_score": 1633
+      }
+     }
+    ]
+   }
+  ],
+  "native_filter": true
+ }
+}

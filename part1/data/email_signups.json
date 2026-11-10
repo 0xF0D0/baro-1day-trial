@@ -1,0 +1,55 @@
+{
+  "note": "Welcome-email signups made on 2026-11-10 with a dedicated trial inbox. Times are UTC. signup_at was taken right after the submit click finished, so it can trail the real submit by a few seconds.",
+  "signups": [
+    {
+      "brand": "Living Proof",
+      "status": "signed_up",
+      "signup_at": "2026-11-10T04:47:06Z",
+      "signup_url": "https://www.livingproof.com/",
+      "form": "site popup",
+      "offer_text": "15% off your first order. Join our email list today for exclusive offers",
+      "result": "Popup advanced to an SMS step, which was skipped.",
+      "first_email_at": "2026-11-10T04:48:29Z"
+    },
+    {
+      "brand": "Death Wish Coffee",
+      "status": "signed_up",
+      "signup_at": "2026-11-10T04:47:48Z",
+      "signup_url": "https://www.deathwishcoffee.com/",
+      "form": "footer form",
+      "offer_text": "Stay bold, stay caffeinated. Sign up and save 20% off your first order",
+      "result": "THANKS FOR SUBSCRIBING! Check your email for a confirmation message.",
+      "first_email_at": "2026-11-10T04:47:45Z"
+    },
+    {
+      "brand": "Black Rifle Coffee",
+      "status": "submitted_unconfirmed",
+      "signup_at": "2026-11-10T04:54:53Z",
+      "signup_url": "https://www.blackriflecoffee.com/",
+      "form": "site popup",
+      "offer_text": "WANT THE LATEST INTEL? Get exclusive deals and drops!",
+      "result": "Popup advanced to an SMS step, which was skipped. No confirmation text. A 'Get 20% Off' tab appeared afterwards.",
+      "first_email_at": null
+    },
+    {
+      "brand": "Batiste",
+      "status": "not_signed_up",
+      "signup_at": null,
+      "signup_url": "https://www.batistehair.com/",
+      "form": null,
+      "offer_text": null,
+      "result": "No email form on the brand site. The 'JOIN NOW' link goes to batistenation.socialmedialink.com, a third-party community site; it was not used.",
+      "first_email_at": null
+    },
+    {
+      "brand": "Jinx",
+      "status": "not_signed_up",
+      "signup_at": null,
+      "signup_url": "https://www.thinkjinx.com/",
+      "form": null,
+      "offer_text": null,
+      "result": "No email-only signup found. The theme's newsletter section renders empty, no popup appeared in about 60 seconds on the home and a product page, and the only other routes are a loyalty account and a support form.",
+      "first_email_at": null
+    }
+  ]
+}

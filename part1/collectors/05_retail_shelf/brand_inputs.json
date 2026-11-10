@@ -1,0 +1,13 @@
+{
+  "batiste": [
+    {"retailer": "ulta", "list_url": "https://www.ulta.com/brand/batiste", "brand_name": "Batiste"},
+    {"retailer": "target", "search_term": "batiste", "brand_name": "Batiste", "item_types": null}],
+  "living-proof": [
+    {"retailer": "ulta", "list_url": "https://www.ulta.com/brand/living-proof", "brand_name": "Living Proof"},
+    {"retailer": "sephora", "search_term": "living proof", "brand_name": "Living Proof"}],
+  "death-wish-coffee": [{"retailer": "target", "search_term": "death wish coffee", "brand_name": "Death Wish Coffee Co", "item_types": null}],
+  "black-rifle-coffee": [{"retailer": "target", "search_term": "black rifle coffee", "brand_name": "Black Rifle Coffee Company", "item_types": null}],
+  "jinx": [
+    {"retailer": "target", "search_term": "jinx dog food", "brand_name": "Jinx", "item_types": ["Pet Food", "Pet Treats"]},
+    {"retailer": "chewy", "search_term": "jinx dog food", "brand_name": "Jinx"}]
+}

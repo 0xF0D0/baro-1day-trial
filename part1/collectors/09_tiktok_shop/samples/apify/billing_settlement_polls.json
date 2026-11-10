@@ -1,0 +1,159 @@
+{
+  "note": "seconds after the run reached a terminal status; charged and accounted are chargedEventCounts and accountedChargedEventCounts of product-scraped-us; usd is usageTotalUsd",
+  "first_run_EXHk3uNv40Lsip1gL": {
+    "at_waitForFinish_return_0s": {
+      "status": "SUCCEEDED",
+      "dataset_success_rows": 10,
+      "charged": 9,
+      "accounted": 0,
+      "usd": 0.00005
+    },
+    "12s_later": {
+      "charged": 10,
+      "accounted": 10,
+      "usd": 0.01995
+    }
+  },
+  "t2_four_keywords": [
+    {
+      "s": 3,
+      "charged": 40,
+      "accounted": 36,
+      "usd": 0.07168999999999999
+    },
+    {
+      "s": 8,
+      "charged": 40,
+      "accounted": 40,
+      "usd": 0.07965
+    },
+    {
+      "s": 14,
+      "charged": 40,
+      "accounted": 40,
+      "usd": 0.07965
+    },
+    {
+      "s": 20,
+      "charged": 40,
+      "accounted": 40,
+      "usd": 0.07965
+    }
+  ],
+  "t6_dw_20": [
+    {
+      "s": 1,
+      "charged": 14,
+      "accounted": 0,
+      "usd": 0.00005
+    },
+    {
+      "s": 7,
+      "charged": 20,
+      "accounted": 20,
+      "usd": 0.039850000000000003
+    },
+    {
+      "s": 13,
+      "charged": 20,
+      "accounted": 20,
+      "usd": 0.039850000000000003
+    },
+    {
+      "s": 19,
+      "charged": 20,
+      "accounted": 20,
+      "usd": 0.039850000000000003
+    }
+  ],
+  "t7_two_ids": [
+    {
+      "s": 2,
+      "charged": 0,
+      "accounted": 0,
+      "usd": 0.00005
+    },
+    {
+      "s": 7,
+      "charged": 2,
+      "accounted": 2,
+      "usd": 0.00403
+    },
+    {
+      "s": 13,
+      "charged": 2,
+      "accounted": 2,
+      "usd": 0.00403
+    },
+    {
+      "s": 19,
+      "charged": 2,
+      "accounted": 2,
+      "usd": 0.00403
+    }
+  ],
+  "t5_empty_keyword": [
+    {
+      "s": 2,
+      "charged": 2,
+      "accounted": 1,
+      "usd": 0.00204
+    },
+    {
+      "s": 7,
+      "charged": 2,
+      "accounted": 1,
+      "usd": 0.00204
+    },
+    {
+      "s": 13,
+      "charged": 2,
+      "accounted": 1,
+      "usd": 0.00204
+    },
+    {
+      "s": 19,
+      "charged": 2,
+      "accounted": 1,
+      "usd": 0.00204
+    },
+    {
+      "s": 25,
+      "charged": 2,
+      "accounted": 1,
+      "usd": 0.00204
+    },
+    {
+      "s": 30,
+      "charged": 2,
+      "accounted": 1,
+      "usd": 0.00204
+    }
+  ],
+  "t8_pinned_build": [
+    {
+      "s": 1,
+      "charged": 0,
+      "accounted": 0,
+      "usd": 0.00005
+    },
+    {
+      "s": 7,
+      "charged": 1,
+      "accounted": 0,
+      "usd": 0.00005
+    },
+    {
+      "s": 13,
+      "charged": 1,
+      "accounted": 1,
+      "usd": 0.00204
+    },
+    {
+      "s": 19,
+      "charged": 1,
+      "accounted": 1,
+      "usd": 0.00204
+    }
+  ]
+}

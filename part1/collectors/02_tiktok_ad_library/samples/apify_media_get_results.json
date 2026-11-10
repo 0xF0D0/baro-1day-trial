@@ -1,0 +1,83 @@
+{
+ "_note": "Plain GET (Python urllib, no cookies, no extra headers) of videoUrl and coverImageUrl from apify_fetchcat_dataset.json, 2026-11-10 about 09:45 UTC, 2 s apart. Files not stored in the repository.",
+ "results": [
+  {
+   "adId": "7531018269878140936",
+   "kind": "video",
+   "url_host": "v16m-default.tiktokcdn.com",
+   "status": 200,
+   "final_host": "v16m-default.tiktokcdn.com",
+   "content_type": "video/mp4",
+   "content_length_header": "2102970",
+   "bytes": 2102970,
+   "sha256": "6f693d2c488cd56580d04e8c54c89c1f2e2d0df283b77fe5aa79e6df721e9649",
+   "head_hex": "000000206674797069736f6d",
+   "seconds": 2.19
+  },
+  {
+   "adId": "7531018269878140936",
+   "kind": "cover",
+   "url_host": "p16-common-sign.tiktokcdn.com",
+   "status": 200,
+   "final_host": "p16-common-sign.tiktokcdn.com",
+   "content_type": "image/jpeg",
+   "content_length_header": "145088",
+   "bytes": 145088,
+   "sha256": "2e3e542ac1a3b9901367a2921ff0bc30c0b75768e491a39288e7bd40a6146a43",
+   "head_hex": "ffd8fffe00104c6176633538",
+   "seconds": 1.63
+  },
+  {
+   "adId": "7609180755211075600",
+   "kind": "video",
+   "url_host": "v16m-default.tiktokcdn.com",
+   "status": 200,
+   "final_host": "v16m-default.tiktokcdn.com",
+   "content_type": "video/mp4",
+   "content_length_header": "10682762",
+   "bytes": 10682762,
+   "sha256": "7e460b939868dd788cedf48c3508a300145acb969407c6dcc6d5ebfbee5930be",
+   "head_hex": "000000206674797069736f6d",
+   "seconds": 3.75
+  },
+  {
+   "adId": "7609180755211075600",
+   "kind": "cover",
+   "url_host": "p16-common-sign.tiktokcdn.com",
+   "status": 200,
+   "final_host": "p16-common-sign.tiktokcdn.com",
+   "content_type": "image/jpeg",
+   "content_length_header": "91423",
+   "bytes": 91423,
+   "sha256": "f707e4c4a52c693b671ac883356c78af92cf03afc0982e5207fca2083d937246",
+   "head_hex": "ffd8fffe00104c6176633538",
+   "seconds": 1.32
+  },
+  {
+   "adId": "7619486503161118737",
+   "kind": "video",
+   "url_host": "v16m-default.tiktokcdn.com",
+   "status": 200,
+   "final_host": "v16m-default.tiktokcdn.com",
+   "content_type": "video/mp4",
+   "content_length_header": "8959186",
+   "bytes": 8959186,
+   "sha256": "ffb79ddbf9e73aa7debbd344117d228bbac0c28d9abee63bebfe2022fbea2fbe",
+   "head_hex": "000000206674797069736f6d",
+   "seconds": 2.95
+  },
+  {
+   "adId": "7619486503161118737",
+   "kind": "cover",
+   "url_host": "p16-common-sign.tiktokcdn.com",
+   "status": 200,
+   "final_host": "p16-common-sign.tiktokcdn.com",
+   "content_type": "image/jpeg",
+   "content_length_header": "517305",
+   "bytes": 517305,
+   "sha256": "cf34faa8c8b4d5d118c5f34f2c2ad9dc12790be1c15eeb3f9ddf2d7bb6a736c8",
+   "head_hex": "ffd8ffe000104a4649460001",
+   "seconds": 1.25
+  }
+ ]
+}
