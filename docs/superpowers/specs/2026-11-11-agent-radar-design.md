@@ -52,7 +52,7 @@ started and stopped lately, and to `radar_response` for what the public responds
 | `source`, `brand`, `table_name`, `kind`, `key` | text, not null | the item; `table_name` is one of the six tables |
 | `change` | text, not null | `appeared`, `ended`, `reappeared` or `changed` |
 | `field` | text | the column that changed; only for `changed` |
-| `old_value`, `new_value` | text | only for `changed`; either may be NULL when the value was or became NULL |
+| `old_value`, `new_value` | text | only for `changed`, and then never NULL |
 
 Indexes: `(source, brand, table_name, kind, key, field, changed_at)` and `(changed_at)`.
 
@@ -67,7 +67,7 @@ the same rows.
 | `appeared` | a row is inserted with `ended_at` NULL, and an earlier complete look at its scope exists (below) |
 | `ended` | a row that had `ended_at` NULL gets an `ended_at`, by either ending policy |
 | `reappeared` | a row that had an `ended_at` is seen again and reopened |
-| `changed` | a row that already existed is seen again and a tracked column in the mapper's row differs from the stored value; one `changes` row per column |
+| `changed` | a row that already existed is seen again and a tracked column in the mapper's row differs from the stored value, both being known (not NULL); one `changes` row per column |
 
 An earlier complete look exists when `run_scopes` has a row with the same `source`, `brand` and scope name, status
 `ok` as stored (after the loader's downgrade of a crashed run), for a run with `result` `applied` and a smaller
@@ -83,6 +83,10 @@ source-date policy as for absence: an open Google ad whose last-shown date falls
 newer end date writes nothing; an ended one shown again recently is reopened and writes `reappeared`.
 
 A column the mapper leaves out of a row is not compared, as it is not updated either.
+
+A value that was not known before, or is not known now, is not a change. NULL stands for "not read" as well as for
+"none", and the two cannot be told apart: on the real run files, 131 Google ads went from no variation count to one
+only because the first look had not read the ad's detail. Such a row is updated and writes nothing to `changes`.
 
 ### 3.3 Tracked columns
 
@@ -364,7 +368,7 @@ With the 69 runs now on disk, loaded in order into an empty database:
 | Check | Expected |
 |---|---|
 | `radar_running` rows | 835, one per `ads` row |
-| Google ads by verdict | `working` 498, `not_working` 34, `undecided` 160 |
+| Google ads by verdict | `working` 498, `not_working` 47, `undecided` 147 (`days_live` is whole days, so an ad that ran 7 days and 22 hours counts as 7) |
 | Every other channel | all `undecided` (Meta 89, signup forms 34, site 14, email 3, TikTok 3) |
 | `destination` | `brand_site` 770 (692 Google, 78 Meta), `retailer` 11 (Meta), NULL 54 |
 | `subject_type` | only Meta has one: `product` 33, `collection` 27, `page` 17, `retailer_product` 11, `home` 1 |
@@ -372,7 +376,7 @@ With the 69 runs now on disk, loaded in order into an empty database:
 | `radar_angles` | the builder reports the rows for Living Proof and Batiste and checks one subject by hand against its ads |
 | `radar_response` rows | 2,224: posts 995 (199 x 5), products 396 (rank 109, rating 120, review_count 138, sold_count 29), search 833 |
 | Posts with `verdict` `working` | 95 of 199 |
-| `changes` | whatever the repeated runs of sources 1, 3, 5, 7 and 10 show; the builder reports the counts by `change` and looks at ten rows by hand |
+| `changes` | 10 rows, all `changed` on `price` of Ulta products (the two Ulta runs made before and after the collector began to read the price at the product's own URL). No item appeared or ended between two complete looks yet |
 | Second load | no new rows anywhere, `changes` included |
 
 These numbers move when new runs are added.
@@ -411,6 +415,8 @@ These numbers move when new runs are added.
 ## 12. Known limits
 
 - `changes` and every "moved" column stay nearly empty until the collectors have run repeatedly.
+- A value that appears where there was none, or goes away, writes no `changed` row: a discount code or a list price
+  showing up is visible in the item's row, not in `changes`.
 - Meta shows only active ads and TikTok gives no dates, so their lifetimes and endings come from our own looks. Today
   every Meta ad is `undecided`: the oldest started 22 days ago.
 - Google ads have no text and no landing URL in the tables, so 692 of 835 `radar_running` rows have no angle and no
