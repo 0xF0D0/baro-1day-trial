@@ -3,6 +3,7 @@ import hashlib
 import io
 import json
 import os
+from types import SimpleNamespace
 from unittest import mock
 
 import support
@@ -11,7 +12,7 @@ from support import DbTestCase
 import angles
 
 
-class AnglesTest(DbTestCase):
+class AngleBase(DbTestCase):
     def ad(self, key, headline, body, brand="b", channel="meta"):
         self.conn.execute(
             "INSERT INTO ads (source, brand, kind, key, scope, fetched_at, first_seen_at, last_seen_at, last_run_id, raw, "
@@ -33,6 +34,8 @@ class AnglesTest(DbTestCase):
         self.labels = self.dir / "labels.jsonl"
         self.labels.write_text("\n".join(lines) + "\n")
 
+
+class AnglesTest(AngleBase):
     def test_ad_text_and_hash(self):
         self.assertEqual(angles.ad_text("  Save   20%\n", " Bundled for\tthe busy "), "Save 20%\nBundled for the busy")
         self.assertEqual(angles.ad_text(None, "x"), "\nx")
@@ -142,6 +145,226 @@ class AnglesTest(DbTestCase):
 
     def test_committed_labels_file_is_valid(self):
         angles.read_labels(angles.LABELS_FILE)
+
+
+class FakeClient:
+    def __init__(self, answers):
+        self.answers = list(answers)
+        self.calls = []
+        self.beta = SimpleNamespace(messages=SimpleNamespace(create=lambda **kw: self._create("beta", kw)))
+        self.messages = SimpleNamespace(create=lambda **kw: self._create("plain", kw))
+
+    def _create(self, which, kwargs):
+        self.calls.append((which, kwargs))
+        answer = self.answers.pop(0)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+
+def reply(payload, stop_reason="end_turn"):
+    text = payload if isinstance(payload, str) else json.dumps(payload)
+    return SimpleNamespace(stop_reason=stop_reason, content=[SimpleNamespace(type="thinking", thinking="x"),
+                                                             SimpleNamespace(type="text", text=text)])
+
+
+def answer(**over):
+    base = {"angle_offer": "none", "offer_evidence": "", "angle_message": "none", "message_evidence": "",
+            "angle_voice": "brand", "voice_evidence": ""}
+    return {**base, **over}
+
+
+class LabelTest(AngleBase):
+    NOW = "2026-11-11T03:04:05Z"
+
+    def setUp(self):
+        super().setUp()
+        self.ad("1", "Save 20%", "for the busy")
+        self.write_labels([])
+
+    def lines(self):
+        return [json.loads(x) for x in self.labels.read_text(encoding="utf-8").splitlines() if x.strip()]
+
+    def run_label(self, client, model=angles.DEFAULT_MODEL):
+        return angles.label_pending(self.conn, self.labels, client, model, self.NOW)
+
+    def test_valid_answer_is_appended(self):
+        client = FakeClient([reply(answer(angle_offer="discount", offer_evidence="Save 20%"))])
+        self.assertEqual(self.run_label(client), (1, 0))
+        lines = self.lines()
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(lines[0]["labeled_by"], "claude-opus-5-5/prompt-v1")
+        self.assertEqual(lines[0]["labeled_at"], self.NOW)
+        self.assertEqual(lines[0]["list_version"], 1)
+        self.assertEqual(lines[0]["text_sha256"], angles.text_hash("Save 20%\nfor the busy"))
+        self.assertEqual(lines[0]["offer_evidence"], "Save 20%")
+        self.assertIsNone(lines[0]["message_evidence"])
+        self.assertIsNone(lines[0]["voice_evidence"])
+        self.assertEqual(len(angles.read_labels(self.labels)), 1)
+        (which, kw), = client.calls
+        self.assertEqual(which, "beta")
+        self.assertEqual(kw["betas"], ["server-side-fallback-2026-07-01"])
+        self.assertEqual(kw["fallbacks"], "default")
+        self.assertEqual(kw["max_tokens"], 4000)
+        self.assertEqual(kw["model"], "claude-opus-5-5")
+        self.assertEqual(kw["messages"], [{"role": "user", "content": "Save 20%\nfor the busy"}])
+        self.assertEqual(kw["system"], angles.SYSTEM_PROMPT)
+        self.assertEqual(kw["output_config"]["effort"], "low")
+        fmt = kw["output_config"]["format"]
+        self.assertEqual(fmt["type"], "json_schema")
+        props = fmt["schema"]["properties"]
+        self.assertEqual(props["angle_offer"]["enum"], list(angles.OFFER))
+        self.assertEqual(props["angle_message"]["enum"], list(angles.MESSAGE))
+        self.assertEqual(props["angle_voice"]["enum"], list(angles.VOICE))
+        for banned in ("thinking", "temperature", "top_p"):
+            self.assertNotIn(banned, kw)
+
+    def test_other_model_uses_the_plain_endpoint(self):
+        client = FakeClient([reply(answer())])
+        self.assertEqual(self.run_label(client, "claude-haiku-5-5"), (1, 0))
+        (which, kw), = client.calls
+        self.assertEqual(which, "plain")
+        self.assertNotIn("betas", kw)
+        self.assertNotIn("fallbacks", kw)
+        self.assertEqual(kw["model"], "claude-haiku-5-5")
+        self.assertEqual(self.lines()[0]["labeled_by"], "claude-haiku-5-5/prompt-v1")
+
+    def test_bad_answers_write_nothing(self):
+        import anthropic
+        request = mock.Mock()
+        bad = [reply(answer(angle_offer="discount", offer_evidence="Half price")),
+               reply(answer(angle_voice="creator", voice_evidence="ask @someone")),
+               reply(answer(), stop_reason="refusal"),
+               reply(answer(), stop_reason="max_tokens"),
+               reply("not json at all"),
+               reply(answer(angle_offer="discount", offer_evidence="")),
+               anthropic.APIConnectionError(request=request)]
+        for item in bad:
+            client = FakeClient([item])
+            self.assertEqual(self.run_label(client), (0, 1), item)
+            self.assertEqual(self.labels.read_text(), "")
+
+    def test_failure_reasons(self):
+        import anthropic
+        response = mock.Mock(status_code=429, headers={})
+        cases = [(reply(answer(), stop_reason="refusal"), "refusal"),
+                 (reply(answer(), stop_reason="max_tokens"), "max_tokens"),
+                 (reply("nope"), "not_json"),
+                 (anthropic.RateLimitError("x", response=response, body=None), "api: RateLimitError"),
+                 (anthropic.APIConnectionError(request=mock.Mock()), "api: APIConnectionError")]
+        for item, reason in cases:
+            with self.assertRaises(angles.LabelFailure) as e:
+                angles.ask_model(FakeClient([item]), angles.DEFAULT_MODEL, "t")
+            self.assertEqual(e.exception.reason, reason)
+
+    def test_auth_errors_are_not_caught_by_ask_model(self):
+        import anthropic
+        response = mock.Mock(status_code=401, headers={})
+        client = FakeClient([anthropic.AuthenticationError("x", response=response, body=None)])
+        with self.assertRaises(anthropic.AuthenticationError):
+            angles.ask_model(client, angles.DEFAULT_MODEL, "t")
+
+    def test_empty_evidence_becomes_none(self):
+        got = angles.ask_model(FakeClient([reply(answer())]), angles.DEFAULT_MODEL, "t")
+        self.assertEqual(set(got), {"angle_offer", "offer_evidence", "angle_message", "message_evidence",
+                                    "angle_voice", "voice_evidence"})
+        self.assertIsNone(got["offer_evidence"])
+        self.assertIsNone(got["message_evidence"])
+        self.assertIsNone(got["voice_evidence"])
+
+    def test_labeled_text_is_not_asked_again(self):
+        self.write_labels([self.line("Save 20%\nfor the busy")])
+        client = FakeClient([])
+        self.assertEqual(self.run_label(client), (0, 0))
+        self.assertEqual(client.calls, [])
+
+    def test_failed_text_does_not_stop_the_others(self):
+        self.ad("2", "Other", "words")
+        client = FakeClient([reply("nope"), reply(answer())])
+        self.assertEqual(self.run_label(client), (1, 1))
+        self.assertEqual(len(self.lines()), 1)
+
+    def test_main_without_key(self):
+        before = self.labels.read_text()
+        buffer = io.StringIO()
+        env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
+        env["DATABASE_URL"] = self.url
+        with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(angles, "read_key", return_value=None), \
+                contextlib.redirect_stdout(buffer):
+            code = angles.main(["--label", "--labels", str(self.labels)])
+        self.assertEqual(code, 1)
+        self.assertEqual(buffer.getvalue().strip(), "label: could not look: missing_key")
+        self.assertEqual(self.labels.read_text(), before)
+
+    def test_main_label_reports_and_exit_code(self):
+        self.ad("2", "Other", "words")
+        client = FakeClient([reply("nope"), reply(answer())])
+        buffer = io.StringIO()
+        fake_module = mock.Mock()
+        fake_module.Anthropic.return_value = client
+        import anthropic
+        with mock.patch.dict(os.environ, {"DATABASE_URL": self.url}), \
+                mock.patch.object(angles, "read_key", return_value="k"), \
+                mock.patch.object(anthropic, "Anthropic", fake_module.Anthropic), \
+                contextlib.redirect_stdout(buffer):
+            code = angles.main(["--label", "--labels", str(self.labels)])
+        out = buffer.getvalue().splitlines()
+        self.assertEqual(code, 1)
+        self.assertEqual(len(out), 2)
+        self.assertRegex(out[0], r"^label: failed [0-9a-f]{12}: not_json$")
+        self.assertEqual(out[1], "label: labeled=1 failed=1 pending=1")
+        fake_module.Anthropic.assert_called_once_with(api_key="k", max_retries=0)
+
+    def test_main_label_auth_error(self):
+        import anthropic
+        response = mock.Mock(status_code=401, headers={})
+        client = FakeClient([anthropic.AuthenticationError("x", response=response, body=None)])
+        buffer = io.StringIO()
+        with mock.patch.dict(os.environ, {"DATABASE_URL": self.url}), \
+                mock.patch.object(angles, "read_key", return_value="k"), \
+                mock.patch.object(anthropic, "Anthropic", return_value=client), \
+                contextlib.redirect_stdout(buffer):
+            code = angles.main(["--label", "--labels", str(self.labels)])
+        self.assertEqual(code, 1)
+        self.assertEqual(buffer.getvalue().strip(), "label: could not look: auth")
+        self.assertEqual(self.labels.read_text(), "")
+
+    def test_main_label_and_pending_are_exclusive(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            angles.main(["--label", "--pending"])
+
+    def test_read_key(self):
+        with mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "from-env"}):
+            self.assertEqual(angles.read_key(), "from-env")
+        env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            env_file = self.dir / ".env"
+            env_file.write_text('OTHER=1\nANTHROPIC_API_KEY="quoted"\n')
+            with mock.patch.object(angles, "ENV_FILE", env_file):
+                self.assertEqual(angles.read_key(), "quoted")
+            env_file.write_text("ANTHROPIC_API_KEY=\n")
+            with mock.patch.object(angles, "ENV_FILE", env_file):
+                self.assertIsNone(angles.read_key())
+            with mock.patch.object(angles, "ENV_FILE", self.dir / "missing"):
+                self.assertIsNone(angles.read_key())
+
+    def test_answer_schema(self):
+        s = angles.answer_schema()
+        self.assertEqual(s["required"], ["angle_offer", "offer_evidence", "angle_message", "message_evidence",
+                                         "angle_voice", "voice_evidence"])
+        self.assertIs(s["additionalProperties"], False)
+        self.assertEqual(s["type"], "object")
+        self.assertEqual(s["properties"]["angle_offer"]["enum"], list(angles.OFFER))
+        self.assertEqual(s["properties"]["angle_message"]["enum"], list(angles.MESSAGE))
+        self.assertEqual(s["properties"]["angle_voice"]["enum"], list(angles.VOICE))
+        self.assertEqual(s["properties"]["voice_evidence"], {"type": "string"})
+
+    def test_system_prompt_carries_the_rules(self):
+        p = angles.SYSTEM_PROMPT
+        for value in angles.OFFER + angles.MESSAGE + angles.VOICE:
+            self.assertIn(value, p)
+        for phrase in ("12 words", "@", "exactly"):
+            self.assertIn(phrase, p)
 
 
 if __name__ == "__main__":
