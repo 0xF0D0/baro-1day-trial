@@ -85,6 +85,16 @@ hours (`DETAIL_REFRESH_HOURS`), according to the brand's earlier record files, i
 variation count, because the mapper only sets it from a fetched detail. A change in an ad's variations is
 therefore seen within a day instead of within an hour.
 
+### 2.6 Meta: media is not downloaded by the collector
+
+`03_meta_ad_library` downloaded every ad's images and videos into `media/<brand>/` and wrote the local paths into
+the record. No table, view or step used those files; they were the slowest part of a brand's first run (180 files
+for one brand ran past the 3-minute cap) and 450 MB of disk after a day. The collector now writes the record with
+the media URLs as the source returned them, inside `raw.item.snapshot`, and downloads nothing.
+
+Those URLs are signed and expire three to four days after the run. Keeping the creatives is the job of a separate
+step (section 4), not of the pass.
+
 ## 3. When a site blocks
 
 What exists, and stays: a collector that meets a block page, a CAPTCHA or a login wall stops there and records
@@ -103,7 +113,27 @@ What is not built here, in the order it should be:
 What is not done at all: hiding from the site's detection (rotating addresses or proxies, altering the browser's
 fingerprint, solving CAPTCHAs). Being refused is recorded, not worked around.
 
-## 4. Goals, non-goals
+## 4. Media archive (designed, not built)
+
+A worker of its own, outside the pass, in the shape the user proposed on 2026-11-11:
+
+- **Input.** The media URLs in `ads.raw` (for Meta: `snapshot.images[]`, `snapshot.videos[]`, `snapshot.cards[]`) of
+  ads whose files are not archived yet, soonest expiry first. The expiry is the `oe=` parameter of the URL.
+- **Work.** Several workers download side by side and put each file into object storage (S3). The storage is a
+  setting: a local folder by default, so that someone else can run it without an account, a bucket when one is
+  configured.
+- **Record.** One table, for example `ad_media`: the ad's key, the path part of the URL (the signature changes from
+  response to response, the path does not), the object key, size, content type, state and time. A file already
+  recorded is not fetched again, so the worker can be run as often as wanted.
+- **Schedule.** Once a day is enough: the URLs live three to four days.
+- **Failure.** A URL that has expired or is refused is recorded as such for that file; it does not touch the ad's
+  row.
+
+It is not built here because there is no bucket or credential to run it against, and nothing reads the files yet.
+Until it exists, the creative of an ad that has ended can no longer be fetched once its URLs expire; while an ad
+runs, its Ad Library page (the row's `url`) shows it.
+
+## 5. Goals, non-goals
 
 Goals
 - A full pass in about 5 minutes once the day's first pass has read the ad details, bounded by the Apify runs of
@@ -114,8 +144,9 @@ Goals
 Non-goals
 - The three items of section 3 that are "not built here".
 - Speeding up `07_search_interest`, `02`, `06`, `08`, `09`: they already take under 3 minutes.
+- The media archive of section 4.
 
-## 5. Constraints carried over
+## 6. Constraints carried over
 
 1. Hand-written code; at least one source without a paid scraping service.
 2. Rerun-safe: no duplicates on a second run; a missing item is marked ended, never deleted.
@@ -123,7 +154,7 @@ Non-goals
 4. Clean collection: no personal data of private individuals; requests are spaced; a block is not worked around.
 5. Local Postgres, one command, reproducible by someone else.
 
-## 6. Calls made by the designer
+## 7. Calls made by the designer
 
 1. One environment variable for the careful pace instead of an option on every collector: the collectors' command
    line stays as it is.
@@ -134,7 +165,7 @@ Non-goals
 6. Source 1's spacing was first cut to 2 seconds and then put back: the collector's own research had measured the
    limit. Its time is cut by reading a detail once a day instead.
 
-## 7. What is measured afterwards
+## 8. What is measured afterwards
 
 One real pass of the four site-facing collectors for all five brands (`--sources 1,3,5,10`): the seconds per job, any
 block, and the statuses, against the table in section 1. It also fills what is missing in the tables today (Meta for
