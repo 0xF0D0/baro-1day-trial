@@ -264,6 +264,36 @@ class LabelTest(AngleBase):
         with self.assertRaises(anthropic.AuthenticationError):
             angles.ask_model(client, angles.DEFAULT_MODEL, "t")
 
+    def bad_request(self):
+        import anthropic
+        import httpx2 as httpx
+        response = httpx.Response(400, request=httpx.Request("POST", "https://example.test"))
+        body = {"type": "error", "error": {"type": "invalid_request_error",
+                                           "message": "Your credit   balance is too low\nto access the API."}}
+        return anthropic.BadRequestError("x", response=response, body=body)
+
+    def test_ask_model_lets_a_bad_request_through(self):
+        import anthropic
+        client = FakeClient([self.bad_request()])
+        with self.assertRaises(anthropic.BadRequestError):
+            angles.ask_model(client, angles.DEFAULT_MODEL, "t")
+
+    def test_bad_request_stops_the_run(self):
+        import anthropic
+        self.ad("2", "Other", "words")
+        client = FakeClient([reply(answer()), self.bad_request()])
+        buffer = io.StringIO()
+        with mock.patch.dict(os.environ, {"DATABASE_URL": self.url}), \
+                mock.patch.object(angles, "read_key", return_value="k"), \
+                mock.patch.object(anthropic, "Anthropic", return_value=client), \
+                contextlib.redirect_stdout(buffer):
+            code = angles.main(["--label", "--labels", str(self.labels)])
+        self.assertEqual(code, 1)
+        self.assertEqual(buffer.getvalue().splitlines()[-1],
+                         "label: could not look: bad_request: Your credit balance is too low to access the API.")
+        self.assertEqual(len(client.calls), 2)
+        self.assertEqual(len(self.lines()), 1)
+
     def test_empty_evidence_becomes_none(self):
         got = angles.ask_model(FakeClient([reply(answer())]), angles.DEFAULT_MODEL, "t")
         self.assertEqual(set(got), {"angle_offer", "offer_evidence", "angle_message", "message_evidence",

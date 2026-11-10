@@ -238,7 +238,7 @@ def ask_model(client, model: str, text: str) -> dict:
             response = client.beta.messages.create(**kwargs)
         else:
             response = client.messages.create(**kwargs)
-    except (anthropic.AuthenticationError, anthropic.PermissionDeniedError):
+    except (anthropic.AuthenticationError, anthropic.PermissionDeniedError, anthropic.BadRequestError):
         raise
     except (anthropic.RateLimitError, anthropic.APIStatusError, anthropic.APIConnectionError) as e:
         raise LabelFailure(f"api: {type(e).__name__}") from None
@@ -283,6 +283,15 @@ def label_pending(conn, path: Path, client, model: str, now: str, on_failure=Non
     return labeled, failed
 
 
+def _api_message(e) -> str:
+    body = getattr(e, "body", None)
+    error = body.get("error") if isinstance(body, dict) else None
+    message = error.get("message") if isinstance(error, dict) else None
+    if not isinstance(message, str):
+        message = str(e)
+    return " ".join(message.split())[:200]
+
+
 def run_label(path: Path) -> int:
     import datetime
     key = read_key()
@@ -305,6 +314,9 @@ def run_label(path: Path) -> int:
         remaining = len(pending(conn, path))
     except (anthropic.AuthenticationError, anthropic.PermissionDeniedError):
         print("label: could not look: auth")
+        return 1
+    except anthropic.BadRequestError as e:
+        print(f"label: could not look: bad_request: {_api_message(e)}")
         return 1
     except LabelError as e:
         print(f"labels: {e}")
