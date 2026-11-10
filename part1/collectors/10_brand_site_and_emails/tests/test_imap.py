@@ -210,8 +210,9 @@ class ImapRouteTests(unittest.TestCase):
         self.assertEqual(raw["sha256"], hashlib.sha256(raw["eml"].encode("ascii")).hexdigest())
         self.assertEqual((raw["signup_at"], raw["first_day_ends_at"]), (part["signup_at"], part["first_day_ends_at"]))
         self.assertNotIn(ADDRESS, json.dumps(recs))
-        self.assertIn("https://www.thinkjinx.com/REDACTED", raw["eml"])
+        self.assertIn("strict: plain text only (from html)", raw["eml"].replace("\r\n ", " "))
         self.assertNotIn("aabbccddeeff", raw["eml"])
+        self.assertNotIn("<a", raw["eml"])
 
     def test_message_in_both_folders_and_two_domains_is_one_record(self):
         row = self.one(sender="support@mail.thinkjinx.com")

@@ -50,11 +50,13 @@ def strict(src, inbox=INBOX, **kw):
     return redact_eml.redact_message(src, "gm1", RECEIVED, ["INBOX"], inbox=inbox, strict=True, **kw)
 
 
-def other_message(plain="Hello\n", html=None, extra=None, subject="Hi", to=INBOX):
+def other_message(plain="Hello\n", html=None, extra=None, subject="Hi", to=INBOX,
+                  reply_to="reply@other.example"):
     m = EmailMessage()
     m["From"] = "Other <hi@other.example>"
-    m["To"] = to
-    m["Reply-To"] = "reply@other.example"
+    if to is not None:
+        m["To"] = to
+    m["Reply-To"] = reply_to
     m["Subject"] = subject
     m["Date"] = "Tue, 10 Nov 2026 15:12:00 +0000"
     m["Message-ID"] = "<secret-mid-9f8e7d@other.example>"
@@ -72,7 +74,7 @@ def other_message(plain="Hello\n", html=None, extra=None, subject="Hi", to=INBOX
 
 # Output of the pre-refactor convert() on klaviyo_message(), recorded before the change.
 # The MIME boundary is random per call, so it is normalised in both sides.
-EXPECTED_NONSTRICT_TEMPLATE = (
+EXPECTED_NONSTRICT = (
     b'From: Shop <news@livingproof.com>\r\n'
     b'Subject: Welcome\r\n'
     b'Date: Tue, 10 Nov 2026 15:12:00 +0000\r\n'
@@ -113,9 +115,6 @@ EXPECTED_NONSTRICT_TEMPLATE = (
 
 def norm(data):
     return re.sub(rb"={15}\d+==", b"=BOUNDARY=", data)
-
-
-EXPECTED_NONSTRICT = EXPECTED_NONSTRICT_TEMPLATE
 
 
 class VerifiedLevel(unittest.TestCase):
@@ -160,52 +159,139 @@ class VerifiedLevel(unittest.TestCase):
             self.assertEqual(norm((Path(d) / name).read_bytes()), EXPECTED_NONSTRICT)
 
 
+def body(out):
+    """Decoded text of the single text/plain part of a strict output."""
+    msg = parse(out)
+    assert msg.get_content_type() == "text/plain", msg.get_content_type()
+    return msg.get_content()
+
+
+def raw(extra_headers="", body_text="hi\r\n", ctype="text/plain; charset=utf-8", cte="8bit", subject="Hi"):
+    return (f"From: Other <hi@other.example>\r\nTo: {INBOX}\r\nSubject: {subject}\r\n"
+            f"Date: Tue, 10 Nov 2026 15:12:00 +0000\r\nMIME-Version: 1.0\r\n{extra_headers}"
+            f"Content-Type: {ctype}\r\nContent-Transfer-Encoding: {cte}\r\n\r\n{body_text}").encode()
+
+
 class StrictLevel(unittest.TestCase):
-    def test_urls_cut_to_host(self):
-        html = (f'<a href="https://t.other.example/click/{TOKEN}/x">a</a>'
-                f'<a href="https://t.other.example/c?uid={TOKEN}&amp;z=1">b</a>')
-        out, counts = strict(other_message(plain=f"see https://t.other.example/p/{TOKEN}\n", html=html))
-        t = out.decode("ascii")
-        self.assertNotIn(TOKEN, t.replace("=\r\n", ""))
-        self.assertIn("https://t.other.example/REDACTED", t.replace("=\r\n", ""))
-        self.assertEqual(counts["urls"], 3)
+    def cut(self, text):
+        out, counts = strict(other_message(plain=text))
+        return body(out), counts
 
-    def test_bare_host_not_counted(self):
-        out, counts = strict(other_message(plain="https://example.com and https://example.com/ ok\n"))
+    def test_link_with_brackets_and_quotes_in_path(self):
+        for link in ("https://h.example/a(b)?token=TOK", "https://h.example/a?x=it's&t=TOK",
+                     "https://h.example/a[1]?t=TOK"):
+            with self.subTest(link=link):
+                b, counts = self.cut(f"see ({link}) and [{link}] end\n")
+                for s in ("TOK", "(b)", "[1]", "it's"):
+                    self.assertNotIn(s, b)
+                self.assertIn("https://h.example/REDACTED", b)
+                self.assertGreaterEqual(counts["urls"], 2)
+
+    def test_host_only_forms_are_left(self):
+        b, counts = self.cut("a https://h.example b https://h.example/ c\n")
+        self.assertIn("a https://h.example b https://h.example/ c", b)
         self.assertEqual(counts["urls"], 0)
-        self.assertIn("https://example.com/ ok", out.decode("ascii"))
 
-    def test_address_and_local_part_replaced(self):
-        out, _ = strict(other_message(plain=f"Hi {LOCAL.upper()},\nSent to {INBOX.upper()}.\n"))
-        body = parse(out).get_body().get_content()
-        self.assertIn("Hi TRIAL_INBOX,", body)
-        self.assertIn("Sent to TRIAL_INBOX.", body)
+    def test_odd_host_tails(self):
+        for link in ("https://h.example\\TOK", "https://h.example|TOK", "https://h.example,TOK",
+                     "https://TOK@h.example", "https://h.example:8443/x?TOK", "HTTPS://H.EXAMPLE/x?TOK"):
+            with self.subTest(link=link):
+                b, counts = self.cut(f"go {link} now\n")
+                self.assertNotIn("TOK", b)
+                self.assertEqual(counts["urls"], 1)
+
+    def test_schemeless_links(self):
+        b, counts = self.cut("a //h.example/p?TOK b www.h.example/p?TOK c\n")
+        self.assertNotIn("TOK", b)
+        self.assertIn("h.example/REDACTED", b)
+        self.assertIn("www.h.example/REDACTED", b)
+        self.assertEqual(counts["urls"], 2)
+
+    def test_mailto_and_bare_address(self):
+        b, counts = self.cut("a mailto:reply+TOK@h.example?subject=x b reply+TOK@h.example c\n")
+        self.assertNotIn("TOK", b)
+        self.assertIn("mailto:REDACTED", b)
+        self.assertIn("REDACTED@h.example", b)
+        self.assertEqual(counts["urls"], 1)
+        self.assertEqual(counts["addresses"], 1)
+
+    def test_inbox_address_in_every_form(self):
+        text = (f"Hi {LOCAL},\nlower {INBOX} upper {INBOX.upper()}\n"
+                f"link https://h.example/u?e=radar.inbox77%40example.org end\n"
+                f"loose radar.inbox77%40example.org\n")
+        out, counts = strict(other_message(plain=text))
+        b = body(out)
+        self.assertNotIn(LOCAL, b.lower())
+        self.assertNotIn(LOCAL.encode(), out.lower())
+        self.assertIn("Hi TRIAL_INBOX,", b)
+        self.assertIn("lower TRIAL_INBOX upper TRIAL_INBOX", b)
+        self.assertIn("https://h.example/REDACTED", b)
+        self.assertEqual(counts["addresses"], 4)
+
+    def test_html_only_becomes_plain_text(self):
+        html = ('<html><head><title>TITLEWORD</title><style>.x{color:red}</style></head><body>'
+                '<script>var s="SCRIPTVAL";</script><p>Hello <a href="https://h.example/p?TOK">visible words</a></p>'
+                '<div>Second line</div></body></html>')
+        out, counts = strict(other_message(plain=None, html=html))
+        msg = parse(out)
+        self.assertEqual(msg.get_content_type(), "text/plain")
+        self.assertFalse(msg.is_multipart())
+        b = msg.get_content()
+        self.assertIn("Hello visible words", b)
+        self.assertIn("Second line", b)
+        for s in ("<", ">", "href", "TOK", "SCRIPTVAL", "color:red", "TITLEWORD"):
+            self.assertNotIn(s, b)
+        self.assertEqual(counts["source"], "html")
+        self.assertEqual(counts["parts_dropped"], 0)
+        self.assertNotIn(b"text/html", out)
+
+    def test_html_address_with_entities(self):
+        out, _ = strict(other_message(plain=None, html="<p>Mail radar&#46;inbox77&#64;example.org now</p>"))
+        self.assertIn("Mail TRIAL_INBOX now", body(out))
+        self.assertNotIn(LOCAL.encode(), out.lower())
+
+    def test_html_address_split_by_tags(self):
+        out, _ = strict(other_message(plain=None, html="<p>radar.<b>inbox77</b>@example.org</p>"))
+        self.assertNotIn(LOCAL, body(out).lower())
+        self.assertNotIn(LOCAL.encode(), out.lower())
+
+    def test_both_parts_plain_is_used(self):
+        out, counts = strict(other_message(plain="plain words\n", html="<p>html words</p>"))
+        self.assertEqual(counts["source"], "plain")
+        self.assertEqual(counts["html_not_kept"], 1)
+        self.assertEqual(counts["parts_dropped"], 0)
+        self.assertNotIn(b"text/html", out)
+        self.assertIn("plain words", body(out))
+        self.assertNotIn("html words", body(out))
 
     def test_headers_reduced(self):
-        out, _ = strict(other_message())
+        out, _ = strict(other_message(reply_to="<reply+TOK@h.example>"))
         msg = parse(out)
-        for h in ("Message-ID", "X-Custom", "List-Unsubscribe"):
+        for h in ("Message-ID", "Reply-To", "X-Custom", "List-Unsubscribe"):
             self.assertIsNone(msg[h])
-        for h in ("From", "Reply-To", "Subject", "Date", "MIME-Version"):
+        for h in ("From", "Subject", "Date", "MIME-Version"):
             self.assertIsNotNone(msg[h])
-        self.assertEqual(str(msg["To"]), "TRIAL_INBOX <trial_inbox@redacted.invalid>")
-        self.assertNotIn("secret-mid", out.decode("ascii"))
-
-    def test_html_only(self):
-        out, counts = strict(other_message(plain=None, html="<p>hi</p>"))
-        msg = parse(out)
-        self.assertEqual(msg.get_content_type(), "text/html")
-        self.assertEqual(counts["parts_dropped"], 0)
-
-    def test_plain_only(self):
-        out, _ = strict(other_message(plain="hi\n"))
-        self.assertEqual(parse(out).get_content_type(), "text/plain")
+        self.assertNotIn(b"TOK", out)
+        self.assertNotIn(b"secret-mid", out)
 
     def test_attachment_dropped_and_counted(self):
         out, counts = strict(other_message(plain="a\n", html="<p>a</p>", extra=True))
         self.assertEqual(counts["parts_dropped"], 1)
-        self.assertNotIn("a.pdf", out.decode("ascii"))
+        self.assertNotIn(b"a.pdf", out)
         self.assertIn("1 part(s) dropped", str(parse(out)["X-Trial-Redaction"]))
+
+    def test_unknown_charset_raises_fixed_text(self):
+        with self.assertRaises(redact_eml.RedactionError) as cm:
+            strict(raw(ctype="text/plain; charset=bogus"))
+        self.assertNotIn("bogus", str(cm.exception))
+
+    def test_duplicated_subject_uses_first(self):
+        out, _ = strict(raw(extra_headers="Subject: second\r\n", subject="first"))
+        self.assertEqual(str(parse(out)["Subject"]), "first")
+
+    def test_no_to_and_no_inbox_raises(self):
+        with self.assertRaises(redact_eml.RedactionError):
+            strict(other_message(to=None), inbox=None)
 
     def test_no_text_part_raises(self):
         m = EmailMessage()
@@ -216,14 +302,16 @@ class StrictLevel(unittest.TestCase):
         with self.assertRaises(redact_eml.RedactionError):
             strict(m.as_bytes())
 
-    def test_subject_with_local_part_raises(self):
-        with self.assertRaises(redact_eml.RedactionError):
-            strict(other_message(subject=f"for {LOCAL}"))
+    def test_address_in_subject_raises(self):
+        for subject in (f"for {INBOX}", f"for {LOCAL}"):
+            with self.subTest(subject=subject), self.assertRaises(redact_eml.RedactionError):
+                strict(other_message(subject=subject))
 
     def test_redaction_text(self):
-        out, _ = strict(other_message(plain="https://a.example/x/y\n"))
+        out, _ = strict(other_message(plain="https://a.example/x/y and a@b.example\n"))
         self.assertEqual(str(parse(out)["X-Trial-Redaction"]),
-                         "strict: headers reduced; To replaced; 1 URL(s) cut to host; 0 part(s) dropped.")
+                         "strict: plain text only (from plain); headers reduced; To replaced; "
+                         "1 link(s) cut; 1 address(es) replaced; 0 part(s) dropped.")
 
 
 class Output(unittest.TestCase):
@@ -240,7 +328,7 @@ class Output(unittest.TestCase):
 
     def test_both_levels(self):
         self.check(redact_eml.redact_message(klaviyo_message(), "gm1", RECEIVED, ["INBOX"])[0])
-        self.check(strict(other_message(plain="a\n", html="<p>a</p>"))[0])
+        self.check(strict(other_message(plain="a\n", html="<p>a</p>", subject="Gr\u00fc\u00dfe \u2713"))[0])
 
     def test_read_eml_accepts(self):
         import tempfile
@@ -252,10 +340,6 @@ class Output(unittest.TestCase):
                 p = Path(d) / "x.eml"
                 p.write_bytes(out)
                 self.assertIsNotNone(source_collector.read_eml(p, "gm1"))
-
-    def test_constants(self):
-        self.assertEqual(redact_eml.VERIFIED_DOMAINS,
-                         ("livingproof.com", "deathwishcoffee.com", "blackriflecoffee.com"))
 
 
 if __name__ == "__main__":
