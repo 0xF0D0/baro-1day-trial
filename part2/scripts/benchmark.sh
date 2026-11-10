@@ -44,7 +44,10 @@ if [ "$rc" -eq 0 ]; then
   t0=$SECONDS
   deadline=$((SECONDS + SETTLE_TIMEOUT_S))
   while [ "$SECONDS" -lt "$deadline" ]; do
-    if dc logs --no-color --since "$REPLAY_END" worker 2>&1 | grep '"msg":"flush tick"' | tail -n +2 | grep -q '"days_flushed":0[,}]'; then
+    # Capture first and match afterwards: grep -q would close the pipe early, and pipefail would
+    # turn the resulting SIGPIPE into a false "not settled".
+    ticks="$(dc logs --no-color --since "$REPLAY_END" worker 2>&1 | grep '"msg":"flush tick"' || true)"
+    if [ "$(printf '%s\n' "$ticks" | tail -n +2 | grep -c '"days_flushed":0[,}]' || true)" -gt 0 ]; then
       SETTLED=1
       SETTLE_S=$((SECONDS - t0))
       break
@@ -101,8 +104,11 @@ for s in api1 api2 worker postgres minio; do
   MEM="$MEM  $s: $(mem "$s")"$'\n'
 done
 
-DOCKER_MEM="$(docker info --format '{{.MemTotal}}' 2>/dev/null | awk '{ printf "%.1f GiB", $1 / 1073741824 }' || echo n/a)"
-DOCKER_CPU="$(docker info --format '{{.NCPU}}' 2>/dev/null || echo n/a)"
+DOCKER_MEM_B="$(docker info --format '{{.MemTotal}}' 2>/dev/null || true)"
+DOCKER_MEM="n/a"
+[ -n "$DOCKER_MEM_B" ] && DOCKER_MEM="$(awk -v b="$DOCKER_MEM_B" 'BEGIN { printf "%.1f GiB", b / 1073741824 }')"
+DOCKER_CPU="$(docker info --format '{{.NCPU}}' 2>/dev/null || true)"
+DOCKER_CPU="${DOCKER_CPU:-n/a}"
 
 # 8. Report.
 {
