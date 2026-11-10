@@ -66,3 +66,7 @@ func OpenSKUMove(sc Scope, eventID string, lineNo int, sealed []byte) (fold.Move
 func (s *Store) FinishErasure(ctx context.Context, sc Scope, customerKey []byte) error {
 	return s.finishErasure(ctx, sc, customerKey)
 }
+
+// SetRebuildAfterRead installs a hook that Rebuild calls after reading the late
+// rows and before writing objects. Pass nil to remove it.
+func SetRebuildAfterRead(f func()) { rebuildAfterRead = f }
