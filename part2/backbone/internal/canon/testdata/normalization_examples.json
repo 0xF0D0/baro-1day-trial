@@ -1,0 +1,246 @@
+[
+  {
+    "vendor": "b",
+    "body": {
+      "event_uuid": "77525186-443d-41ff-b495-7c674f5a82f3",
+      "event": "inventory.adjusted",
+      "shop_domain": "kite-beauty-0.shops.example",
+      "timestamp": "2026-07-01T00:10:07.912Z",
+      "api_version": "1",
+      "payload": {
+        "sku": "SKU-0000-00",
+        "delta": 62,
+        "reason": "initial"
+      }
+    },
+    "canonical": {
+      "event_id": "77525186-443d-41ff-b495-7c674f5a82f3",
+      "tenant_id": "t_0000",
+      "type": "inventory.adjusted",
+      "occurred_at_ms": 1782864607912,
+      "customer_id": null,
+      "data": {
+        "sku": "SKU-0000-00",
+        "delta": 62,
+        "reason": "initial"
+      }
+    }
+  },
+  {
+    "vendor": "a",
+    "body": {
+      "id": "evt_7a470e1fd3369e5cc1cc640c",
+      "type": "ads.metric",
+      "created": 1785824006510,
+      "account": "acct_2207398efc68",
+      "livemode": true,
+      "data": {
+        "object": {
+          "campaign_id": "cmp_0000_0",
+          "spend": 41153,
+          "impressions": 6006,
+          "clicks": 510
+        }
+      }
+    },
+    "canonical": {
+      "event_id": "evt_7a470e1fd3369e5cc1cc640c",
+      "tenant_id": "t_0000",
+      "type": "ad.metric",
+      "occurred_at_ms": 1785824006510,
+      "customer_id": null,
+      "data": {
+        "campaign_id": "cmp_0000_0",
+        "spend_cents": 41153,
+        "impressions": 6006,
+        "clicks": 510
+      }
+    }
+  },
+  {
+    "vendor": "a",
+    "body": {
+      "id": "evt_583790ada11ed96f6097f943",
+      "type": "order.created",
+      "created": 1789081011344,
+      "account": "acct_2207398efc68",
+      "livemode": true,
+      "data": {
+        "object": {
+          "order_id": "ord_0000_0000001",
+          "customer": {
+            "id": "cus_0000_000241",
+            "email": "ravi.chen241@mail.example",
+            "name": "Ravi Chen"
+          },
+          "line_items": [
+            {
+              "sku": "SKU-0000-14",
+              "quantity": 1,
+              "unit_amount": 4550
+            },
+            {
+              "sku": "SKU-0000-16",
+              "quantity": 3,
+              "unit_amount": 1950
+            },
+            {
+              "sku": "SKU-0000-19",
+              "quantity": 3,
+              "unit_amount": 1050
+            }
+          ],
+          "currency": "usd"
+        }
+      }
+    },
+    "canonical": {
+      "event_id": "evt_583790ada11ed96f6097f943",
+      "tenant_id": "t_0000",
+      "type": "order.created",
+      "occurred_at_ms": 1789081011344,
+      "customer_id": "cus_0000_000241",
+      "data": {
+        "order_id": "ord_0000_0000001",
+        "lines": [
+          {
+            "sku": "SKU-0000-14",
+            "qty": 1,
+            "unit_cents": 4550
+          },
+          {
+            "sku": "SKU-0000-16",
+            "qty": 3,
+            "unit_cents": 1950
+          },
+          {
+            "sku": "SKU-0000-19",
+            "qty": 3,
+            "unit_cents": 1050
+          }
+        ],
+        "email": "ravi.chen241@mail.example",
+        "name": "Ravi Chen"
+      }
+    }
+  },
+  {
+    "vendor": "b",
+    "body": {
+      "event_uuid": "983be4f5-696d-4f37-8671-cdc4ef60a8e8",
+      "event": "shipment.updated",
+      "shop_domain": "kite-beauty-0.shops.example",
+      "timestamp": "2026-09-11T14:42:53.172Z",
+      "api_version": "1",
+      "payload": {
+        "order_id": "ord_0000_0000001",
+        "customer_id": "cus_0000_000241",
+        "status": "label_created",
+        "carrier": "usps",
+        "tracking": "1ZA2BA4AB4C5"
+      }
+    },
+    "canonical": {
+      "event_id": "983be4f5-696d-4f37-8671-cdc4ef60a8e8",
+      "tenant_id": "t_0000",
+      "type": "shipment.updated",
+      "occurred_at_ms": 1789137773172,
+      "customer_id": "cus_0000_000241",
+      "data": {
+        "order_id": "ord_0000_0000001",
+        "status": "label_created",
+        "carrier": "usps",
+        "tracking": "1ZA2BA4AB4C5"
+      }
+    }
+  },
+  {
+    "vendor": "b",
+    "body": {
+      "event_uuid": "5a13889c-e854-4624-87fe-0f0ab15f170c",
+      "event": "message.received",
+      "shop_domain": "kite-beauty-0.shops.example",
+      "timestamp": "2026-09-13T11:38:20.807Z",
+      "api_version": "1",
+      "payload": {
+        "customer_id": "cus_0000_000855",
+        "customer_email": "sun.okafor855@mail.example",
+        "channel": "email",
+        "body": "The item in #54992 arrived damaged."
+      }
+    },
+    "canonical": {
+      "event_id": "5a13889c-e854-4624-87fe-0f0ab15f170c",
+      "tenant_id": "t_0000",
+      "type": "message.received",
+      "occurred_at_ms": 1789299500807,
+      "customer_id": "cus_0000_000855",
+      "data": {
+        "channel": "email",
+        "email": "sun.okafor855@mail.example",
+        "body": "The item in #54992 arrived damaged."
+      }
+    }
+  },
+  {
+    "vendor": "a",
+    "body": {
+      "id": "evt_76d13edf8bc4266c15ad73bb",
+      "type": "charge.refunded",
+      "created": 1792091526465,
+      "account": "acct_2207398efc68",
+      "livemode": true,
+      "data": {
+        "object": {
+          "order_id": "ord_0000_0000010",
+          "customer_id": "cus_0000_001826",
+          "amount_refunded": 10450
+        }
+      }
+    },
+    "canonical": {
+      "event_id": "evt_76d13edf8bc4266c15ad73bb",
+      "tenant_id": "t_0000",
+      "type": "order.refunded",
+      "occurred_at_ms": 1792091526465,
+      "customer_id": "cus_0000_001826",
+      "data": {
+        "order_id": "ord_0000_0000010",
+        "amount_cents": 10450
+      }
+    }
+  },
+  {
+    "vendor": "b",
+    "body": {
+      "event_uuid": "014ba722-86f8-4020-b84c-52d67479aa5b",
+      "event": "shipment.patch",
+      "shop_domain": "kite-beauty-0.shops.example",
+      "timestamp": "2026-09-04T01:49:22.450Z",
+      "api_version": "1",
+      "payload": {
+        "order_id": "ord_0000_0000019",
+        "customer_id": "cus_0000_003444",
+        "changes": {
+          "carrier": "usps",
+          "status": "delivered"
+        }
+      }
+    },
+    "canonical": {
+      "event_id": "014ba722-86f8-4020-b84c-52d67479aa5b",
+      "tenant_id": "t_0000",
+      "type": "shipment.patch",
+      "occurred_at_ms": 1788486562450,
+      "customer_id": "cus_0000_003444",
+      "data": {
+        "order_id": "ord_0000_0000019",
+        "customer_id": "cus_0000_003444",
+        "changes": {
+          "carrier": "usps",
+          "status": "delivered"
+        }
+      }
+    }
+  }
+]
