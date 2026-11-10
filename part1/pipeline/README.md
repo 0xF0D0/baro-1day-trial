@@ -33,63 +33,193 @@ The three views are dropped and created on every run, so a changed view definiti
 
 ## The tables
 
-Ten tables, defined in `schema.sql`. Six hold items; four hold what the loader knows about the looks themselves.
+Items come in four kinds. Each kind has its own table, or a pair of tables, and every one of them starts with the
+same columns. Two more tables describe the runs themselves.
 
-### Item tables
+| Kind | Tables | Filled by |
+|---|---|---|
+| 1. Ads | `ads` | 1 Google Ads Transparency, 2 TikTok ads, 3 Meta Ad Library, 10 brand site and emails |
+| 2. Product pages | `products`, `reviews` | 4 Amazon, 5 retail shelf, 9 TikTok Shop, 10 brand site |
+| 3. Search | `search_rankings`, `search_interest` | 6 Google results, 7 search interest |
+| 4. Social posts | `posts` | 8 TikTok posts |
 
-One row per item of one source for one brand. Every item table starts with the same columns:
+### Columns every item table has
 
-| Column | Meaning |
-|---|---|
-| `source`, `brand` | where the item was seen, and for which brand |
-| `kind` | what the row is within its source: an ad, a product, a review |
-| `key` | the item's identity in its source. `(source, brand, kind, key)` is the primary key, so a second run updates the row instead of adding one |
-| `scope` | the part of the source the item belongs to (see `run_scopes`) |
-| `url` | where to check it |
-| `fetched_at` | when this copy was collected |
-| `first_seen_at`, `last_seen_at` | start time of the first and of the latest run that saw it |
-| `ended_at` | when it was found gone, or the end date the source itself gives; `NULL` while it is there. Rows are never deleted |
-| `last_run_id` | the run that last wrote the row |
-| `raw` | the source's own record, as collected |
+```sql
+source        text        NOT NULL,  -- which source saw the item
+brand         text        NOT NULL,  -- brand slug
+kind          text        NOT NULL,  -- what the row is within its source: ad, product, review, ...
+key           text        NOT NULL,  -- the item's identity in its source
+scope         text        NOT NULL,  -- the part of the source it belongs to (see run_scopes)
+url           text,                  -- where a person can check the item
+fetched_at    timestamptz NOT NULL,  -- when the stored values were collected
+first_seen_at timestamptz NOT NULL,  -- start of the first run that saw the item
+last_seen_at  timestamptz NOT NULL,  -- start of the latest run that saw it
+ended_at      timestamptz,           -- when it was found gone; NULL while it is there
+last_run_id   text        NOT NULL,  -- the run that last wrote the row
+raw           jsonb       NOT NULL,  -- the source's own record, as collected
+PRIMARY KEY (source, brand, kind, key)   -- a second run updates the row; rows are never deleted
+```
 
-| Table | One row is | Sources | Its own columns |
-|---|---|---|---|
-| `ads` | a paid ad, or an offer, signup form or email on the brand's own channels | 1, 2, 3, 10 | `channel`, `advertiser_id`, `advertiser_name`, `format`, `headline`, `body`, `cta`, `landing_url`, `landing_domain`, `started_at`, `last_shown_at`, `variation_count`, `placements`, `offer_code` |
-| `products` | a product at a retailer or on the brand's site; for Batiste a retailer's availability of one barcode; a TikTok Shop search result | 4, 5, 9, 10 | `retailer`, `product_id`, `title`, `price`, `price_max`, `list_price`, `currency`, `rating`, `review_count`, `rank`, `sponsored`, `availability`, `seller_name`, `sold_count` |
-| `reviews` | a review of a product; `product_key` is the `key` of its `products` row | 4, 5 | `product_key`, `rating`, `title`, `body`, `review_date`, `verified`, `helpful_votes` |
-| `search_rankings` | one result for one search term | 6 | `keyword`, `keyword_rank`, `position`, `result_url`, `domain`, `title`, `description`, `result_type` |
-| `search_interest` | one week of one term's search interest | 7 | `keyword`, `series`, `week_start`, `value`, `has_data`, `is_partial`, `geo` |
-| `posts` | a TikTok post | 8 | `post_id`, `posted_at`, `creator_handle`, `creator_is_brand`, `creator_followers`, `views`, `likes`, `comments`, `shares`, `saves`, `caption`, `hashtags`, `surfaced_by` |
+### 1. Ads
 
-### `runs` and `run_scopes`
+`ads`: one ad creative, or one message on a channel the brand owns. Kinds: `ad` (sources 1, 2, 3); `offer_slot`,
+`klaviyo_form`, `email` (source 10).
 
-`runs` has one row per run: one look at one source for one brand. It is where "could not look" lives.
+```sql
+-- the shared columns, then
+channel         text NOT NULL,  -- paid: google, meta, tiktok. owned: site, signup_form, email
+advertiser_id   text,           -- the advertiser's ID in the source
+advertiser_name text,
+format          text,           -- text, image, video, dco, dpa
+headline        text,
+body            text,
+cta             text,           -- the call-to-action label
+landing_url     text,           -- where the ad sends people
+landing_domain  text,
+started_at      timestamptz,    -- the start date the source states; NULL when it states none
+last_shown_at   timestamptz,    -- the last-shown date the source states
+variation_count integer,        -- how many variations the creative has (Google)
+placements      text[],         -- FACEBOOK, INSTAGRAM, MESSENGER, ... (Meta)
+offer_code      text            -- a discount code stated with the offer
+```
 
-| Column | Meaning |
-|---|---|
-| `source`, `brand`, `run_id` | the look. `run_id` is its start time in UTC, `YYYYMMDDTHHMMSSZ`. Primary key |
-| `started_at`, `finished_at` | when the collector started and ended |
-| `status` | `ok`: everything in scope was read. `partial`: some of it was. `could_not_look`: nothing could be read |
-| `reason` | empty for `ok`; otherwise what was not read and why |
-| `records`, `expected_total` | the records the collector wrote; the total the source itself reported, when it reports one |
-| `requests`, `cost_usd` | the requests the collector sent; what its paid runs cost |
-| `extra` | the collector's own details, part by part |
-| `result` | what the loader did with the run: `applied`, `superseded` (a newer run of the same source and brand was already loaded) or `empty_no_mapper` |
-| `loaded_at` | when the loader handled it |
+How long an ad has been seen is in the shared `first_seen_at`, `last_seen_at` and `ended_at`; they are never copied
+into `started_at`.
+
+### 2. Product pages
+
+`products`: one product at one seller. Kinds: `product` (sources 4, 5, 9, 10); `search_result` (source 9);
+`retailer_availability` (source 10, Batiste's where-to-buy data).
+
+```sql
+-- the shared columns, then
+retailer     text NOT NULL,   -- amazon, ulta, target, sephora, chewy, tiktok_shop, own_site;
+                              -- for where-to-buy rows the retailer the widget names (walmart, cvs, ...)
+product_id   text,            -- the seller's product ID (ASIN, TCIN, SKU)
+title        text,
+price        numeric(12,2),   -- the price a person sees at the row's url
+price_max    numeric(12,2),   -- the upper end when the seller shows a range
+list_price   numeric(12,2),   -- the price before a discount, when shown
+currency     text,
+rating       numeric(3,2),    -- NULL, not 0, when there are no reviews
+review_count integer,
+rank         integer,         -- position in the seller's listing or search
+sponsored    boolean,
+availability text,            -- IN_STOCK, OUT_OF_STOCK or NULL
+seller_name  text,            -- the seller on a marketplace
+sold_count   bigint           -- units sold, where the source publishes it
+```
+
+`reviews`: one review of a product, a child row of `products`. Sources 4 and 5. Reviewer names are not stored.
+
+```sql
+-- the shared columns, then
+product_key   text NOT NULL,  -- the key of its products row (same source and brand)
+rating        numeric(3,2),
+title         text,
+body          text,
+review_date   date,
+verified      boolean,        -- a verified purchase
+helpful_votes integer
+```
+
+### 3. Search
+
+`search_rankings`: one result for one search term. Source 6.
+
+```sql
+-- the shared columns, then
+keyword      text NOT NULL,   -- the search term
+keyword_rank integer,         -- the term's place among the brand's terms
+position     integer,         -- the result's place on the page
+result_url   text,
+domain       text,
+title        text,
+description  text,
+result_type  text             -- organic
+```
+
+`search_interest`: one week of one search term. Source 7.
+
+```sql
+-- the shared columns, then
+keyword    text NOT NULL,
+series     text NOT NULL,     -- solo: the term by itself. compared: next to the brand's other terms
+week_start date NOT NULL,
+value      integer,           -- Google Trends' 0 to 100, relative within the series
+has_data   boolean,
+is_partial boolean,           -- the current, unfinished week
+geo        text               -- US
+```
+
+### 4. Social posts
+
+`posts`: one TikTok post. Source 8.
+
+```sql
+-- the shared columns, then
+post_id           text,
+posted_at         timestamptz,
+creator_handle    text,       -- the account name; display names are not stored
+creator_is_brand  boolean,    -- posted by the brand's own account
+creator_followers bigint,
+views             bigint,
+likes             bigint,
+comments          bigint,
+shares            bigint,
+saves             bigint,
+caption           text,
+hashtags          text[],
+surfaced_by       text[]      -- how the post was found: profile_popular, hashtag
+```
+
+### The runs
+
+`runs`: one row per run, that is one look at one source for one brand. This is where "could not look" lives.
+
+```sql
+source         text,
+brand          text,
+run_id         text,                  -- the look's start time in UTC, YYYYMMDDTHHMMSSZ
+started_at     timestamptz NOT NULL,
+finished_at    timestamptz,
+status         text NOT NULL,         -- ok: everything in scope was read. partial: some of it.
+                                      -- could_not_look: nothing could be read
+reason         text NOT NULL,         -- empty for ok; otherwise what was not read and why
+records        integer,               -- records the collector wrote
+expected_total integer,               -- the total the source itself reported, when it reports one
+requests       integer,               -- requests the collector sent
+cost_usd       numeric(10,4),         -- what its paid runs cost
+extra          jsonb,                 -- the collector's own details, part by part
+result         text NOT NULL,         -- what the loader did: applied, superseded, empty_no_mapper
+loaded_at      timestamptz NOT NULL,
+PRIMARY KEY (source, brand, run_id)
+```
+
+`run_scopes`: one row per scope of a run. A scope is a part of a source that can be complete or not by itself:
+one retailer of the shelf (`ulta`, `target`), the `prices`, `offers_home` or `emails` of a brand's site, one Facebook
+page of a brand. An item is marked ended only by a run whose scope for that item was `ok`, so a partial look never
+ends what it did not see.
+
+```sql
+source text,
+brand  text,
+run_id text,
+scope  text,
+status text NOT NULL,                 -- ok, partial, could_not_look
+reason text NOT NULL,
+PRIMARY KEY (source, brand, run_id, scope)
+```
 
 The latest state of every source and brand:
 
-    SELECT DISTINCT ON (source, brand) source, brand, status, reason, records, finished_at
-    FROM runs WHERE result = 'applied' ORDER BY source, brand, run_id DESC;
+```sql
+SELECT DISTINCT ON (source, brand) source, brand, status, reason, records, finished_at
+FROM runs WHERE result = 'applied' ORDER BY source, brand, run_id DESC;
+```
 
-`run_scopes` has one row per scope of a run (`source`, `brand`, `run_id`, `scope`, `status`, `reason`). A scope is a
-part of a source that can be complete or not by itself: one retailer of the shelf (`ulta`, `target`), the `prices`,
-`offers_home` or `emails` of a brand's site, one Facebook page of a brand. An item is marked ended only by a run
-whose scope for that item was `ok`, so a partial look never ends what it did not see.
-
-### `changes` and `ad_angles`
-
-Described under "What the agents read".
+`changes` and `ad_angles` are described under "What the agents read".
 
 ## What the agents read
 
