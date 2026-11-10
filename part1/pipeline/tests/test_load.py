@@ -61,6 +61,7 @@ class LoadTest(DbTestCase):
         out = self.load()
         self.assertEqual([o.result for o in out], ["failed", "applied"])
         self.assertIn("x", out[0].error)
+        self.assertEqual((out[0].source, out[0].brand, out[0].run_id), ("fake", "b1", T1))
         self.assertEqual([(r["brand"], r["key"]) for r in self.table("products")], [("b2", "z")])
         self.assertEqual([r["brand"] for r in self.table("runs")], ["b2"])
 
@@ -106,6 +107,17 @@ class LoadTest(DbTestCase):
         self.assertIn(T1 + ".jsonl:2: not JSON", out[0].error)
         self.assertIn("records file missing", out[1].error)
         self.assertEqual(self.table("runs"), [])
+
+    def test_database_error_fails_whole_run(self):
+        self.write_run("fake", "b1", T1, records=[rec("a"), rec("x", columns={"retailer": "shop", "price": "abc"})])
+        self.write_run("fake", "b2", T1, records=[rec("z")])
+        out = self.load()
+        self.assertEqual([(o.source, o.brand, o.run_id, o.status, o.result) for o in out],
+                         [("fake", "b1", T1, "ok", "failed"), ("fake", "b2", T1, "ok", "applied")])
+        self.assertTrue(out[0].error)
+        self.assertEqual([(r["brand"], r["key"]) for r in self.table("products")], [("b2", "z")])
+        self.assertEqual([r["brand"] for r in self.table("runs")], ["b2"])
+        self.assertEqual([r["brand"] for r in self.table("run_scopes")], ["b2"])
 
     def test_unknown_column_fails_run(self):
         self.write_run("fake", "b", T1, records=[rec("a", columns={"retailer": "shop", "nope": 1})])

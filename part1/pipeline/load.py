@@ -125,9 +125,7 @@ def _write_rows(conn, run: dict, mapper, rows) -> tuple[int, int, int]:
     return inserted, updated, ended
 
 
-def _load(conn, run_path: Path, mappers: dict) -> Outcome:
-    run = _read_json(run_path)
-    out = Outcome(run["source"], run["brand"], run["run_id"], run["status"], "")
+def _load(conn, run_path: Path, mappers: dict, run: dict, out: Outcome) -> Outcome:
     ident = (run["source"], run["brand"], run["run_id"])
     if conn.execute("SELECT 1 FROM runs WHERE source = %s AND brand = %s AND run_id = %s", ident).fetchone():
         out.result = "already_loaded"
@@ -170,10 +168,16 @@ def _load(conn, run_path: Path, mappers: dict) -> Outcome:
 
 def load_run(conn, run_path: Path, mappers: dict) -> Outcome:
     try:
-        out = _load(conn, run_path, mappers)
+        run = _read_json(run_path)
+        out = Outcome(run["source"], run["brand"], run["run_id"], run["status"], "")
+    except Exception as e:
+        return Outcome("", "", "", "", "failed", error=f"{run_path.name}: cannot read run result: {e}")
+    try:
+        _load(conn, run_path, mappers, run, out)
     except Exception as e:  # a bad run is reported, never raised
         conn.rollback()
-        return Outcome("", "", "", "", "failed", error=f"{type(e).__name__}: {e}")
+        out.result, out.error = "failed", str(e)
+        return out
     if out.result == "failed":
         conn.rollback()
     else:
