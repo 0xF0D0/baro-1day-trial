@@ -1,0 +1,5 @@
+{"customer_id": "cus_2", "data": {"body": "yo", "channel": "chat", "email": "b@example.com"}, "event_id": "e5", "occurred_at_ms": 9, "tenant_id": "t_edge", "type": "message.received"}
+{"customer_id": "cus_9", "data": {"note": "x", "order_id": "o1"}, "event_id": "e1", "occurred_at_ms": 1, "tenant_id": "t_edge", "type": "shipment.patch"}
+{"customer_id": "cus_1", "data": {"body": "hi", "channel": "email", "email": "a@example.com"}, "event_id": "e4", "occurred_at_ms": 4, "tenant_id": "t_edge", "type": "message.received"}
+{"customer_id": null, "data": {"campaign_id": "c1", "clicks": 10, "impressions": 1000, "spend_cents": 100}, "event_id": "e2", "occurred_at_ms": 2, "tenant_id": "t_edge", "type": "ad.metric"}
+{"customer_id": null, "data": {"campaign_id": "c1", "clicks": 5, "impressions": 500, "spend_cents": 50}, "event_id": "e3", "occurred_at_ms": 3, "tenant_id": "t_edge", "type": "ad.metric"}

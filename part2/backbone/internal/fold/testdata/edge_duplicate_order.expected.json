@@ -1,0 +1,1 @@
+{"campaigns": {}, "customer_count": 2, "event_count": 2, "gross_cents": 1400, "inventory": {"B": 0}, "last_contact_ms": null, "messages_by_channel": {}, "net_cents": 1400, "open_orders": 1, "order_count": 1, "orphan_refunds": 0, "orphan_shipments": 0, "oversold_units": 2, "refunded_cents": 0, "shipment_status_counts": {"unfulfilled": 1}, "tenant_id": "t_edge"}

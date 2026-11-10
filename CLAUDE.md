@@ -68,3 +68,4 @@
 - `part1/docs/access-analysis.md`: 초기 접근 조사(2026-11-10 오전, 한국 IP). 이후 내용은 소스별 문서가 우선한다.
 - `part1/docs/attribute-candidates.md`: 광고/비광고 분류와 attribute 후보.
 - `part1/docs/paid-services-ads-search.md`, `part1/docs/paid-services-commerce-social.md`: 유료 서비스 조사.
+- `part2/docs/analysis.md`: Part 2 요구사항, 데이터 측정값, 설계를 바꾸는 함정, deep dive 비교(2026-11-10). Part 2 계획은 여기서 사실을 가져온다.

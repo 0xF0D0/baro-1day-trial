@@ -1,0 +1,3 @@
+{"admin_token":"adm_test","tenants":[
+ {"tenant_id":"t_a","name":"A","api_token":"tok_a","vendor_a":{"account":"acct_a","signing_secret":"sec_a1"},"vendor_b":{"shop_domain":"a.shops.example","signing_secret":"sec_a2"}},
+ {"tenant_id":"t_b","name":"B","api_token":"tok_b","vendor_a":{"account":"acct_b","signing_secret":"sec_b1"},"vendor_b":{"shop_domain":"b.shops.example","signing_secret":"sec_b2"}}]}

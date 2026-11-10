@@ -1,0 +1,2 @@
+{"customer_id": "cus_1", "data": {"email": "a@example.com", "lines": [{"qty": 1, "sku": "A", "unit_cents": 500}], "name": "A", "order_id": "o1"}, "event_id": "evt_b", "occurred_at_ms": 10, "tenant_id": "t_edge", "type": "order.created"}
+{"customer_id": "cus_2", "data": {"email": "a@example.com", "lines": [{"qty": 2, "sku": "B", "unit_cents": 700}], "name": "A", "order_id": "o1"}, "event_id": "0aa1b2c3-0000-4000-8000-000000000000", "occurred_at_ms": 10, "tenant_id": "t_edge", "type": "order.created"}
