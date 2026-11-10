@@ -90,7 +90,7 @@ PRIMARY KEY (source, brand, kind, key)
 - `products.retailer` is one of `amazon`, `ulta`, `target`, `sephora`, `chewy`, `tiktok_shop`, `own_site`; for Batiste's where-to-buy data it is the retailer name the widget returns, lower-cased, so the same retailer has the same value in every source.
 - `products.availability` is `IN_STOCK`, `OUT_OF_STOCK` or NULL in every source. A source that gives a text (Amazon) is mapped by the words in it; a source that says nothing about stock leaves NULL.
 - `products.rating` is NULL, not 0, when the source reports no reviews.
-- `products.price` is the price as shown. When the seller shows a range (Ulta and Sephora show `$12.99 - $20.99` for a product with sizes), `price` is the lower end and `price_max` the upper end; otherwise `price_max` is NULL. `list_price` is the price before a discount, when the seller shows one.
+- `products.price` is the price a person sees when opening the row's `url`. For Ulta the listing card of a product with sizes shows a range (`$12.99 - $20.99`), but the stored URL is the page of one size, so the collector reads that page and `price` is that size's price, with `price_max` NULL. Only where the price at the URL is not available and the seller's listing shows a range (Sephora, and Ulta run files written before the collector read the product page) is `price` the lower end and `price_max` the upper end. `list_price` is the price before a discount, when the seller shows one.
 - A column a source does not provide stays NULL. Values not given a column stay reachable in `raw`.
 
 ### 6.3 Run tables
@@ -163,7 +163,7 @@ One mapper per source: a pure function from a run result and its records to rows
 | 2 TikTok Ad Library | `ad` | `ads` | record key | `channel` tiktok, `format` video, `body` from the ad text |
 | 3 Meta Ad Library | `ad` | `ads` | record key | `channel` meta, `advertiser_*` from the page, `variation_count` from the creative group. `headline`, `body`, `cta` and `landing_url` come from the ad itself, and when it has none, from the first of its cards that has one. One scope per Facebook page: `ok` when that page's ad list is complete, whatever happened on the brand's other pages or to media downloads |
 | 4 Amazon | `product`, `review` | `products`, `reviews` | record key | `retailer` amazon |
-| 5 Retail shelf | `product`, `review` | `products`, `reviews` | record key | `retailer` from the cell; scope per cell |
+| 5 Retail shelf | `product`, `review` | `products`, `reviews` | record key | `retailer` from the cell; scope per cell. Ulta: `price` and `availability` come from the product page of the size in the URL (`raw.product_page`); when that page was not fetched in a run, the three columns `price`, `price_max`, `availability` are left out so the stored values stay |
 | 6 Google results | `search_results_page` | `search_rankings` | record key + result URL without tracking parameter | one record becomes one row per organic result; first occurrence wins when a URL repeats; one scope per search term |
 | 7 Search interest | `interest_point`, `interest_point_compared` | `search_interest` | record key | `series` from the kind |
 | 8 TikTok posts | `post` | `posts` | post id | The record key is `<path>/<post id>`. A post found by both paths is one row; `surfaced_by` lists the paths; `raw` is the record of the first path in the order `profile_popular`, `hashtag` |
@@ -250,9 +250,14 @@ Asked for by the user on 2026-11-10 ("fix both"), with the mechanism chosen by t
 33. Covering scopes, so the retailer rows of a Batiste barcode that left the site are ended.
 34. One scope per Facebook page, with the Meta collector writing each page's state into its run result, so one unreadable page does not hold back the other page's ads.
 
+Found when stored rows were compared with the live sites on 2026-11-10; the user asked for the fix and accepted the method:
+35. Ulta's price is read from the product page of the size in the stored URL, not from the range on the listing card. 14 of 20 real Ulta rows showed a price that was not the one at their URL.
+36. One Playwright version for every collector, one `part1/requirements.txt`, and the install steps in the collector README.
+
 ## 13. Known limits
 - An ad that disappears from Google's list without a newer last-shown date is not ended; only the date ends Google ads.
 - If Batiste's listing page is served with only some of its product links (status 200, fewer links), the barcodes of the missing products are ended in that run. Nothing compares the listing with the previous one. The next complete run reopens them.
+- Sephora rows take their price from the search listing, which shows a range for a product with sizes, while the stored URL is one size's page. Nothing reads that page yet (the Sephora cell comes from a paid actor and has not been run), so for such products the stored `price` is the lower end of the range, not the price at the URL.
 - A Facebook page whose count reads 0 is taken as "no active ads" and its stored ads are ended. The count step has no second check, and no real run of that source exists yet to confirm it.
 - Review dates from Ulta are UTC dates and can differ by one day from the date the site shows.
 - `posts.creator_handle` and TikTok Shop's `seller_name` hold account and shop names as published, and some belong to individuals. The user decided on 2026-11-10 that they are kept: the brief asks for the creator of each top post. Display names, avatars and locations are still not stored.
