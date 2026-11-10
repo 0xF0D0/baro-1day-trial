@@ -207,6 +207,22 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, lockKey("cold-commit", []byte(tenantID))); err != nil {
 		return false, fmt.Errorf("store: cold-commit lock: %w", err)
 	}
+	// Tenant erasure and late ingests can commit while the objects were being
+	// written, so re-check before any Postgres write.
+	status, err = tenantStatus(ctx, tx, tenantID)
+	if err != nil {
+		return false, err
+	}
+	if status == "erased" {
+		s.forgetKeys(tenantID)
+		return false, nil
+	}
+	if err := tx.QueryRow(ctx, `SELECT dirty FROM tenant_cold WHERE tenant_id = $1`, tenantID).Scan(&dirty); err != nil {
+		return false, fmt.Errorf("store: re-read dirty: %w", err)
+	}
+	if dirty {
+		return false, nil
+	}
 	if _, err := tx.Exec(ctx,
 		`INSERT INTO cold_manifest (tenant_id, day, object, events, bytes) VALUES ($1, $2, $3, $4, 0)`,
 		tenantID, day, bucket, len(events)); err != nil {

@@ -259,3 +259,28 @@ func TestFlushSkipsDirtyTenant(t *testing.T) {
 		t.Fatalf("hot rows: %d", n)
 	}
 }
+
+func TestFlushStopsWhenTenantErasedDuringFlush(t *testing.T) {
+	ctx := context.Background()
+	st, sc := newScope(t)
+	d := int64(100)
+	ingestAll(t, st, sc, []canon.Event{
+		orderEvent("e-o1", d*msDay+2, "c1", "S1", 3),
+		mkEvent("e-d6", (d+6)*msDay+7, "c3"),
+	})
+	store.SetFlushAfterRead(func() {
+		if err := st.EraseTenant(ctx, "t_1"); err != nil {
+			t.Errorf("erase during flush: %v", err)
+		}
+	})
+	defer store.SetFlushAfterRead(nil)
+	ok, err := st.FlushDay(ctx, "t_1", margin96, 1)
+	if err != nil || ok {
+		t.Fatalf("flush: ok=%v err=%v", ok, err)
+	}
+	for _, tbl := range []string{"cold_manifest", "sku_moves", "customer_days"} {
+		if n := count(t, st, `SELECT count(*) FROM `+tbl+` WHERE tenant_id='t_1'`); n != 0 {
+			t.Fatalf("%s rows after erased flush: %d", tbl, n)
+		}
+	}
+}
