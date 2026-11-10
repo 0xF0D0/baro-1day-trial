@@ -1,9 +1,11 @@
+import types
 from decimal import Decimal
 
 import support
 from support import DbTestCase, rec, ts
 
 from load import load_all
+from model import MappedRun
 
 T1 = "20261110T100000Z"
 T2 = "20261110T110000Z"
@@ -115,9 +117,34 @@ class LoadTest(DbTestCase):
         self.assertEqual([(o.source, o.brand, o.run_id, o.status, o.result) for o in out],
                          [("fake", "b1", T1, "ok", "failed"), ("fake", "b2", T1, "ok", "applied")])
         self.assertTrue(out[0].error)
+        self.assertNotIn("\n", out[0].error)
         self.assertEqual([(r["brand"], r["key"]) for r in self.table("products")], [("b2", "z")])
         self.assertEqual([r["brand"] for r in self.table("runs")], ["b2"])
         self.assertEqual([r["brand"] for r in self.table("run_scopes")], ["b2"])
+
+    def test_row_scope_must_be_a_returned_scope(self):
+        self.write_run("fake", "b", T1, records=[rec("a", scope="s9")], extra={"scopes": [["s1", "ok", ""]]})
+        out = self.load()
+        self.assertEqual(out[0].result, "failed")
+        self.assertTrue(out[0].error.startswith("a")); self.assertIn("s9", out[0].error)
+        self.assertEqual(self.table("runs"), [])
+
+    def test_bad_scope_status_fails_run(self):
+        self.write_run("fake", "b", T1, records=[rec("a", scope="s1")], extra={"scopes": [["s1", "OK", ""]]})
+        out = self.load()
+        self.assertEqual(out[0].result, "failed"); self.assertIn("OK", out[0].error)
+
+    def test_bad_ending_policy_fails_run(self):
+        bad = types.SimpleNamespace(SOURCE="fake", ENDING={**support.FAKE.ENDING, ("products", "product"): "absnet"}, map_run=support.FAKE.map_run)
+        self.write_run("fake", "b", T1, records=[rec("a")])
+        out = load_all(self.conn, self.dir, {"fake": bad})
+        self.assertEqual(out[0].result, "failed"); self.assertIn("absnet", out[0].error)
+
+    def test_mapper_without_scopes_fails_run(self):
+        empty = types.SimpleNamespace(SOURCE="fake", ENDING=support.FAKE.ENDING, map_run=lambda run, records: MappedRun(rows=[], scopes=[]))
+        self.write_run("fake", "b", T1)
+        out = load_all(self.conn, self.dir, {"fake": empty})
+        self.assertEqual((out[0].result, out[0].error), ("failed", "mapper returned no scopes"))
 
     def test_unknown_column_fails_run(self):
         self.write_run("fake", "b", T1, records=[rec("a", columns={"retailer": "shop", "nope": 1})])

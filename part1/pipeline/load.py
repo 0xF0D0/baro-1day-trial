@@ -81,7 +81,21 @@ def _insert_scope(conn, run: dict, scope, status: str, reason: str) -> None:
                  (run["source"], run["brand"], run["run_id"], scope, status, reason))
 
 
+def _first_line(e: Exception) -> str:
+    lines = str(e).strip().splitlines()
+    return lines[0].strip() if lines and lines[0].strip() else type(e).__name__
+
+
 def _validate(mapper, mapped) -> None:
+    if not mapped.scopes:
+        raise ValueError("mapper returned no scopes")
+    for scope in mapped.scopes:
+        if scope.status not in ("ok", "partial", "could_not_look"):
+            raise ValueError(f"scope {scope.name}: bad status {scope.status!r}")
+    for (table, kind), policy in mapper.ENDING.items():
+        if policy not in ("absent", "source_date", "never"):
+            raise ValueError(f"ending policy for ({table}, {kind}): bad value {policy!r}")
+    scope_names = {s.name for s in mapped.scopes}
     for row in mapped.rows:
         if row.table not in TABLE_COLUMNS:
             raise ValueError(f"{row.key}: unknown table {row.table}")
@@ -90,6 +104,8 @@ def _validate(mapper, mapped) -> None:
             raise ValueError(f"{row.key}: unknown column {', '.join(unknown)} for {row.table}")
         if (row.table, row.kind) not in mapper.ENDING:
             raise ValueError(f"{row.key}: no ending policy for ({row.table}, {row.kind})")
+        if row.scope not in scope_names:
+            raise ValueError(f"{row.key}: scope {row.scope!r} is not one of the returned scopes")
 
 
 def _write_rows(conn, run: dict, mapper, rows) -> tuple[int, int, int]:
@@ -153,7 +169,7 @@ def _load(conn, run_path: Path, mappers: dict, run: dict, out: Outcome) -> Outco
     try:
         records = _read_records(run_path.with_name(run["run_id"] + ".jsonl"))
     except ValueError as e:
-        out.result, out.error = "failed", str(e)
+        out.result, out.error = "failed", _first_line(e)
         return out
     mapper = mappers.get(run["source"])
     if mapper is None:
@@ -174,7 +190,7 @@ def _load(conn, run_path: Path, mappers: dict, run: dict, out: Outcome) -> Outco
         mapped = mapper.map_run(run, records)
         _validate(mapper, mapped)
     except (MapError, ValueError) as e:
-        out.result, out.error = "failed", str(e)
+        out.result, out.error = "failed", _first_line(e)
         return out
     _insert_run(conn, run, "applied")
     for scope in mapped.scopes:
@@ -196,7 +212,7 @@ def load_run(conn, run_path: Path, mappers: dict) -> Outcome:
         _load(conn, run_path, mappers, run, out)
     except Exception as e:  # a bad run is reported, never raised
         conn.rollback()
-        out.result, out.error = "failed", str(e)
+        out.result, out.error = "failed", _first_line(e)
         return out
     if out.result == "failed":
         conn.rollback()

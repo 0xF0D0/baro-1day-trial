@@ -11,7 +11,7 @@ from model import MapError, Scope
 
 SAMPLES = Path(__file__).resolve().parents[2] / "collectors" / "05_retail_shelf" / "samples"
 
-RUN = {"extra": {"cells": [{"retailer": "ulta", "status": "ok", "reason": "", "selected": 10},
+RUN = {"status": "partial", "reason": "target: missing_token", "extra": {"cells": [{"retailer": "ulta", "status": "ok", "reason": "", "selected": 10},
                            {"retailer": "target", "status": "could_not_look", "reason": "missing_token", "selected": 0}]}}
 
 ULTA_LI = {"productId": "pimprod2045775", "productName": "Light Dry Shampoo - Mellow Melon", "brandName": "Batiste",
@@ -43,6 +43,17 @@ class RetailShelfTest(unittest.TestCase):
         for bad in ("", "12.99", "from $5", "$5 - "):
             with self.assertRaises(ValueError):
                 parse_price(bad)
+
+    def test_retailer_missing_from_cells_gets_partial_scope(self):
+        run = {**RUN, "status": "partial", "reason": "exception: X"}
+        m = map_run(run, [product("sephora", items("apify/sephora_search_igview_bestselling_3.json")[0], key="sephora:P525776")])
+        self.assertEqual(m.scopes, [Scope("ulta", "ok", ""), Scope("target", "could_not_look", "missing_token"),
+                                    Scope("sephora", "partial", "exception: X")])
+        self.assertEqual(m.rows[0].scope, "sephora")
+
+    def test_no_cells_and_no_records_gives_all_scope(self):
+        run = {**RUN, "status": "could_not_look", "reason": "exception: X", "extra": {"cells": []}}
+        self.assertEqual(map_run(run, []).scopes, [Scope("all", "could_not_look", "exception: X")])
 
     def test_ulta_product(self):
         row = map_run(RUN, [product("ulta", ULTA_LI, key="ulta:pimprod2045775")]).rows[0]

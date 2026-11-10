@@ -111,6 +111,12 @@ def map_run(run: dict, records: list[dict]) -> MappedRun:
     if not isinstance(cells, list):
         raise MapError("run.extra has no cells list")
     scopes = [Scope(c["retailer"], c["status"], c["reason"]) for c in cells]
+    for rec in records:
+        retailer = (rec.get("raw") or {}).get("retailer")
+        if retailer is not None and all(s.name != retailer for s in scopes):
+            scopes.append(Scope(retailer, "partial", run["reason"]))
+    if not scopes:
+        scopes = [Scope("all", run["status"], run["reason"])]
     rows = []
     for rec in records:
         try:
