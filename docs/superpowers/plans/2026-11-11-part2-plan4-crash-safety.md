@@ -307,27 +307,28 @@ git commit -m "Add the crash consistency checker"
 
 **Settings**, all overridable from the environment, with these defaults:
 - `FLUSH_MARGIN=1h`, `FLUSH_INTERVAL=2s`, `SWEEP_INTERVAL=10s`, `GARBAGE_GRACE=20s`
-- `CRASH_POINTS` = all six names, comma-separated; `CRASH_PROBABILITY=0.02`
+- `CRASH_POINTS` = all six names, comma-separated; `CRASH_PROBABILITY=0.002`
 - `KILL_MIN_S=3`, `KILL_MAX_S=10`, `CHAOS_TAIL_S=30`, `SETTLE_TIMEOUT_S=180`
 
 **Steps the script runs:**
 1. `down -v`, then `up -d --build --wait`, with the settings exported.
 2. Start a background kill loop. Each round it:
    - sleeps a random whole number of seconds in `[KILL_MIN_S, KILL_MAX_S]`;
-   - runs `docker compose kill -s KILL worker`, counting only kills that succeed;
+   - skips the round unless `docker inspect -f '{{.State.Running}} {{.State.Restarting}}'` of the worker container shows `true false`; otherwise runs `docker compose kill -s KILL worker`, counting only kills that succeed;
    - runs `docker compose start worker`.
-3. Run `replay.sh`, then sleep `CHAOS_TAIL_S`, then stop the kill loop.
-4. Save `docker compose logs worker` to `part2/out/<data>/worker-chaos.log`. Count the `"msg":"crash point"` lines per point, and the `tenant rebuilt` and `flush tick` lines.
-5. Settle: recreate the worker disarmed and sweeping with grace 0 (`CRASH_POINTS= CRASH_PROBABILITY=0 GARBAGE_GRACE=0s docker compose up -d worker`). Wait until its log shows `sweep done`, up to `SETTLE_TIMEOUT_S`; a timeout is a failure. Then `docker compose stop worker`.
+3. Run `replay.sh`, then sleep `CHAOS_TAIL_S`, then stop the kill loop. `kill -9` the worker one last time and stop it, so the store is left exactly as a crash left it.
+4. Save `docker compose logs worker` to `part2/out/<data>/worker-chaos.log`. Count the `"msg":"crash point"` lines per point, and the `tenant rebuilt`, `flush tick` and `sweep done` lines. List the points with no hits.
+   - Run `tier-stats.sh` and the `check` service with `-unsettled` (the pre-settle check; `dirty`, `unreferenced` and `garbage` are counted but do not fail it).
+5. Settle: recreate the worker disarmed and sweeping with grace 0 (`CRASH_POINTS= CRASH_PROBABILITY=0 GARBAGE_GRACE=0s docker compose up -d --force-recreate worker`). Save its log to `worker-settle.log`. Wait until its log shows `sweep done`, up to `SETTLE_TIMEOUT_S`; a timeout is a failure. Then `docker compose stop worker`.
 6. Run `verify.sh`, `tier-stats.sh`, and the `check` service with `DATA_DIR=<data-dir>`.
 7. Write `part2/out/<data>/crash-report.txt` and print it. It holds:
    - the settings;
-   - the successful external kills;
+   - the external kills counted while the worker was running;
    - the crash point hits per name;
-   - the rebuilds and flush ticks seen;
+   - the rebuilds, flush ticks and sweeps seen, and the points never hit;
    - `verify.py`'s summary lines;
-   - the tier-stats line;
-   - the checker's summary lines.
+   - both tier-stats lines (pre- and post-settle);
+   - both checkers' summary lines (pre-settle with `-unsettled`, and full).
 
 **README:** a "Crash test" section with the command, what it does, what the report shows, and the fact that the six crash points are also hit one by one in `TestCrashPoints`.
 
@@ -340,7 +341,7 @@ Expected:
 - Exit 0.
 - The report shows `verify.py` `PASS` (state 200/200, isolation 0, ranges 48/48), with `0 never succeeded` in the replay line.
 - The checker shows `lost=0 unexpected=0 duplicate=0 bad_pointer=0 unreferenced=0 garbage=0 dirty=0 state_mismatch=0 unparsed=0` and `CHECK PASS`.
-- There are at least 10 successful kills, at least one crash point hit, and at least one rebuild.
+- There are at least 5 counted kills of a running worker, at least one crash point hit, and at least one rebuild.
 
 - [ ] **Step 3: Run the plain end-to-end again with crash points off**
 

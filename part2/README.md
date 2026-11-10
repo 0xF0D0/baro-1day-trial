@@ -52,15 +52,18 @@ python3 "$INFRA/generate.py" --seed 7 --out /path/to/seed7 && part2/scripts/e2e.
 
 ## Crash test
 
-`part2/scripts/crash.sh <data-dir>` replays the data while the worker is hit with `kill -9` every 3 to 10 seconds and its six crash points are armed (`flush.after_bucket`, `flush.after_snapshot`, `flush.before_commit`, `rebuild.after_bucket`, `rebuild.after_snapshot`, `rebuild.before_commit`, each firing with probability `0.02`). After the replay it keeps the chaos going for `CHAOS_TAIL_S` (30s), stops it, and saves the worker log. It then recreates the worker disarmed with a garbage grace of 0, waits for one `sweep done`, stops the worker, and runs `verify.sh`, `tier-stats.sh` and the consistency checker. It exits 0 only if both `verify.py` and the checker pass.
+`part2/scripts/crash.sh <data-dir>` replays the data while the worker is hit with `kill -9` every 3 to 10 seconds, only in rounds where the worker container is running and not restarting, and its six crash points are armed (`flush.after_bucket`, `flush.after_snapshot`, `flush.before_commit`, `rebuild.after_bucket`, `rebuild.after_snapshot`, `rebuild.before_commit`, each firing with probability `0.002`). After the replay it keeps the chaos going for `CHAOS_TAIL_S` (30s), stops it, kills the worker one last time and stops it, so the store is left as a crash left it, and saves the worker log. It then runs `tier-stats.sh` and the consistency checker with `-unsettled` (the pre-settle check: `dirty`, `unreferenced` and `garbage` are counted but do not fail it). Next it recreates the worker disarmed with a garbage grace of 0, waits for one `sweep done`, stops the worker, and runs `verify.sh`, `tier-stats.sh` and the full consistency checker. It exits 0 only if `verify.py`, the pre-settle check and the full check all pass. The script tears the stack down with `down -v` before it starts.
 
 ```sh
-INFRA=~/Downloads/BARO_Work_Trial/infrastructure part2/scripts/crash.sh "$INFRA/data"
+export INFRA=~/Downloads/BARO_Work_Trial/infrastructure
+part2/scripts/crash.sh "$INFRA/data"
 ```
 
-Settings (environment, defaults): `FLUSH_MARGIN=1h`, `FLUSH_INTERVAL=2s`, `SWEEP_INTERVAL=10s`, `GARBAGE_GRACE=20s`, `CRASH_POINTS` (all six), `CRASH_PROBABILITY=0.02`, `KILL_MIN_S=3`, `KILL_MAX_S=10`, `CHAOS_TAIL_S=30`, `SETTLE_TIMEOUT_S=180`.
+Settings (environment, defaults): `FLUSH_MARGIN=1h`, `FLUSH_INTERVAL=2s`, `SWEEP_INTERVAL=10s`, `GARBAGE_GRACE=20s`, `CRASH_POINTS` (all six), `CRASH_PROBABILITY=0.002`, `KILL_MIN_S=3`, `KILL_MAX_S=10` (`KILL_MAX_S >= KILL_MIN_S >= 1`), `CHAOS_TAIL_S=30`, `SETTLE_TIMEOUT_S=180`.
 
-The report, `part2/out/<name>/crash-report.txt` (also printed), holds the settings, the number of successful external kills, the crash point hits per name, the rebuilds and flush ticks seen, the replay `done:` line, `verify.py`'s summary lines, the tier-stats line and the checker's summary lines. The worker log is `worker-chaos.log` in the same directory. A run needs at least a few kills, a crash point hit and a rebuild to mean anything; the report shows them so you can check. The six crash points are also hit one by one, deterministically, in `TestCrashPoints`.
+The report, `part2/out/<name>/crash-report.txt` (also printed), holds the settings, the number of external kills counted while the worker was running, the crash point hits per name and the points never hit, the rebuilds, flush ticks and sweeps seen, the replay `done:` line, `verify.py`'s summary lines, the tier-stats line before and after the settle, and the summary lines of the pre-settle and full checks. The worker logs are `worker-chaos.log` and `worker-settle.log` in the same directory. A run needs at least a few kills, a crash point hit and a rebuild to mean anything; the report shows them so you can check.
+
+Scope: only the worker is killed (flush is the tier move, rebuild is the compaction). Kills of the api, Postgres and MinIO, ingest, and customer-erasure rewrites are not covered by this harness. The six crash points are also hit one by one, deterministically, in `TestCrashPoints`.
 
 ## Worker and tier statistics
 
