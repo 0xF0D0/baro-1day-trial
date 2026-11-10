@@ -144,16 +144,6 @@ func (s *Store) finishErasure(ctx context.Context, sc Scope, customerKey []byte)
 			return fmt.Errorf("store: delete manifest: %w", err)
 		}
 	}
-	garbage := plan.oldObjects
-	if plan.oldSnapshot != nil {
-		garbage = append(garbage, *plan.oldSnapshot)
-	}
-	for _, o := range garbage {
-		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-			o, tenant); err != nil {
-			return fmt.Errorf("store: insert garbage: %w", err)
-		}
-	}
 	if plan.newSnapshot != "" {
 		if _, err := tx.Exec(ctx, `UPDATE tenant_cold SET snapshot_object = $2 WHERE tenant_id = $1`,
 			tenant, plan.newSnapshot); err != nil {
@@ -178,6 +168,18 @@ func (s *Store) finishErasure(ctx context.Context, sc Scope, customerKey []byte)
 		`UPDATE tombstones SET status = 'done' WHERE tenant_id = $1 AND customer_key = $2`,
 		tenant, customerKey); err != nil {
 		return fmt.Errorf("store: finish tombstone: %w", err)
+	}
+	// Garbage rows are the last writes before COMMIT, so the grace period
+	// starts when the replacement is final, not when the transaction began.
+	garbage := plan.oldObjects
+	if plan.oldSnapshot != nil {
+		garbage = append(garbage, *plan.oldSnapshot)
+	}
+	for _, o := range garbage {
+		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+			o, tenant); err != nil {
+			return fmt.Errorf("store: insert garbage: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("store: erase customer commit: %w", err)

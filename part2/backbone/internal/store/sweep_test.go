@@ -182,3 +182,59 @@ func TestMaintainRuns(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// The grace period runs from the moment the replacing commit writes the
+// garbage row, not from the start of the transaction. A rebuild that waits for
+// the cold-writer lock must not backdate its garbage rows by the wait.
+func TestGraceRunsFromReplacement(t *testing.T) {
+	ctx := context.Background()
+	st, _, _, _, _ := rebuildSetup(t)
+	before := garbageSet(t, st)
+
+	conn, err := st.Pool().Acquire(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, store.LockKey("cold-writer", []byte("t_1"))); err != nil {
+		t.Fatal(err)
+	}
+	go func() {
+		time.Sleep(3 * time.Second)
+		_ = tx.Rollback(ctx)
+		conn.Release()
+	}()
+	ok, err := st.Rebuild(ctx, "t_1")
+	if err != nil || !ok {
+		t.Fatalf("rebuild: %v %v", ok, err)
+	}
+	var fresh []string
+	for o := range garbageSet(t, st) {
+		if !before[o] {
+			fresh = append(fresh, o)
+		}
+	}
+	if len(fresh) == 0 {
+		t.Fatal("rebuild replaced no objects")
+	}
+	var age float64
+	if err := st.Pool().QueryRow(ctx,
+		`SELECT extract(epoch FROM now() - min(replaced_at)) FROM garbage WHERE object = ANY($1)`, fresh).Scan(&age); err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("replaced_at is %.2fs old right after the commit", age)
+	if age > 1 {
+		t.Errorf("garbage rows backdated by %.2fs", age)
+	}
+	if _, err := st.SweepTenant(ctx, "t_1", 2*time.Second); err != nil {
+		t.Fatal(err)
+	}
+	for _, o := range fresh {
+		if objectGone(t, st, o) {
+			t.Errorf("an object replaced moments ago was deleted under a 2s grace")
+		}
+	}
+}

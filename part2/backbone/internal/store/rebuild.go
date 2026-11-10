@@ -192,12 +192,6 @@ func (s *Store) Rebuild(ctx context.Context, tenantID string) (bool, error) {
 			return false, fmt.Errorf("store: upsert manifest: %w", err)
 		}
 	}
-	for _, o := range replaced {
-		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-			o, tenantID); err != nil {
-			return false, fmt.Errorf("store: insert garbage: %w", err)
-		}
-	}
 	if _, err := tx.Exec(ctx, `UPDATE tenant_cold SET snapshot_object = $2 WHERE tenant_id = $1`,
 		tenantID, snapshot); err != nil {
 		return false, fmt.Errorf("store: update snapshot pointer: %w", err)
@@ -235,6 +229,13 @@ func (s *Store) Rebuild(ctx context.Context, tenantID string) (bool, error) {
 		(SELECT 1 FROM hot_events WHERE tenant_id = $1 AND occurred_at_ms < $2) WHERE tenant_id = $1`,
 		tenantID, coldUntil); err != nil {
 		return false, fmt.Errorf("store: set dirty: %w", err)
+	}
+	// Last write before COMMIT: the grace period starts at the replacement.
+	for _, o := range replaced {
+		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+			o, tenantID); err != nil {
+			return false, fmt.Errorf("store: insert garbage: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return false, fmt.Errorf("store: rebuild commit: %w", err)

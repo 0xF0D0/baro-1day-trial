@@ -255,12 +255,6 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 		tenantID, newColdUntil, snapshot); err != nil {
 		return false, fmt.Errorf("store: update cold state: %w", err)
 	}
-	if oldSnapshot != nil {
-		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2)`,
-			*oldSnapshot, tenantID); err != nil {
-			return false, fmt.Errorf("store: insert garbage: %w", err)
-		}
-	}
 	batch := &pgx.Batch{}
 	for _, c := range customers {
 		batch.Queue(`INSERT INTO customer_days (tenant_id, customer_key, day) VALUES ($1, $2, $3)
@@ -281,6 +275,13 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 		(SELECT 1 FROM hot_events WHERE tenant_id = $1 AND occurred_at_ms < $2) WHERE tenant_id = $1`,
 		tenantID, newColdUntil); err != nil {
 		return false, fmt.Errorf("store: set dirty: %w", err)
+	}
+	// Last write before COMMIT: the grace period starts at the replacement.
+	if oldSnapshot != nil {
+		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2)`,
+			*oldSnapshot, tenantID); err != nil {
+			return false, fmt.Errorf("store: insert garbage: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return false, fmt.Errorf("store: flush commit: %w", err)
