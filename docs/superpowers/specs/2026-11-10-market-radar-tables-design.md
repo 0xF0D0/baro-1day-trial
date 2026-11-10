@@ -145,7 +145,7 @@ Each `(table, kind)` has one policy:
 | `source_date` | For rows written by this run, whatever the status of the run or scope: `ended_at = last_shown_at` when `last_shown_at` is more than 3 days before the run's `started_at`, otherwise NULL | `ads` from source 1, whose list keeps creatives that stopped months ago |
 | `never` | `ended_at` is never set | `reviews`, `search_interest`, `posts`, `ads` of kind `email` |
 
-A scope with status `partial` or `could_not_look` ends nothing by absence. `source_date` does not depend on absence: the item is in the run, and the source itself says when it was last shown. For sources that collect a top-N list (sources 4, 5, the search part of 9), `ended_at` means "no longer in the collected list", not "no longer sold".
+A scope with status `partial` or `could_not_look` ends nothing by absence. A run whose `reason` starts with `exception:` (the collector stopped on an unexpected error) ends nothing by absence either: its record file may be cut short, so the loader records its `ok` scopes as `partial` with that reason. `source_date` does not depend on absence: the item is in the run, and the source itself says when it was last shown. For sources that collect a top-N list (sources 4, 5, the search part of 9), `ended_at` means "no longer in the collected list", not "no longer sold".
 
 ## 8. From records to rows
 One mapper per source: a pure function from a run result and its records to rows and scopes. It decides the table, the row key, the scope and the column values. Exact raw paths are in the last section of each `part1/collectors/<nn_name>/spec.md` ("Where the pipeline finds each value"); each mapper is written from that section in its own small plan.
@@ -154,13 +154,13 @@ One mapper per source: a pure function from a run result and its records to rows
 |---|---|---|---|---|
 | 1 Google Ads Transparency | `ad` | `ads` | record key | `channel` google. `headline`, `body` NULL (text arrives only as images). `variation_count` only when the detail was fetched |
 | 2 TikTok Ad Library | `ad` | `ads` | record key | `channel` tiktok, `format` video, `body` from the ad text |
-| 3 Meta Ad Library | `ad` | `ads` | record key | `channel` meta, `advertiser_*` from the page, `variation_count` from the creative group |
+| 3 Meta Ad Library | `ad` | `ads` | record key | `channel` meta, `advertiser_*` from the page, `variation_count` from the creative group. `headline`, `body`, `cta` and `landing_url` come from the ad itself, and when it has none, from the first of its cards that has one |
 | 4 Amazon | `product`, `review` | `products`, `reviews` | record key | `retailer` amazon |
 | 5 Retail shelf | `product`, `review` | `products`, `reviews` | record key | `retailer` from the cell; scope per cell |
 | 6 Google results | `search_results_page` | `search_rankings` | record key + result URL without tracking parameter | one record becomes one row per organic result; first occurrence wins when a URL repeats; one scope per search term |
 | 7 Search interest | `interest_point`, `interest_point_compared` | `search_interest` | record key | `series` from the kind |
 | 8 TikTok posts | `post` | `posts` | post id | The record key is `<path>/<post id>`. A post found by both paths is one row; `surfaced_by` lists the paths; `raw` is the record of the first path in the order `profile_popular`, `hashtag` |
-| 9 TikTok Shop | `product`, `search_result` | `products` | record key | `retailer` tiktok_shop; the two kinds stay separate rows. A tracked product the source answers as `missing` or `unavailable` gives no row; the tracked scope still counts as complete, so that product's row is ended |
+| 9 TikTok Shop | `product`, `search_result` | `products` | record key | `retailer` tiktok_shop; the two kinds stay separate rows. A tracked product the source answers as `unavailable` gives no row and leaves the tracked scope complete, so that product's row is ended. A tracked product the actor returned no row for (`missing`), or failed on, makes the scope `partial`, so nothing is ended |
 | 10 Brand site and emails | `product` | `products` | record key | `retailer` own_site; one row per product, price of the first variant |
 | | `retailer_availability` | `products` | record key + retailer id | one record (one barcode) becomes one row per retailer returned; one scope per barcode |
 | | `offer_slot`, `klaviyo_form`, `email` | `ads` | record key | `channel` site, signup_form, email |
@@ -227,6 +227,13 @@ Made by the designer while writing the first plan, from the real records, not ye
 21. `runs.result` (`applied`, `superseded`, `empty_no_mapper`) instead of a yes/no flag.
 22. When one run has two records with the same row key, the later one wins.
 23. `--collectors-dir`, so the loader can read run files from another checkout.
+
+Made by the designer while the remaining mappers were built and reviewed, not yet seen by the user:
+24. A run that stopped on an exception ends nothing by absence, whatever its parts report.
+25. For TikTok Shop only `unavailable` ends a tracked product; a product the actor returned no row for does not.
+26. Meta ad text falls back to the first card that has a value.
+27. A Google result page with no organic results is recorded as "could not look", not as "nothing ranks".
+28. A product whose detail page was not fetched (Amazon) gets a row from what the list gave, with the detail columns left empty until a run fetches them.
 
 ## 12. Left to the builder
 - Module layout inside `part1/pipeline/`, and how mappers are registered.
