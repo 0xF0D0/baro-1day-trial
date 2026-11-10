@@ -15,6 +15,16 @@ TABLE_COLUMNS = {
     "posts": ("post_id", "posted_at", "creator_handle", "creator_is_brand", "creator_followers",
               "views", "likes", "comments", "shares", "saves", "caption", "hashtags", "surfaced_by"),
 }
+# columns whose change between runs is written to `changes`
+TRACKED = {
+    "ads": ("headline", "body", "cta", "landing_domain", "offer_code", "variation_count"),
+    "products": ("price", "price_max", "list_price", "availability", "rank", "rating", "review_count",
+                 "sold_count", "sponsored"),
+    "search_rankings": ("position",),
+    "posts": ("views", "likes", "comments", "shares", "saves", "creator_followers"),
+    "reviews": (),
+    "search_interest": (),
+}
 
 
 @dataclass(frozen=True)

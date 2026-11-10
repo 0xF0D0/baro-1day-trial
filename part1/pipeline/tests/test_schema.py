@@ -4,7 +4,7 @@ import support
 import db
 import model
 
-TABLES = ("ads", "products", "reviews", "search_rankings", "search_interest", "posts", "runs", "run_scopes")
+TABLES = ("ads", "products", "reviews", "search_rankings", "search_interest", "posts", "runs", "run_scopes", "changes", "ad_angles")
 
 
 class SchemaTest(support.DbTestCase):
@@ -23,7 +23,7 @@ class SchemaTest(support.DbTestCase):
     def test_ensure_schema_twice(self):
         db.ensure_schema(self.conn)   # the second time; setUp ran the first
         found = [r["table_name"] for r in self._query(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = %s", (self.schema,))]
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = %s AND table_type = 'BASE TABLE'", (self.schema,))]
         self.assertEqual(sorted(found), sorted(TABLES))
 
 
