@@ -546,3 +546,32 @@ Expected: `0`.
 git add part2/backbone/cmd part2/backbone/Dockerfile part2/docker-compose.yml part2/scripts part2/README.md
 git commit -m "Add the flush worker and run end to end with the cold tier"
 ```
+
+---
+
+## Outcome and follow-ups (added after execution, 2026-11-11)
+
+**Result.** All eight tasks are done and reviewed, and the whole-branch review found no Critical issue. End-to-end on the supplied data at the final commit:
+
+| Flush margin | Result | Tiers | Dirty tenants |
+|---|---|---|---|
+| 96 h (default) | `PASS`: state 200/200, isolation 0 leaks, ranges 48/48 | hot 33,673, cold 64,115 | 0 |
+| 1 h (stress) | `PASS` | hot 57,588, cold 40,200 | 4 (the full-fold read path ran) |
+
+Seeds 7 and 42 also passed with the default margin and cold larger than hot. No `cus_` appears in any container log.
+
+**Deviations from this plan.**
+- The official `minio/minio` images did not pull. Compose uses `bitnamilegacy/minio:2025.7.23-debian-12-r5`, an unmaintained image that runs as root.
+- `EnsureTenants` creates `tenant_cold` only for active tenants.
+- The flush test that erases a tenant mid-flush marks it erased with SQL, because `EraseTenant` now takes the cold-writer lock.
+- `cold_manifest.bytes` records the sealed size.
+- The configuration rejects a non-positive flush interval, a watermark rank below 1 and a negative margin.
+- `e2e.sh` creates `part2/out/secrets` as the user before starting compose.
+- The README tells users to run `down -v` when upgrading from Plan 1's stack, because the KEK moved.
+
+**Follow-ups for Plan 3 or later.**
+1. **Rebuild dirty tenants.** Until then a dirty tenant stops flushing and every read folds everything.
+2. **Sweep.** Delete the objects recorded in `garbage` and any unreferenced objects, run `VACUUM`, `pg_switch_wal()` and `CHECKPOINT`, and finish pending tombstones. Until this exists, an erased customer's old buckets stay in MinIO, readable with the live tenant DEK, so the 2-hour physical-removal bound is not yet met.
+3. A late ingest reads its day's bucket from MinIO while holding the shared locks, which can delay other ingests behind a queued commit. Revisit with metrics.
+4. Measure `EraseCustomer` for the heaviest customer of the largest tenant on large data against the 10-second replay timeout.
+5. Snapshot cache, metrics, runbook and the crash test (spec §16).
