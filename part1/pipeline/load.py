@@ -313,9 +313,10 @@ def main(argv: list[str] | None = None, mappers: dict | None = None) -> int:
         try:
             angles_line = "angles: labeled=%d not_labeled=%d no_text=%d" % angles.apply_labels(conn, args.labels)
             conn.commit()
-        except angles.LabelError as e:
+        except (angles.LabelError, psycopg.Error, UnicodeDecodeError) as e:
             conn.rollback()
-            angles_line, angles_failed = f"angles: failed: {e}", True
+            first = (str(e).strip().splitlines() or [type(e).__name__])[0]
+            angles_line, angles_failed = f"angles: failed: {first}", True
     finally:
         conn.close()
     for o in outcomes:

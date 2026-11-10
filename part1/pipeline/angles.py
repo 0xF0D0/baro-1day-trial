@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import hashlib
 import json
 import os
@@ -99,6 +100,15 @@ def check_label(label: dict) -> str | None:
     sha = label["text_sha256"]
     if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{64}", sha):
         return "text_sha256 is not 64 lower-case hex"
+    if not isinstance(label["labeled_by"], str) or not label["labeled_by"].strip():
+        return "labeled_by is not a non-empty string"
+    at = label["labeled_at"]
+    try:
+        if not isinstance(at, str):
+            raise ValueError
+        datetime.datetime.fromisoformat(at[:-1] + "+00:00" if at.endswith("Z") else at)
+    except ValueError:
+        return "labeled_at is not a time"
     for kind, values, bare in KINDS:
         value, evidence = label[f"angle_{kind}"], label[f"{kind}_evidence"]
         name = f"{kind}_evidence"
@@ -128,7 +138,7 @@ def _read(path: Path) -> dict[str, tuple[int, dict]]:
     found = {}
     if not Path(path).is_file():
         return found
-    for number, line in enumerate(Path(path).read_text().splitlines(), 1):
+    for number, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
         if not line.strip():
             continue
         try:
@@ -256,6 +266,8 @@ def ask_model(client, model: str, text: str) -> dict:
                 "voice_evidence"):
         value = data.get(key)
         out[key] = None if key.endswith("_evidence") and value == "" else value
+    answered = getattr(response, "model", None)
+    out["model"] = answered if isinstance(answered, str) and answered else model
     return out
 
 
@@ -268,19 +280,31 @@ def label_pending(conn, path: Path, client, model: str, now: str, on_failure=Non
         except LabelFailure as e:
             reason = e.reason
         else:
+            answered = got.pop("model", model)
             line = {"text_sha256": item["text_sha256"], "list_version": LIST_VERSION,
-                    "labeled_by": f"{model}/{PROMPT_VERSION}", "labeled_at": now, **got}
+                    "labeled_by": f"{answered}/{PROMPT_VERSION}", "labeled_at": now, **got}
             reason = check_label(line) or check_evidence(line, item["text"])
         if reason:
             failed += 1
             if on_failure:
                 on_failure(item["text_sha256"], reason)
             continue
+        with open(path, "a+b") as f:
+            f.seek(0, os.SEEK_END)
+            if f.tell():
+                f.seek(-1, os.SEEK_END)
+                if f.read(1) != b"\n":
+                    f.write(b"\n")
         with open(path, "a", encoding="utf-8") as f:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
             f.flush()
         labeled += 1
     return labeled, failed
+
+
+def _without_password(url: str) -> str:
+    from load import _without_password as hide  # load imports this module, so import it late
+    return hide(url)
 
 
 def _api_message(e) -> str:
@@ -293,7 +317,6 @@ def _api_message(e) -> str:
 
 
 def run_label(path: Path) -> int:
-    import datetime
     key = read_key()
     if not key:
         print("label: could not look: missing_key")
@@ -302,10 +325,11 @@ def run_label(path: Path) -> int:
     client = anthropic.Anthropic(api_key=key, max_retries=0)
     model = os.environ.get("ANGLE_MODEL", DEFAULT_MODEL)
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    url = db.database_url()
     try:
-        conn = db.connect(db.database_url())
+        conn = db.connect(url)
     except psycopg.OperationalError as e:
-        print(f"cannot connect: {str(e).strip()}")
+        print(f"cannot connect to {_without_password(url)}: {str(e).strip()}")
         return 1
     try:
         db.ensure_schema(conn)
@@ -338,10 +362,11 @@ def main(argv: list[str] | None = None) -> int:
         return run_label(args.labels)
     if not args.pending:
         parser.error("nothing to do: pass --pending or --label")
+    url = db.database_url()
     try:
-        conn = db.connect(db.database_url())
+        conn = db.connect(url)
     except psycopg.OperationalError as e:
-        print(f"cannot connect: {str(e).strip()}")
+        print(f"cannot connect to {_without_password(url)}: {str(e).strip()}")
         return 1
     try:
         db.ensure_schema(conn)

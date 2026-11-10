@@ -61,6 +61,30 @@ class CliTest(DbTestCase):
         self.assertTrue(lines[-1].startswith("runs: applied=1"))
         self.assertEqual(len(self._query("SELECT 1 FROM ads")), 1)
 
+    def test_a_label_with_a_bad_time_does_not_end_in_a_traceback(self):
+        self.write_run("fake", "b", T1, records=[rec("x", kind="ad", table="ads",
+                                                     columns={"channel": "meta", "headline": "H", "body": "B"})])
+        bad = {"text_sha256": angles.text_hash("H\nB"), "list_version": 1, "labeled_by": "t",
+               "labeled_at": "yesterday", "angle_offer": "none", "offer_evidence": None,
+               "angle_message": "none", "message_evidence": None, "angle_voice": "brand", "voice_evidence": None}
+        (self.dir / "labels.jsonl").write_text(json.dumps(bad) + "\n")
+        code, text = self.cli()
+        self.assertEqual(code, 1)
+        lines = text.splitlines()
+        self.assertEqual(lines[-2], "angles: failed: line 1: labeled_at is not a time")
+        self.assertTrue(lines[-1].startswith("runs: applied=1"))
+        self.assertNotIn("Traceback", text)
+        self.assertEqual(len(self._query("SELECT 1 FROM ads")), 1)
+
+    def test_unreadable_labels_file_is_reported_not_raised(self):
+        self.write_run("fake", "b", T1, records=[rec("a")])
+        (self.dir / "labels.jsonl").write_bytes(b"\xff\xfe\x00 not utf-8\n")
+        code, text = self.cli()
+        self.assertEqual(code, 1)
+        lines = text.splitlines()
+        self.assertTrue(lines[-2].startswith("angles: failed: "), lines)
+        self.assertTrue(lines[-1].startswith("runs: applied=1"))
+
     def test_unreachable_database_returns_1(self):
         with mock.patch.dict(os.environ, {"DATABASE_URL": "postgresql://u:secret@localhost:1/nope"}):
             code, text = self.capture(lambda: main(["--collectors-dir", str(self.dir)]))

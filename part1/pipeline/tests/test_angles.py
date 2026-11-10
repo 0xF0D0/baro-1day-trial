@@ -59,6 +59,34 @@ class AnglesTest(AngleBase):
             self.assertEqual(angles.check_label({**good, **change}), reason, change)
         missing = dict(good); del missing["labeled_by"]
         self.assertEqual(angles.check_label(missing), "labeled_by missing")
+        for value in (None, "", 7):
+            self.assertEqual(angles.check_label({**good, "labeled_by": value}),
+                             "labeled_by is not a non-empty string", value)
+        for value in (None, "yesterday", 5):
+            self.assertEqual(angles.check_label({**good, "labeled_at": value}), "labeled_at is not a time", value)
+        self.assertIsNone(angles.check_label({**good, "labeled_at": "2026-11-11T00:00:00+00:00"}))
+
+    def test_non_ascii_labels_round_trip(self):
+        text = "Save 20% \u2122 \U0001F600\nfor the busy"
+        self.ad("1", "Save 20% \u2122 \U0001F600", "for the busy")
+        label = self.line(text, angle_offer="discount", offer_evidence="Save 20% \u2122 \U0001F600")
+        self.labels = self.dir / "labels.jsonl"
+        self.labels.write_text(json.dumps(label, ensure_ascii=False) + "\n", encoding="utf-8")
+        with mock.patch("locale.getpreferredencoding", return_value="ascii"), \
+                mock.patch.dict(os.environ, {"PYTHONUTF8": "0"}):
+            self.assertEqual(angles.read_labels(self.labels)[angles.text_hash(text)]["offer_evidence"],
+                             "Save 20% \u2122 \U0001F600")
+            self.assertEqual(angles.apply_labels(self.conn, self.labels), (1, 0, 0))
+
+    def test_main_pending_hides_the_password(self):
+        self.labels = self.dir / "labels.jsonl"
+        buffer = io.StringIO()
+        with mock.patch.dict(os.environ, {"DATABASE_URL": "postgresql://u:secret@localhost:1/nope"}), \
+                contextlib.redirect_stdout(buffer):
+            code = angles.main(["--pending", "--labels", str(self.labels)])
+        self.assertEqual(code, 1)
+        self.assertIn("cannot connect to postgresql://u@localhost:1/nope", buffer.getvalue())
+        self.assertNotIn("secret", buffer.getvalue())
 
     def test_check_evidence(self):
         text = "Save 20%\nfor the busy"
@@ -162,10 +190,10 @@ class FakeClient:
         return answer
 
 
-def reply(payload, stop_reason="end_turn"):
+def reply(payload, stop_reason="end_turn", **extra):
     text = payload if isinstance(payload, str) else json.dumps(payload)
     return SimpleNamespace(stop_reason=stop_reason, content=[SimpleNamespace(type="thinking", thinking="x"),
-                                                             SimpleNamespace(type="text", text=text)])
+                                                             SimpleNamespace(type="text", text=text)], **extra)
 
 
 def answer(**over):
@@ -218,6 +246,26 @@ class LabelTest(AngleBase):
         self.assertEqual(props["angle_voice"]["enum"], list(angles.VOICE))
         for banned in ("thinking", "temperature", "top_p"):
             self.assertNotIn(banned, kw)
+
+    def test_labeled_by_names_the_model_that_answered(self):
+        client = FakeClient([reply(answer(), model="claude-opus-4-8")])
+        self.assertEqual(self.run_label(client), (1, 0))
+        line = self.lines()[0]
+        self.assertEqual(line["labeled_by"], "claude-opus-4-8/prompt-v1")
+        self.assertEqual(set(line), set(angles.KEYS))
+        self.assertIsNone(angles.check_label(line))
+
+    def test_labeled_by_falls_back_to_the_requested_model(self):
+        for extra in ({}, {"model": ""}, {"model": None}):
+            self.write_labels([])
+            self.assertEqual(self.run_label(FakeClient([reply(answer(), **extra)])), (1, 0))
+            self.assertEqual(self.lines()[0]["labeled_by"], "claude-opus-5-5/prompt-v1", extra)
+
+    def test_append_after_a_file_without_a_final_newline(self):
+        other = self.line("Other\ntext")
+        self.labels.write_text(json.dumps(other), encoding="utf-8")
+        self.assertEqual(self.run_label(FakeClient([reply(answer())])), (1, 0))
+        self.assertEqual(len(angles.read_labels(self.labels)), 2)
 
     def test_other_model_uses_the_plain_endpoint(self):
         client = FakeClient([reply(answer())])
@@ -297,7 +345,7 @@ class LabelTest(AngleBase):
     def test_empty_evidence_becomes_none(self):
         got = angles.ask_model(FakeClient([reply(answer())]), angles.DEFAULT_MODEL, "t")
         self.assertEqual(set(got), {"angle_offer", "offer_evidence", "angle_message", "message_evidence",
-                                    "angle_voice", "voice_evidence"})
+                                    "angle_voice", "voice_evidence", "model"})
         self.assertIsNone(got["offer_evidence"])
         self.assertIsNone(got["message_evidence"])
         self.assertIsNone(got["voice_evidence"])
