@@ -66,74 +66,149 @@ def slug(from_header):
             'blackriflecoffee.com': 'blackrifle'}.get(dom, dom.replace('.', '_'))
 
 
-def convert(path, out_dir):
-    d = json.load(open(path))
-    raw = d['raw']
-    src = base64.urlsafe_b64decode(raw + '=' * (-len(raw) % 4))
+VERIFIED_DOMAINS = ("livingproof.com", "deathwishcoffee.com", "blackriflecoffee.com")
+
+STRICT_KEEP = ['From', 'Reply-To', 'Subject', 'Date', 'MIME-Version']
+URL_RE = re.compile(r'https?://[^\s"\'<>()\]]+', re.I)
+
+
+class RedactionError(Exception):
+    """The message cannot be written. `convert` turns it into the old SystemExit text:
+    before + joiner + path + after."""
+
+    def __init__(self, before, joiner='', after=''):
+        super().__init__(before + after)
+        self.before, self.joiner, self.after = before, joiner, after
+
+
+def cut_urls(t):
+    """Cut every URL to scheme://host/REDACTED. A URL that is only scheme and host is left alone."""
+    n = [0]
+
+    def cut(m):
+        url = m.group(0)
+        scheme, rest = url.split('://', 1)
+        i = min((rest.find(c) for c in '/?#' if c in rest), default=len(rest))
+        host, tail = rest[:i], rest[i:]
+        if tail in ('', '/'):
+            return url
+        n[0] += 1
+        return f'{scheme}://{host.rsplit("@", 1)[-1]}/REDACTED'
+
+    return URL_RE.sub(cut, t), n[0]
+
+
+def _strict_body(t, inbox, local):
+    t, n = cut_urls(t)
+    t = re.sub(re.escape(inbox), 'TRIAL_INBOX', t, flags=re.I)
+    t = re.sub(re.escape(local), 'TRIAL_INBOX', t, flags=re.I)
+    return t, n
+
+
+def redact_message(src, gmail_id, received_at, labels, inbox=None, strict=False):
+    """Redact one RFC 822 message. Returns (ASCII CRLF bytes, counts); raises RedactionError."""
     msg = BytesParser(policy=policy.default).parsebytes(src)
-    inbox = getaddresses(msg.get_all('To', []))[0][1].lower()
+    if inbox is None:
+        inbox = getaddresses(msg.get_all('To', []))[0][1]
+    inbox = inbox.lower()
     local = inbox.split('@')[0]
+    received = received_at.astimezone(datetime.timezone.utc)
 
     removed = set()
-    for h in ('X-Kmail-Ops', 'X-SG-ID', 'X-SG-EID', 'X-Entity-ID'):
-        for v in msg.get_all(h, []):
-            removed.update(s for s in re.split(r'[^A-Za-z0-9]', str(v)) if len(s) >= 10)
-
-    lu = msg.get('List-Unsubscribe')
-    lu_new = None
-    if lu:
-        https = [u for u in re.findall(r'<([^>]+)>', str(lu)) if u.lower().startswith('http')]
-        if https:
-            lu_new = ', '.join(f'<{redact_text(u, removed)[0]}>' for u in https)
-
-    counts = {'tracking': 0, 'manage': 0}
-    plain = html = None
-    plain_cs = html_cs = 'utf-8'
-    for part in msg.walk():
-        if part.is_multipart():
-            continue
-        ct = part.get_content_type()
-        txt = part.get_content()
-        if ct == 'text/plain' and plain is None:
-            plain, plain_cs = txt, part.get_content_charset() or 'utf-8'
-        elif ct == 'text/html' and html is None:
-            html, html_cs = txt, part.get_content_charset() or 'utf-8'
-        else:
-            raise SystemExit(f'unexpected part {ct} in {path}')
-    if plain is None or html is None:
-        raise SystemExit(f'missing text part in {path}')
-    plain, n1 = redact_text(plain, removed)
-    html, n2 = redact_text(html, removed)
-    for k in counts:
-        counts[k] = n1[k] + n2[k]
-
-    # headers are written after the body pass so every removed token is known
+    counts = {}
     out = EmailMessage(policy=policy.default.clone(linesep='\r\n'))
-    header_hits = []
-    for h in KEEP:
-        for v in msg.get_all(h, []):
-            v = str(v)
-            for tok in sorted(removed, key=len, reverse=True):
-                if tok in v:
-                    v = v.replace(tok, 'REDACTED')
-                    header_hits.append(h)
-            out[h] = v
+    if strict:
+        bodies = {}
+        parsed = {}
+        counts = {'urls': 0, 'parts_dropped': 0}
+        for part in msg.walk():
+            if part.is_multipart():
+                continue
+            ct = part.get_content_type()
+            if ct in ('text/plain', 'text/html') and ct not in bodies \
+                    and part.get_content_disposition() != 'attachment':
+                bodies[ct] = part.get_content()
+                parsed[ct] = part.get_content_charset() or 'utf-8'
+            else:
+                counts['parts_dropped'] += 1
+        if not bodies:
+            raise RedactionError('missing text part')
+        for ct in bodies:
+            bodies[ct], n = _strict_body(bodies[ct], inbox, local)
+            counts['urls'] += n
+        for h in STRICT_KEEP:
+            for v in msg.get_all(h, []):
+                out[h] = str(v)
+        plain, html = bodies.get('text/plain'), bodies.get('text/html')
+        plain_cs, html_cs = parsed.get('text/plain'), parsed.get('text/html')
+        redaction = (f'strict: headers reduced; To replaced; {counts["urls"]} URL(s) cut to host; '
+                     f'{counts["parts_dropped"]} part(s) dropped.')
+        lu_new = None
+    else:
+        for h in ('X-Kmail-Ops', 'X-SG-ID', 'X-SG-EID', 'X-Entity-ID'):
+            for v in msg.get_all(h, []):
+                removed.update(s for s in re.split(r'[^A-Za-z0-9]', str(v)) if len(s) >= 10)
+
+        lu = msg.get('List-Unsubscribe')
+        lu_new = None
+        if lu:
+            https = [u for u in re.findall(r'<([^>]+)>', str(lu)) if u.lower().startswith('http')]
+            if https:
+                lu_new = ', '.join(f'<{redact_text(u, removed)[0]}>' for u in https)
+
+        counts = {'tracking': 0, 'manage': 0}
+        plain = html = None
+        plain_cs = html_cs = 'utf-8'
+        for part in msg.walk():
+            if part.is_multipart():
+                continue
+            ct = part.get_content_type()
+            txt = part.get_content()
+            if ct == 'text/plain' and plain is None:
+                plain, plain_cs = txt, part.get_content_charset() or 'utf-8'
+            elif ct == 'text/html' and html is None:
+                html, html_cs = txt, part.get_content_charset() or 'utf-8'
+            else:
+                raise RedactionError(f'unexpected part {ct}', ' in ')
+        if plain is None or html is None:
+            raise RedactionError('missing text part', ' in ')
+        plain, n1 = redact_text(plain, removed)
+        html, n2 = redact_text(html, removed)
+        for k in counts:
+            counts[k] = n1[k] + n2[k]
+
+        # headers are written after the body pass so every removed token is known
+        header_hits = []
+        for h in KEEP:
+            for v in msg.get_all(h, []):
+                v = str(v)
+                for tok in sorted(removed, key=len, reverse=True):
+                    if tok in v:
+                        v = v.replace(tok, 'REDACTED')
+                        header_hits.append(h)
+                out[h] = v
+        counts['header_tokens'] = sorted(set(header_hits))
+        redaction = (
+            'Receiving-path headers dropped; To replaced; per-recipient tracking tokens '
+            f'replaced ({counts["tracking"]} tracking, {counts["manage"]} unsubscribe/manage'
+            f'{", also in " + "/".join(counts["header_tokens"]) if counts["header_tokens"] else ""}). '
+            'Body text otherwise unchanged; parts re-encoded as quoted-printable.')
+
     out['To'] = 'TRIAL_INBOX <trial_inbox@redacted.invalid>'
     if lu_new:
         out['List-Unsubscribe'] = lu_new
-    received = datetime.datetime.fromtimestamp(int(d['internalDate']) / 1000, datetime.UTC)
-    out['X-Trial-Gmail-Id'] = d['id']
+    out['X-Trial-Gmail-Id'] = gmail_id
     out['X-Trial-Received-At'] = received.strftime('%Y-%m-%dT%H:%M:%SZ')
-    out['X-Trial-Gmail-Labels'] = ', '.join(d.get('labelIds', []))
-    counts['header_tokens'] = sorted(set(header_hits))
+    out['X-Trial-Gmail-Labels'] = ', '.join(labels)
 
-    out.set_content(plain, subtype='plain', charset=plain_cs, cte='quoted-printable')
-    out.add_alternative(html, subtype='html', charset=html_cs, cte='quoted-printable')
-    out['X-Trial-Redaction'] = (
-        'Receiving-path headers dropped; To replaced; per-recipient tracking tokens '
-        f'replaced ({counts["tracking"]} tracking, {counts["manage"]} unsubscribe/manage'
-        f'{", also in " + "/".join(counts["header_tokens"]) if counts["header_tokens"] else ""}). '
-        'Body text otherwise unchanged; parts re-encoded as quoted-printable.')
+    if plain is not None and html is not None:
+        out.set_content(plain, subtype='plain', charset=plain_cs, cte='quoted-printable')
+        out.add_alternative(html, subtype='html', charset=html_cs, cte='quoted-printable')
+    elif plain is not None:
+        out.set_content(plain, subtype='plain', charset=plain_cs, cte='quoted-printable')
+    else:
+        out.set_content(html, subtype='html', charset=html_cs, cte='quoted-printable')
+    out['X-Trial-Redaction'] = redaction
 
     data = out.as_bytes()
     check = data.decode('latin-1')
@@ -141,13 +216,26 @@ def convert(path, out_dir):
         if not part.is_multipart():
             check += part.get_content()
     if inbox in check.lower() or local in check.lower():
-        raise SystemExit(f'inbox address still present for {path}; nothing written')
+        raise RedactionError('inbox address still present', ' for ', '; nothing written')
     if LEFTOVER_RE.search(check):
-        raise SystemExit(f'tracking token still present for {path}; nothing written')
+        raise RedactionError('tracking token still present', ' for ', '; nothing written')
     leaked = sorted(t for t in removed if t in check)
     if leaked:
-        raise SystemExit(f'{len(leaked)} removed token(s) still present for {path} (e.g. in Message-ID); nothing written')
+        raise RedactionError(f'{len(leaked)} removed token(s) still present', ' for ',
+                             ' (e.g. in Message-ID); nothing written')
+    return data, counts
 
+
+def convert(path, out_dir):
+    d = json.load(open(path))
+    raw = d['raw']
+    src = base64.urlsafe_b64decode(raw + '=' * (-len(raw) % 4))
+    received = datetime.datetime.fromtimestamp(int(d['internalDate']) / 1000, datetime.UTC)
+    try:
+        data, counts = redact_message(src, d['id'], received, d.get('labelIds', []), strict=False)
+    except RedactionError as e:
+        raise SystemExit(f'{e.before}{e.joiner}{path}{e.after}')
+    msg = BytesParser(policy=policy.default).parsebytes(src)
     name = f'{slug(msg["From"])}_{received.strftime("%Y%m%dT%H%M%SZ")}_{d["id"]}.eml'
     with open(f'{out_dir}/{name}', 'wb') as f:
         f.write(data)
