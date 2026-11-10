@@ -24,7 +24,9 @@ its own: every step is a command that already exists.
    `collect <folder> <brand or all> exit=<code> <seconds>s`.
    A job that runs longer than `--timeout` minutes is stopped with its whole process group (the browser it started
    included): `SIGTERM`, and `SIGKILL` ten seconds later if it is still there. Its line says `exit=timeout`.
-   A job that cannot be started says `exit=not_started`.
+   A job that cannot be started says `exit=not_started`. A job whose handling fails inside `run.py` says
+   `exit=error`; like every other job that does not end with 0, it counts as failed and the pass goes on.
+   When a job's process ends on its own, anything it left running in its process group is told to stop.
 3. **Collect summary.** Read the run result files (`raw/<brand>/<run_id>.run.json`) under the selected collector
    folders whose `run_id` is at or after the pass's start time (UTC, `YYYYMMDDTHHMMSSZ`), and print
    `collect: jobs=<n> failed=<n> runs=<n> ok=<n> partial=<n> could_not_look=<n> cost_usd=<sum, 4 decimals>`.
@@ -39,8 +41,10 @@ its own: every step is a command that already exists.
 
 A failed job does not stop the pass: the other collectors' files are still loaded.
 
-When `run.py` itself is interrupted (Ctrl-C or `SIGTERM`), it stops every running job the same way as a timed-out
-one, prints `run: interrupted` and exits 130 without loading.
+When `run.py` itself is interrupted (Ctrl-C, `SIGTERM` or `SIGHUP`), it stops every running job the same way as a
+timed-out one, prints `run: interrupted` and exits 130 without loading. Interrupted during the load or the label
+step, it stops that command and exits 130. Without this, closing the terminal would leave collectors running
+behind a released lock.
 
 ## 3. Which jobs, and what runs side by side
 
@@ -60,7 +64,7 @@ With `--brand <slug>` every selected collector gets exactly one job, `--brand <s
 
 `--sources` selects collectors: a comma-separated list of numbers (`1,5,10`, matched against the folder's leading
 number) or folder names. An entry that matches no folder is an error: print it and exit 2 before anything runs.
-An unknown `--brand` is the same.
+An unknown `--brand` is the same, and so is `--jobs` below 1 or `--timeout` not above 0.
 
 ## 4. Command line
 
