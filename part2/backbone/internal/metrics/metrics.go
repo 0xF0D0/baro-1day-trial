@@ -49,27 +49,6 @@ var (
 	RebuildsTotal = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "backbone_rebuilds_total", Help: "Snapshot rebuilds by reason.",
 	}, []string{"reason"})
-	LastSweepAgeSeconds = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "backbone_last_sweep_age_seconds", Help: "Seconds since the last completed sweep (or worker start).",
-	})
-	TierEvents = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "backbone_tier_events", Help: "Events per tier.",
-	}, []string{"tier"})
-	TierBytes = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "backbone_tier_bytes", Help: "Stored bytes per tier.",
-	}, []string{"tier"})
-	IndexBytes = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "backbone_index_bytes", Help: "Index table size in bytes.",
-	}, []string{"table"})
-	PendingTombstones = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "backbone_pending_tombstones", Help: "Tombstones not yet finished.",
-	})
-	GarbageObjects = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "backbone_garbage_objects", Help: "Cold objects waiting for deletion.",
-	})
-	DirtyTenants = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "backbone_dirty_tenants", Help: "Tenants waiting for a rebuild.",
-	})
 )
 
 func init() {
@@ -78,8 +57,6 @@ func init() {
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 		IngestTotal, AckSeconds, ReadSeconds, LateEventsTotal, ErasureSeconds,
 		SnapshotCacheTotal, JobSeconds, JobErrorsTotal, RebuildsTotal,
-		LastSweepAgeSeconds, TierEvents, TierBytes, IndexBytes,
-		PendingTombstones, GarbageObjects, DirtyTenants,
 	)
 	// Create every fixed series up front so scrapes show zeros and rate()
 	// works from the first event.

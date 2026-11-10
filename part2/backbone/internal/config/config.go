@@ -10,10 +10,11 @@ import (
 
 // Config holds the process-level settings.
 type Config struct {
-	Listen      string
-	TenantsFile string
-	KEKFile     string
-	DatabaseURL string
+	Listen        string
+	MetricsListen string
+	TenantsFile   string
+	KEKFile       string
+	DatabaseURL   string
 
 	MinioEndpoint     string
 	MinioBucket       string
@@ -46,6 +47,10 @@ func Load(getenv func(string) string) (Config, error) {
 	}
 	if cfg.MinioBucket == "" {
 		cfg.MinioBucket = "backbone"
+	}
+	cfg.MetricsListen = getenv("BACKBONE_METRICS_LISTEN")
+	if cfg.MetricsListen == "" {
+		cfg.MetricsListen = ":9100"
 	}
 	if cfg.Listen == "" {
 		cfg.Listen = ":8080"

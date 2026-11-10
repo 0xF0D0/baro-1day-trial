@@ -29,6 +29,22 @@ func TestLoadDefaultsListen(t *testing.T) {
 	}
 }
 
+func TestLoadMetricsListen(t *testing.T) {
+	env := validEnv()
+	cfg, err := config.Load(func(k string) string { return env[k] })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.MetricsListen != ":9100" {
+		t.Fatalf("default %q", cfg.MetricsListen)
+	}
+	env["BACKBONE_METRICS_LISTEN"] = ":9200"
+	cfg, err = config.Load(func(k string) string { return env[k] })
+	if err != nil || cfg.MetricsListen != ":9200" {
+		t.Fatalf("override %q %v", cfg.MetricsListen, err)
+	}
+}
+
 func TestLoadListenOverride(t *testing.T) {
 	env := validEnv()
 	env["BACKBONE_LISTEN"] = ":9"
