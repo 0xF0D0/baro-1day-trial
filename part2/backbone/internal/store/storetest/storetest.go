@@ -21,6 +21,16 @@ const envURL = "BACKBONE_TEST_DATABASE_URL"
 // skips the test when BACKBONE_TEST_DATABASE_URL is unset.
 func New(t *testing.T) (*store.Store, *crypto.KEK) {
 	t.Helper()
+	st, kek := NewUnmigrated(t)
+	if err := st.Migrate(context.Background()); err != nil {
+		t.Fatalf("migrate: %v", err)
+	}
+	return st, kek
+}
+
+// NewUnmigrated is like New but leaves the fresh schema empty.
+func NewUnmigrated(t *testing.T) (*store.Store, *crypto.KEK) {
+	t.Helper()
 	base := lookup(t)
 	ctx := context.Background()
 
@@ -64,9 +74,6 @@ func New(t *testing.T) (*store.Store, *crypto.KEK) {
 		t.Fatalf("open: %v", err)
 	}
 	t.Cleanup(st.Close)
-	if err := st.Migrate(ctx); err != nil {
-		t.Fatalf("migrate: %v", err)
-	}
 	return st, kek
 }
 

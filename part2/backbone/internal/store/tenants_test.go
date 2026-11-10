@@ -29,11 +29,14 @@ func runBoth(t *testing.T, a, b func() error) {
 
 func TestMigrateConcurrent(t *testing.T) {
 	ctx := context.Background()
-	st1, kek := storetest.New(t)
-	st2 := storetest.Reopen(t, st1, kek)
-	runBoth(t, func() error { return st1.Migrate(ctx) }, func() error { return st2.Migrate(ctx) })
-	if err := st1.Migrate(ctx); err != nil {
-		t.Fatal(err)
+	// The race is timing-dependent, so repeat it on several empty schemas.
+	for i := 0; i < 5; i++ {
+		st1, kek := storetest.NewUnmigrated(t)
+		st2 := storetest.Reopen(t, st1, kek)
+		runBoth(t, func() error { return st1.Migrate(ctx) }, func() error { return st2.Migrate(ctx) })
+		if err := st1.Migrate(ctx); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
