@@ -125,6 +125,20 @@ def _write_rows(conn, run: dict, mapper, rows) -> tuple[int, int, int]:
     return inserted, updated, ended
 
 
+def _end_absent(conn, run: dict, mapper, scopes) -> int:
+    ok_scopes = [s.name for s in scopes if s.status == "ok"]
+    ended = 0
+    for (table, kind), policy in mapper.ENDING.items():
+        if policy != "absent" or table not in TABLE_COLUMNS:
+            continue
+        for scope in ok_scopes:
+            ended += conn.execute(
+                f"UPDATE {table} SET ended_at = %s WHERE source = %s AND brand = %s AND kind = %s AND scope = %s "
+                "AND last_run_id <> %s AND ended_at IS NULL",
+                (run["started_at"], run["source"], run["brand"], kind, scope, run["run_id"])).rowcount
+    return ended
+
+
 def _load(conn, run_path: Path, mappers: dict, run: dict, out: Outcome) -> Outcome:
     ident = (run["source"], run["brand"], run["run_id"])
     if conn.execute("SELECT 1 FROM runs WHERE source = %s AND brand = %s AND run_id = %s", ident).fetchone():
@@ -161,7 +175,7 @@ def _load(conn, run_path: Path, mappers: dict, run: dict, out: Outcome) -> Outco
         _insert_scope(conn, run, scope.name, scope.status, scope.reason)
     out.inserted, out.updated, out.ended = _write_rows(conn, run, mapper, mapped.rows)
     out.not_fetched = mapped.not_fetched
-    # Task 3: the `absent` ending rule goes here (after the rows are written).
+    out.ended += _end_absent(conn, run, mapper, mapped.scopes)
     out.result = "applied"
     return out
 
