@@ -12,3 +12,5 @@ CLAUDE.local.md
 part1/collectors/*/raw/
 part1/collectors/*/media/
 .pytest_cache/
+part1/logs/
+part1/.run.lock
