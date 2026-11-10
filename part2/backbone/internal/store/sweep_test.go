@@ -238,3 +238,48 @@ func TestGraceRunsFromReplacement(t *testing.T) {
 		}
 	}
 }
+
+// A pending tombstone that cannot be finished must not stop the other
+// tombstones or the garbage and orphan passes.
+func TestSweepPassesAreIndependent(t *testing.T) {
+	ctx := context.Background()
+	st, sc, events, cu := setupT18(t, 20)
+	cust := pickCustomer(t, events, cu, "both")
+	badKey := sc.Keys().CustomerKey(cust)
+	otherKey := sc.Keys().CustomerKey("cus_does_not_exist")
+
+	// Corrupt a bucket the customer appears in, so erasing the customer fails.
+	var obj string
+	if err := st.Pool().QueryRow(ctx, `SELECT m.object FROM customer_days d
+		JOIN cold_manifest m ON m.tenant_id = d.tenant_id AND m.day = d.day
+		WHERE d.tenant_id = 't_1' AND d.customer_key = $1 LIMIT 1`, badKey).Scan(&obj); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.Objects().Put(ctx, obj, []byte("not a sealed object")); err != nil {
+		t.Fatal(err)
+	}
+	for _, k := range [][]byte{badKey, otherKey} {
+		if _, err := st.Pool().Exec(ctx,
+			`INSERT INTO tombstones (tenant_id, customer_key, status) VALUES ('t_1', $1, 'pending')`, k); err != nil {
+			t.Fatal(err)
+		}
+	}
+	orphan := "t_1/buckets/1999-01-01/orphan.jsonl.enc"
+	if err := st.Objects().Put(ctx, orphan, []byte("x")); err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := st.SweepTenant(ctx, "t_1", time.Hour)
+	if err == nil {
+		t.Fatal("sweep reported no error although a tombstone cannot be finished")
+	}
+	if res.Tombstones != 1 {
+		t.Errorf("tombstones finished: %d, want 1 (the one that can be)", res.Tombstones)
+	}
+	if res.OrphansDeleted < 1 || !objectGone(t, st, orphan) {
+		t.Errorf("orphan pass did not run after the tombstone failure: %+v", res)
+	}
+	if n := count(t, st, `SELECT count(*) FROM tombstones WHERE tenant_id='t_1' AND status='pending'`); n != 1 {
+		t.Errorf("pending tombstones: %d, want 1", n)
+	}
+}

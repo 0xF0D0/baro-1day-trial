@@ -145,15 +145,12 @@ func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.S
 			return
 		}
 		r, err := st.SweepTenant(ctx, id, cfg.GarbageGrace)
-		if err != nil {
-			if ctx.Err() == nil {
-				log.Error("sweep failed", "tenant", id)
-			}
-			continue
-		}
 		total.Tombstones += r.Tombstones
 		total.GarbageDeleted += r.GarbageDeleted
 		total.OrphansDeleted += r.OrphansDeleted
+		if err != nil && ctx.Err() == nil {
+			log.Error("sweep failed", "tenant", id)
+		}
 	}
 	if err := st.Maintain(ctx); err != nil {
 		if ctx.Err() == nil {

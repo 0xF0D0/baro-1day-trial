@@ -36,33 +36,60 @@ func (s *Store) SweepTenant(ctx context.Context, tenantID string, grace time.Dur
 		return res, err
 	}
 
-	// 1. Pending tombstones. finishErasure takes the lock itself.
+	// The three passes run independently: a failure in one is kept and does
+	// not skip the others. The counts keep accumulating.
+	var errs []error
+	if err := s.sweepTombstones(ctx, tenantID, sc, &res); err != nil {
+		errs = append(errs, err)
+	}
+	erased, err = s.sweepGarbage(ctx, tenantID, grace, &res)
+	if err != nil {
+		errs = append(errs, err)
+	}
+	if erased {
+		return res, errors.Join(errs...)
+	}
+	if err := s.sweepOrphans(ctx, tenantID, &res); err != nil {
+		errs = append(errs, err)
+	}
+	return res, errors.Join(errs...)
+}
+
+// sweepTombstones finishes the tenant's pending customer erasures. One failing
+// tombstone does not stop the others. finishErasure takes the lock itself.
+func (s *Store) sweepTombstones(ctx context.Context, tenantID string, sc Scope, res *SweepResult) error {
 	rows, err := s.pool.Query(ctx, `SELECT customer_key FROM tombstones WHERE tenant_id = $1 AND status = 'pending'`, tenantID)
 	if err != nil {
-		return res, fmt.Errorf("store: read tombstones: %w", err)
+		return fmt.Errorf("store: read tombstones: %w", err)
 	}
 	var keys [][]byte
 	for rows.Next() {
 		var k []byte
 		if err := rows.Scan(&k); err != nil {
 			rows.Close()
-			return res, fmt.Errorf("store: scan tombstone: %w", err)
+			return fmt.Errorf("store: scan tombstone: %w", err)
 		}
 		keys = append(keys, k)
 	}
 	rows.Close()
 	if err := rows.Err(); err != nil {
-		return res, fmt.Errorf("store: read tombstones: %w", err)
+		return fmt.Errorf("store: read tombstones: %w", err)
 	}
+	var errs []error
 	for _, k := range keys {
 		if err := s.finishErasure(ctx, sc, k); err != nil {
-			return res, err
+			errs = append(errs, err)
+			continue
 		}
 		res.Tombstones++
 	}
+	return errors.Join(errs...)
+}
 
-	// 2. Replaced objects past the grace period: object first, then its row.
-	erased, err = s.sweepPart(ctx, tenantID, &res, func(tx pgx.Tx) error {
+// sweepGarbage deletes replaced objects past the grace period: object first,
+// then its row.
+func (s *Store) sweepGarbage(ctx context.Context, tenantID string, grace time.Duration, res *SweepResult) (erased bool, err error) {
+	return s.sweepPart(ctx, tenantID, res, func(tx pgx.Tx) error {
 		grows, err := tx.Query(ctx, `SELECT object FROM garbage
 			WHERE tenant_id = $1 AND replaced_at < now() - make_interval(secs => $2)`,
 			tenantID, grace.Seconds())
@@ -93,12 +120,12 @@ func (s *Store) SweepTenant(ctx context.Context, tenantID string, grace time.Dur
 		}
 		return nil
 	})
-	if err != nil || erased {
-		return res, err
-	}
+}
 
-	// 3. Leftovers of crashed operations: in the prefix but neither current nor garbage.
-	_, err = s.sweepPart(ctx, tenantID, &res, func(tx pgx.Tx) error {
+// sweepOrphans deletes leftovers of crashed operations: objects in the prefix
+// that are neither current nor garbage.
+func (s *Store) sweepOrphans(ctx context.Context, tenantID string, res *SweepResult) error {
+	_, err := s.sweepPart(ctx, tenantID, res, func(tx pgx.Tx) error {
 		keep := map[string]struct{}{}
 		for _, q := range []string{
 			`SELECT snapshot_object FROM tenant_cold WHERE tenant_id = $1 AND snapshot_object IS NOT NULL`,
@@ -137,7 +164,7 @@ func (s *Store) SweepTenant(ctx context.Context, tenantID string, grace time.Dur
 		}
 		return nil
 	})
-	return res, err
+	return err
 }
 
 // sweepPart runs one part of a sweep in a transaction holding the tenant's
