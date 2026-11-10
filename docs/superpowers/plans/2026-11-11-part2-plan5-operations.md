@@ -399,3 +399,38 @@ Expected: every runbook name is defined in code.
 git add part2/RUNBOOK.md part2/README.md
 git commit -m "Add the one-page runbook"
 ```
+
+---
+
+## Outcome and follow-ups (added after execution, 2026-11-11)
+
+**Result.** All five tasks are done and reviewed. Tasks 2–5 were built in parallel worktrees at the user's request and cherry-picked. The whole-branch review's fixes are applied (listed below).
+
+- **Tests.** `go test -race ./...` passes, and `go.mod` stays on `go 1.24` (client_golang v1.22.0).
+- **Benchmark, supplied data** (`part2/docs/measurements.md`):
+  - `verify.py` passes.
+  - Ingest: 1,189 deliveries/s, closed loop at concurrency 8.
+  - State read: p50 4.7 ms, p99 60.4 ms.
+  - Cold range, 111 tenants with cold data: p50 5.0 ms, p99 71.5 ms.
+  - Hot range: p50 2.0 ms, p99 21.7 ms.
+  - Bytes per event after `VACUUM FULL`: hot 583.7, cold 271.5.
+  - Peak RSS: api about 30 MiB, worker 22.6 MiB, MinIO 332 MiB.
+  - These come from a single run; an earlier run measured lower latencies.
+- **Scrapes.** A worker scrape shows hot plus cold equal to 97,788 events. An api scrape shows outcome counts and cache hits. Neither contains `cus_`, and `/metrics` through nginx answers 404.
+
+**Deviations from this plan.**
+- `memory.peak` does not exist on this kernel. Peak memory is `VmHWM` of PID 1 (the process peak; for Postgres, the postmaster only), plus a 2-second sample of cgroup `memory.current`, which includes page cache.
+- Plain gauges in `metrics.go` became a collector and a `GaugeFunc` in the worker.
+- Fixes from the whole-branch review:
+  - **Cold reads:** `range_cold` goes only to tenants with cold data (87 tenants never flush a day).
+  - **Storage numbers:** they are measured after `VACUUM FULL`.
+  - **Snapshot cache:** a janitor deletes expired entries, and every erased path drops the tenant's entry.
+  - **Sweep age:** it moves only after a fully clean sweep.
+  - **Histograms:** buckets are exponential, from 0.5 ms for reads and 10 ms for jobs.
+  - **Method notes:** closed-loop ingest, cache misses, and empty hot pages.
+- The submission design document `part2/DESIGN.md` was added on this branch.
+
+**Follow-ups.**
+1. Run the benchmark on the medium and large sets. The medium set is generated locally but has not been measured. Run several runs to characterize variance.
+2. Add a `backbone_snapshot_cache_entries` gauge and singleflight for concurrent misses.
+3. Add a unit test for the sweep-age rule and the janitor lifecycle (`Close`, re-`Set`).

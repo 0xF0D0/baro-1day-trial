@@ -30,6 +30,8 @@ Measured with `part2/scripts/benchmark.sh` on the supplied data set (`$INFRA/dat
 
 `n=990` is 198 tenants x 5 rounds. The data set erases two tenants; they answer `410`, so `cmd/bench` skips them. The cold range count is 111 tenants x 5 rounds. nginx opens a new upstream connection per request (no upstream keepalive); the bench client keeps `MaxIdleConnsPerHost` equal to the concurrency.
 
+These are numbers from a single run on a laptop. An earlier run on the same data and machine, before the cold-tenant change, gave state p99 18.1 ms and hot range p99 7.8 ms. Run-to-run variance is therefore large here and was not characterized.
+
 ### Peak memory
 
 | Service | Process peak RSS | Container peak, sampled |
