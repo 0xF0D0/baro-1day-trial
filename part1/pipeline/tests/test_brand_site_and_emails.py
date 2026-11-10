@@ -108,7 +108,8 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
             "review_count": None, "rank": None, "sponsored": None, "availability": "IN_STOCK",
             "seller_name": None, "sold_count": None})
         self.assertEqual(m.rows[4].columns["retailer"], "ulta")
-        self.assertEqual(m.scopes, [Scope("wtb/5010724526705", "ok", ""), Scope("offers_home", "ok", ""),
+        self.assertEqual(m.scopes, [Scope("wtb/5010724526705", "ok", ""),
+                                    Scope("wtb_listing", "could_not_look", "blocked: http_403", "wtb/"), Scope("offers_home", "ok", ""),
                                     Scope("offers_klaviyo", "could_not_look", "klaviyo_http_500"),
                                     Scope("emails", "partial", PARTS_OK["emails"]["reason"])])
 
@@ -121,6 +122,27 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
                          [Scope("wtb/1", "could_not_look", "blocked: http_403"),
                           Scope("wtb/2", "could_not_look", "not_attempted"),
                           Scope("wtb/3", "could_not_look", "not_us")])
+
+    def _listing(self, pages, parts=None):
+        prices = {**BATISTE_PARTS["prices"], "product_pages": pages}
+        run = {**RUN, "extra": {"parts": {**BATISTE_PARTS, "prices": prices}}}
+        return [s for s in map_run(run, []).scopes if s.name == "wtb_listing"]
+
+    def test_wtb_listing_ok_when_every_product_page_was_read(self):
+        pages = [{"path": "/p/1", "state": s} for s in ("widget", "redirected", "not_found_page")]
+        self.assertEqual(self._listing(pages), [Scope("wtb_listing", "ok", "", "wtb/")])
+
+    def test_wtb_listing_partial_when_product_pages_failed(self):
+        pages = [{"path": "/p/1", "state": "widget"}, {"path": "/p/2", "state": "failed"},
+                 {"path": "/p/3", "state": "widget_missing"}]
+        self.assertEqual(self._listing(pages), [Scope("wtb_listing", "partial", "product_pages_failed=2", "wtb/")])
+
+    def test_wtb_listing_could_not_look_without_the_listing(self):
+        self.assertEqual(self._listing(None), [Scope("wtb_listing", "could_not_look", "blocked: http_403", "wtb/")])
+
+    def test_shopify_brand_has_no_wtb_listing(self):
+        m = map_run({**RUN, "extra": {"parts": PARTS_OK}}, [])
+        self.assertNotIn("wtb_listing", [s.name for s in m.scopes])
 
     def test_batiste_without_barcode_records_keeps_prices_scope(self):
         m = map_run({**RUN, "extra": {"parts": BATISTE_PARTS}}, [])

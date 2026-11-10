@@ -92,6 +92,8 @@ def _validate(mapper, mapped) -> None:
     for scope in mapped.scopes:
         if scope.status not in ("ok", "partial", "could_not_look"):
             raise ValueError(f"scope {scope.name}: bad status {scope.status!r}")
+        if scope.covers is not None and (not isinstance(scope.covers, str) or not scope.covers):
+            raise ValueError(f"scope {scope.name}: covers must be None or a non-empty string")
     for (table, kind), policy in mapper.ENDING.items():
         if policy not in ("absent", "source_date", "never"):
             raise ValueError(f"ending policy for ({table}, {kind}): bad value {policy!r}")
@@ -158,6 +160,15 @@ def _end_absent(conn, run: dict, mapper, scopes) -> int:
                 f"UPDATE {table} SET ended_at = %s WHERE source = %s AND brand = %s AND kind = %s AND scope = %s "
                 "AND last_run_id <> %s AND ended_at IS NULL",
                 (run["started_at"], run["source"], run["brand"], kind, scope, run["run_id"])).rowcount
+    names = [s.name for s in scopes]
+    for cover in (s.covers for s in scopes if s.status == "ok" and s.covers):
+        for (table, kind), policy in mapper.ENDING.items():
+            if policy != "absent" or table not in TABLE_COLUMNS:
+                continue
+            ended += conn.execute(
+                f"UPDATE {table} SET ended_at = %s WHERE source = %s AND brand = %s AND kind = %s "
+                "AND starts_with(scope, %s) AND NOT (scope = ANY(%s)) AND last_run_id <> %s AND ended_at IS NULL",
+                (run["started_at"], run["source"], run["brand"], kind, cover, names, run["run_id"])).rowcount
     return ended
 
 
@@ -194,7 +205,7 @@ def _load(conn, run_path: Path, mappers: dict, run: dict, out: Outcome) -> Outco
         return out
     scopes = mapped.scopes
     if str(run["reason"]).startswith("exception:"):  # the record file may be cut short
-        scopes = [Scope(s.name, "partial", run["reason"]) if s.status == "ok" else s for s in scopes]
+        scopes = [Scope(s.name, "partial", run["reason"], s.covers) if s.status == "ok" else s for s in scopes]
     _insert_run(conn, run, "applied")
     for scope in scopes:
         _insert_scope(conn, run, scope.name, scope.status, scope.reason)

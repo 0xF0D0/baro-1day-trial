@@ -34,6 +34,7 @@ class Scope:
     name: str
     status: str                 # ok | partial | could_not_look
     reason: str
+    covers: str | None = None   # name prefix of the scopes this scope says are all there are
 
 
 @dataclass(frozen=True)

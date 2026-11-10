@@ -81,6 +81,48 @@ class EndingTest(DbTestCase):
         self.assertEqual((a["last_seen_at"], a["ended_at"], a["last_run_id"]), (ts(T1), None, T1))
 
 
+    def test_covering_scope_ends_pieces_missing_from_the_run(self):
+        s1 = {"scopes": [["g/1", "ok", ""], ["g/2", "ok", ""], ["g", "ok", "", "g/"]]}
+        self.write_run("fake", "b", T1, records=[rec("a", scope="g/1"), rec("b", scope="g/2"), rec("c", scope="other")],
+                       extra={"scopes": s1["scopes"] + [["other", "ok", ""]]}); self.load()
+        self.write_run("fake", "b", T2, records=[rec("a", scope="g/1"), rec("c", scope="other")],
+                       extra={"scopes": [["g/1", "ok", ""], ["g", "ok", "", "g/"], ["other", "ok", ""]]})
+        out = [o for o in self.load() if o.run_id == T2][0]
+        p = by_key(self.table("products"))
+        self.assertEqual((p["a"]["ended_at"], p["b"]["ended_at"], p["c"]["ended_at"]), (None, ts(T2), None))
+        self.assertEqual(out.ended, 1)
+
+    def test_covering_scope_that_is_not_ok_ends_nothing(self):
+        self.write_run("fake", "b", T1, records=[rec("a", scope="g/1"), rec("b", scope="g/2")],
+                       extra={"scopes": [["g/1", "ok", ""], ["g/2", "ok", ""], ["g", "ok", "", "g/"]]}); self.load()
+        self.write_run("fake", "b", T2, status="partial", reason="x", records=[rec("a", scope="g/1")],
+                       extra={"scopes": [["g/1", "ok", ""], ["g", "partial", "x", "g/"]]}); self.load()
+        self.assertEqual(by_key(self.table("products"))["b"]["ended_at"], None)
+
+    def test_piece_in_the_run_follows_its_own_scope(self):
+        self.write_run("fake", "b", T1, records=[rec("a", scope="g/1"), rec("b", scope="g/2")],
+                       extra={"scopes": [["g/1", "ok", ""], ["g/2", "ok", ""], ["g", "ok", "", "g/"]]}); self.load()
+        self.write_run("fake", "b", T2, status="partial", reason="x", records=[rec("a", scope="g/1")],
+                       extra={"scopes": [["g/1", "ok", ""], ["g/2", "could_not_look", "blocked"], ["g", "ok", "", "g/"]]}); self.load()
+        self.assertEqual(by_key(self.table("products"))["b"]["ended_at"], None)
+
+    def test_covering_scope_leaves_never_kinds_and_exception_runs(self):
+        sc = [["g/1", "ok", ""], ["g/2", "ok", ""], ["g", "ok", "", "g/"]]
+        self.write_run("fake", "b", T1, records=[rec("a", scope="g/1"), rec("b", scope="g/2"),
+                       rec("r", kind="review", table="reviews", scope="g/2")], extra={"scopes": sc}); self.load()
+        self.write_run("fake", "b", T2, status="partial", reason="exception: RuntimeError: boom",
+                       records=[rec("a", scope="g/1")], extra={"scopes": [["g/1", "ok", ""], ["g", "ok", "", "g/"]]}); self.load()
+        self.assertEqual(by_key(self.table("products"))["b"]["ended_at"], None)       # exception run ends nothing
+        self.write_run("fake", "b", T3, records=[rec("a", scope="g/1")], extra={"scopes": [["g/1", "ok", ""], ["g", "ok", "", "g/"]]}); self.load()
+        self.assertEqual(by_key(self.table("products"))["b"]["ended_at"], ts(T3))     # the next complete run does
+        self.assertEqual(self.table("reviews")[0]["ended_at"], None)                 # a never kind is not ended
+
+    def test_covers_prefix_is_not_a_pattern(self):
+        self.write_run("fake", "b", T1, records=[rec("a", scope="gx1")], extra={"scopes": [["gx1", "ok", ""]]}); self.load()
+        self.write_run("fake", "b", T2, extra={"scopes": [["g", "ok", "", "g_"]]}); self.load()
+        self.assertEqual(self.table("products")[0]["ended_at"], None)
+
+
 if __name__ == "__main__":
     import unittest
     unittest.main()

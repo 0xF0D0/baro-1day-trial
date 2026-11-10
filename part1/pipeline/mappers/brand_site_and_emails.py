@@ -134,6 +134,14 @@ def map_run(run: dict, records: list[dict]) -> MappedRun:
                 scopes.append(Scope("offers_klaviyo", offers["klaviyo"]["state"], offers["klaviyo"]["reason"]))
         else:
             scopes.append(Scope(name, part["state"], part["reason"]))
+        if name == "prices" and part.get("route") == "batiste_wtb":   # the product-page list the barcodes come from
+            pages = part.get("product_pages")
+            if not isinstance(pages, list):
+                scopes.append(Scope("wtb_listing", "could_not_look", part["reason"], covers="wtb/"))
+            else:
+                bad = sum(1 for p in pages if isinstance(p, dict) and p.get("state") in ("failed", "widget_missing"))
+                scopes.append(Scope("wtb_listing", "partial" if bad else "ok",
+                                    f"product_pages_failed={bad}" if bad else "", covers="wtb/"))
     names = {s.name for s in scopes}
     needed = {"product": lambda r: "prices", "retailer_availability": lambda r: r["key"],
               "offer_slot": lambda r: offer_scopes[0], "klaviyo_form": lambda r: offer_scopes[1], "email": lambda r: "emails"}
