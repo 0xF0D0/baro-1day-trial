@@ -1,0 +1,141 @@
+import email
+import email.policy
+import email.utils
+from datetime import timezone
+from decimal import Decimal
+
+from model import MapError, MappedRun, Row, Scope
+
+SOURCE = "brand_site_and_emails"
+ENDING = {("products", "product"): "absent", ("products", "retailer_availability"): "absent",
+          ("ads", "offer_slot"): "absent", ("ads", "klaviyo_form"): "absent", ("ads", "email"): "never"}
+
+_CENT = Decimal("0.01")
+_ADS = ("channel", "advertiser_id", "advertiser_name", "format", "headline", "body", "cta", "landing_url",
+        "landing_domain", "started_at", "last_shown_at", "variation_count", "placements", "offer_code")
+_PRODUCTS = ("retailer", "product_id", "title", "price", "price_max", "list_price", "currency", "rating",
+             "review_count", "rank", "sponsored", "availability", "seller_name", "sold_count")
+
+
+def _dec(value) -> Decimal | None:
+    return None if value is None else Decimal(str(value)).quantize(_CENT)
+
+
+def _stock(available) -> str | None:
+    return None if available is None else ("IN_STOCK" if available else "OUT_OF_STOCK")
+
+
+def _list_price(variant: dict) -> Decimal | None:
+    """The compare-at price, only when it is above the price ("0.00" and null mean none)."""
+    price, compare = _dec(variant.get("price")), _dec(variant.get("compare_at_price"))
+    return compare if price is not None and compare is not None and compare > price else None
+
+
+def _product_columns(**values) -> dict:
+    return {name: values.get(name) for name in _PRODUCTS}
+
+
+def _ad_columns(**values) -> dict:
+    return {name: values.get(name) for name in _ADS}
+
+
+def _product_rows(rec: dict) -> list[Row]:
+    raw = rec["raw"]
+    if raw["route"] == "shopify_products_json":
+        p = raw["product"]
+        variants = p["variants"]
+        v = variants[0] if variants else {}
+        cols = _product_columns(retailer="own_site", product_id=str(p["id"]), title=p["title"], price=_dec(v.get("price")),
+                                list_price=_list_price(v), currency="USD",
+                                availability=_stock(any(x.get("available") for x in variants)) if variants else None)
+    elif raw["route"] == "apify_ecommerce":
+        item = raw["item"]
+        offers = item.get("offers") if isinstance(item.get("offers"), dict) else {}
+        cols = _product_columns(retailer="own_site", title=item.get("name"), price=_dec(offers.get("price")),
+                                currency=offers.get("priceCurrency") or "USD")
+    else:
+        raise ValueError(f"unknown product route {raw['route']!r}")
+    return [Row("products", "product", rec["key"], "prices", rec["url"], rec["fetched_at"], raw, cols)]
+
+
+def _availability_rows(rec: dict) -> list[Row]:
+    raw = rec["raw"]
+    response = raw["response"]
+    title = response["prd"]["pname"]
+    first = {}
+    for entry in response["d"]:     # the online entry of a retailer (sid ends with _WEB), else its first entry
+        if entry["rid"] not in first or (entry["sid"].endswith("_WEB") and not first[entry["rid"]]["sid"].endswith("_WEB")):
+            first[entry["rid"]] = entry
+    return [Row("products", "retailer_availability", f"{rec['key']}/{rid}", rec["key"], rec["url"], rec["fetched_at"],
+                raw, _product_columns(retailer=e["rname"], product_id=raw["ean"], title=title, price=_dec(e["pr"]),
+                                      currency=e["currency"], availability=_stock(e["av"])))
+            for rid, e in first.items()]
+
+
+def _ads_row(rec: dict, scope: str, **values) -> Row:
+    return Row("ads", rec["kind"], rec["key"], scope, rec["url"], rec["fetched_at"], rec["raw"], _ad_columns(**values))
+
+
+def _email_row(rec: dict) -> Row:
+    msg = email.message_from_string(rec["raw"]["eml"], policy=email.policy.default)
+    sent = email.utils.parsedate_to_datetime(str(msg["Date"]))
+    if sent.tzinfo is None:
+        raise ValueError(f"Date without a time zone: {msg['Date']!r}")
+    name = email.utils.parseaddr(str(msg["From"]))[0]
+    return _ads_row(rec, "emails", channel="email", headline=str(msg["Subject"]), advertiser_name=name or None,
+                    started_at=sent.astimezone(timezone.utc),
+                    body=plain.get_content() if (plain := msg.get_body(preferencelist=("plain",))) else None)
+
+
+def _map_record(rec: dict, offer_scopes: tuple[str, str]) -> tuple[list[Row], bool]:
+    """Return the rows and whether the record said its item was not fetched."""
+    kind, raw = rec["kind"], rec["raw"]
+    if kind == "product":
+        return _product_rows(rec), False
+    if kind == "retailer_availability":
+        return (_availability_rows(rec), False) if raw["state"] == "fetched" else ([], True)
+    if kind == "offer_slot":
+        if raw["state"] != "found":
+            return [], True
+        return [_ads_row(rec, offer_scopes[0], channel="site", body="\n".join(e["text"] for e in raw["elements"]))], False
+    if kind == "klaviyo_form":
+        return [_ads_row(rec, offer_scopes[1], channel="signup_form", headline=raw["form"]["name"])], False
+    if kind == "email":
+        return [_email_row(rec)], False
+    raise ValueError(f"unknown record kind {kind!r}")
+
+
+def map_run(run: dict, records: list[dict]) -> MappedRun:
+    parts = (run.get("extra") or {}).get("parts")
+    if not isinstance(parts, dict) or not parts:
+        raise MapError("run.extra has no parts")
+    offers = parts.get("offers") or {}
+    split = isinstance(offers.get("home"), dict)
+    offer_scopes = ("offers_home", "offers_klaviyo") if split else ("offers", "offers")
+    rows, barcodes, not_fetched = [], [], 0
+    for rec in records:
+        try:
+            got, missing = _map_record(rec, offer_scopes)
+            if rec["kind"] == "retailer_availability":
+                raw = rec["raw"]
+                barcodes.append(Scope(rec["key"], "ok", "") if raw["state"] == "fetched"
+                                else Scope(rec["key"], "could_not_look", raw["error"] or raw["state"]))
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError, ArithmeticError, OverflowError) as e:
+            raise MapError(f"{rec.get('key')}: {type(e).__name__}: {e}") from e
+        rows.extend(got)
+        not_fetched += missing
+    scopes = []
+    for name, part in parts.items():
+        if name == "prices" and barcodes and part.get("route") == "batiste_wtb":
+            scopes.extend(barcodes)
+        elif name == "offers" and split:
+            scopes.append(Scope("offers_home", offers["home"]["state"], offers["home"]["reason"]))
+            if isinstance(offers.get("klaviyo"), dict):
+                scopes.append(Scope("offers_klaviyo", offers["klaviyo"]["state"], offers["klaviyo"]["reason"]))
+        else:
+            scopes.append(Scope(name, part["state"], part["reason"]))
+    names = {s.name for s in scopes}
+    for row in rows:
+        if row.scope not in names:
+            raise MapError(f"{row.key}: scope {row.scope!r} is not in the scopes of the run")
+    return MappedRun(rows, scopes, not_fetched)
