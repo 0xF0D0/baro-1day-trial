@@ -47,7 +47,12 @@ func TestParseRejectsDuplicates(t *testing.T) {
 	ten := func(id, tok, acct, shop string) string {
 		return `{"tenant_id":"` + id + `","name":"n","api_token":"` + tok + `","vendor_a":{"account":"` + acct + `","signing_secret":"s"},"vendor_b":{"shop_domain":"` + shop + `","signing_secret":"s"}}`
 	}
+	tenSecrets := func(secA, secB string) string {
+		return `{"tenant_id":"t1","name":"n","api_token":"k1","vendor_a":{"account":"a1","signing_secret":"` + secA + `"},"vendor_b":{"shop_domain":"s1","signing_secret":"` + secB + `"}}`
+	}
 	cases := map[string]string{
+		"emptysecretA": mk(tenSecrets("", "s"), ten("t2", "k2", "a2", "s2")),
+		"emptysecretB": mk(tenSecrets("s", ""), ten("t2", "k2", "a2", "s2")),
 		"account":      mk(ten("t1", "k1", "acct_a", "s1"), ten("t2", "k2", "acct_a", "s2")),
 		"shop":         mk(ten("t1", "k1", "a1", "s"), ten("t2", "k2", "a2", "s")),
 		"token":        mk(ten("t1", "k", "a1", "s1"), ten("t2", "k", "a2", "s2")),

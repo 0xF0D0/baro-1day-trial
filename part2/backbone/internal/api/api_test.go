@@ -109,6 +109,8 @@ func (e *env) postA(t *testing.T, secret string, body []byte) int {
 func TestWebhookStatusCodes(t *testing.T) {
 	e := newEnv(t)
 	good := adMetric("acct_a", "evt_1", 1000)
+	// Signed, but malformed at the canon level.
+	frac := bodyA("acct_a", "evt_3", "ads.metric", "1.5", `{"campaign_id":"c","spend":1,"impressions":1,"clicks":1}`)
 	cases := []struct {
 		name string
 		path string
@@ -122,7 +124,10 @@ func TestWebhookStatusCodes(t *testing.T) {
 		{"unknown account", "/webhooks/vendor-a", adMetric("acct_zz", "evt_2", 1), sigA("sec_a1", adMetric("acct_zz", "evt_2", 1)), 404},
 		{"wrong secret", "/webhooks/vendor-a", good, sigA("sec_b1", good), 401},
 		{"no signature", "/webhooks/vendor-a", good, nil, 401},
-		{"fractional created", "/webhooks/vendor-a", adMetric("acct_a", "evt_3", 0), nil, 400},
+		{"fractional created", "/webhooks/vendor-a", frac, sigA("sec_a1", frac), 400},
+		// Signature comes before normalization: malformed canon but unsigned is 401.
+		{"unsigned fractional created", "/webhooks/vendor-a",
+			bodyA("acct_a", "evt_4", "ads.metric", "1.5", `{"campaign_id":"c","spend":1,"impressions":1,"clicks":1}`), nil, 401},
 		{"valid B", "/webhooks/vendor-b", invB("a.shops.example", "b-1", "2026-07-01T00:10:07.912Z"),
 			sigB("sec_a2", invB("a.shops.example", "b-1", "2026-07-01T00:10:07.912Z")), 200},
 		{"unknown shop", "/webhooks/vendor-b", invB("zz.shops.example", "b-2", "2026-07-01T00:10:07.912Z"), nil, 404},
@@ -138,9 +143,6 @@ func TestWebhookStatusCodes(t *testing.T) {
 		hdr  map[string]string
 		want int
 	}{"oversize", "/webhooks/vendor-a", big, sigA("sec_a1", big), 400})
-	// "fractional created" needs a valid signature over the malformed body.
-	frac := bodyA("acct_a", "evt_3", "ads.metric", "1.5", `{"campaign_id":"c","spend":1,"impressions":1,"clicks":1}`)
-	cases[6].body, cases[6].hdr = frac, sigA("sec_a1", frac)
 	for _, c := range cases {
 		code, body := e.do(t, "POST", c.path, "", c.body, c.hdr)
 		if code != c.want {

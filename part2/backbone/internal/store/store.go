@@ -53,6 +53,9 @@ func Open(ctx context.Context, databaseURL string, kek *crypto.KEK) (*Store, err
 // Close releases the pool.
 func (s *Store) Close() { s.pool.Close() }
 
+// Ping checks that the database is reachable.
+func (s *Store) Ping(ctx context.Context) error { return s.pool.Ping(ctx) }
+
 // Pool exposes the pool to sibling packages that run their own queries.
 func (s *Store) Pool() *pgxpool.Pool { return s.pool }
 

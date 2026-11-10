@@ -36,7 +36,7 @@ func NewServer(reg *tenants.Registry, st *store.Store, log *slog.Logger) http.Ha
 func (s *server) healthz(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 	defer cancel()
-	if err := s.st.Pool().Ping(ctx); err != nil {
+	if err := s.st.Ping(ctx); err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}

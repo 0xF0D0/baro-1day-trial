@@ -56,7 +56,7 @@ func Load(path string) (*Registry, error) {
 }
 
 // Parse builds a Registry from tenants JSON. It rejects empty or duplicate
-// tenant IDs, accounts, shop domains and tokens.
+// tenant IDs, accounts, shop domains, tokens and signing secrets.
 func Parse(data []byte) (*Registry, error) {
 	var f file
 	if err := json.Unmarshal(data, &f); err != nil {
@@ -79,6 +79,9 @@ func Parse(data []byte) (*Registry, error) {
 			{"api_token", t.APIToken},
 			{"vendor_a.account", t.VendorA.Account},
 			{"vendor_b.shop_domain", t.VendorB.ShopDomain},
+			// An HMAC with an empty key is computable by anyone.
+			{"vendor_a.signing_secret", t.VendorA.SigningSecret},
+			{"vendor_b.signing_secret", t.VendorB.SigningSecret},
 		} {
 			if v.val == "" {
 				return nil, fmt.Errorf("tenant at index %d: empty %s", i, v.field)

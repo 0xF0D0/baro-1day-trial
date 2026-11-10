@@ -11,7 +11,8 @@ Docker with Compose v2, Python 3 (only for the supplied `replay.py` and `verify.
 | Variable | Used by | Meaning |
 |---|---|---|
 | `INFRA` | scripts | Path of the supplied `infrastructure/` folder (not in this repository). Required. |
-| `TENANTS_FILE` | compose | Absolute path of the `tenants.json` to load. Required. The scripts set it from the data directory. |
+| `TENANTS_FILE` | compose | Absolute path of the `tenants.json` to load. Required for every `docker compose` command, including `down` and the Postgres-only command, because the compose file refuses to parse without it. The scripts set it from the data directory. |
+| `BACKBONE_TEST_DATABASE_URL` | Go tests | Postgres to test against, `postgres://postgres@127.0.0.1:55432/postgres?sslmode=disable` for the Postgres-only container below. Without it the store and api tests skip. |
 | `BACKBONE_TENANTS_FILE`, `BACKBONE_KEK_FILE`, `BACKBONE_DATABASE_URL` | api | Set by compose. `BACKBONE_LISTEN` is optional (default `:8080`). |
 | `TARGET` | replay, verify | Service URL, default `http://localhost:8080`. |
 
@@ -27,6 +28,8 @@ part2/scripts/replay.sh "$INFRA/data"   # sends all deliveries, writes part2/out
 part2/scripts/verify.sh "$INFRA/data"   # state, isolation and range checks
 ```
 
+A replay must start from empty storage: run `down -v` (see Stop) before `up`, or use `scripts/e2e.sh`. Replaying again over existing data makes deliveries from before a tenant's erasure get 410, and verify fails.
+
 Each script takes the data directory as its only argument.
 
 ## End to end
@@ -40,9 +43,21 @@ python3 "$INFRA/generate.py" --seed 7 --out /path/to/seed7 && part2/scripts/e2e.
 
 ## Stop
 
+`TENANTS_FILE` must be set for these too.
+
 ```sh
+export TENANTS_FILE=$INFRA/data/tenants.json
 docker compose -f part2/docker-compose.yml down      # keep data
 docker compose -f part2/docker-compose.yml down -v   # also drop the database and the KEK
 ```
 
-Postgres alone (for Go tests) is published on `127.0.0.1:55432`: `docker compose -f part2/docker-compose.yml up -d postgres --wait`.
+## Go tests
+
+Postgres alone is published on `127.0.0.1:55432`:
+
+```sh
+export TENANTS_FILE=$INFRA/data/tenants.json
+docker compose -f part2/docker-compose.yml up -d --wait postgres
+(cd part2/backbone && BACKBONE_TEST_DATABASE_URL='postgres://postgres@127.0.0.1:55432/postgres?sslmode=disable' go test -race -count=1 ./...)
+docker compose -f part2/docker-compose.yml down
+```

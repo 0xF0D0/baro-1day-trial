@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+	"time"
 
 	"backbone/internal/canon"
 	"backbone/internal/store"
@@ -157,5 +158,61 @@ func TestEraseTenantSurvivesRestart(t *testing.T) {
 	}
 	if _, err := st2.Scope(ctx, "t_2"); err != nil {
 		t.Fatalf("scope t_2: %v", err)
+	}
+}
+
+// TestEraseCustomerWaitsForInFlightIngest pins the lock order: an ingest that
+// holds the shared customer lock must delay the tombstone, so a row inserted
+// by that ingest is still removed by the erasure that follows it.
+func TestEraseCustomerWaitsForInFlightIngest(t *testing.T) {
+	ctx := context.Background()
+	st, sc := newScope(t)
+	key := sc.Keys().CustomerKey("cus_1")
+
+	// An ingest in flight: shared locks taken exactly as Ingest takes them.
+	tx, err := st.Pool().Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`,
+		store.LockKey("tenant-status", []byte("t_1"))); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`,
+		store.LockKey("customer", []byte("t_1"), key)); err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan error, 1)
+	go func() { done <- st.EraseCustomer(ctx, sc, "cus_1") }()
+	select {
+	case err := <-done:
+		t.Fatalf("EraseCustomer returned while an ingest held the customer lock: %v", err)
+	case <-time.After(200 * time.Millisecond):
+	}
+
+	if _, err := tx.Exec(ctx,
+		`INSERT INTO hot_events (tenant_id, event_id, occurred_at_ms, customer_key, payload)
+		 VALUES ('t_1', 'evt_inflight', 1, $1, $2)`, key, []byte("sealed")); err != nil {
+		t.Fatal(err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("EraseCustomer did not finish after the ingest committed")
+	}
+	if c := count(t, st, `SELECT count(*) FROM hot_events WHERE tenant_id = 't_1' AND customer_key = $1`, key); c != 0 {
+		t.Fatalf("%d rows survived the erasure", c)
+	}
+	res, err := st.Ingest(ctx, sc, mkEvent("evt_late", 2, "cus_1"))
+	if err != nil || res != store.CustomerErased {
+		t.Fatalf("late ingest: %v, %v", res, err)
 	}
 }
