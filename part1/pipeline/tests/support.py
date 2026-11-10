@@ -31,7 +31,7 @@ def rec(key, kind="product", table="products", scope="all", **raw) -> dict:
             "fetched_at": "2026-11-10T00:00:00Z", "raw": {"table": table, "scope": scope, **raw}}
 
 
-def _map_run(records, run) -> MappedRun:
+def _map_run(run, records) -> MappedRun:
     rows, not_fetched = [], 0
     for r in records:
         raw = r["raw"]
