@@ -17,7 +17,7 @@ part2/scripts/crash.sh "$INFRA/data"              # kill -9 the worker during a 
 
 **`e2e.sh`, `benchmark.sh` and `crash.sh` wipe all storage (`down -v`) and rebuild the stack with their own settings.** Never run them against data you need.
 A replay needs empty storage. Run `docker compose ... down -v` first, or use `part2/scripts/e2e.sh "$INFRA/data"`.
-Compose settings: `FLUSH_INTERVAL` (default 5m), `FLUSH_MARGIN`, `SWEEP_INTERVAL` (default 1h), `GARBAGE_GRACE`, `SNAPSHOT_CACHE_TTL`. `SETTLE_SECONDS` is read by `e2e.sh` only.
+Compose settings: `FLUSH_INTERVAL` (default 5m), `FLUSH_MARGIN`, `SWEEP_INTERVAL` (default 1h), `GARBAGE_GRACE`, `WATERMARK_RANK`, `SNAPSHOT_CACHE_TTL`. `SETTLE_SECONDS` is read by `e2e.sh` only.
 
 ## Scrape metrics
 
@@ -39,6 +39,8 @@ No Prometheus server is bundled; point one at these endpoints to get rates and `
 | `backbone_dirty_tenants` | above 0 across several flush intervals | Rebuilds are not completing. |
 | `backbone_job_errors_total` | rising | Read it by `class` (`postgres_<SQLSTATE>`, `object_not_found`, `canceled`, `other`) and by `job`. |
 | `backbone_ack_seconds` | p99 well above its baseline | Ingest is slow. Check Postgres first. |
+| `backbone_garbage_objects` | keeps growing | Sweep is not deleting. |
+| `backbone_read_seconds{kind="state",tier="hot"}` | read it knowing | `tier="hot"` includes snapshot cache hits, so a cold tenant's cached state read counts as hot. |
 | `backbone_tier_events{tier="hot"}` | grows without bound | Flush has stalled. |
 | `process_resident_memory_bytes` | keeps climbing | Memory pressure. Check the largest tenant's reads. |
 
@@ -56,6 +58,7 @@ No Prometheus server is bundled; point one at these endpoints to get rates and `
 ## Erasure bound
 
 - Reads and Postgres queries: the data is gone as soon as the erasure returns 2xx.
+- Api node memory: within `SNAPSHOT_CACHE_TTL` (default 1h).
 - MinIO and Postgres WAL files: gone within 2 hours (one sweep interval plus its run time), while the worker runs.
 - The bound grows by the worker's downtime. A longer `SWEEP_INTERVAL` or `GARBAGE_GRACE` (default 10m) also extends it.
 - Backups would add their retention. This setup has none.
