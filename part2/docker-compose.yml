@@ -136,6 +136,28 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  check:
+    build: ./backbone
+    profiles: ["tools"]
+    entrypoint: ["/usr/local/bin/check"]
+    environment:
+      - BACKBONE_DATABASE_URL=postgres://postgres@postgres:5432/postgres?sslmode=disable
+      - BACKBONE_TENANTS_FILE=/config/tenants.json
+      - BACKBONE_KEK_FILE=/secrets/kek
+      - BACKBONE_MINIO_ENDPOINT=minio:9000
+      - BACKBONE_MINIO_USER_FILE=/secrets/minio_user
+      - BACKBONE_MINIO_PASSWORD_FILE=/secrets/minio_password
+    volumes:
+      - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
+      - ./out/secrets:/secrets:ro
+      - ${DATA_DIR:-./out}:/data:ro
+      - ./out:/out:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
   lb:
     image: nginx:1.27-alpine
     ports:
