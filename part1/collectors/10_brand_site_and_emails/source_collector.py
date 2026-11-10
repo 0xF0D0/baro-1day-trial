@@ -48,6 +48,9 @@ APIFY_POLL_HTTP_TIMEOUT_S = 90
 APIFY_POLL_ERRORS_MAX = 3
 APIFY_POLL_ERROR_WAIT_S = 15
 APIFY_MAX_TOTAL_WAIT_S = 4200
+HOME_APIFY_ACTOR = "apify~playwright-scraper"
+HOME_APIFY_MEMORY_MB = 2048
+HOME_APIFY_RUN_TIMEOUT_S = 180
 FIRST_DAY_S = 86400
 SIGNUP_TOLERANCE_S = 300
 
@@ -471,6 +474,135 @@ def home_step(page, cfg):
     return part
 
 
+def home_page_function(slots, settle_s):
+    """The pageFunction source for the actor: the selectors travel as JSON, never as pasted text."""
+    return (
+        "async function pageFunction(context) {\n"
+        "  const { page, request, response } = context;\n"
+        f"  const slots = {json.dumps(slots)};\n"
+        f"  await page.waitForTimeout({int(settle_s) * 1000});\n"
+        "  const status = response ? (typeof response.status === 'function' ? response.status() : response.status) : null;\n"
+        "  const out = { requested: request.url, url: page.url(), title: await page.title(), status, slots: {} };\n"
+        "  for (const [name, sel] of Object.entries(slots)) {\n"
+        "    out.slots[name] = await page.$$eval(sel, els => els.map(e => ({ outer_html: e.outerHTML, text: e.innerText })));\n"
+        "  }\n"
+        "  out.market = await page.evaluate(() => [window.Shopify?.country ?? null, window.Shopify?.currency?.active ?? null]);\n"
+        "  return out;\n"
+        "}\n")
+
+
+def home_apify_input(cfg):
+    h = cfg["home"]
+    return {"startUrls": [{"url": h["url"]}], "linkSelector": "",
+            "pageFunction": home_page_function(h["slots"], HOME_SETTLE_S), "launcher": "chromium",
+            "proxyConfiguration": {"useApifyProxy": True, "apifyProxyGroups": ["RESIDENTIAL"], "apifyProxyCountry": "US"},
+            "maxPagesPerCrawl": 1, "maxRequestRetries": 0, "pageLoadTimeoutSecs": 60, "waitUntil": "domcontentloaded"}
+
+
+def home_apify_part(run_status, items, cfg):
+    """-> (home part, offer_slot raws to emit). Pure."""
+    h = cfg["home"]
+    part = {"state": "could_not_look", "reason": "", "route": "home_apify", "market": None, "slots_not_found": None}
+    if run_status != "SUCCEEDED":
+        part["reason"] = f"apify_run_{run_status}"
+        return part, []
+    it = items[0] if isinstance(items, list) and items else None
+    if not isinstance(it, dict):
+        part["reason"] = "home_not_returned"
+        return part, []
+    host = urlparse(it.get("url") if isinstance(it.get("url"), str) else "").hostname
+    status = it.get("status")
+    title = (it.get("title") or "").lower() if isinstance(it.get("title"), str) else ""
+    why = None
+    if host != h["host"]:
+        why = f"blocked: host={host}"
+    elif status in (403, 429):
+        why = f"blocked: http_{status}"
+    else:
+        for phrase in ("attention required", "just a moment"):
+            if phrase in title:
+                why = f"blocked: title={phrase}"
+                break
+        if not why and isinstance(status, int) and status >= 400:
+            why = f"http_{status}"
+    if why:
+        part["reason"] = why
+        return part, []
+    m = it.get("market")
+    if h["shopify_market_check"] and isinstance(m, list) and len(m) == 2:
+        part["market"] = {"country": m[0], "currency": m[1]}
+    slots = it.get("slots") if isinstance(it.get("slots"), dict) else {}
+    raws, missing = [], []
+    for name, sel in h["slots"].items():
+        els = slots.get(name)
+        els = [{"outer_html": e.get("outer_html"), "text": e.get("text")} for e in els if isinstance(e, dict)] \
+            if isinstance(els, list) else []
+        if not els:
+            missing.append(name)
+        raws.append({"route": "home_apify", "slot": name, "selector": sel,
+                     "state": "found" if els else "not_found", "elements": els})
+    part.update(state="ok" if not missing else "partial",
+                reason=f"slots_not_found({','.join(missing)})" if missing else "", slots_not_found=missing)
+    return part, raws
+
+
+def home_apify(cfg):
+    """-> (part, cost_usd). One actor run for the home page; the records are emitted like the home_dom route's."""
+    h = cfg["home"]
+    part, _ = home_apify_part("NONE", None, cfg)
+    part.update(run_id=None, run_status=None, reason="")
+    token = read_token()
+    if not token:
+        part["reason"] = "missing_token"
+        return part, 0
+    hdr = {"Authorization": f"Bearer {token}", "Content-Type": "application/json", "Accept": "application/json"}
+    api = "https://api.apify.com/v2"
+    body = json.dumps(home_apify_input(cfg)).encode()
+    try:
+        status, _, b = http(f"{api}/acts/{HOME_APIFY_ACTOR}/runs?timeout={HOME_APIFY_RUN_TIMEOUT_S}"
+                            f"&memory={HOME_APIFY_MEMORY_MB}", "POST", hdr, body, spaced=False)
+    except Exception as e:
+        part["reason"] = f"apify_start_failed: {type(e).__name__}"
+        return part, 0
+    run_id = None
+    try:
+        run_id = json.loads(b)["data"]["id"] if status == 201 else None
+    except (ValueError, KeyError, TypeError):
+        pass
+    if not run_id:
+        part["reason"] = f"apify_start_failed: http_{status}"
+        return part, 0
+    part["run_id"] = run_id
+    run, usage = apify_wait(api, run_id, hdr, HOME_APIFY_RUN_TIMEOUT_S + 120)
+    if run is None:
+        part["reason"] = f"apify_wait_failed(run={run_id})"
+        return part, usage
+    data = run["data"]
+    cost = data.get("usageTotalUsd") or 0
+    part["run_status"] = data["status"]
+    items = None
+    if data["status"] == "SUCCEEDED":
+        try:
+            st, _, b = http(f"{api}/datasets/{data.get('defaultDatasetId')}/items?clean=true&format=json",
+                            headers=hdr, spaced=False)
+            why = f"http_{st}"
+            if st == 200:
+                items = json.loads(b.decode("utf-8", "replace"))
+                if not isinstance(items, list):
+                    items, why = None, "not_a_list"
+        except Exception as e:
+            items, why = None, type(e).__name__
+        if items is None:
+            part["reason"] = f"apify_items_failed: {why}"
+            return part, cost
+    fetched_at = utc_now()
+    result, raws = home_apify_part(data["status"], items, cfg)
+    part.update(result)
+    for raw in raws:
+        emit("offer_slot", f"offer_slot/{h['host']}/{raw['slot']}", h["url"], fetched_at, raw)
+    return part, cost
+
+
 def fetch_products_page(page, host, n):
     """-> (products or None, reason or None)."""
     resp, why = navigate(page, f"https://{host}/products.json?limit={PRODUCTS_PAGE_SIZE}&page={n}", host)
@@ -539,6 +671,30 @@ def shopify_prices(page, cfg, home):
 
 
 # ---------------------------------------------------------------- Apify
+def apify_wait(api, run_id, hdr, max_total_s):
+    """Poll a run until it ends. -> (run object or None when the wait failed, usageTotalUsd of the last good poll)."""
+    started, fails, usage, run = time.monotonic(), 0, 0, None
+    while True:
+        try:
+            status, _, b = http(f"{api}/actor-runs/{run_id}?waitForFinish={APIFY_POLL_WAIT_S}", headers=hdr,
+                                timeout=APIFY_POLL_HTTP_TIMEOUT_S, spaced=False)
+            cand = json.loads(b) if status == 200 else None
+            ok = isinstance(cand, dict) and isinstance(cand.get("data"), dict)
+        except Exception:
+            ok = False
+        if ok:
+            fails, run = 0, cand
+            usage = run["data"].get("usageTotalUsd") or usage
+            if run["data"].get("status") in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
+                return run, usage
+        else:
+            fails += 1
+        if fails >= APIFY_POLL_ERRORS_MAX or time.monotonic() - started > max_total_s:
+            return None, usage
+        if not ok:
+            time.sleep(APIFY_POLL_ERROR_WAIT_S)
+
+
 def apify_prices(cfg, out_dir):
     """-> (part, cost_usd)."""
     listing_url = cfg["prices"]["listing_url"]
@@ -569,27 +725,10 @@ def apify_prices(cfg, out_dir):
         part["reason"] = f"apify_start_failed: http_{status}"
         return part, 0
     part["run_id"] = run_id
-    started, fails, usage, run = time.monotonic(), 0, 0, None
-    while True:
-        try:
-            status, _, b = http(f"{api}/actor-runs/{run_id}?waitForFinish={APIFY_POLL_WAIT_S}", headers=hdr,
-                                timeout=APIFY_POLL_HTTP_TIMEOUT_S, spaced=False)
-            cand = json.loads(b) if status == 200 else None
-            ok = isinstance(cand, dict) and isinstance(cand.get("data"), dict)
-        except Exception:
-            ok = False
-        if ok:
-            fails, run = 0, cand
-            usage = run["data"].get("usageTotalUsd") or usage
-            if run["data"].get("status") in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
-                break
-        else:
-            fails += 1
-        if fails >= APIFY_POLL_ERRORS_MAX or time.monotonic() - started > APIFY_MAX_TOTAL_WAIT_S:
-            part["reason"] = f"apify_wait_failed(run={run_id})"
-            return part, usage
-        if not ok:
-            time.sleep(APIFY_POLL_ERROR_WAIT_S)
+    run, usage = apify_wait(api, run_id, hdr, APIFY_MAX_TOTAL_WAIT_S)
+    if run is None:
+        part["reason"] = f"apify_wait_failed(run={run_id})"
+        return part, usage
     data = run["data"]
     cost = data.get("usageTotalUsd") or 0
     part["run_status"] = data["status"]
@@ -1119,7 +1258,10 @@ def run_brand(slug, inputs, names):
                 ctx = browser.new_context(locale="en-US", timezone_id="America/New_York",
                                           viewport={"width": 1400, "height": 950})
                 page = ctx.new_page()
-                home = home_step(page, cfg)
+                if cfg["home"].get("route") == "apify_playwright":
+                    home, home_cost = home_apify(cfg)
+                else:
+                    home, home_cost = home_step(page, cfg), 0
                 route = cfg["prices"]["route"]
                 if route == "shopify_products_json":
                     parts["prices"] = shopify_prices(page, cfg, home)
@@ -1127,6 +1269,7 @@ def run_brand(slug, inputs, names):
                     parts["prices"], cost = apify_prices(cfg, out / f"{run_id}.apify")
                 else:
                     parts["prices"] = batiste_prices(cfg, out / f"{run_id}.batiste")
+                cost += home_cost
             finally:
                 browser.close()
         klaviyo = klaviyo_step(cfg, out / f"{run_id}.klaviyo") if cfg["klaviyo_company_id"] else None

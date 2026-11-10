@@ -31,8 +31,8 @@ It does not extract prices, offer texts or email contents, does not decide what 
 | F1 | The Living Proof, Death Wish Coffee and Jinx home pages open in headless Chrome (`channel="chrome"`) with status 200. The load event comes within 10 s. On each, `window.Shopify.country` is `US` and `window.Shopify.currency.active` is `USD`. The Batiste home opens with status 200 and has no `window.Shopify` | probe 10:43 UTC |
 | F2 | In the same browser, `https://<host>/products.json?limit=250&page=1` returns 200 `application/json; charset=utf-8` with 66 (Living Proof), 165 (Death Wish Coffee) and 73 (Jinx) products, within 6 s. `page=2` returns `{"products":[]}` | probe; `products_jinx_page1_full.json`, `products_page2_empty.json` |
 | F3 | The response is `{"products": [...]}`. Every product has an integer `id`, a string `handle` and a list `variants`; every variant has `id` and `price` (a string such as `"30.00"`). There is no currency field. The product page is `https://<host>/products/<handle>` | `products_*.json` |
-| F4 | Black Rifle blocks the collector's own access: curl gets 403 "Attention Required! \| Cloudflare", and in Playwright Chrome the home page sends itself to `blackriflecoffee.com/url?q=https://www.google.com/` about 3 s after loading (2 of 2 tries). By the owner's rule this path was not tried again; Black Rifle prices come from Apify instead | `source_info.md` section 2 |
-| F5 | Seen once on the Black Rifle home in a normal (not automated) browser: announcement bar `announcement-bar .swiper-slide`, bundle cards `product-carousel product-card`. Never checked in headless Chrome (F4) | `offers_blackrifle.json` |
+| F4 | Black Rifle blocks the collector's own access: curl gets 403 "Attention Required! \| Cloudflare", and in Playwright Chrome the home page sends itself to `blackriflecoffee.com/url?q=https://www.google.com/` about 3 s after loading (2 of 2 tries). By the owner's rule this path was not tried again; Black Rifle prices come from Apify instead. The home page comes through an actor too (F24) | `source_info.md` section 2 |
+| F5 | Seen once on the Black Rifle home in a normal (not automated) browser: announcement bar `announcement-bar .swiper-slide`, bundle cards `product-carousel product-card`. Never checked in headless Chrome (F4); read through an actor in F24 | `offers_blackrifle.json` |
 | F6 | Home slots, counted 8 s after the load event (the selectors are in section 3): Living Proof `announcement_bar` 3, `banner_heading` 2, `free_shipping_message` 3, `footer_newsletter` 1, `gift_with_purchase` 1; Death Wish Coffee `announcement_bar` 1, `banner_heading` 9, `footer_newsletter` 1; Jinx `announcement_bar` 2, `hero_retailer_button` 1, `free_shipping_message` 1, `column_heading` 6, `cart_note` 1; Batiste `community_signup` 1 | probe 10:43 UTC; `home_slots/*.html` |
 | F7 | Living Proof's free-shipping threshold is the attribute `data-limit="50"` on `p.cart__message`; Jinx's is `data-free-shipping-limit="65"` on `div.drawer__message` | `home_slots/living-proof.html`, `home_slots/jinx.html` |
 | F8 | The Klaviyo popup forms do not appear in the headless home DOM within 8 s. `GET https://static-forms.klaviyo.com/forms/api/v7/<company id>/full-forms` returns 200 `application/json` without login. Its top-level keys are `company_sender_settings`, `dynamic_info_config`, `form_settings`, `full_forms`. Every element of `full_forms` has a string `form_id`. Forms: Living Proof 5 at 05:19 UTC and 2 at 10:47 UTC, so the list changes during the day; Death Wish Coffee 16, Black Rifle 16, Jinx 0. Batiste has no Klaviyo account. The list does not say whether a form is currently shown | probe 10:47 UTC; `klaviyo_forms_*.json` (05:19 UTC) |
@@ -51,6 +51,7 @@ It does not extract prices, offer texts or email contents, does not decide what 
 | F21 | A run with the same input at 2026-11-10T15:49Z again returned 55 items, but 47 of the item URLs ended in `?variant=<digits>` (for example `/products/dark-roast-bundle?variant=42986248175712`), and the log had six `Found` lines for pages 1 to 6 (12, 10, 20, 30, 22, 5), which sum to 99; a run nine minutes later, again with 55 items, summed to 109 and reported `priceCurrency`. The pages' counts overlap, so `listed` no longer equals the item count and such a run is `partial` with `apify_count_mismatch` | runs of 2026-11-10T15:49Z and 15:58Z (not kept as samples) |
 | F22 | Run 4 (2026-11-10, the input of section 4.4) logged six page lines for the one listing, `Found` 10, 22, 22, 30, 20 and 5, and 55 distinct `Product handled` lines; it returned 55 items. Page counts of one listing overlap, so they are not summed | `apify/blackrifle_run4_log.txt` |
 | F23 | In the inbox on 2026-11-10: "Customer account confirmation" from `support@thinkjinx.com` at `2026-11-10T15:12:32Z`, and "Verify your email" from a `tintcommunities.com` address (display name "Batiste Nation") at `2026-11-10T15:13:02Z`. Four hours later no newsletter welcome mail had arrived for either brand | inbox, 2026-11-10 |
+| F24 | Trial on 2026-11-11 of `apify/playwright-scraper` (API name `apify~playwright-scraper`) for the Black Rifle home page: `POST /v2/acts/apify~playwright-scraper/runs?timeout=180&memory=2048` returned 201 and the run was `SUCCEEDED` in under a minute, with `usageTotalUsd` about 0.003 (platform usage). The `pageFunction` runs in Node with `context = { page, request, response, log, ... }`; `page` is a Playwright page and `context.response.status` is a number, not a function (`response.status()` threw `TypeError: response.status is not a function`). The dataset held one item, the object the function returned: `url` `https://www.blackriflecoffee.com/`, `status` 200, title "Black Rifle Coffee Company – Black Rifle Coffee Company", market `["US", "USD"]`, 2 elements for `announcement-bar .swiper-slide` ("Free Shipping on orders over $75!", "We are America's Coffee®, By Veterans for people who love America.") and 166 for `product-carousel product-card`. When the page fails inside the actor, the run still ends `SUCCEEDED` with an empty dataset. `apify/web-scraper` was not used: it asks for full access to the Apify account | trial run, 2026-11-11 |
 
 Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - `products_*`;
@@ -114,7 +115,7 @@ Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 }
 ```
 - Death Wish Coffee uses `h2.banner__heading`, not the whole banner box, because the banner boxes of customer-quote slides end with the customer's name (F9).
-- Black Rifle's home is still opened once per run, so the block is recorded each time (F4). Its slots come from F5.
+- `home.route` is optional. `"apify_playwright"` (Black Rifle only) reads the home page through an actor (4.1a); without the key the page is read in Chrome (4.1). Black Rifle's browser is still started for the run, because its refusal of our Chrome is why the actor is used (F4, F24). Its slots come from F5.
 - `shopify_market_check` is `false` for Black Rifle because its prices do not come from its site; their currency is checked on the Apify items (4.4).
 - `email_sender_domains` holds the sender domains of the brand's mail: `tintcommunities.com` for Batiste and `thinkjinx.com` for Jinx (F23). An empty list gives `sender_domains_unknown`.
 
@@ -175,6 +176,9 @@ The folder now holds the export of F19:
 | `APIFY_POLL_ERRORS_MAX` | 3 | 4.4 |
 | `APIFY_POLL_ERROR_WAIT_S` | 15 | 4.4 |
 | `APIFY_MAX_TOTAL_WAIT_S` | 4200 | 4.4 |
+| `HOME_APIFY_ACTOR` | `apify~playwright-scraper` | 4.1a |
+| `HOME_APIFY_MEMORY_MB` | 2048 | 4.1a |
+| `HOME_APIFY_RUN_TIMEOUT_S` | 180 | 4.1a. The wait for the run ends `HOME_APIFY_RUN_TIMEOUT_S` + 120 s after the start |
 | `FIRST_DAY_S` | 86400 | 4.6 |
 | `SIGNUP_TOLERANCE_S` | 300 | 4.6 (F19: the Death Wish Coffee email arrived 3 s before `signup_at`) |
 
@@ -219,6 +223,33 @@ Order within a brand's run: (1) home page, (2) prices, (3) Klaviyo, (4) emails.
 | Step 1 failed | `could_not_look` | as in step 1 |
 | Every slot `found` | `ok` | empty |
 | Otherwise | `partial` | `slots_not_found(<slot names, comma-separated, in config order>)` |
+
+### 4.1a Home page through an actor (`offers`, `home.route` `apify_playwright`)
+Used instead of 4.1. Same slots, same records; nothing is opened in Chrome.
+1. Read `APIFY_TOKEN` as in 4.4 step 1. Missing: the home sub-part is `could_not_look` with `missing_token`, and no request is sent.
+2. Start once: `POST https://api.apify.com/v2/acts/apify~playwright-scraper/runs?timeout=180&memory=2048` (never sent twice; same `Authorization` header as 4.4). Input:
+   ```json
+   {"startUrls": [{"url": "<home.url>"}], "linkSelector": "", "pageFunction": "<source>", "launcher": "chromium", "proxyConfiguration": {"useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"], "apifyProxyCountry": "US"}, "maxPagesPerCrawl": 1, "maxRequestRetries": 0, "pageLoadTimeoutSecs": 60, "waitUntil": "domcontentloaded"}
+   ```
+   The `pageFunction` waits `HOME_SETTLE_S`, then returns one object: `requested`, `url`, `title`, `status` (number, or `null` without a response; the function accepts `response.status` as a number or a function, F24), `market` (`[Shopify.country, Shopify.currency.active]`) and `slots`: for each slot name, the list of `{outer_html, text}` of the elements matching its selector. The slots object is embedded as JSON, never pasted as text.
+   - Anything other than 201 with `data.id`: `apify_start_failed: http_<status>` or `apify_start_failed: <exception type>`.
+3. Poll as in 4.4 step 3 (same constants and `apify_wait_failed(run=<id>)`), but stop `HOME_APIFY_RUN_TIMEOUT_S` + 120 s after the start.
+4. If `data.status` is `SUCCEEDED`, GET the dataset items once (4.4 step 4); a failure gives `apify_items_failed: http_<status>`, `<exception type>` or `not_a_list`.
+5. `cost_usd` of the step is `data.usageTotalUsd` of the final run object (0 when no run started). The run's `cost_usd` is this plus the prices cost.
+
+| Home sub-part, checked in this order | State | Reason |
+|---|---|---|
+| Steps 1 to 4 failed | `could_not_look` | as given there |
+| `data.status` is not `SUCCEEDED` | `could_not_look` | `apify_run_<status>` |
+| Dataset empty (the page failed inside the actor) | `could_not_look` | `home_not_returned` |
+| The item's `url` host is not `home.host` | `could_not_look` | `blocked: host=<host>` |
+| `status` is 403 or 429 | `could_not_look` | `blocked: http_<status>` |
+| `title` contains (case-insensitive) `attention required` or `just a moment` | `could_not_look` | `blocked: title=<phrase>` |
+| `status` is 400 or higher | `could_not_look` | `http_<status>` |
+| Every slot has at least one element | `ok` | empty |
+| Otherwise (a slot missing from the item or not a list counts as no elements) | `partial` | `slots_not_found(<names, in config order>)` |
+
+The records are the `offer_slot` records of section 5 with `route` `home_apify`, one per slot in config order, written only when the sub-part is `ok` or `partial`; `fetched_at` is when the dataset was read. `market` is recorded only when `shopify_market_check` is true and the item has it.
 
 ### 4.2 Klaviyo (`offers`, only when `klaviyo_company_id` is not `null`)
 1. GET `https://static-forms.klaviyo.com/forms/api/v7/<klaviyo_company_id>/full-forms`.
@@ -384,7 +415,7 @@ Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per bra
 | `product` (Shopify) | `product/<host>/<handle>` | `https://<host>/products/<handle>` | when the page response arrived |
 | `product` (Apify) | `product/www.blackriflecoffee.com/<handle from url>` | the item's `url` | the item's `scrapedAt`, cut to whole seconds (`YYYY-MM-DDTHH:MM:SSZ`); when it is missing, when the items response arrived |
 | `retailer_availability` | `wtb/<EAN>` | `https://www.batistehair.com<first product path>` (the page whose "SHOP NOW" button opens the widget) | when the request ended. For `not_attempted`, when the route stopped |
-| `offer_slot` | `offer_slot/<home host>/<slot>` | `home.url` | when the settle wait ended |
+| `offer_slot` | `offer_slot/<home host>/<slot>` | `home.url` | when the settle wait ended; route `home_apify`: when the dataset was read |
 | `klaviyo_form` | `klaviyo_form/<company id>/<form_id>` | the `full-forms` URL | when the response arrived |
 | `email` | `email/<X-Trial-Gmail-Id>` | the entry's `signup_url`: signing up there brings the same email | route `inbox_export`: `exported_at`; route `imap`: when the mailbox was opened (after login) |
 
@@ -394,6 +425,7 @@ Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per bra
 {"route": "apify_ecommerce", "apify_run_id": "hnwXbDVmaBIo3D8pq", "item": {}}
 {"route": "batiste_wtb", "ean": "5010724526705", "product_pages": ["/products/dry-shampoo/fragrance-bare"], "state": "fetched", "error": null, "response": {}}
 {"route": "home_dom", "slot": "announcement_bar", "selector": "p.announcement-bar__message", "state": "found", "elements": [{"outer_html": "<p ...>", "text": "BUILD YOUR OWN ..."}]}
+{"route": "home_apify", "slot": "announcement_bar", "selector": "announcement-bar .swiper-slide", "state": "found", "elements": [{"outer_html": "<div ...>", "text": "Free Shipping ..."}]}
 {"route": "klaviyo_full_forms", "company_id": "Q6RhjR", "form": {}}
 {"route": "inbox_export", "file": "livingproof_20261110T044829Z_1a1c3c946076193d.eml", "sha256": "<of the file bytes>", "eml": "<the whole file as text>", "signup_at": "2026-11-10T04:47:06Z", "first_day_ends_at": "2026-11-11T04:47:06Z", "exported_at": "2026-11-10T07:26:17Z", "spam_checked": false}
 {"route": "imap", "file": "3e8.eml", "sha256": "<of the file bytes>", "eml": "<the whole file as text>", "signup_at": "2026-11-10T15:12:32Z", "first_day_ends_at": "2026-11-11T15:12:32Z", "folder": "all", "in_first_day": true, "redaction": "strict", "spam_checked": true}
@@ -411,7 +443,7 @@ Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per bra
 ### Run result
 - `source` is `brand_site_and_emails`.
 - `expected_total` is `null`.
-- `cost_usd` is the Apify charge from 4.4, and 0 for the other brands.
+- `cost_usd` is the Apify charge from 4.4 plus the one from 4.1a, and 0 for brands that use neither.
 
 `extra`:
 ```json
@@ -426,6 +458,7 @@ Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per bra
 }}
 ```
 - `market` is `null` when there is no market check.
+- On the route `apify_playwright` the `home` part also has `route` (`home_apify`), `run_id` and `run_status` (`null` when no run started).
 - `klaviyo` is `null` when `klaviyo_company_id` is `null`.
 - For the other price routes, `prices` holds `state`, `reason`, `route`, `records` and the counters below.
 - For the Apify route: `run_id`, `run_status`, `listed`, `found_per_page` (the per-page `N` of step 8, a list, for the record only; `null` if the log is unread), `items`, `items_without_product_url`, `duplicate_items`, `items_without_price`, `currency_not_reported`, `errors` (the length of the errors dataset, or `null` if unread).

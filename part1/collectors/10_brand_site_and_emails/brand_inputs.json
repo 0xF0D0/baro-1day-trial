@@ -27,7 +27,8 @@
     "email_sender_domains": ["deathwishcoffee.com"]
   },
   "black-rifle-coffee": {
-    "home": {"url": "https://www.blackriflecoffee.com/", "host": "www.blackriflecoffee.com", "shopify_market_check": false,
+    "home": {"url": "https://www.blackriflecoffee.com/", "host": "www.blackriflecoffee.com", "route": "apify_playwright",
+             "shopify_market_check": false,
              "slots": {"announcement_bar": "announcement-bar .swiper-slide",
                        "bundle_cards": "product-carousel product-card"}},
     "klaviyo_company_id": "XU3JTE",
