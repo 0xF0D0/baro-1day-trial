@@ -3,6 +3,8 @@ services:
     image: postgres:17
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+    # wal_recycle=off: old WAL segments are removed, not renamed for reuse, so erased rows do not linger in them.
+    command: ["postgres", "-c", "wal_recycle=off"]
     ports:
       - "127.0.0.1:55432:5432"
     healthcheck:

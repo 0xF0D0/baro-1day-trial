@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -96,4 +97,28 @@ func ObjectName(tenantID, kind string, day int64) string {
 		return tenantID + "/snapshot/" + id + ".json.enc"
 	}
 	return tenantID + "/buckets/" + time.Unix(day*86400, 0).UTC().Format("2006-01-02") + "/" + id + ".jsonl.enc"
+}
+
+// List returns every object name under prefix, recursively and sorted.
+func (c *Client) List(ctx context.Context, prefix string) ([]string, error) {
+	var names []string
+	for o := range c.mc.ListObjects(ctx, c.bucket, minio.ListObjectsOptions{Prefix: prefix, Recursive: true}) {
+		if o.Err != nil {
+			return nil, fmt.Errorf("cold: list: %w", o.Err)
+		}
+		names = append(names, o.Key)
+	}
+	sort.Strings(names)
+	return names, nil
+}
+
+// Delete removes the object. A missing object is already deleted and returns nil.
+func (c *Client) Delete(ctx context.Context, name string) error {
+	if err := c.mc.RemoveObject(ctx, c.bucket, name, minio.RemoveObjectOptions{}); err != nil {
+		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
+			return nil
+		}
+		return fmt.Errorf("cold: delete: %w", err)
+	}
+	return nil
 }

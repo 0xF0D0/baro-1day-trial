@@ -62,3 +62,30 @@ func TestObjectNameShape(t *testing.T) {
 		t.Fatalf("snapshot names: %q %q", s1, s2)
 	}
 }
+
+func TestListAndDelete(t *testing.T) {
+	c := coldtest.New(t)
+	ctx := context.Background()
+	for _, n := range []string{"t_1/a", "t_1/b/c", "t_10/x"} {
+		if err := c.Put(ctx, n, []byte("x")); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := c.List(ctx, "t_1/")
+	if err != nil || fmt.Sprint(got) != "[t_1/a t_1/b/c]" {
+		t.Fatalf("list: %v, %v", got, err)
+	}
+	if err := c.Delete(ctx, "t_1/a"); err != nil {
+		t.Fatal(err)
+	}
+	got, err = c.List(ctx, "t_1/")
+	if err != nil || fmt.Sprint(got) != "[t_1/b/c]" {
+		t.Fatalf("list after delete: %v, %v", got, err)
+	}
+	if err := c.Delete(ctx, "t_1/a"); err != nil {
+		t.Fatalf("second delete: %v", err)
+	}
+	if _, err := c.Get(ctx, "t_1/a"); !errors.Is(err, cold.ErrNotFound) {
+		t.Fatalf("get deleted: %v", err)
+	}
+}
