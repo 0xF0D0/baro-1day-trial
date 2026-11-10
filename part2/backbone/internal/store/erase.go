@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	"backbone/internal/canon"
 	"backbone/internal/fold"
+	"backbone/internal/metrics"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -24,6 +26,15 @@ func (s *Store) forgetKeys(tenantID string) {
 // exclusive customer lock) so that later ingests are refused; the delete runs
 // in a second transaction.
 func (s *Store) EraseCustomer(ctx context.Context, sc Scope, customerID string) error {
+	start := time.Now()
+	err := s.eraseCustomer(ctx, sc, customerID)
+	if err == nil {
+		metrics.ErasureSeconds.WithLabelValues("customer").Observe(time.Since(start).Seconds())
+	}
+	return err
+}
+
+func (s *Store) eraseCustomer(ctx context.Context, sc Scope, customerID string) error {
 	tenant := sc.TenantID()
 	customerKey := sc.Keys().CustomerKey(customerID)
 
@@ -342,6 +353,15 @@ func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customer
 // EraseTenant marks the tenant erased and deletes its key, events and
 // tombstones, and its cold-tier index rows in one transaction, then drops its cached keys. It is idempotent.
 func (s *Store) EraseTenant(ctx context.Context, tenantID string) error {
+	start := time.Now()
+	err := s.eraseTenant(ctx, tenantID)
+	if err == nil {
+		metrics.ErasureSeconds.WithLabelValues("tenant").Observe(time.Since(start).Seconds())
+	}
+	return err
+}
+
+func (s *Store) eraseTenant(ctx context.Context, tenantID string) error {
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return fmt.Errorf("store: erase tenant begin: %w", err)
