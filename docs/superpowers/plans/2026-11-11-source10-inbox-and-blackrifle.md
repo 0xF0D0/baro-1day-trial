@@ -80,6 +80,19 @@
 - [ ] Mapper test: an `imap`-route record with an HTML-only message maps to an `ads` row with `body` `None`.
 - [ ] Implement, update the spec, run the collector suite and the pipeline suite, commit.
 
-### Task C: Black Rifle's home page through an actor (only if a trial run gets the page)
+### Task C: Black Rifle's home page through an actor
 
-Decided after a trial run by the controller; specified then.
+The trial run got the page (design 3.2), so this is built.
+
+**Files:** Modify `part1/collectors/10_brand_site_and_emails/source_collector.py` (new `home_page_function`, `home_apify`; `run_brand`), `brand_inputs.json` (Black Rifle's `home` gets `"route": "apify_playwright"`), `spec.md` (inputs, a new procedure subsection, output, run result, one fact row), the mapper only if it reads `raw.route` of `offer_slot` records. Create `part1/collectors/10_brand_site_and_emails/tests/test_home_apify.py`.
+
+**Interfaces:**
+- Constants: `HOME_APIFY_ACTOR = "apify~playwright-scraper"`, `HOME_APIFY_MEMORY_MB = 2048`, `HOME_APIFY_RUN_TIMEOUT_S = 180`.
+- `home_page_function(slots: dict[str, str], settle_s: int) -> str`: the JavaScript `pageFunction` source. It waits `settle_s` seconds, then returns one object: `requested`, `url` (`page.url()`), `title`, `status` (`response.status` or `response.status()`, whichever exists; `null` without a response), `market` (`[window.Shopify?.country ?? null, window.Shopify?.currency?.active ?? null]`), and `slots`: for each slot name the list of `{outer_html, text}` of the elements matching its selector (`page.$$eval`). The selectors are passed in as JSON inside the source, never concatenated unescaped.
+- `home_apify_input(cfg) -> dict`: exactly `{"startUrls": [{"url": <home url>}], "linkSelector": "", "pageFunction": <source>, "launcher": "chromium", "proxyConfiguration": {"useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"], "apifyProxyCountry": "US"}, "maxPagesPerCrawl": 1, "maxRequestRetries": 0, "pageLoadTimeoutSecs": 60, "waitUntil": "domcontentloaded"}`.
+- `home_apify_part(run_status: str | None, items: list | None, cfg) -> tuple[dict, list[dict]]`: pure. The part (`state`, `reason`, `route` `"home_apify"`, `market`, `slots_not_found`) and the `offer_slot` raws to emit. Rules, in order: run not `SUCCEEDED` → `could_not_look` / `apify_run_<status>`; items not a list or empty → `could_not_look` / `home_not_returned`; the item's `url` host differs from `cfg["home"]["host"]` → `blocked: host=<host>`; `status` 403 or 429 → `blocked: http_<status>`; title containing `attention required` or `just a moment` (case-insensitive) → `blocked: title=<phrase>`; `status` 400 or above → `http_<status>`; otherwise one raw per slot `{"route": "home_apify", "slot", "selector", "state": "found" | "not_found", "elements": [...]}`, state `ok`, or `partial` with `slots_not_found(<names>)`.
+- `home_apify(cfg) -> tuple[dict, float]`: token missing → `could_not_look` / `missing_token`, cost 0, no request. Start `POST https://api.apify.com/v2/acts/apify~playwright-scraper/runs?timeout=180&memory=2048`, once; not 201 → `could_not_look` / `apify_start_failed: http_<status>` (or the exception type). Poll and read the dataset the way `apify_prices` does, with its constants and its failure reasons (`apify_wait_failed(run=<id>)`, `apify_items_failed: ...`). Emits the records with the key and URL the `home_dom` route uses. Returns the part and `usageTotalUsd` of the last run object.
+- `run_brand`: when `cfg["home"].get("route") == "apify_playwright"`, `home` comes from `home_apify(cfg)` instead of `home_step(page, cfg)`, and its cost is added to the run's `cost_usd`.
+
+- [ ] Tests: `home_page_function` embeds both selectors as valid JSON and contains no unescaped quote from a selector with `"` in it; `home_apify_input` equals the dict above for Black Rifle's inputs; `home_apify_part` for a good item (2 and 3 elements) gives `ok` and two raws in slot order with the elements; one empty slot gives `partial` / `slots_not_found(<name>)`; statuses 403 and 429, a foreign host, a Cloudflare title, status 500, a failed run and an empty dataset each give `could_not_look` with the reason above; `home_apify` without a token sends nothing.
+- [ ] Implement, update the spec, run the collector suite and the pipeline suite, commit.

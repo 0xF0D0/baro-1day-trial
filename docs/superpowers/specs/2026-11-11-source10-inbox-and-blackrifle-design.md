@@ -48,13 +48,15 @@ The rules of `tools/redact_eml.py` move into a function the collector and the to
 
 - **Verified senders** (`livingproof.com`, `deathwishcoffee.com`, `blackriflecoffee.com`): the existing rules, which
   were checked against these senders' mail and keep the product links.
-- **Any other sender** (strict): only `From`, `Reply-To`, `Subject`, `Date` and `MIME-Version` are kept; every URL
-  in the body is cut down to scheme and host (`https://host/REDACTED`); the inbox address in the body becomes
-  `TRIAL_INBOX`. A new sender's links can carry tokens the existing rules do not know, so none are kept.
+- **Any other sender** (strict): the message is stored as plain text only (its plain part, or the text of its HTML
+  part when it has none). Only `From`, `Subject`, `Date` and `MIME-Version` are kept. Every link is cut down to its
+  host (`https://host/REDACTED`), every email address in the text is replaced, and the inbox address becomes
+  `TRIAL_INBOX`. A new sender's links and markup can carry tokens the existing rules do not know, so none are kept.
+  What can still pass is an opaque token written as ordinary text outside any link or address.
 
 Both levels keep the hard check: if the inbox address, its local part or a removed token is still anywhere in the
-output, the message is not written and is counted in `eml_invalid`. A message with neither a plain-text nor an HTML
-part is treated the same way. Other parts (attachments) are dropped.
+output, the message is not written and is counted in `eml_invalid`. A message that cannot be read (no text part, an
+unknown character set) is treated the same way. Other parts (attachments) are dropped.
 
 The redacted `.eml` goes to `raw/<brand>/<run_id>.eml/`, which git ignores. Nothing the reader fetches is committed,
 and the address and the password are never written anywhere.
@@ -90,15 +92,20 @@ the arrival time of the first mail, and the record says so. Sender domains: `tin
 The per-page "found" numbers are kept for the record as `found_per_page` and are not summed. The limit is stated:
 the listing's own size cannot be checked by us, because the site refuses our browser.
 
-### 3.2 The home page (tried; kept only if it works)
+### 3.2 The home page
 
 The home page's offers are read from its DOM by two selectors. Our Chrome is refused (HTTP 403, and the page sends
 an automated browser away). Products of the same site already come through an Apify actor, so the home page is
 tried the same way: an actor that renders the page and evaluates the same two selectors, and returns each
 element's HTML and text. The records keep their shape with `route` `home_apify`.
 
-If the actor is refused as well, nothing is added and offers stay "could not look" with the reason. No other way
-around the refusal is tried.
+Tried on 2026-11-11 with `apify/playwright-scraper` through a US residential proxy, one page, no retry: the home
+page answered 200 with the Shopify market US and USD, the announcement selector matched 2 elements and the card
+selector 166, in 57 seconds for 0.003 USD. So it is built. (`apify/web-scraper` was not used: it asks for full
+access to the Apify account.)
+
+When the actor is refused as well, or returns no page, offers are "could not look" with the reason. No other way
+around a refusal is tried.
 
 ## 4. Goals, non-goals
 
