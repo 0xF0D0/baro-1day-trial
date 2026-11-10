@@ -43,3 +43,4 @@
 ## 참고 문서
 - `part1/docs/access-analysis.md`: 소스별 접근 조사 결과(2026-11-10, 한국 IP). 계획에 소스별 사실을 옮길 때 여기서 가져온다.
 - `part1/docs/attribute-candidates.md`: 광고/비광고 분류와 attribute 후보.
+- `part2/docs/analysis.md`: Part 2 요구사항, 데이터 측정값, 설계를 바꾸는 함정, deep dive 비교(2026-11-10). Part 2 계획은 여기서 사실을 가져온다.
