@@ -802,3 +802,25 @@ Expected: `0`.
 git add part2/backbone/cmd part2/backbone/Dockerfile part2/docker-compose.yml part2/deploy part2/scripts part2/README.md
 git commit -m "Add api binary, compose stack and end-to-end scripts"
 ```
+
+---
+
+## Outcome and follow-ups (added after execution, 2026-11-11)
+
+**Result.** All ten tasks are done and reviewed, and the whole-branch review found no Critical issue. End-to-end on the supplied data at the final commit: 100,560 deliveries in 74.4 s with 0 retries, state 200/200, isolation 0 leaks, ranges 48/48, `PASS`, and no `cus_` in any container log. The fresh seed 7 run also passed, as did a run with one api node killed mid-replay.
+
+**Deviations from this plan.**
+- Task 4: the fixtures use t_0010, t_0011, t_0016 and t_0018. The first four tenants in the 200–1500 band had no erased customers, so the generator takes two with erasures and two without.
+- Task 6: the migration test runs on fresh empty schemas (`storetest.NewUnmigrated`), because the planned shape could not fail. `EnsureTenants` takes the shared tenant-status lock so it cannot add a key during a tenant erasure.
+- pgx is pinned to v5.7.6, because later versions require Go 1.25.
+- The final review added `Store.Ping`, the rejection of empty signing secrets, a deterministic erase-versus-ingest lock-order test, and a test that an unsigned malformed delivery gets `401`.
+
+**Open decisions and follow-ups for Plan 2 or later.**
+1. **Normalization strictness.** A genuine, signed delivery with a null or missing field that the reducer never reads (`email`, `name`, `carrier`, `tracking`, `reason`, `body`) gets `400`. The sender never retries a `400`, so the event would be lost. The supplied and generated data never contain such a delivery. This needs an explicit decision.
+2. **Cross-vendor type names.** An unknown-type delivery whose type name equals a known type (for example a vendor B `order.created`) is stored verbatim. The fold then fails to decode it, so that tenant's state reads return `500` permanently. The reference reducer is undefined here too.
+3. **Operations.**
+   - A `500` records no cause; log a fixed reason code per call site.
+   - Every startup's `CREATE INDEX IF NOT EXISTS` briefly blocks writers. Skip the DDL when the schema version is current.
+   - The key cache has no TTL.
+   - `Ingest` does not check that the event's tenant matches the scope.
+4. **Hardening (dev compose).** The containers run as root, the KEK file is created `0644`, nginx resolves its upstreams once at start, and the server has no `IdleTimeout`.
