@@ -45,6 +45,7 @@ The loader is also where time enters. A collector takes no time range and rememb
 - An item is marked ended for being absent only by a run that was complete for that scope.
 - The table list in section 6 and the six calls in section 11, which the designer proposed and the user accepted.
 - `ads` has no paid flag; `channel` already tells paid media from owned channels.
+- TikTok creator handles (`posts.creator_handle`) and TikTok Shop seller names (`products.seller_name`) are stored in their columns.
 - Where a source gives an ad no dates (TikTok), the ad is followed by its ID alone: first seen, last seen and ended come from the runs.
 
 ## 5. Input
@@ -246,7 +247,7 @@ Made by the designer while the remaining mappers were built and reviewed, not ye
 - An ad that disappears from Google's list without a newer last-shown date is not ended; only the date ends Google ads.
 - A brand with several Facebook pages is one scope: when one page could not be read, no ad of that brand is ended in that run.
 - Review dates from Ulta are UTC dates and can differ by one day from the date the site shows.
-- `posts.creator_handle` and TikTok Shop's `seller_name` hold account and shop names as published. Some belong to individuals. Whether to keep them is the user's decision; the brief asks for the creator of each top post.
+- `posts.creator_handle` and TikTok Shop's `seller_name` hold account and shop names as published, and some belong to individuals. The user decided on 2026-11-10 that they are kept: the brief asks for the creator of each top post. Display names, avatars and locations are still not stored.
 
 ## 12. Left to the builder
 - Module layout inside `part1/pipeline/`, and how mappers are registered.

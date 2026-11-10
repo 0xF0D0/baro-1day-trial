@@ -57,6 +57,7 @@
   - product page: 4, 5, 9, 10번의 상품. 리뷰는 상품의 자식 행으로 둔다.
   - search: 6번의 검색 순위와 7번의 관심도.
   - social post: 8번의 게시물.
+- TikTok 크리에이터 계정명(`posts.creator_handle`)과 TikTok Shop 판매자명(`products.seller_name`)은 컬럼에 저장한다. 표시 이름, 아바타, 위치는 저장하지 않는다.
 
 ## 아직 정하지 않은 것
 - 테이블별 컬럼과 인사이트. 메인 스레드에서 정하는 중이다.
