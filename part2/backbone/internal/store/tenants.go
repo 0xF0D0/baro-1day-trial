@@ -70,6 +70,10 @@ func (s *Store) ensureTenant(ctx context.Context, id string) error {
 			return fmt.Errorf("store: insert tenant key: %w", err)
 		}
 	}
+	if _, err := tx.Exec(ctx,
+		`INSERT INTO tenant_cold (tenant_id) VALUES ($1) ON CONFLICT DO NOTHING`, id); err != nil {
+		return fmt.Errorf("store: insert tenant cold row: %w", err)
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("store: ensure tenant commit: %w", err)
 	}

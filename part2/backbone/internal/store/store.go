@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sync"
 
+	"backbone/internal/cold"
 	"backbone/internal/crypto"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -28,12 +29,14 @@ type Store struct {
 	pool *pgxpool.Pool
 	kek  *crypto.KEK
 
+	objects *cold.Client
+
 	mu   sync.Mutex
 	keys map[string]*crypto.TenantKeys
 }
 
 // Open connects to Postgres with synchronous_commit=on for every session.
-func Open(ctx context.Context, databaseURL string, kek *crypto.KEK) (*Store, error) {
+func Open(ctx context.Context, databaseURL string, kek *crypto.KEK, objects *cold.Client) (*Store, error) {
 	cfg, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("store: parse database url: %w", err)
@@ -47,7 +50,7 @@ func Open(ctx context.Context, databaseURL string, kek *crypto.KEK) (*Store, err
 		pool.Close()
 		return nil, fmt.Errorf("store: ping: %w", err)
 	}
-	return &Store{pool: pool, kek: kek, keys: map[string]*crypto.TenantKeys{}}, nil
+	return &Store{pool: pool, kek: kek, objects: objects, keys: map[string]*crypto.TenantKeys{}}, nil
 }
 
 // Close releases the pool.
@@ -79,3 +82,6 @@ func (s *Store) Migrate(ctx context.Context) error {
 	}
 	return nil
 }
+
+// Objects returns the cold-tier client the store was opened with.
+func (s *Store) Objects() *cold.Client { return s.objects }

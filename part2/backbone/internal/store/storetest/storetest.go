@@ -9,6 +9,7 @@ import (
 	"os"
 	"testing"
 
+	"backbone/internal/cold/coldtest"
 	"backbone/internal/crypto"
 	"backbone/internal/store"
 
@@ -32,6 +33,7 @@ func New(t *testing.T) (*store.Store, *crypto.KEK) {
 func NewUnmigrated(t *testing.T) (*store.Store, *crypto.KEK) {
 	t.Helper()
 	base := lookup(t)
+	objects := coldtest.New(t) // skips unless MinIO is configured
 	ctx := context.Background()
 
 	var rnd [8]byte
@@ -69,7 +71,7 @@ func NewUnmigrated(t *testing.T) (*store.Store, *crypto.KEK) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	st, err := store.Open(ctx, u.String(), kek)
+	st, err := store.Open(ctx, u.String(), kek, objects)
 	if err != nil {
 		t.Fatalf("open: %v", err)
 	}
@@ -92,7 +94,7 @@ func Reopen(t *testing.T, st *store.Store, kek *crypto.KEK) *store.Store {
 	q := u.Query()
 	q.Set("search_path", schema)
 	u.RawQuery = q.Encode()
-	st2, err := store.Open(context.Background(), u.String(), kek)
+	st2, err := store.Open(context.Background(), u.String(), kek, st.Objects())
 	if err != nil {
 		t.Fatalf("reopen: %v", err)
 	}

@@ -4,14 +4,17 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	"backbone/internal/api"
+	"backbone/internal/cold"
 	"backbone/internal/config"
 	"backbone/internal/crypto"
 	"backbone/internal/store"
@@ -42,7 +45,24 @@ func run(log *slog.Logger) error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
 
-	st, err := store.Open(ctx, cfg.DatabaseURL, kek)
+	user, err := os.ReadFile(cfg.MinioUserFile)
+	if err != nil {
+		return fmt.Errorf("read minio user file: %w", err)
+	}
+	pass, err := os.ReadFile(cfg.MinioPasswordFile)
+	if err != nil {
+		return fmt.Errorf("read minio password file: %w", err)
+	}
+	objects, err := cold.Open(ctx, cold.Config{
+		Endpoint:  cfg.MinioEndpoint,
+		AccessKey: strings.TrimSpace(string(user)),
+		SecretKey: strings.TrimSpace(string(pass)),
+		Bucket:    cfg.MinioBucket,
+	})
+	if err != nil {
+		return err
+	}
+	st, err := store.Open(ctx, cfg.DatabaseURL, kek, objects)
 	if err != nil {
 		return err
 	}
