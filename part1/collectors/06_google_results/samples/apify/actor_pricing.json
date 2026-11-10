@@ -1,0 +1,66 @@
+{
+ "fetched": "GET https://api.apify.com/v2/acts/apify~google-search-scraper on 2026-11-10",
+ "actor": {
+  "id": "nFJndFXA5zjCTuudP",
+  "username": "apify",
+  "name": "google-search-scraper"
+ },
+ "pricingModel": "PAY_PER_EVENT",
+ "pricingStartedAt": "2026-10-07T10:39:55.497Z",
+ "minimalMaxTotalChargeUsd": 0.5,
+ "events_FREE_tier_usd": {
+  "search-page-scraped": {
+   "price": 0.0045,
+   "description": "Cost per page of Google Search results successfully scraped."
+  },
+  "ai-overview-scraped": {
+   "price": 0.003,
+   "description": "Extra cost per query when an AI Overview is successfully captured. Uses a specialized proxy to increase the probability of getting one."
+  },
+  "ai-mode-result-scraped": {
+   "price": 0.2,
+   "description": "Extra cost for using Google AI Mode per search query. This cost is applied when a successful Google AI Mode request is returned."
+  },
+  "perplexity-ai-result-scraped": {
+   "price": 0.2,
+   "description": "Extra cost for using Perplexity AI search per search query. This cost is applied when a successful Perplexity AI search request is returned."
+  },
+  "chatgpt-result-scraped": {
+   "price": 0.2,
+   "description": "Extra cost for using ChatGPT search per search query. This cost is applied when a successful ChatGPT search request is returned."
+  },
+  "copilot-result-scraped": {
+   "price": 0.2,
+   "description": "Extra cost for using Copilot search per search query. This cost is applied when a successful Copilot search request is returned."
+  },
+  "gemini-result-scraped": {
+   "price": 0.2,
+   "description": "Extra cost for using Gemini search per search query. This cost is applied when a successful Gemini search request is returned."
+  },
+  "lead-scraped": {
+   "price": 0.1,
+   "description": "Cost per successfully extracted business lead. Get key prospect details: full name, work email, phone number, job title, and LinkedIn profile. Business leads are extracted based on the found web domains."
+  },
+  "lead-email-verified": {
+   "price": 0.1,
+   "description": "Cost per decisive email verification (valid, invalid, or disposable). You are not charged for catch-all, unknown, or error results."
+  },
+  "ads-scraped": {
+   "price": 0.0065,
+   "description": "Extra cost per page for attempting to extract paid results (ads) from Google Search. This applies when the ads extraction feature is enabled, regardless of whether ads are found on the specific page."
+  },
+  "website-content-scraped": {
+   "price": 0.008,
+   "description": "Cost per website page successfully scraped."
+  },
+  "apify-actor-start": {
+   "price": 5e-05,
+   "description": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event)."
+  }
+ },
+ "defaultRunOptions": {
+  "build": "latest",
+  "timeoutSecs": 604800,
+  "memoryMbytes": 1024
+ }
+}

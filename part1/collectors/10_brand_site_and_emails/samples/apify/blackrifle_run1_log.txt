@@ -1,0 +1,14 @@
+2026-11-10T07:15:21.953Z ACTOR: Pulling container image of build ccpcKLkkagmcc5GWi from registry.
+2026-11-10T07:15:21.955Z ACTOR: Creating container.
+2026-11-10T07:15:22.029Z ACTOR: Starting container.
+2026-11-10T07:15:22.033Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-11-10T07:15:24.453Z INFO  System info {"apifyVersion":"3.7.0","apifyClientVersion":"2.25.0","crawleeVersion":"3.16.0","osType":"Linux","nodeVersion":"v24.22.1"}
+2026-11-10T07:15:24.457Z INFO  Actor is starting...
+2026-11-10T07:15:31.932Z INFO  Product handled: https://www.blackriflecoffee.com/products/gothic-serpent-3-0-12oz-whole-bean
+2026-11-10T07:15:44.892Z INFO  Product handled: https://www.blackriflecoffee.com/products/the-espresso-upgrade
+2026-11-10T07:18:55.247Z INFO  Found 10 products in the listing page: https://www.blackriflecoffee.com/collections/coffee. Page: 1
+2026-11-10T07:19:18.012Z INFO  Product handled: https://www.blackriflecoffee.com/products/dark-roast-bundle
+2026-11-10T07:19:52.194Z INFO  Product handled: https://www.blackriflecoffee.com/products/pumpkin-spice-roast
+2026-11-10T07:19:53.691Z INFO  Product handled: https://www.blackriflecoffee.com/products/tactisquatch-roast
+2026-11-10T07:19:53.724Z WARN  The maximum number of results per run has been reached.
+2026-11-10T07:19:53.725Z INFO  Actor is finishing...

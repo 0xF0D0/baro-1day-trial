@@ -1,0 +1,762 @@
+[
+ {
+  "#debug": {
+   "requestId": "0KYkAeHfoXy7P0o",
+   "url": "http://www.google.com/search?q=death+wish+coffee&gl=us&xprovider=O&hl=en",
+   "loadedUrl": "http://www.google.com/search?q=death+wish+coffee&gl=us&xprovider=O&hl=en",
+   "method": "GET",
+   "retryCount": 3,
+   "errorMessages": [
+    "Error: Didn't get any paid results, retrying 1/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "Error: Didn't get any paid results, retrying 2/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "Error: Didn't get any paid results, retrying 3/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+   ],
+   "statusCode": 200
+  },
+  "#error": false,
+  "searchQuery": {
+   "term": "death wish coffee",
+   "url": "http://www.google.com/search?q=death+wish+coffee&gl=us&hl=en",
+   "device": "DESKTOP",
+   "page": 1,
+   "type": "SEARCH",
+   "domain": "google.com",
+   "countryCode": "US",
+   "languageCode": "en",
+   "locationUule": null,
+   "resultsPerPage": 10
+  },
+  "url": "http://www.google.com/search?q=death+wish+coffee&gl=us&hl=en",
+  "hasNextPage": true,
+  "serpProviderCode": "O",
+  "relatedQueries": [
+   {
+    "title": "Death Wish Coffee caffeine content",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+caffeine+content&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhNEAE"
+   },
+   {
+    "title": "Death wish coffee where to buy",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+wish+coffee+where+to+buy&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhaEAE"
+   },
+   {
+    "title": "Death wish coffee review",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+wish+coffee+review&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhZEAE"
+   },
+   {
+    "title": "Death wish coffee near me",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+wish+coffee+near+me&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhYEAE"
+   },
+   {
+    "title": "Death Wish Coffee warning",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+warning&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhTEAE"
+   },
+   {
+    "title": "Death Wish Coffee price",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+price&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhREAE"
+   },
+   {
+    "title": "Death Wish Coffee cans",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+cans&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhQEAE"
+   },
+   {
+    "title": "Death Wish Coffee instant",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+instant&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhOEAE"
+   },
+   {
+    "title": "Death Wish Coffee caffeine content",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+caffeine+content&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhNEAE"
+   },
+   {
+    "title": "Death wish coffee where to buy",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+wish+coffee+where+to+buy&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhaEAE"
+   },
+   {
+    "title": "Death wish coffee review",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+wish+coffee+review&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhZEAE"
+   },
+   {
+    "title": "Death wish coffee near me",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+wish+coffee+near+me&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhYEAE"
+   },
+   {
+    "title": "Death Wish Coffee warning",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+warning&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhTEAE"
+   },
+   {
+    "title": "Death Wish Coffee price",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+price&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhREAE"
+   },
+   {
+    "title": "Death Wish Coffee cans",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+cans&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhQEAE"
+   },
+   {
+    "title": "Death Wish Coffee instant",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&q=Death+Wish+Coffee+instant&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQ1QJ6BAhOEAE"
+   }
+  ],
+  "paidResults": [],
+  "paidProducts": [],
+  "organicResults": [
+   {
+    "title": "Death Wish Coffee: #1 Organic and #1 Fair Trade Coffee",
+    "websiteTitle": "Death Wish Coffee",
+    "url": "https://www.deathwishcoffee.com/?srsltid=AYCX9vLQQ71SspnNx9eznBDBzCG25g-UOeSVbNtQ4yui-JWfuM6ewdyM",
+    "displayedUrl": "https://www.deathwishcoffee.com",
+    "description": "Bold, Smooth and Delicious since 2012. We source USDA Organic and Fair Trade Certified™ arabica and robusta coffee beans from India, Peru, and other ...",
+    "emphasizedKeywords": [
+     "coffee"
+    ],
+    "siteLinks": [
+     {
+      "title": "About",
+      "url": "https://www.google.com/goto?url=CAESqQEBxCJF11mBmPDYUF0bqdsEEtjUy3pHyl7c4NjrQV24jg3pbhCO4nuhICDERS8h0lUfKAaseHgZ_nRrHwnOY1cED2PTzlWIUsNssUNrp7n-VziV-U4QHNg5gVHPMGSRputLwsyY8GDQ6b5CTfUnI_xqDSfI4VNm1g24xyCltRMa7NqvG0mZq4fqU-cJTRWMX3gEkJf3AHTliuJUuoi4PWX40HlEt1wgcxTm&gsessionid=mkFIr3wMcTZ-sDHt5ZDMIZnQ95rpg2jF0TTEHuej6t_yAo8Eon9ZXQ",
+      "description": "With the help of NASA Food Labs, Death Wish Coffee developed ..."
+     },
+     {
+      "title": "All Products",
+      "url": "https://www.google.com/goto?url=CAEStgEBxCJF11IUz2thG9crEx_KnRjgG1HBk7vtDg2s9cJXIVddpZdixdkntqdbh_x7nKZQzQEfu2hJjPPB18H56QSywdPHtA98WFSub2ws1xL2S_ExRiJ2yNEBQneBrr5okr8kicu592sBm0tk4m9HRKST9_9mZtCEMkIQuy1C8R3l1oXUt4Iv54cED3c07w2c4T0edM0lAZKEzWSIhne4B_cOpTSrQqvdAYJaKMdq2BXzQzcEOhXQsQ&gsessionid=mkFIr3wMcTZ-sDHt5ZDMIZnQ95rpg2jF0TTEHuej6t_yAo8Eon9ZXQ",
+      "description": "Death Wish Coffee Light Roast Single-Serve Pods - 10 Count ..."
+     },
+     {
+      "title": "Dark Roast",
+      "url": "https://www.google.com/goto?url=CAESuAEBxCJF16p26t8xYPWl3OA5DVtGdAgDQ02uB706jmEXRYU_nGczRqToiBK20N52TW8waVONde8sI955NMVLQbpzzh4hEAtJkwkr6QuPnslJcaUXqLk675HQd7nIc6ckdlMaMdy3G1TWkbP4WmUwfUvS6Z--xl6hnwR3wcxUphNwuCHmcHIo4_eei7d5pfIChVXF391KqDwajnqFHxsgcetgtjKY30XyBiDNDvCxkW-HKWcVW69hyvCC&gsessionid=mkFIr3wMcTZ-sDHt5ZDMIZnQ95rpg2jF0TTEHuej6t_yAo8Eon9ZXQ",
+      "description": "Certified Fair Trade and Organic, our balanced blend of arabica ..."
+     },
+     {
+      "title": "Store Locator",
+      "url": "https://www.google.com/goto?url=CAESsAEBxCJF15XhwfiPKqCXVnX0Mo-Q-JVwIYatopLu14ikwA36iP0oaxkPXDEWso14EhlhyrDU_oJ4S8AtVK3KDjN-u22hMPdQwlZjrEQKCn9SHuro1vpUCRv9PBKLPG3BQQeaNWuYfFoSwmaeJsIphQV4V03M1LxTBdNi5LLPtma95jewoThQaOdXtLYVN-mmEc0KJ570L_AutyEHh1SNMdfufnBaLoezxU8jrQb40jQm9g&gsessionid=mkFIr3wMcTZ-sDHt5ZDMIZnQ95rpg2jF0TTEHuej6t_yAo8Eon9ZXQ",
+      "description": "Find Death Wish Coffee in a store near you Death Wish Coffee is ..."
+     },
+     {
+      "title": "Merch",
+      "url": "https://www.google.com/goto?url=CAESrwEBxCJF1w3PVflsYQHkoOm5KCn-Rp2mGU5C7yszzUpYEt_rlI0WQynqsrQAbSzunT6hkkDvcNqS39lXBfbaABjGgbY3frAi9VakJy-Gn8S8sFu4P5WfTaFJOBohw5W8F2HRF-n8DgPfWs0rPhCPxu7SsH9ZZ2vr2LHrCkYW-MXTSelrzNER2HJCEPjjYiFMaxcc7do0zneOlqievxNywewKLThX377Eb5sqjZy2l1Ee&gsessionid=mkFIr3wMcTZ-sDHt5ZDMIZnQ95rpg2jF0TTEHuej6t_yAo8Eon9ZXQ",
+      "description": "Fuel your wardrobe with Death Wish Coffee merch as bold as ..."
+     },
+     {
+      "title": "More results from deathwishcoffee.com »",
+      "url": "https://www.google.com/search?q=death+wish+coffee+site:deathwishcoffee.com&sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDi8ip6I75ofWgtnRmNsd4Us6RJguQ:1794294627632&sa=X&ved=2ahUKEwiTw5qv7PyXAxXRSlcBHQhNOgcQrAN6BAgzEAE",
+      "description": ""
+     }
+    ],
+    "productInfo": {},
+    "type": "organic",
+    "position": 1
+   },
+   {
+    "title": "Death Wish Coffee",
+    "websiteTitle": "Amazon.com",
+    "url": "https://www.amazon.com/stores/DeathWishCoffee/page/2DAEBC08-BF12-4607-A252-7C96ADB09881",
+    "displayedUrl": "https://www.amazon.com › DeathWishCoffee › page",
+    "description": "Delivers a bold, full-bodied yet smooth and flavorful brew. Arabica & Robusta Blend, Dark Chocolate & Cool Mint, Compatible with Nespresso Original Machines",
+    "emphasizedKeywords": [
+     "Delivers a bold, full-bodied yet smooth and flavorful brew"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 2
+   },
+   {
+    "title": "Does anyone actually enjoy Death Wish coffee?",
+    "websiteTitle": "Reddit · r/Coffee",
+    "url": "https://www.reddit.com/r/Coffee/comments/kt72l3/does_anyone_actually_enjoy_death_wish_coffee/",
+    "displayedUrl": "130+ comments  ·  5 years ago",
+    "description": "Taste wise, doesn't taste any better or worse than any standard supermarket coffee. But the caffeine content is genuinely what it claims to be.Read more",
+    "emphasizedKeywords": [
+     "doesn't taste any better or worse than any standard supermarket coffee"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 3
+   },
+   {
+    "title": "Death Wish Coffee (@deathwishcoffee)",
+    "websiteTitle": "Instagram · deathwishcoffee",
+    "url": "https://www.instagram.com/deathwishcoffee/?hl=en",
+    "displayedUrl": "343.8K+ followers",
+    "description": "⚡ Naturally High Caffeine Brews 🌱 USDA Organic + ☕️ Fair Trade Certified 📦 Get 30% off your 1st subscription. Use code DWC20 for 20% off your first order",
+    "emphasizedKeywords": [
+     "USDA Organic + ☕️ Fair Trade Certified"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 4
+   },
+   {
+    "title": "Death Wish Coffee - Walmart.com",
+    "websiteTitle": "Walmart",
+    "url": "https://www.walmart.com/brand/deathwishcoffee/10018589",
+    "displayedUrl": "https://www.walmart.com › brand › deathwishcoffee",
+    "description": "Bold smooth taste. Premium canned lattes, perfect for on the go! Buy now · bags of medium dark and espresso roast coffees with pods in front. Try our pods.Read more",
+    "emphasizedKeywords": [
+     "Premium canned lattes, perfect for on the go"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 5
+   },
+   {
+    "title": "Death Wish Coffee",
+    "websiteTitle": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Death_Wish_Coffee",
+    "displayedUrl": "https://en.wikipedia.org › wiki › Death_Wish_Coffee",
+    "description": "Death Wish Coffee is a coffee brand based in the United States. blend of robusta and arabica beans from India, Peru, and other countries",
+    "emphasizedKeywords": [
+     "a coffee brand based in the United States"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 6
+   }
+  ],
+  "suggestedResults": [],
+  "peopleAlsoAsk": [
+   {
+    "answer": null,
+    "question": "What is so special about Death Wish Coffee?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "How much caffeine is actually in Death Wish Coffee?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "Is Death Wish the strongest coffee in the world?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "Is Death Wish Coffee a clean coffee?",
+    "title": null,
+    "url": null,
+    "date": null
+   }
+  ],
+  "aiOverview": {
+   "type": "static",
+   "content": "Death Wish Coffee Company is an American coffee brand founded in 2012 by Mike Brown in Saratoga Springs, New York. Marketed as a strong, high-caffeine brew, the company produces USDA Organic and Fair Trade Certified coffee.\nCoffee Blend and Caffeine\n- Bean Blend: Uses a combination of high-caffeine Robusta and smooth Arabica beans sourced from regions like India, Peru, and Central/South America.\n- Caffeine Strength: Contains significantly more caffeine than a standard cup of coffee (often reported around 470 mg per 8-ounce cup, depending on the brew method).\n- Flavor Profile: Designed to be bold yet smooth, featuring low acidity and notes of chocolate, cherry, or caramel rather than harsh bitterness. Opinions on Reddit Reddit Discussion",
+   "sources": []
+  },
+  "customData": null,
+  "htmlSnapshotUrl": "https://api.apify.com/v2/key-value-stores/35b63vdvacHjMLHFK/records/0KYkAeHfoXy7P0o-3.html?signature=REDACTED"
+ },
+ {
+  "#debug": {
+   "requestId": "NveNnxl6I7M1Y7d",
+   "url": "http://www.google.com/search?q=batiste+dry+shampoo&gl=us&xprovider=O&hl=en",
+   "loadedUrl": "http://www.google.com/search?q=batiste+dry+shampoo&gl=us&xprovider=O&hl=en",
+   "method": "GET",
+   "retryCount": 3,
+   "errorMessages": [
+    "Error: Didn't get any paid results, retrying 1/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "Error: Didn't get any paid results, retrying 2/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "Error: Didn't get any paid results, retrying 3/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+   ],
+   "statusCode": 200
+  },
+  "#error": false,
+  "searchQuery": {
+   "term": "batiste dry shampoo",
+   "url": "http://www.google.com/search?q=batiste+dry+shampoo&gl=us&hl=en",
+   "device": "DESKTOP",
+   "page": 1,
+   "type": "SEARCH",
+   "domain": "google.com",
+   "countryCode": "US",
+   "languageCode": "en",
+   "locationUule": null,
+   "resultsPerPage": 10
+  },
+  "url": "http://www.google.com/search?q=batiste+dry+shampoo&gl=us&hl=en",
+  "hasNextPage": true,
+  "serpProviderCode": "O",
+  "relatedQueries": [
+   {
+    "title": "Batiste Dry Shampoo 7.62 oz",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+7.62+oz&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhNEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo dark hair",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+dark+hair&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhZEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo volume",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+volume&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhXEAE"
+   },
+   {
+    "title": "Batiste dry shampoo review",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+dry+shampoo+review&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhVEAE"
+   },
+   {
+    "title": "Batiste dry shampoo ingredients",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+dry+shampoo+ingredients&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhUEAE"
+   },
+   {
+    "title": "Batiste dry shampoo recall",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+dry+shampoo+recall&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhTEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo Mini",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+Mini&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhSEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo Walmart",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+Walmart&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhQEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo 7.62 oz",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+7.62+oz&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhNEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo dark hair",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+dark+hair&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhZEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo volume",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+volume&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhXEAE"
+   },
+   {
+    "title": "Batiste dry shampoo review",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+dry+shampoo+review&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhVEAE"
+   },
+   {
+    "title": "Batiste dry shampoo ingredients",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+dry+shampoo+ingredients&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhUEAE"
+   },
+   {
+    "title": "Batiste dry shampoo recall",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+dry+shampoo+recall&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhTEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo Mini",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+Mini&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhSEAE"
+   },
+   {
+    "title": "Batiste Dry Shampoo Walmart",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&q=Batiste+Dry+Shampoo+Walmart&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQ1QJ6BAhQEAE"
+   }
+  ],
+  "paidResults": [],
+  "paidProducts": [],
+  "organicResults": [
+   {
+    "title": "Batiste Dry Shampoo: Refresh your Hair",
+    "websiteTitle": "Batiste Dry Shampoo",
+    "url": "https://www.batistehair.com/",
+    "displayedUrl": "https://www.batistehair.com",
+    "description": "Batiste Dry Shampoo refreshes your hair between washes, leaving it feeling gorgeously clean and fresh with added body and texture, no water necessary!",
+    "emphasizedKeywords": [
+     "Batiste Dry Shampoo"
+    ],
+    "siteLinks": [
+     {
+      "title": "Products",
+      "url": "https://www.google.com/goto?url=CAESaQHEIkXXs59bK0Dy36oKxvr2FnnPXBwPbCghd7WJ5Ukfqz-WUnlr09HmuSmK0gjEhb1xf76nZmZGRufPkOHEBbuzQESUR--pbggyfjjvProMYPuhMcGs5RAGvvLJeNskmav-DcbULY6lSw&gsessionid=TeNRPWEq6HXzZe0S8n5cl_6E0VFIz_sqd3pu4x29VMGocXYcP00mzg",
+      "description": "Batiste™ Dry Shampoo keeps your hair feeling fresh days after ..."
+     },
+     {
+      "title": "Original",
+      "url": "https://www.google.com/goto?url=CAESgAEBxCJF1-fOoiJIh2HhM0y5_KdZITaXYffMw0dez181_8CTM1zBmIfeqvcxdXBBpTUYH81ut5ut-BQYFCknY9tBNbLpDqBh49yj1bhAJsJ1_RxCNSzNhaz_LkHBJoLernl-4R4_YGmCH0bFjOzHWZ0SQY1bSf3PqtEe4fPKiTSpXQ&gsessionid=TeNRPWEq6HXzZe0S8n5cl_6E0VFIz_sqd3pu4x29VMGocXYcP00mzg",
+      "description": "Say hello to a citrusy and refreshing burst of orange and ..."
+     },
+     {
+      "title": "More results from batistehair.com »",
+      "url": "https://www.google.com/search?q=batiste+dry+shampoo+site:batistehair.com&sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDjGkCA3QncJRjEKyOFBjU_2vjOVNg:1794294627484&sa=X&ved=2ahUKEwjPy5Kv7PyXAxUQVPEDHT5_K2AQrAN6BAglEAE",
+      "description": ""
+     }
+    ],
+    "productInfo": {},
+    "type": "organic",
+    "position": 1
+   },
+   {
+    "title": "Batiste Original Dry Shampoo, Absorbs Oil & Grease ...",
+    "websiteTitle": "Amazon.com",
+    "url": "https://www.amazon.com/Batiste-6-73-Dry-Shampoo-Original/dp/B008D5HAHU",
+    "displayedUrl": "https://www.amazon.com › Batiste-6-73-Dry-Shampoo-...",
+    "description": "Batiste Original Dry Shampoo, Absorbs Oil & Grease, Classic Clean Scent, 3.81 oz. Effectively removes excess oil and grease at the roots, Made with rice starch ...",
+    "emphasizedKeywords": [
+     "Batiste Original Dry Shampoo"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 2
+   },
+   {
+    "title": "7.62 oz Original Dry Shampoo - Batiste",
+    "websiteTitle": "Ulta",
+    "url": "https://www.ulta.com/p/original-dry-shampoo-xlsImpprod2040049?sku=2515942",
+    "displayedUrl": "https://www.ulta.com › ... › Dry Shampoo",
+    "description": "Refresh hair instantly with Batiste Dry Shampoo. This 7.62 oz formula absorbs oil for clean, voluminous hair. Free shipping at $35 at Ulta Beauty.",
+    "emphasizedKeywords": [
+     "Batiste Dry Shampoo"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 3
+   },
+   {
+    "title": "Batiste Hair: Home page",
+    "websiteTitle": "batiste-hair.eu",
+    "url": "https://www.batiste-hair.eu/en/home-page/",
+    "displayedUrl": "https://www.batiste-hair.eu › home-page",
+    "description": "Achieve refreshed, softer, shinier and detangled hair effortlessly with Batiste Dry Shampoo and Leave-In Dry conditioners.",
+    "emphasizedKeywords": [
+     "Batiste Dry Shampoo"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 4
+   },
+   {
+    "title": "Batiste Dry Shampoo Review: Why It's The #1 To Never Use",
+    "websiteTitle": "Facebook · Blowout Professor",
+    "url": "https://www.facebook.com/blowoutprofessor/videos/batiste-is-basically-the-easy-bake-oven-of-dry-shampoo-you-deserve-a-routine-mad/1344774510926037/",
+    "displayedUrl": "330+ reactions  ·  4 months ago",
+    "description": "",
+    "emphasizedKeywords": [],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 5
+   },
+   {
+    "title": "3 Beauty Editors Try Batiste Dry Shampoos In Between ...",
+    "websiteTitle": "Allure",
+    "url": "https://www.allure.com/sponsored/story/batiste-dry-shampoo-dark-volumizer-shine-mist-review-photos",
+    "displayedUrl": "https://www.allure.com › sponsored › story › batiste-dry-...",
+    "description": "What I love most about Batiste's Dark Hair Dry Shampoo is its ability to absorb excess oil on my scalp, stretching the longevity of my blowouts without any ...Read more",
+    "emphasizedKeywords": [
+     "Batiste's Dark Hair Dry Shampoo"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 6
+   },
+   {
+    "title": "25+ Batiste Dry Shampoos for sale | Updated Nov 2026",
+    "websiteTitle": "eBay",
+    "url": "https://www.ebay.com/b/Batiste-Dry-Shampoos/177661/bn_8582147",
+    "displayedUrl": "https://www.ebay.com › ... › Shampoos & Conditioners",
+    "description": "NEW 3x Batiste Batiste Dry Shampoo Heavenly Volume 6.73 oz/200 ml ... Batiste Dry Shampoo | Original Fragrance. Batiste. Brand New. US $43.99. Free shipping.Read more",
+    "emphasizedKeywords": [
+     "Batiste Dry Shampoo"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 7
+   }
+  ],
+  "suggestedResults": [],
+  "peopleAlsoAsk": [
+   {
+    "answer": null,
+    "question": "Is Batiste dry shampoo okay for your hair?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "Is Batiste dry shampoo safe now?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "What happened to Batiste dry shampoo?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "Which is better, Batiste or not your mother's dry shampoo?",
+    "title": null,
+    "url": null,
+    "date": null
+   }
+  ],
+  "customData": null,
+  "htmlSnapshotUrl": "https://api.apify.com/v2/key-value-stores/35b63vdvacHjMLHFK/records/NveNnxl6I7M1Y7d-3.html?signature=REDACTED"
+ },
+ {
+  "#debug": {
+   "requestId": "TKgVqmT1WEKkO1V",
+   "url": "http://www.google.com/search?q=jinx+dog+food&gl=us&xprovider=O&hl=en",
+   "loadedUrl": "http://www.google.com/search?q=jinx+dog+food&gl=us&xprovider=O&hl=en",
+   "method": "GET",
+   "retryCount": 3,
+   "errorMessages": [
+    "Error: Didn't get any paid results, retrying 1/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "Error: Didn't get any paid results, retrying 2/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "Error: Didn't get any paid results, retrying 3/3.\n    at CheerioCrawler.requestHandler (file:///usr/src/app/dist/request-handler.js:113:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+   ],
+   "statusCode": 200
+  },
+  "#error": false,
+  "searchQuery": {
+   "term": "jinx dog food",
+   "url": "http://www.google.com/search?q=jinx+dog+food&gl=us&hl=en",
+   "device": "DESKTOP",
+   "page": 1,
+   "type": "SEARCH",
+   "domain": "google.com",
+   "countryCode": "US",
+   "languageCode": "en",
+   "locationUule": null,
+   "resultsPerPage": 10
+  },
+  "url": "http://www.google.com/search?q=jinx+dog+food&gl=us&hl=en",
+  "hasNextPage": true,
+  "serpProviderCode": "O",
+  "relatedQueries": [
+   {
+    "title": "Jinx dog food review",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+dog+food+review&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiPARAB"
+   },
+   {
+    "title": "Jinx Dog Food packets",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+packets&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiVARAB"
+   },
+   {
+    "title": "Where to buy jinx dog food",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Where+to+buy+jinx+dog+food&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiUARAB"
+   },
+   {
+    "title": "Jinx Dog Food Puppy",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+Puppy&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiTARAB"
+   },
+   {
+    "title": "Jinx dog food wet",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+dog+food+wet&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiSARAB"
+   },
+   {
+    "title": "Jinx Dog Food small Breed",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+small+Breed&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiRARAB"
+   },
+   {
+    "title": "Jinx Dog Food Walmart",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+Walmart&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiQARAB"
+   },
+   {
+    "title": "Jinx Dog Food tractor supply",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+tractor+supply&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiOARAB"
+   },
+   {
+    "title": "Jinx dog food review",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+dog+food+review&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiPARAB"
+   },
+   {
+    "title": "Jinx Dog Food packets",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+packets&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiVARAB"
+   },
+   {
+    "title": "Where to buy jinx dog food",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Where+to+buy+jinx+dog+food&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiUARAB"
+   },
+   {
+    "title": "Jinx Dog Food Puppy",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+Puppy&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiTARAB"
+   },
+   {
+    "title": "Jinx dog food wet",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+dog+food+wet&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiSARAB"
+   },
+   {
+    "title": "Jinx Dog Food small Breed",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+small+Breed&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiRARAB"
+   },
+   {
+    "title": "Jinx Dog Food Walmart",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+Walmart&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiQARAB"
+   },
+   {
+    "title": "Jinx Dog Food tractor supply",
+    "url": "https://www.google.com/search?sca_esv=c593a0fc8acaa402&gl=us&hl=en&sxsrf=AKL5yDhGDoxKlihN5SPoaRKt6SPCUCB2Zg:1794294657082&q=Jinx+Dog+Food+tractor+supply&sa=X&ved=2ahUKEwiNx6C97PyXAxXf8AIHHYmONPUQ1QJ6BQiOARAB"
+   }
+  ],
+  "paidResults": [],
+  "paidProducts": [],
+  "organicResults": [
+   {
+    "title": "Fresh Dog Food | Gently Cooked Meals & Mix-Ins - Jinx",
+    "websiteTitle": "thinkjinx.com",
+    "url": "https://www.thinkjinx.com/collections/fresh-dog-food?srsltid=AYCX9vJWjX3TAYZA4RwdFnijJZvU7r1rv927cNrmDUWnXCpw2i5ZIkUy",
+    "displayedUrl": "https://www.thinkjinx.com › collections › fresh-dog-food",
+    "description": "Shop Jinx Fresh dog food made with high-quality proteins and savory bone broth. Gently cooked pouches and rolls can be served as a meal or mixed into ...",
+    "emphasizedKeywords": [
+     "Jinx Fresh dog food made"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 1
+   },
+   {
+    "title": "Homemades & Fresh Dog Food | Home-Cooked Style ... - Jinx",
+    "websiteTitle": "thinkjinx.com",
+    "url": "https://www.thinkjinx.com/collections/homemades?srsltid=AYCX9vJuPQyAuzwESXOnOb7_1WlKJ9_YF1v6ZcTHB2uyB8UG8MTjmIbb",
+    "displayedUrl": "https://www.thinkjinx.com › collections › homemades",
+    "description": "Jinx Fresh Homemades offer premium, home-cooked style dog food made with high-quality ingredients. Choose from single-serve meals, stews, and variety packs.",
+    "emphasizedKeywords": [
+     "Jinx Fresh Homemades offer premium, home-cooked style dog food"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 2
+   },
+   {
+    "title": "Jinx Dog Food Reviews - Paw of Approval",
+    "websiteTitle": "The Dodo",
+    "url": "https://www.thedodo.com/paw-of-approval/jinx-dog-food-reviews",
+    "displayedUrl": "https://www.thedodo.com › Paw Of Approval › Dog Food",
+    "description": "We loved that Jinx dog food is packed with real protein, probiotics and superfoods so we knew our BFFs were eating clean kibble. And you can't ...Read more",
+    "date": "2021-06-07T12:00:00.000Z",
+    "emphasizedKeywords": [
+     "Jinx dog food is packed with real protein, probiotics and superfoods"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 3
+   },
+   {
+    "title": "Jinx dog food : r/dogs",
+    "websiteTitle": "Reddit · r/dogs",
+    "url": "https://www.reddit.com/r/dogs/comments/14isowk/jinx_dog_food/",
+    "displayedUrl": "7 comments  ·  3 years ago",
+    "description": "None of the reviews that rank them highly are run by board certified veterinary nutritionists. Where it's sold doesn't determine whether or not ...Read more",
+    "emphasizedKeywords": [
+     "board certified veterinary nutritionists"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 4
+   },
+   {
+    "title": "Is Jinx Dog Food Good? Why It's Worth Every Penny",
+    "websiteTitle": "thinkjinx.com",
+    "url": "https://www.thinkjinx.com/blogs/inside-the-bowl-1/what-makes-jinx-dog-food-worth-every-penny?srsltid=AYCX9vJLu5vaBgSOjewBN_sWxkRrH9ZMSDduWQMm3Nhr3fStGKG6oE8k",
+    "displayedUrl": "https://www.thinkjinx.com › blogs › inside-the-bowl-1",
+    "description": "Real named proteins, 20+ superfoods, a patented probiotic, and a bowl dogs actually finish. Here's what you get in every bag of Jinx.",
+    "date": "2026-11-02T07:11:00.555Z",
+    "emphasizedKeywords": [
+     "Real named proteins, 20+ superfoods, a patented probiotic"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 5
+   },
+   {
+    "title": "Tasty Dog Treats by Jinx | Perfect for Training & Snacking",
+    "websiteTitle": "thinkjinx.com",
+    "url": "https://www.thinkjinx.com/collections/healthy-dog-treats?srsltid=AYCX9vKXFevpp1JhqF2ro4ce48imjt0deZF_vYTb6fm3kzZn4gBUpbdg",
+    "displayedUrl": "https://www.thinkjinx.com › healthy-dog-treats",
+    "description": "Whether you're training or just showing love, Jinx dog treats turn every moment into a tail-wagging reward. Made for flavor, fun, and happy pups.",
+    "emphasizedKeywords": [
+     "Jinx dog treats"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 6
+   },
+   {
+    "title": "Shop for Jinx Dog Food at Tractor Supply Co.",
+    "websiteTitle": "Tractor Supply",
+    "url": "https://www.tractorsupply.com/tsc/brand/jinx/dog-food",
+    "displayedUrl": "https://www.tractorsupply.com › Jinx › Pet › Dog",
+    "description": "Jinx Homemades Adult Chicken Recipe Natural Wet Dog Food, 9 oz. 4.9. (328). $399. $3 .99. Standard Delivery. Choose options · Jinx Homemades Adult ...Read more",
+    "emphasizedKeywords": [
+     "Jinx Homemades Adult Chicken Recipe Natural Wet Dog Food"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 7
+   },
+   {
+    "title": "JINX Salmon & Vegetables Recipe Grain-Free Wet Dog ...",
+    "websiteTitle": "Chewy",
+    "url": "https://www.chewy.com/jinx-salmon-sweet-potato-chopped/dp/1930966",
+    "displayedUrl": "https://www.chewy.com › ... › Wet Food › Adult",
+    "description": "This grain-free recipe is perfect for dogs with food sensitivities or allergies, plus it contains no fillers like corn, wheat, soy, or animal byproducts.Read more",
+    "emphasizedKeywords": [
+     "perfect for dogs with food sensitivities or allergies"
+    ],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 8
+   },
+   {
+    "title": "Jinx Dog Food Review: Does My Dog Like This Drool-Worthy ...",
+    "websiteTitle": "YouTube · Mealkite",
+    "url": "https://www.youtube.com/watch?v=HyilJK9vxGM",
+    "displayedUrl": "6.8K+ views  ·  5 years ago",
+    "description": "",
+    "emphasizedKeywords": [],
+    "siteLinks": [],
+    "productInfo": {},
+    "type": "organic",
+    "position": 9
+   }
+  ],
+  "suggestedResults": [],
+  "peopleAlsoAsk": [
+   {
+    "answer": null,
+    "question": "Is Jinx dog food a healthy brand?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "Can I get EBT for my dog?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "Why don't vets like grain-free dog food?",
+    "title": null,
+    "url": null,
+    "date": null
+   },
+   {
+    "answer": null,
+    "question": "What dog food has horse meat in it?",
+    "title": null,
+    "url": null,
+    "date": null
+   }
+  ],
+  "customData": null,
+  "htmlSnapshotUrl": "https://api.apify.com/v2/key-value-stores/35b63vdvacHjMLHFK/records/TKgVqmT1WEKkO1V-3.html?signature=REDACTED"
+ }
+]

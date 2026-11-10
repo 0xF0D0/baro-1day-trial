@@ -1,0 +1,11 @@
+{
+  "exported_at": "2026-11-10T07:26:17Z",
+  "query": "{from:livingproof.com from:deathwishcoffee.com from:blackriflecoffee.com}",
+  "searched_domains": ["livingproof.com", "deathwishcoffee.com", "blackriflecoffee.com"],
+  "spam_checked": false,
+  "messages": [
+    {"gmail_id": "1a1c3c89e9e9cf7d", "file": "deathwish_20261110T044745Z_1a1c3c89e9e9cf7d.eml"},
+    {"gmail_id": "1a1c3c946076193d", "file": "livingproof_20261110T044829Z_1a1c3c946076193d.eml"},
+    {"gmail_id": "1a1c3d099d8be175", "file": "blackrifle_20261110T045627Z_1a1c3d099d8be175.eml"}
+  ]
+}

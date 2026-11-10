@@ -1,0 +1,152 @@
+{
+ "run": {
+  "actor": "apify/e-commerce-scraping-tool",
+  "input": {
+   "reviewDetailsUrls": [
+    {
+     "url": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+    }
+   ],
+   "maxReviewResults": 10,
+   "sortReview": "Most recent",
+   "additionalReviewProperties": true
+  },
+  "run_options": {
+   "timeoutSecs": 300,
+   "memoryMbytes": 512,
+   "maxTotalChargeUsd": 1
+  },
+  "status": "SUCCEEDED",
+  "started_at": "2026-11-10T07:10:48.072Z",
+  "finished_at": "2026-11-10T07:10:52.456Z",
+  "charged_event_counts": {
+   "start-actor": 1,
+   "push-review": 10
+  },
+  "charged_usd": 0.0201
+ },
+ "log_note": "Run log said: Processed 50 reviews for product, Page: 1; 10 were saved and charged.",
+ "pii_note": "`author` field removed from every review before saving.",
+ "items": [
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-25T20:04:56.000+00:00",
+   "reviewBody": "Perfect amount of strong coffee! Most dark roast coffees would either be not very strong or the roast would taste almost burnt, this is the perfect balance",
+   "name": "Go to coffee",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-24T13:08:27.000+00:00",
+   "reviewBody": "As the OG always top notch and well enjoyed all day keeping me fueled",
+   "name": "The OG",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-24T10:01:42.000+00:00",
+   "reviewBody": "My husband is REBELLIOUS BY NATURE, and loves this coffee. It was his idea to try it one day when we were shopping in a grocery store, and he was hooked right away. It has a cool name, good flavor, gets the job done.",
+   "name": "Husband love it",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-23T15:24:36.000+00:00",
+   "reviewBody": "I’ve been a huge fan of this coffee since 2018, I’ve tried all the flavors but dark roast is probably my all time favorite.",
+   "name": "Good stuff.",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-22T21:36:41.000+00:00",
+   "reviewBody": "Excellent organic coffee. Enjoy Death Wish daily!",
+   "name": "So goos",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-22T13:39:08.000+00:00",
+   "reviewBody": "The dark roast is very full flavored and not bitter. I really appreciate not having to add anything to it in order to enjoy it. The fact that it is organic and Free Trade doesn't affect thee taste, but doesn't hurt either.",
+   "name": "Full-bodied, strong flavor",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-22T12:42:11.000+00:00",
+   "reviewBody": "I love that smell, taste and how strong it is. It's like a slap in the face wake up call.love it!",
+   "name": "Dark roast coffee",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-20T22:09:33.000+00:00",
+   "reviewBody": "[This review was collected as part of a promotion.] Death Wish Coffee Dark Roast Ground has quickly become a staple in my morning routine! ☺️☕️First of all, the packaging is sleek, sturdy, and keeps the coffee super fresh. The grind consistency is spot on, making the brewing process effortless whether I'm using a drip coffee maker or a French press. It brews into a rich, full-body cup with incredible depth and no bitter aftertaste. The finish is smooth with dark chocolate and subtle cherry notes. leaving a pleasant taste that lasts. If you're looking for a strong, flavorful coffee that delivers an amazing caffeine kick without sacrificing quality, this is absolutely it!❤️☕️☕️☕️",
+   "name": "Smooth, bold dark roast with a rich body and the perfect morning boost!",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-20T21:36:55.000+00:00",
+   "reviewBody": "[This review was collected as part of a promotion.] I love the taste of coffee and this is bold without being bitter. I like to make it overnight as a cold brew to get that smooth texture. My husband makes it as a hot pour over and loves it as well!",
+   "name": "Rich, Bold, Non Bitter",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  },
+  {
+   "productUrl": "https://www.target.com/p/-/A-88498115",
+   "datePublished": "2026-10-20T21:28:25.000+00:00",
+   "reviewBody": "The dark roast and Valhalla excellent coffee, can't see ever buying any other.",
+   "name": "Great coffee",
+   "reviewRating": {
+    "bestRating": 5,
+    "ratingValue": 5,
+    "worstRating": 1
+   },
+   "inputUrl": "https://www.target.com/p/death-wish-coffee-dark-roast-ground-coffee-10oz/-/A-88498115"
+  }
+ ]
+}

@@ -1,0 +1,110 @@
+{
+ "_note": "Run object of the same run read again at 2026-11-10 09:4x UTC. userId, consoleUrl, containerUrl and generalAccess removed.",
+ "request": {
+  "method": "GET",
+  "url": "https://api.apify.com/v2/actor-runs/JHcDlVBcEj0jHJNfL"
+ },
+ "response": {
+  "id": "JHcDlVBcEj0jHJNfL",
+  "actId": "RnxYr0I6hkNVQk9ee",
+  "startedAt": "2026-11-10T07:50:56.764Z",
+  "finishedAt": "2026-11-10T07:51:34.828Z",
+  "status": "SUCCEEDED",
+  "meta": {
+   "origin": "API",
+   "userAgent": "Python-urllib/3.14"
+  },
+  "stats": {
+   "inputBodyLen": 340,
+   "migrationCount": 0,
+   "rebootCount": 0,
+   "restartCount": 0,
+   "durationMillis": 37920,
+   "resurrectCount": 0,
+   "runTimeSecs": 37.92,
+   "metamorph": 0,
+   "computeUnits": 0.005266666666666667,
+   "memAvgBytes": 69082413.46364722,
+   "memMaxBytes": 82415616,
+   "memCurrentBytes": 0,
+   "cpuAvgUsage": 4.2146363525731685,
+   "cpuMaxUsage": 106.18541296060991,
+   "cpuCurrentUsage": 0,
+   "netRxBytes": 320414,
+   "netTxBytes": 234006
+  },
+  "options": {
+   "build": "latest",
+   "timeoutSecs": 300,
+   "memoryMbytes": 512,
+   "maxTotalChargeUsd": 4.229052,
+   "maxItems": 20592,
+   "isMaxTotalChargeUsdSetByUser": false,
+   "diskMbytes": 1024
+  },
+  "buildId": "UvwnWzwWuJyRI8iU1",
+  "exitCode": 0,
+  "defaultKeyValueStoreId": "x0G6T2MVZ5uY8c2r8",
+  "defaultDatasetId": "koINZJ19ikLd5031m",
+  "defaultRequestQueueId": "6Ym6JiKG3slVZDJsi",
+  "storageIds": {
+   "keyValueStores": {
+    "default": "x0G6T2MVZ5uY8c2r8"
+   },
+   "datasets": {
+    "default": "koINZJ19ikLd5031m"
+   },
+   "requestQueues": {
+    "default": "6Ym6JiKG3slVZDJsi"
+   }
+  },
+  "pricingInfo": {
+   "pricingModel": "PAY_PER_EVENT",
+   "startedAt": "2026-06-27T19:40:47.472Z",
+   "createdAt": "2026-06-27T19:40:47.554Z",
+   "apifyMarginPercentage": 0.2,
+   "pricingPerEvent": {
+    "actorChargeEvents": {
+     "apify-actor-start": {
+      "eventTitle": "Actor Start",
+      "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+      "isOneTimeEvent": true,
+      "eventPriceUsd": 0.005
+     },
+     "apify-default-dataset-item": {
+      "eventTitle": "Ad record",
+      "eventDescription": "Per TikTok ad record saved in the default dataset.",
+      "isPrimaryEvent": true,
+      "eventPriceUsd": 0.00020537
+     }
+    }
+   }
+  },
+  "chargedEventCounts": {
+   "apify-actor-start": 1,
+   "apify-default-dataset-item": 296
+  },
+  "platformUsageBillingModel": "DEVELOPER",
+  "accountedChargedEventCounts": {
+   "apify-actor-start": 1,
+   "apify-default-dataset-item": 296
+  },
+  "standby": null,
+  "buildNumber": "0.1.30",
+  "usageTotalUsd": 0.06578952,
+  "eventUsage": {
+   "apify-actor-start": {
+    "eventTitle": "Actor Start",
+    "eventTotalUsd": 0.005
+   },
+   "apify-default-dataset-item": {
+    "eventTitle": "Ad record",
+    "eventTotalUsd": 0.06078952
+   }
+  },
+  "output": {
+   "ads": "https://api.apify.com/v2/datasets/koINZJ19ikLd5031m/items?view=overview&signature=MC4wLlhFUVF3WlRTY2xQUk9WcVhueGdw",
+   "runSummary": "https://api.apify.com/v2/key-value-stores/x0G6T2MVZ5uY8c2r8/records/RUN_SUMMARY?signature=qrGFe73eSHpZlB40cE1p"
+  }
+ }
+}

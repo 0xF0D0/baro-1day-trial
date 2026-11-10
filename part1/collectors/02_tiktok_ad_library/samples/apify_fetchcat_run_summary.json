@@ -1,0 +1,20 @@
+{
+ "_note": "Default key-value store record RUN_SUMMARY of run JHcDlVBcEj0jHJNfL.",
+ "request": {
+  "method": "GET",
+  "url": "https://api.apify.com/v2/key-value-stores/<defaultKeyValueStoreId>/records/RUN_SUMMARY"
+ },
+ "response": {
+  "status": "SUCCEEDED",
+  "requestedSources": 9,
+  "processedSources": 21,
+  "saved": 296,
+  "duplicatesSkipped": 29,
+  "failed": 0,
+  "emptySources": 3,
+  "errors": [],
+  "warnings": [],
+  "startedAt": "2026-11-10T07:50:59.725Z",
+  "finishedAt": "2026-11-10T07:51:34.676Z"
+ }
+}

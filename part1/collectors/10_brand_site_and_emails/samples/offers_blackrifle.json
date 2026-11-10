@@ -1,0 +1,10 @@
+{
+  "_note": "Seen 2026-11-10 in a normal Chrome (in-app browser) on the home page. Not submitted.",
+  "offers": [
+    {"type":"announcement_bar","text":"Free Shipping on orders over $75!","selector":"div#shopify-section-announcement-bar announcement-bar .swiper-slide","html_head":"<announcement-bar class=\"flex w-full py-2 px-4 relative\"> ... swiper-slide","in_raw_html":"not checked"},
+    {"type":"signup_popup","text":"WANT THE LATEST INTEL? Get exclusive deals and drops! [Email Address] [EMAIL ME]","selector":"form.needsclick inside div.kl-private-reset-css-*  (Klaviyo form, injected by script, light DOM, no shadow root)","appears":"on first load, over a cookie banner"},
+    {"type":"signup_tab","text":"Get 20% Off","note":"Appears after popup is closed or submitted (from email_signups.json; not re-observed)"},
+    {"type":"bundle_cards","examples":["DARK ROAST WRAPPED AND LOADED BUNDLE $104.46 (was $109.96)","OPERATION GIFT DROP BUNDLE $56.97 (was $59.97)","FREE PATCH! MEDIUM ROAST FIRST RESPONDER BUNDLE $80.96 (was $90.96)"],"selector":"div#shopify-section-template--*__featured_products_* product-carousel product-card","note":"price and strikethrough price on card; 'Free Patch!' is a badge"},
+    {"type":"subscribe_menu","text":"Every month, you'll get a new exotic roast shipped to your door ... Sign up today!","selector":"nav megamenu link (hidden until hover)"}
+  ]
+}

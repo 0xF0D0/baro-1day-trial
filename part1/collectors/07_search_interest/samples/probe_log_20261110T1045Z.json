@@ -1,0 +1,420 @@
+{
+ "loads": [
+  {
+   "label": "home",
+   "status": 200,
+   "url": "https://trends.google.com/trends/",
+   "blocked": [],
+   "at": "19:45:05"
+  },
+  {
+   "label": "cmp5",
+   "status": 200,
+   "url": "https://trends.google.com/trends/explore?date=2025-11-10%202026-11-10&geo=US&q=Batiste%20dry%20shampoo,Living%20Proof%20shampoo,Death%20Wish%20Coffee,Black%20Ri",
+   "title": "Batiste dry shampoo, Living Proof shampoo, Death Wish Coffee, Black Rifle Coffee, Jinx dog food - Explore - Google Trends",
+   "blocked": [],
+   "banner": true,
+   "at": "19:45:35"
+  },
+  {
+   "label": "solo_batiste_ds",
+   "status": 200,
+   "url": "https://trends.google.com/trends/explore?date=2025-11-10%202026-11-10&geo=US&q=Batiste%20dry%20shampoo",
+   "title": "Batiste dry shampoo - Explore - Google Trends",
+   "blocked": [],
+   "banner": true,
+   "at": "19:46:02"
+  },
+  {
+   "label": "solo_living_proof_shampoo",
+   "status": 200,
+   "url": "https://trends.google.com/trends/explore?date=2025-11-10%202026-11-10&geo=US&q=Living%20Proof%20shampoo",
+   "title": "Living Proof shampoo - Explore - Google Trends",
+   "blocked": [],
+   "banner": true,
+   "at": "19:46:30"
+  },
+  {
+   "label": "solo_death_wish",
+   "status": 200,
+   "url": "https://trends.google.com/trends/explore?date=2025-11-10%202026-11-10&geo=US&q=Death%20Wish%20Coffee",
+   "title": "Death Wish Coffee - Explore - Google Trends",
+   "blocked": [],
+   "banner": true,
+   "at": "19:46:58"
+  },
+  {
+   "label": "solo_black_rifle",
+   "status": 200,
+   "url": "https://trends.google.com/trends/explore?date=2025-11-10%202026-11-10&geo=US&q=Black%20Rifle%20Coffee",
+   "title": "Black Rifle Coffee - Explore - Google Trends",
+   "blocked": [],
+   "banner": true,
+   "at": "19:47:26"
+  },
+  {
+   "label": "solo_jinx_dog_food",
+   "status": 200,
+   "url": "https://trends.google.com/trends/explore?date=2025-11-10%202026-11-10&geo=US&q=Jinx%20dog%20food",
+   "title": "Jinx dog food - Explore - Google Trends",
+   "blocked": [],
+   "banner": true,
+   "at": "19:47:54"
+  },
+  {
+   "label": "solo_batiste_plain_fixed",
+   "status": 200,
+   "url": "https://trends.google.com/trends/explore?date=2025-11-10%202026-11-10&geo=US&q=Batiste",
+   "title": "Batiste - Explore - Google Trends",
+   "blocked": [],
+   "banner": true,
+   "at": "19:48:22"
+  }
+ ],
+ "api": [
+  {
+   "label": "cmp5",
+   "n": 1,
+   "name": "explore",
+   "status": 200,
+   "elapsed_s": 2.51,
+   "bytes": 20097
+  },
+  {
+   "label": "cmp5",
+   "n": 2,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 2.85,
+   "bytes": 5827
+  },
+  {
+   "label": "cmp5",
+   "n": 3,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 2.86,
+   "bytes": 5833
+  },
+  {
+   "label": "cmp5",
+   "n": 4,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 2.86,
+   "bytes": 5799
+  },
+  {
+   "label": "cmp5",
+   "n": 5,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 2.87,
+   "bytes": 5743
+  },
+  {
+   "label": "cmp5",
+   "n": 6,
+   "name": "widgetdata.multiline",
+   "status": 200,
+   "elapsed_s": 2.88,
+   "bytes": 11333
+  },
+  {
+   "label": "cmp5",
+   "n": 7,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 2.9,
+   "bytes": 5833
+  },
+  {
+   "label": "cmp5",
+   "n": 8,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 2.9,
+   "bytes": 8662
+  },
+  {
+   "label": "cmp5",
+   "n": 9,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 3.59,
+   "bytes": 76
+  },
+  {
+   "label": "cmp5",
+   "n": 10,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 3.78,
+   "bytes": 76
+  },
+  {
+   "label": "cmp5",
+   "n": 11,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 3.91,
+   "bytes": 637
+  },
+  {
+   "label": "cmp5",
+   "n": 12,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 4.0,
+   "bytes": 76
+  },
+  {
+   "label": "cmp5",
+   "n": 13,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 4.15,
+   "bytes": 2201
+  },
+  {
+   "label": "solo_batiste_ds",
+   "n": 14,
+   "name": "explore",
+   "status": 200,
+   "elapsed_s": 1.37,
+   "bytes": 5742
+  },
+  {
+   "label": "solo_batiste_ds",
+   "n": 15,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 1.54,
+   "bytes": 5827
+  },
+  {
+   "label": "solo_batiste_ds",
+   "n": 16,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.55,
+   "bytes": 76
+  },
+  {
+   "label": "solo_batiste_ds",
+   "n": 17,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.55,
+   "bytes": 35
+  },
+  {
+   "label": "solo_batiste_ds",
+   "n": 18,
+   "name": "widgetdata.multiline",
+   "status": 200,
+   "elapsed_s": 1.74,
+   "bytes": 8649
+  },
+  {
+   "label": "solo_living_proof_shampoo",
+   "n": 19,
+   "name": "explore",
+   "status": 200,
+   "elapsed_s": 1.35,
+   "bytes": 5753
+  },
+  {
+   "label": "solo_living_proof_shampoo",
+   "n": 20,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 1.55,
+   "bytes": 5799
+  },
+  {
+   "label": "solo_living_proof_shampoo",
+   "n": 21,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.56,
+   "bytes": 76
+  },
+  {
+   "label": "solo_living_proof_shampoo",
+   "n": 22,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.56,
+   "bytes": 35
+  },
+  {
+   "label": "solo_living_proof_shampoo",
+   "n": 23,
+   "name": "widgetdata.multiline",
+   "status": 200,
+   "elapsed_s": 1.63,
+   "bytes": 8649
+  },
+  {
+   "label": "solo_death_wish",
+   "n": 24,
+   "name": "explore",
+   "status": 200,
+   "elapsed_s": 1.36,
+   "bytes": 5720
+  },
+  {
+   "label": "solo_death_wish",
+   "n": 25,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 1.55,
+   "bytes": 5833
+  },
+  {
+   "label": "solo_death_wish",
+   "n": 26,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.56,
+   "bytes": 637
+  },
+  {
+   "label": "solo_death_wish",
+   "n": 27,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.56,
+   "bytes": 35
+  },
+  {
+   "label": "solo_death_wish",
+   "n": 28,
+   "name": "widgetdata.multiline",
+   "status": 200,
+   "elapsed_s": 1.63,
+   "bytes": 8649
+  },
+  {
+   "label": "solo_black_rifle",
+   "n": 29,
+   "name": "explore",
+   "status": 200,
+   "elapsed_s": 1.18,
+   "bytes": 5731
+  },
+  {
+   "label": "solo_black_rifle",
+   "n": 30,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 1.38,
+   "bytes": 5833
+  },
+  {
+   "label": "solo_black_rifle",
+   "n": 31,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.4,
+   "bytes": 2201
+  },
+  {
+   "label": "solo_black_rifle",
+   "n": 32,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.4,
+   "bytes": 35
+  },
+  {
+   "label": "solo_black_rifle",
+   "n": 33,
+   "name": "widgetdata.multiline",
+   "status": 200,
+   "elapsed_s": 1.53,
+   "bytes": 8649
+  },
+  {
+   "label": "solo_jinx_dog_food",
+   "n": 34,
+   "name": "explore",
+   "status": 200,
+   "elapsed_s": 1.18,
+   "bytes": 5676
+  },
+  {
+   "label": "solo_jinx_dog_food",
+   "n": 35,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.34,
+   "bytes": 35
+  },
+  {
+   "label": "solo_jinx_dog_food",
+   "n": 36,
+   "name": "widgetdata.multiline",
+   "status": 200,
+   "elapsed_s": 1.44,
+   "bytes": 8645
+  },
+  {
+   "label": "solo_jinx_dog_food",
+   "n": 37,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 1.46,
+   "bytes": 5743
+  },
+  {
+   "label": "solo_jinx_dog_food",
+   "n": 38,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.96,
+   "bytes": 76
+  },
+  {
+   "label": "solo_batiste_plain_fixed",
+   "n": 39,
+   "name": "explore",
+   "status": 200,
+   "elapsed_s": 1.37,
+   "bytes": 5610
+  },
+  {
+   "label": "solo_batiste_plain_fixed",
+   "n": 40,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 1.52,
+   "bytes": 35
+  },
+  {
+   "label": "solo_batiste_plain_fixed",
+   "n": 41,
+   "name": "widgetdata.multiline",
+   "status": 200,
+   "elapsed_s": 1.65,
+   "bytes": 8651
+  },
+  {
+   "label": "solo_batiste_plain_fixed",
+   "n": 42,
+   "name": "widgetdata.comparedgeo",
+   "status": 200,
+   "elapsed_s": 1.66,
+   "bytes": 5833
+  },
+  {
+   "label": "solo_batiste_plain_fixed",
+   "n": 43,
+   "name": "widgetdata.relatedsearches",
+   "status": 200,
+   "elapsed_s": 2.52,
+   "bytes": 76
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+URL: https://www.tiktok.com/shop/s/death-wish-coffee (final URL unchanged, HTTP 200)
+visible text: Categories Orders Sell Customer support More Log in Shop Sell About Customer support Legal © 2026 TikTok Verify to continue: Drag the puzzle piece into place 20261110051024F470372AA0D3B101131C
+
+listing API the page called: GET /api/shop/brandy_desktop/death-wish-coffee/page_data  -> body: {"code":10000}
+verification host: api-verification.tiktokshops.us (/vc/setting, /api/v1/bs/setting)
+
+URL: https://shop.tiktok.com/ -> redirected to https://shop.tiktok.com/us
+visible text: Verify to continue: Drag the puzzle piece into place 2026111005105063BC0A0A6211A502B9A6 

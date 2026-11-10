@@ -1,0 +1,157 @@
+{
+ "_note": "Trimmed from https://www.livingproof.com/products.json?limit=250&page=1 (fetched 2026-11-10, US, normal Chrome). 3 of 66 products kept; variants cut to the first 3; images cut to the first URL; body_html cut to 200 chars.",
+ "products": [
+  {
+   "id": 9436155511036,
+   "title": "The Classic Clean Dry Shampoo Set",
+   "handle": "the-classic-clean-dry-shampoo-set",
+   "vendor": "Living Proof",
+   "product_type": "Perfect hair Day™",
+   "tags": [
+    "quiz_exclude",
+    "YBlocklist"
+   ],
+   "published_at": "2026-08-18T00:00:04-04:00",
+   "updated_at": "2026-11-10T00:12:38-05:00",
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ],
+   "n_variants_total": 1,
+   "variants": [
+    {
+     "id": 50991251489020,
+     "title": "Default Title",
+     "sku": "04035",
+     "price": "46.00",
+     "compare_at_price": "66.00",
+     "available": true,
+     "grams": 0,
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null
+    }
+   ],
+   "n_images_total": 7,
+   "images": [
+    "https://cdn.shopify.com/s/files/1/0732/2039/1164/files/2026_Holiday_OGDSDuo_PDP_2_2x_7f0383a5-e47c-440b-84c4-33bb9afe6b7c.png?v=1786998753"
+   ],
+   "body_html": "<p>A limited-edition holiday set that's perfect for busy mornings or last-minute plans. Perfect Hair Day™ Dry Shampoo, an award-winning formula, actually cleans hair by absorbing oil, sweat, and odor,"
+  },
+  {
+   "id": 9436199682300,
+   "title": "The Travel Essentials Set",
+   "handle": "the-travel-essentials-set",
+   "vendor": "Living Proof",
+   "product_type": "",
+   "tags": [
+    "quiz_exclude"
+   ],
+   "published_at": "2026-08-18T00:00:07-04:00",
+   "updated_at": "2026-11-10T00:12:38-05:00",
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ],
+   "n_variants_total": 1,
+   "variants": [
+    {
+     "id": 50991474573564,
+     "title": "Default Title",
+     "sku": "04056",
+     "price": "44.00",
+     "compare_at_price": "55.00",
+     "available": true,
+     "grams": 0,
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null
+    }
+   ],
+   "n_images_total": 11,
+   "images": [
+    "https://cdn.shopify.com/s/files/1/0732/2039/1164/files/2026_HolidayTravel_PDP_2_2x_74a98c84-17e9-4154-b370-0e0fe7c1f9bd.png?v=1786998763"
+   ],
+   "body_html": "<p>A limited-edition holiday set that keeps up with every party, plan, and photo-op. This travel-size trio features our Advanced Clean Dry Shampoo, which cleans like a rinse-out shampoo; Dry Volume &a"
+  },
+  {
+   "id": 9224633024764,
+   "title": "Perfect hair Day™ Style Refresh Mist",
+   "handle": "style-refresh-mist",
+   "vendor": "Living Proof",
+   "product_type": "Perfect hair Day™",
+   "tags": [
+    "Eligible for Discount",
+    "quiz_blow_dry",
+    "quiz_coily_hair",
+    "quiz_curly_hair",
+    "quiz_damage_repair",
+    "quiz_fine_hair",
+    "quiz_manageability",
+    "quiz_medium_hair",
+    "quiz_Second-day_hair",
+    "quiz_sleek_blowout",
+    "quiz_smoothing",
+    "quiz_straight_hair",
+    "quiz_thick_hair",
+    "quiz_wavy_hair",
+    "Styler",
+    "ygroup_stylerefreshmist"
+   ],
+   "published_at": "2026-02-10T00:00:03-05:00",
+   "updated_at": "2026-11-10T00:12:38-05:00",
+   "options": [
+    {
+     "name": "Size",
+     "position": 1,
+     "values": [
+      "Travel 1.7 oz",
+      "Full 5 oz"
+     ]
+    }
+   ],
+   "n_variants_total": 2,
+   "variants": [
+    {
+     "id": 48708762173692,
+     "title": "Travel 1.7 oz",
+     "sku": "03844",
+     "price": "18.00",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 0,
+     "option1": "Travel 1.7 oz",
+     "option2": null,
+     "option3": null
+    },
+    {
+     "id": 48708762206460,
+     "title": "Full 5 oz",
+     "sku": "03842",
+     "price": "32.00",
+     "compare_at_price": null,
+     "available": true,
+     "grams": 0,
+     "option1": "Full 5 oz",
+     "option2": null,
+     "option3": null
+    }
+   ],
+   "n_images_total": 14,
+   "images": [
+    "https://cdn.shopify.com/s/files/1/0732/2039/1164/files/PDP-StyleRefreshMist-FS.png?v=1769463467"
+   ],
+   "body_html": "<p>An ultra-fine restyling mist that reshapes hair to bring back day-1 look and feel, while neutralizing odors and providing thermal protection.</p>"
+  }
+ ]
+}

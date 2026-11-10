@@ -1,0 +1,30 @@
+2026-11-10T07:50:56.913Z ACTOR: Pulling container image of build UvwnWzwWuJyRI8iU1 from registry.
+2026-11-10T07:50:58.511Z ACTOR: Creating container.
+2026-11-10T07:50:58.573Z ACTOR: Starting container.
+2026-11-10T07:50:58.575Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-11-10T07:50:59.474Z INFO  System info {"apifyVersion":"3.7.2","apifyClientVersion":"2.23.4","crawleeVersion":"3.17.0","osType":"Linux","nodeVersion":"v22.23.4"}
+2026-11-10T07:50:59.597Z {"telemetry_diagnostic":"configuration_dsn_present","run_id":"JHcDlVBcEj0jHJNfL","build_id":"UvwnWzwWuJyRI8iU1"}
+2026-11-10T07:50:59.691Z {"telemetry_diagnostic":"sdk_ready","run_id":"JHcDlVBcEj0jHJNfL","build_id":"UvwnWzwWuJyRI8iU1"}
+2026-11-10T07:50:59.725Z {"telemetry_diagnostic":"webhook_registered","run_id":"JHcDlVBcEj0jHJNfL","build_id":"UvwnWzwWuJyRI8iU1"}
+2026-11-10T07:51:00.496Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Batiste","page":1,"count":0}
+2026-11-10T07:51:03.509Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Living Proof","page":1,"count":18}
+2026-11-10T07:51:06.738Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish Coffee","page":1,"count":20}
+2026-11-10T07:51:09.918Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Black Rifle Coffee","page":1,"count":20}
+2026-11-10T07:51:11.195Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"BRCC","page":1,"count":0}
+2026-11-10T07:51:12.024Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Jinx","page":1,"count":5}
+2026-11-10T07:51:12.936Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"thinkjinx","page":1,"count":0}
+2026-11-10T07:51:14.354Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":1,"count":20}
+2026-11-10T07:51:16.759Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Black Rifle","page":1,"count":20}
+2026-11-10T07:51:18.044Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish Coffee","page":2,"count":20}
+2026-11-10T07:51:20.282Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Black Rifle Coffee","page":2,"count":19}
+2026-11-10T07:51:22.928Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":2,"count":20}
+2026-11-10T07:51:24.369Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Black Rifle","page":2,"count":17}
+2026-11-10T07:51:26.532Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish Coffee","page":3,"count":19}
+2026-11-10T07:51:27.955Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":3,"count":20}
+2026-11-10T07:51:28.917Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":4,"count":20}
+2026-11-10T07:51:29.635Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":5,"count":20}
+2026-11-10T07:51:30.977Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":6,"count":20}
+2026-11-10T07:51:31.905Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":7,"count":20}
+2026-11-10T07:51:33.158Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":8,"count":20}
+2026-11-10T07:51:34.637Z INFO  Fetched Top Ads page {"countryCode":"US","keyword":"Death Wish","page":9,"count":7}
+2026-11-10T07:51:34.811Z {"telemetry_diagnostic":"flush_drained","run_id":"JHcDlVBcEj0jHJNfL","build_id":"UvwnWzwWuJyRI8iU1"}

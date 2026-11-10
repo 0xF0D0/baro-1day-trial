@@ -1,0 +1,64 @@
+{
+ "_note": "Run record from POST /v2/acts/clockworks~tiktok-scraper/runs?maxTotalChargeUsd=0.50. userId, usage breakdown and container fields removed.",
+ "input": {
+  "profiles": [
+   "deathwishcoffee"
+  ],
+  "profileScrapeSections": [
+   "videos"
+  ],
+  "profileSorting": "popular",
+  "excludePinnedPosts": false,
+  "resultsPerPage": 10,
+  "maxFollowersPerProfile": 0,
+  "maxFollowingPerProfile": 0,
+  "shouldDownloadVideos": false,
+  "shouldDownloadCovers": false,
+  "shouldDownloadSlideshowImages": false,
+  "shouldDownloadAvatars": false,
+  "shouldDownloadMusicCovers": false,
+  "downloadSubtitlesOptions": "NEVER_DOWNLOAD_SUBTITLES",
+  "commentsPerPost": 0,
+  "scrapeRelatedVideos": false,
+  "scrapeAdditionalAuthorMeta": false,
+  "proxyCountryCode": "None"
+ },
+ "run": {
+  "id": "n2AqBFXajcYSVlXCC",
+  "actId": "GdWCkxBtKWOsKjdch",
+  "status": "SUCCEEDED",
+  "statusMessage": "Scraped 1/1 profiles",
+  "startedAt": "2026-11-10T07:18:44.885Z",
+  "finishedAt": "2026-11-10T07:19:01.055Z",
+  "buildNumber": "0.0.646",
+  "defaultDatasetId": "cBodMvBeTFkyYphWK",
+  "options": {
+   "build": "latest",
+   "timeoutSecs": 0,
+   "memoryMbytes": 4096,
+   "maxTotalChargeUsd": 0.5,
+   "maxItems": null,
+   "isMaxTotalChargeUsdSetByUser": true,
+   "diskMbytes": 8192
+  },
+  "chargedEventCounts": {
+   "result": 10,
+   "filter-applied": 0,
+   "popularity-filter-applied": 0,
+   "follower-dataset-item": 0,
+   "mobile-filter-sorting-applied": 0,
+   "video-download": 0,
+   "comment-dataset-item": 0,
+   "scrape-as-in-country": 0,
+   "transcription-minute": 0,
+   "ai-video-description": 0,
+   "ai-video-summary": 0,
+   "actor-start": 1
+  },
+  "usageTotalUsd": 0.038000000000000006
+ },
+ "pricing_free_tier_usd": {
+  "result": 0.0037,
+  "actor-start": 0.001
+ }
+}
