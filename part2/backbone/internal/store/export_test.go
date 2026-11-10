@@ -46,3 +46,16 @@ func (s *Store) AddManifestBucket(ctx context.Context, sc Scope, day int64, even
 		sc.tenantID, day, name, len(events))
 	return err
 }
+
+// SetFlushAfterRead installs a hook that FlushDay calls between reading the
+// day's rows and writing the objects. Pass nil to remove it.
+func SetFlushAfterRead(f func()) { flushAfterRead = f }
+
+// SealSKUMove and OpenSKUMove expose the sku_moves value codec.
+func SealSKUMove(sc Scope, eventID string, lineNo int, m fold.Move) ([]byte, error) {
+	return sealSKUMove(sc, eventID, lineNo, m)
+}
+
+func OpenSKUMove(sc Scope, eventID string, lineNo int, sealed []byte) (fold.Move, error) {
+	return openSKUMove(sc, eventID, lineNo, sealed)
+}
