@@ -45,7 +45,8 @@ has its own site. The user decided this on 2026-11-11, knowing that Meta has sho
 | `10_brand_site_and_emails` | `SPACING_S` | 4 | 2 |
 | `04_amazon` | `POLL_S` | 10 | 3 |
 
-Inside one process a collector still sends its own requests one at a time, with the spacing above.
+Inside one process a collector still sends its requests to one site one at a time, with the spacing above. Two
+things may overlap inside a process: runs waiting on the Apify API (2.7) and requests to two different hosts (2.8).
 
 `01_google_ads_transparency` keeps its 10 seconds between page loads: 3 seconds is known to be refused. It gets
 faster by asking for less (2.5).
@@ -95,6 +96,30 @@ the media URLs as the source returned them, inside `raw.item.snapshot`, and down
 Those URLs are signed and expire three to four days after the run. Keeping the creatives is the job of a separate
 step (section 4), not of the pass.
 
+### 2.7 Retail shelf: review runs four at a time
+
+For Target, Sephora and Chewy the collector asks an Apify actor for each product's reviews, one run per product, up
+to ten per retailer. They were started one after another, and three brands ran past the 3-minute cap for that reason
+alone. A cell's review runs are now started up to `REVIEW_WORKERS` (4) at a time. Their results are taken in product
+order by the calling thread, so the records, their order and the failure rule are unchanged; a run that had not been
+started when the cell stops is not started. Ulta reviews go through our own browser and stay one at a time.
+
+Four, not more: the Apify account allows 32 actor runs at once, and a pass at `--jobs` 16 can have five shelf
+processes and eleven others going (5 × 4 + 11 = 31).
+
+### 2.8 Batiste: two hosts side by side
+
+The Batiste where-to-buy route reads about 34 product pages on the brand's site and then asks the widget's API, on
+another host, once per barcode (63). The second phase waited for the first. Now a second thread sends the API
+requests while the pages are still being read. Each host still gets one request at a time, in the same order.
+
+Every barcode is still asked on every pass. Reading a barcode less often was considered and refused by the user on
+2026-11-11: a barcode the API no longer knows must end its row on that pass.
+
+`SPACING_S` of source 10 is now the time between the starts of two plain HTTP requests to a host; it was counted
+from the end of the response, which made 2 seconds about 2.9. After a Chrome navigation the gap still counts from
+the end of the navigation.
+
 ## 3. When a site blocks
 
 What exists, and stays: a collector that meets a block page, a CAPTCHA or a login wall stops there and records
@@ -137,7 +162,8 @@ runs, its Ad Library page (the row's `url`) shows it.
 
 Goals
 - A full pass in about 5 minutes once the day's first pass has read the ad details, bounded by the Apify runs of
-  source 4. The first pass of a day still pays for source 1's details.
+  source 4 and of Black Rifle's own-site listing (source 10). The first pass of a day still pays for source 1's
+  details.
 - The old pace is one option away.
 - Nothing about what is collected or how it is recorded changes.
 
@@ -164,9 +190,38 @@ Non-goals
 5. Label lines keep the order of the pending list, so a rerun writes the same file.
 6. Source 1's spacing was first cut to 2 seconds and then put back: the collector's own research had measured the
    limit. Its time is cut by reading a detail once a day instead.
+7. `REVIEW_WORKERS` is 4 rather than 5 or 10, from the account's limit of 32 runs at once (2.7).
+8. Source 10's spacing is counted between request starts (2.8). Careful mode still gives 4 seconds.
 
 ## 8. What is measured afterwards
 
 One real pass of the four site-facing collectors for all five brands (`--sources 1,3,5,10`): the seconds per job, any
 block, and the statuses, against the table in section 1. It also fills what is missing in the tables today (Meta for
 three brands, the shelf for Jinx).
+
+## 9. Measured (2026-11-11)
+
+Real runs, five brands, every job cut at 3 minutes. Seconds are per collector process, as `run.py` prints them.
+
+| Source | Before, five brands | After | Result |
+|---|---|---|---|
+| 1 Google Ads Transparency | about 35 min | 126 s for all five brands in one job | 168 details skipped as read within a day, none loaded |
+| 3 Meta Ad Library | 15 to 25 min (estimate) | 37, 48, 50, 87, 109 s | all `ok`, no block with five sessions, 2.41 USD |
+| 5 retail shelf | about 13 min | 82, 82, 128, 138, 145 s | four `ok`, one `partial`, 0.78 USD |
+| 10 brand site | about 14 min | 26, 34, 36 s; Batiste 168 s; Black Rifle over the cap | same records as before for Batiste (63 barcodes, 57 read, 6 refused by the API) |
+
+What the numbers do not show:
+
+- **Batiste is 12 seconds under the cap.** Its time is 63 barcodes two seconds apart; only a shorter spacing on the
+  widget API or reading barcodes less often would lower it, and the second was refused (2.8).
+- **Black Rifle's own-site listing stays over 3 minutes.** It is one Apify actor run of four to five minutes; nothing
+  on our side shortens it.
+- **Source 4 was not measured after its change.** Its expected time, about four minutes, is an estimate.
+- **No pass of all ten sources has been run at this pace.** The Apify account's monthly limit did not leave room
+  for one on the day of the measurement.
+- **The shelf's one `partial`:** the review run for one new Target product succeeded with an empty result although
+  the listing shows reviews. The collector records that product's reviews as failed (`invalid`), not as none.
+- **One timeout under load.** In the first measured pass, with sixteen processes and their browsers going, Jinx's
+  home page did not load within 45 seconds and that brand's run had no records (`partial`). Run with one other
+  process it took 26 seconds. The cause was not established; if it recurs, `--jobs` is the setting to lower.
+- Runs cut at the cap wrote nothing and are not in the tables; the next pass reads them.
