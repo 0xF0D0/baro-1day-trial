@@ -1,10 +1,16 @@
+import argparse
 import json
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
+import psycopg
 from psycopg.types.json import Jsonb
 
+import db
+from mappers import MAPPERS
 from model import COMMON_COLUMNS, TABLE_COLUMNS, MapError
 
 SOURCE_DATE_DAYS = 3
@@ -201,3 +207,47 @@ def load_run(conn, run_path: Path, mappers: dict) -> Outcome:
 
 def load_all(conn, collectors_dir: Path, mappers: dict) -> list[Outcome]:
     return [load_run(conn, path, mappers) for path in discover(collectors_dir)]
+
+
+def _without_password(url: str) -> str:
+    parts = urlsplit(url)
+    if parts.password is None:
+        return url
+    host = parts.netloc.rpartition("@")[2]
+    return urlunsplit(parts._replace(netloc=(parts.username or "") + "@" + host))
+
+
+def main(argv: list[str] | None = None, mappers: dict | None = None) -> int:
+    default_dir = Path(__file__).resolve().parents[2] / "part1" / "collectors"
+    parser = argparse.ArgumentParser(description="Load collector run files into Postgres.")
+    parser.add_argument("--collectors-dir", type=Path, default=default_dir)
+    args = parser.parse_args(argv)
+    url = db.database_url()
+    try:
+        conn = db.connect(url)
+    except psycopg.OperationalError as e:
+        print(f"cannot connect to {_without_password(url)}: {str(e).strip()}")
+        return 1
+    try:
+        db.ensure_schema(conn)
+        outcomes = load_all(conn, args.collectors_dir, MAPPERS if mappers is None else mappers)
+    finally:
+        conn.close()
+    for o in outcomes:
+        if o.result == "already_loaded":
+            continue
+        line = (f"{o.source} {o.brand} {o.run_id} {o.status} {o.result} inserted={o.inserted} "
+                f"updated={o.updated} ended={o.ended} not_fetched={o.not_fetched}")
+        if o.result == "failed":
+            line += f" error={o.error}"
+        print(line)
+    count = lambda result: sum(1 for o in outcomes if o.result == result)
+    no_mapper = ",".join(sorted({o.source for o in outcomes if o.result == "no_mapper"})) or "-"
+    print(f"runs: applied={count('applied')} superseded={count('superseded')} "
+          f"empty_no_mapper={count('empty_no_mapper')} failed={count('failed')} "
+          f"already_loaded={count('already_loaded')} no_mapper={no_mapper}")
+    return 1 if count("failed") else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
