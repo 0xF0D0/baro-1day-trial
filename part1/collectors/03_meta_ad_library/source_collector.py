@@ -1,13 +1,14 @@
 """Raw collector for the Meta Ad Library. See spec.md."""
 import argparse, json, re, sys, time
 import urllib.request, urllib.error
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
 COUNT_TIMEOUT_S, SITE_SPACING_S, RESULTS_MARGIN, RESULTS_MAX = 30, 15, 50, 1000
 PRICE_USD, RUN_TIMEOUT_S, WAIT_LIMIT_S = 0.0058, 1800, 2100
-HTTP_TIMEOUT_S, MEDIA_TIMEOUT_S, MEDIA_SPACING_S = 90, 60, 1
+HTTP_TIMEOUT_S, MEDIA_TIMEOUT_S, MEDIA_WORKERS = 90, 60, 8
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
 ACTOR, SOURCE = "apify~facebook-ads-scraper", "meta_ad_library"
 TERMINAL = ("SUCCEEDED", "FAILED", "TIMED-OUT", "ABORTED")
@@ -16,7 +17,6 @@ ENV_FILE = HERE.parents[2] / ".env"
 LIST_URL = ("https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US"
             "&view_all_page_id={}&search_type=page&media_type=all")
 _last_site_nav = None
-_last_media = None
 
 
 def parse_site_count(html: str) -> int:
@@ -121,30 +121,38 @@ def err(e):
     return f"http_{e.code}" if isinstance(e, urllib.error.HTTPError) else type(e).__name__
 
 
-def fetch_media(S, brand, url):
-    """Returns relative path or None."""
-    global _last_media
+def fetch_media(brand, url):
+    """One GET, sent once. Returns (relative path or None, whether a request was sent)."""
     name = urlparse(url).path.rsplit("/", 1)[-1]
     dest = HERE / "media" / brand / name
     rel = f"media/{brand}/{name}"
     if dest.exists():
-        return rel
-    if _last_media is not None:
-        time.sleep(max(0, MEDIA_SPACING_S - (time.time() - _last_media)))
-    S["requests"] += 1
+        return rel, False
     try:
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=MEDIA_TIMEOUT_S) as r:
             ok, body = r.status == 200, r.read()
     except Exception:
-        _last_media = time.time()
-        return None
-    _last_media = time.time()
+        return None, True
     if not ok:
-        return None
+        return None, True
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_bytes(body)
-    return rel
+    part = dest.with_name(name + ".part")
+    part.write_bytes(body)
+    part.replace(dest)
+    return rel, True
+
+
+def fetch_all_media(S, brand, urls):
+    """Up to MEDIA_WORKERS GETs at a time. Returns {url: relative path or None}."""
+    name_of = lambda u: urlparse(u).path.rsplit("/", 1)[-1]
+    first = {}
+    for u in urls:
+        first.setdefault(name_of(u), u)
+    with ThreadPoolExecutor(MEDIA_WORKERS) as pool:
+        done = dict(zip(first, pool.map(lambda u: fetch_media(brand, u), first.values())))
+    S["requests"] += sum(sent for _, sent in done.values())
+    return {u: done[name_of(u)][0] for u in urls}
 
 
 def get_counts(S, page_ids):
@@ -203,11 +211,24 @@ def get_counts(S, page_ids):
             browser.close()
 
 
+def fetch_limit(count):
+    return min(count + RESULTS_MARGIN, RESULTS_MAX)
+
+
+def page_problem(n, count, limit):
+    """The reason name when n distinct ads do not prove a full read of a page, else None."""
+    if n < count:
+        return "incomplete"
+    if n >= limit:
+        return "truncated"
+    return None
+
+
 def fetch_items(S, pid, count, token):
     """Runs the Actor for one page. Returns (run, items) or None after adding a reason."""
     def fail(name, detail=""):
         S["bad"].add(pid); S["reasons"].append(f"{name}({pid})" + (f": {detail}" if detail else ""))
-    limit = min(count + RESULTS_MARGIN, RESULTS_MAX)
+    limit = fetch_limit(count)
     cap = -(-limit * 58 // 100) / 100
     url = (f"https://api.apify.com/v2/acts/{ACTOR}/runs?timeout={RUN_TIMEOUT_S}&maxItems={limit}"
            f"&maxTotalChargeUsd={cap}&waitForFinish=60")
@@ -250,15 +271,21 @@ def write_page(S, slug, pid, count, run, items):
         S["bad"].add(pid); S["reasons"].append(f"apify_shape_changed({pid})")
         return
     n = len({it["adArchiveID"] for it in items})
-    if n < count:
+    limit = fetch_limit(count)
+    problem = page_problem(n, count, limit)
+    if problem == "incomplete":
         S["bad"].add(pid); S["reasons"].append(f"incomplete({pid}): got={n} count={count}")
+    elif problem == "truncated":
+        S["bad"].add(pid); S["reasons"].append(f"truncated({pid}): got={n} limit={limit}")
+    paths = fetch_all_media(S, slug, [u for it in items if it["adArchiveID"] not in S["seen"]
+                                      for _, u in media_targets(it)])
     for it in items:
         ad = it["adArchiveID"]
         if ad in S["seen"]:
             continue
         S["seen"].add(ad)
         remove_partner_fields(it)
-        media = {field: fetch_media(S, slug, url) for field, url in media_targets(it)}
+        media = {field: paths[url] for field, url in media_targets(it)}
         S["media_files"] += len(media)
         S["media_failed"] += sum(v is None for v in media.values())
         rec = {"key": ad, "kind": "ad", "url": f"https://www.facebook.com/ads/library/?id={ad}",
@@ -266,6 +293,8 @@ def write_page(S, slug, pid, count, run, items):
         S["fh"].write(json.dumps(rec, ensure_ascii=False) + "\n")
         S["fh"].flush()
         S["records"] += 1
+    if pid not in S["bad"]:
+        S["done"].add(pid)
 
 
 def collect(slug, S, token):
@@ -279,7 +308,10 @@ def collect(slug, S, token):
         return
     for pid in page_ids:
         count = S["counts"].get(pid)
-        if pid in S["bad"] or not count:
+        if pid in S["bad"]:
+            continue
+        if not count:
+            S["done"].add(pid)
             continue
         got = fetch_items(S, pid, count, token)
         if got:
@@ -299,6 +331,13 @@ def decide(S):
     return "partial", "; ".join(S["reasons"] + extra)
 
 
+def page_states(S):
+    """Per page id: whether its ad list was read in full, and the reasons that name it."""
+    return {pid: {"ads_complete": pid in S["done"] and pid not in S["bad"],
+                  "reasons": [r for r in S["reasons"] if f"({pid})" in r]}
+            for pid in S["page_ids"]}
+
+
 def run_brand(slug) -> int:
     started = now_z()
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -306,7 +345,7 @@ def run_brand(slug) -> int:
     out.mkdir(parents=True, exist_ok=True)
     part = out / f"{run_id}.jsonl.part"
     S = {"requests": 0, "cost": 0.0, "records": 0, "counts": {}, "runs": {}, "media_files": 0, "media_failed": 0,
-         "reasons": [], "bad": set(), "seen": set(), "browser_err": None, "missing": False, "page_ids": [],
+         "reasons": [], "bad": set(), "done": set(), "seen": set(), "browser_err": None, "missing": False, "page_ids": [],
          "fh": part.open("w", encoding="utf-8")}
     code = 0
     try:
@@ -324,7 +363,8 @@ def run_brand(slug) -> int:
               "expected_total": sum(S["counts"].values()) if complete else None,
               "requests": S["requests"], "cost_usd": round(S["cost"], 4),
               "extra": {"counts": S["counts"], "runs": S["runs"], "media_files": S["media_files"],
-                        "media_failed": S["media_failed"]}}
+                        "media_failed": S["media_failed"],
+                        "pages": page_states(S)}}
     (out / f"{run_id}.run.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     return code
 

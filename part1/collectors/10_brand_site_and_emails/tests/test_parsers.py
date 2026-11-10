@@ -56,6 +56,10 @@ class ParserTests(unittest.TestCase):
         keys = [sc.apify_item_key(i) for i in items]
         self.assertEqual(len(keys), 55)
         self.assertEqual(keys[0], "product/www.blackriflecoffee.com/fall-coffee-lineup")
+        base = "https://www.blackriflecoffee.com/products/dark-roast-bundle"
+        self.assertEqual(sc.apify_item_key({"url": base + "?variant=42986248175712"}),
+                         "product/www.blackriflecoffee.com/dark-roast-bundle")
+        self.assertIsNone(sc.apify_item_key({"url": base + "?ref=home"}))
         url = "https://www.blackriflecoffee.com/collections/coffee"
         self.assertEqual(sc.apify_listed((SAMPLES / "apify/blackrifle_run2_log.txt").read_text(), url), 55)
 
@@ -69,6 +73,15 @@ class ParserTests(unittest.TestCase):
                          ("partial", "apify_max_results_reached; apify_count_mismatch(got=5,listed=10)"))
         self.assertEqual(sc.apify_prices_state("FAILED", 0, None, False, None, False, c),
                          ("could_not_look", "apify_run_FAILED"))
+
+    def test_wtb_failure(self):
+        body = (b'{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.4","title":"Forbidden",'
+                b'"status":403,"detail":"Unauthorized ProductUIDs 5010724008355"}')
+        self.assertEqual(sc.wtb_failure(403, body), ("unauthorized_product", False))
+        self.assertEqual(sc.wtb_failure(403, b"<html>Access denied</html>"), ("blocked: http_403", True))
+        self.assertEqual(sc.wtb_failure(403, b'{"detail":"Forbidden"}'), ("blocked: http_403", True))
+        self.assertEqual(sc.wtb_failure(429, b""), ("blocked: http_429", True))
+        self.assertEqual(sc.wtb_failure(500, b"oops"), ("http_500", True))
 
 
 if __name__ == "__main__":

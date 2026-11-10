@@ -45,6 +45,7 @@ The loader is also where time enters. A collector takes no time range and rememb
 - An item is marked ended for being absent only by a run that was complete for that scope.
 - The table list in section 6 and the six calls in section 11, which the designer proposed and the user accepted.
 - `ads` has no paid flag; `channel` already tells paid media from owned channels.
+- TikTok creator handles (`posts.creator_handle`) and TikTok Shop seller names (`products.seller_name`) are stored in their columns.
 - Where a source gives an ad no dates (TikTok), the ad is followed by its ID alone: first seen, last seen and ended come from the runs.
 
 ## 5. Input
@@ -86,8 +87,10 @@ PRIMARY KEY (source, brand, kind, key)
 
 - `ads.channel` is one of `google`, `meta`, `tiktok` (paid media) or `site`, `signup_form`, `email` (the brand's own channels). There is no separate paid flag; the channel says it.
 - `ads.started_at` and `ads.last_shown_at` hold only dates the source itself states. TikTok's rows carry no dates, so both stay NULL there. How long an ad has been seen is in `first_seen_at`, `last_seen_at` and `ended_at`, which come from the runs and which every row has; they are never copied into `started_at`.
-- `products.retailer` is one of `amazon`, `ulta`, `target`, `sephora`, `chewy`, `tiktok_shop`, `own_site`; for Batiste's where-to-buy data it is the retailer name the widget returns.
-- `products.price` is the price as shown. When the seller shows a range (Ulta and Sephora show `$12.99 - $20.99` for a product with sizes), `price` is the lower end and `price_max` the upper end; otherwise `price_max` is NULL. `list_price` is the price before a discount, when the seller shows one.
+- `products.retailer` is one of `amazon`, `ulta`, `target`, `sephora`, `chewy`, `tiktok_shop`, `own_site`; for Batiste's where-to-buy data it is the retailer name the widget returns, lower-cased, so the same retailer has the same value in every source.
+- `products.availability` is `IN_STOCK`, `OUT_OF_STOCK` or NULL in every source. A source that gives a text (Amazon) is mapped by the words in it; a source that says nothing about stock leaves NULL.
+- `products.rating` is NULL, not 0, when the source reports no reviews.
+- `products.price` is the price a person sees when opening the row's `url`. For Ulta the listing card of a product with sizes shows a range (`$12.99 - $20.99`), but the stored URL is the page of one size, so the collector reads that page and `price` is that size's price, with `price_max` NULL. Only where the price at the URL is not available and the seller's listing shows a range (Sephora, and Ulta run files written before the collector read the product page) is `price` the lower end and `price_max` the upper end. `list_price` is the price before a discount, when the seller shows one.
 - A column a source does not provide stays NULL. Values not given a column stay reachable in `raw`.
 
 ### 6.3 Run tables
@@ -132,8 +135,10 @@ For each row of the run, keyed by `(source, brand, kind, key)`:
 ### 7.3 Scopes
 A scope is the part of a run whose completeness is known on its own. A mapper returns, for a run, its rows (each with a scope) and a list of `(scope, status, reason)`, which is written to `run_scopes`.
 - Default: one scope named `all`, with the run's own status and reason.
-- Sources whose run result reports parts use them: source 5's retailer cells (`extra.cells`), source 10's `prices`, `offers` and `emails` (`extra.parts`).
+- Sources whose run result reports parts use them: source 5's retailer cells (`extra.cells`), source 10's `prices`, `offers_home`, `offers_klaviyo` and `emails` (`extra.parts`; the home page and the form list are reported separately, so a blocked home page does not stop forms from ending).
 - A scope may be as small as one search term or one barcode when the records tell whether that piece was fetched completely. Source 6 uses one scope per search term, plus `ads`. Batiste's where-to-buy data uses one scope per barcode instead of `prices`. Otherwise one failed piece would keep every other row of the source from ever ending.
+- A scope can cover other scopes. When the pieces of a source are themselves a list that can change (Batiste's barcodes come from its product pages), the mapper also returns one scope for that list, with `covers` set to the name prefix of the pieces (`wtb/`). It is `ok` only when the list itself was read completely. It has no rows of its own; it says "these are all the pieces there are" (section 7.4). For Batiste that means: the listing was read, at least one barcode was found, and every product page either gave its barcodes, was not found, or redirected to the listing page (how the site answers for a removed product). A page that failed, lost its widget or redirected anywhere else makes it `partial`; a run that found no barcode at all makes it `could_not_look`.
+- Source 3 uses one scope per Facebook page, from the per-page state the collector writes in the run result.
 - Each source's mapping plan names its scopes.
 
 ### 7.4 Ending
@@ -145,7 +150,9 @@ Each `(table, kind)` has one policy:
 | `source_date` | For rows written by this run, whatever the status of the run or scope: `ended_at = last_shown_at` when `last_shown_at` is more than 3 days before the run's `started_at`, otherwise NULL | `ads` from source 1, whose list keeps creatives that stopped months ago |
 | `never` | `ended_at` is never set | `reviews`, `search_interest`, `posts`, `ads` of kind `email` |
 
-A scope with status `partial` or `could_not_look` ends nothing by absence. `source_date` does not depend on absence: the item is in the run, and the source itself says when it was last shown. For sources that collect a top-N list (sources 4, 5, the search part of 9), `ended_at` means "no longer in the collected list", not "no longer sold".
+A covering scope extends the `absent` rule to pieces that are no longer looked at: when a scope with `covers` set is `ok`, rows of an `absent` kind with that source and brand whose `scope` starts with the `covers` prefix, whose `scope` is not the name of any scope of this run, and whose `ended_at` is NULL, get `ended_at =` the run's `started_at`. A piece that is in the run keeps following its own scope's status, so a barcode that was not attempted ends nothing.
+
+A scope with status `partial` or `could_not_look` ends nothing by absence. A run whose `reason` starts with `exception:` (the collector stopped on an unexpected error) ends nothing by absence either: its record file may be cut short, so the loader records its `ok` scopes as `partial` with that reason. `source_date` does not depend on absence: the item is in the run, and the source itself says when it was last shown. For sources that collect a top-N list (sources 4, 5, the search part of 9), `ended_at` means "no longer in the collected list", not "no longer sold".
 
 ## 8. From records to rows
 One mapper per source: a pure function from a run result and its records to rows and scopes. It decides the table, the row key, the scope and the column values. Exact raw paths are in the last section of each `part1/collectors/<nn_name>/spec.md` ("Where the pipeline finds each value"); each mapper is written from that section in its own small plan.
@@ -154,15 +161,15 @@ One mapper per source: a pure function from a run result and its records to rows
 |---|---|---|---|---|
 | 1 Google Ads Transparency | `ad` | `ads` | record key | `channel` google. `headline`, `body` NULL (text arrives only as images). `variation_count` only when the detail was fetched |
 | 2 TikTok Ad Library | `ad` | `ads` | record key | `channel` tiktok, `format` video, `body` from the ad text |
-| 3 Meta Ad Library | `ad` | `ads` | record key | `channel` meta, `advertiser_*` from the page, `variation_count` from the creative group |
+| 3 Meta Ad Library | `ad` | `ads` | record key | `channel` meta, `advertiser_*` from the page, `variation_count` from the creative group. `headline`, `body`, `cta` and `landing_url` come from the ad itself, and when it has none, from the first of its cards that has one. One scope per Facebook page: `ok` when that page's ad list is complete, whatever happened on the brand's other pages or to media downloads |
 | 4 Amazon | `product`, `review` | `products`, `reviews` | record key | `retailer` amazon |
-| 5 Retail shelf | `product`, `review` | `products`, `reviews` | record key | `retailer` from the cell; scope per cell |
-| 6 Google results | `search_results_page` | `search_rankings` | record key + result URL without tracking parameter | one record becomes one row per organic result; first occurrence wins when a URL repeats; one scope per search term |
+| 5 Retail shelf | `product`, `review` | `products`, `reviews` | record key | `retailer` from the cell; scope per cell. Ulta: `price` and `availability` come from the product page of the size in the URL (`raw.product_page`); when that page was not fetched in a run, the three columns `price`, `price_max`, `availability` are left out so the stored values stay |
+| 6 Google results | `search_results_page` | `search_rankings` | record key + result URL without tracking parameter | one record becomes one row per organic result; first occurrence wins when a URL repeats; Google's own `google.com/search` links are not results (call 37); one scope per search term |
 | 7 Search interest | `interest_point`, `interest_point_compared` | `search_interest` | record key | `series` from the kind |
 | 8 TikTok posts | `post` | `posts` | post id | The record key is `<path>/<post id>`. A post found by both paths is one row; `surfaced_by` lists the paths; `raw` is the record of the first path in the order `profile_popular`, `hashtag` |
-| 9 TikTok Shop | `product`, `search_result` | `products` | record key | `retailer` tiktok_shop; the two kinds stay separate rows. A tracked product the source answers as `missing` or `unavailable` gives no row; the tracked scope still counts as complete, so that product's row is ended |
-| 10 Brand site and emails | `product` | `products` | record key | `retailer` own_site; one row per product, price of the first variant |
-| | `retailer_availability` | `products` | record key + retailer id | one record (one barcode) becomes one row per retailer returned; one scope per barcode |
+| 9 TikTok Shop | `product`, `search_result` | `products` | record key | `retailer` tiktok_shop; the two kinds stay separate rows. A tracked product the source answers as `unavailable` gives no row and leaves the tracked scope complete, so that product's row is ended. A tracked product the actor returned no row for (`missing`), or failed on, makes the scope `partial`, so nothing is ended |
+| 10 Brand site and emails | `product` | `products` | record key | `retailer` own_site; one row per product, price of the first variant. `list_price` only when the compare-at price is above the price (Shopify writes 0.00 for "none"). `availability` is `IN_STOCK` when any variant can be bought |
+| | `retailer_availability` | `products` | record key + retailer id | one record (one barcode) becomes one row per retailer returned; one scope per barcode, plus the covering scope `wtb_listing` (`covers` `wtb/`), which is `ok` when the listing and every product page were read, so the rows of a barcode that left the site are ended |
 | | `offer_slot`, `klaviyo_form`, `email` | `ads` | record key | `channel` site, signup_form, email |
 
 ## 9. Running it
@@ -227,6 +234,34 @@ Made by the designer while writing the first plan, from the real records, not ye
 21. `runs.result` (`applied`, `superseded`, `empty_no_mapper`) instead of a yes/no flag.
 22. When one run has two records with the same row key, the later one wins.
 23. `--collectors-dir`, so the loader can read run files from another checkout.
+
+Made by the designer while the remaining mappers were built and reviewed, not yet seen by the user:
+24. A run that stopped on an exception ends nothing by absence, whatever its parts report.
+25. For TikTok Shop only `unavailable` ends a tracked product; a product the actor returned no row for does not.
+26. Meta ad text falls back to the first card that has a value.
+27. A Google result page with no organic results is recorded as "could not look", not as "nothing ranks".
+28. A product whose detail page was not fetched (Amazon) gets a row from what the list gave, with the detail columns left empty until a run fetches them.
+29. One vocabulary for `availability` and lower-cased retailer names, so a query across sources does not miss one of them.
+30. No rating is stored for a product with no reviews.
+31. Own-site products: a list price only when it is above the price; in stock when any variant is.
+32. The barcode widget shows a retailer's online price and its store prices; the online one is stored.
+
+Asked for by the user on 2026-11-10 ("fix both"), with the mechanism chosen by the designer:
+33. Covering scopes, so the retailer rows of a Batiste barcode that left the site are ended.
+34. One scope per Facebook page, with the Meta collector writing each page's state into its run result, so one unreadable page does not hold back the other page's ads.
+
+Found when stored rows were compared with the live sites on 2026-11-10; the user asked for the fix and accepted the method:
+35. Ulta's price is read from the product page of the size in the stored URL, not from the range on the listing card. 14 of 20 real Ulta rows showed a price that was not the one at their URL.
+36. One Playwright version for every collector, one `part1/requirements.txt`, and the install steps in the collector README.
+37. An organic item whose URL is Google's own `google.com/search` link is not a result line. On pages with a local pack the Actor lists the pack's "Map" link as an organic result (4 of 837 real rows), and that URL carries per-request tokens, so its key would change on every run. The mapper leaves such an item out and lowers the `position` of the results after it by one; a page left with no other result is "could not look".
+
+## 13. Known limits
+- An ad that disappears from Google's list without a newer last-shown date is not ended; only the date ends Google ads.
+- If Batiste's listing page is served with only some of its product links (status 200, fewer links), the barcodes of the missing products are ended in that run. Nothing compares the listing with the previous one. The next complete run reopens them.
+- Sephora rows take their price from the search listing, which shows a range for a product with sizes, while the stored URL is one size's page. Nothing reads that page yet (the Sephora cell comes from a paid actor and has not been run), so for such products the stored `price` is the lower end of the range, not the price at the URL.
+- A Facebook page whose count reads 0 is taken as "no active ads" and its stored ads are ended. The count step has no second check, and no real run of that source exists yet to confirm it.
+- Review dates from Ulta are UTC dates and can differ by one day from the date the site shows.
+- `posts.creator_handle` and TikTok Shop's `seller_name` hold account and shop names as published, and some belong to individuals. The user decided on 2026-11-10 that they are kept: the brief asks for the creator of each top post. Display names, avatars and locations are still not stored.
 
 ## 12. Left to the builder
 - Module layout inside `part1/pipeline/`, and how mappers are registered.

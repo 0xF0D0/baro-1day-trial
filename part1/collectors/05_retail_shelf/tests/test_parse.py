@@ -34,6 +34,32 @@ class ParseTests(unittest.TestCase):
         item = json.load(open(SAMPLES / "apify" / "target_reviews_A-88498115.json"))["items"][0]
         self.assertEqual(sc.review_key("target:88498115", "target", item), "target:88498115:h27cef09620e38f8f")
 
+    def test_product_page_offer(self):
+        html = (SAMPLES / "ulta" / "product_page_ld_pimprod2037265.html").read_text()
+        self.assertEqual(sc.product_page_offer(html, "2604512"),
+                         {"sku": "2604512", "price": 33, "currency": "USD", "availability": "InStock"})
+        with self.assertRaisesRegex(ValueError, "product_ld_not_found"):
+            sc.product_page_offer(html, "2604513")
+        with self.assertRaisesRegex(ValueError, "product_ld_not_found"):
+            sc.product_page_offer("<html><body>none</body></html>", "2604512")
+
+        def page(price, avail):
+            o = {"@type": "Product", "sku": "1", "offers": {"@type": "Offer", "price": price, "availability": avail, "priceCurrency": "USD"}}
+            return '<script type="application/ld+json">' + json.dumps(o) + "</script>"
+        self.assertEqual(sc.product_page_offer(page("33", "InStock"), "1")["price"], "33")
+        for bad in ("$33", "", None, True):
+            with self.assertRaisesRegex(ValueError, "price_not_number"):
+                sc.product_page_offer(page(bad, "InStock"), "1")
+        for bad in (0, -1, "0", "0.00", float("nan"), float("inf")):
+            with self.assertRaisesRegex(ValueError, "price_not_number"):
+                sc.product_page_offer(page(bad, "InStock"), "1")
+        for ok in (0.5, "0.50"):
+            self.assertEqual(sc.product_page_offer(page(ok, "InStock"), "1")["price"], ok)
+        html2 = (SAMPLES / "ulta" / "product_page_ld_xlsImpprod2040049.html").read_text()
+        self.assertEqual(sc.product_page_offer(html2, "2515942"),
+                         {"sku": "2515942", "price": "20.99", "currency": "USD", "availability": "InStock"})
+        self.assertEqual(sc.product_page_offer(page(5.99, "https://schema.org/OutOfStock"), "1")["availability"], "OutOfStock")
+
 
 if __name__ == "__main__":
     unittest.main()
