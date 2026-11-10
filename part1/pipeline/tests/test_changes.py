@@ -39,8 +39,17 @@ class ChangesTest(DbTestCase):
         self.write_run("fake", "b", T1, records=[prod("a", price="12.99", rank=3, sponsored=False, availability="IN_STOCK")]); self.load()
         self.write_run("fake", "b", T2, records=[prod("a", price="10.50", rank=3, sponsored=True, availability=None)]); self.load()
         self.assertEqual(sorted((c["field"], c["old_value"], c["new_value"]) for c in self.changes()),
-                         [("availability", "IN_STOCK", None), ("price", "12.99", "10.5"), ("sponsored", "false", "true")])
+                         [("price", "12.99", "10.5"), ("sponsored", "false", "true")])
         self.assertEqual({c["change"] for c in self.changes()}, {"changed"})
+
+    def test_unknown_values_are_not_a_change(self):
+        self.write_run("fake", "b", T1, records=[prod("a", price=None, rank=3, availability="IN_STOCK", review_count=None)]); self.load()
+        self.write_run("fake", "b", T2, records=[prod("a", price="9.99", rank=None, availability=None, review_count=10)]); self.load()
+        self.assertEqual(self.changes(), [])
+        self.write_run("fake", "b", T3, records=[prod("a", price="8.99", rank=None, availability="OUT_OF_STOCK", review_count=10)]); self.load()
+        self.assertEqual([(c["field"], c["old_value"], c["new_value"]) for c in self.changes()], [("price", "9.99", "8.99")])
+        row = self._query("SELECT * FROM products WHERE key = 'a'")[0]
+        self.assertEqual((str(row["price"]), row["rank"], row["availability"], row["review_count"]), ("8.99", None, "OUT_OF_STOCK", 10))
 
     def test_equal_numbers_written_differently_are_not_a_change(self):
         self.write_run("fake", "b", T1, records=[prod("a", price="12.99", rating="4.50", review_count=30000000)]); self.load()

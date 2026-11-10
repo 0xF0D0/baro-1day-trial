@@ -182,7 +182,7 @@ def _write_rows(conn, run: dict, mapper, rows) -> tuple[int, int, int]:
             elif existing[0] is None and ended_at is not None:
                 _note(conn, run, row.table, row.kind, row.key, "ended")
             for column, old, new in zip(tracked, existing[1:], after if tracked else ()):
-                if old != new:
+                if old is not None and new is not None and old != new:
                     _note(conn, run, row.table, row.kind, row.key, "changed", column, _change_text(old), _change_text(new))
         if ended_at is not None and (existing is None or existing[0] is None):
             ended += 1
