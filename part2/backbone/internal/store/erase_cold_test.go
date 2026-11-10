@@ -334,3 +334,23 @@ func TestEraseTenantWithColdData(t *testing.T) {
 		}
 	}
 }
+
+// A pending tombstone is finished knowing only the customer key.
+func TestFinishErasureByKey(t *testing.T) {
+	ctx := context.Background()
+	st, sc, events, cu := setupT18(t, 40)
+	cust := pickCustomer(t, events, cu, "both")
+	key := sc.Keys().CustomerKey(cust)
+	// As if EraseCustomer's first transaction committed and the request died.
+	if _, err := st.Pool().Exec(ctx,
+		`INSERT INTO tombstones (tenant_id, customer_key, status) VALUES ('t_1', $1, 'pending')`, key); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.FinishErasure(ctx, sc, key); err != nil {
+		t.Fatal(err)
+	}
+	assertErasedEqualsFold(t, st, sc, events, cust)
+	if n := count(t, st, `SELECT count(*) FROM tombstones WHERE tenant_id='t_1' AND customer_key=$1 AND status='done'`, key); n != 1 {
+		t.Fatalf("done tombstones: %d, want 1", n)
+	}
+}

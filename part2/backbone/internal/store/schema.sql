@@ -44,8 +44,11 @@ CREATE TABLE IF NOT EXISTS cold_manifest (
 CREATE TABLE IF NOT EXISTS garbage (
   object      text PRIMARY KEY,
   tenant_id   text NOT NULL,
-  replaced_at timestamptz NOT NULL DEFAULT now()
+  replaced_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
+-- CREATE TABLE IF NOT EXISTS leaves an existing table alone; the grace period
+-- must run from the insert, not from the start of the transaction.
+ALTER TABLE garbage ALTER COLUMN replaced_at SET DEFAULT clock_timestamp();
 CREATE TABLE IF NOT EXISTS customer_days (
   tenant_id    text NOT NULL,
   customer_key bytea NOT NULL,

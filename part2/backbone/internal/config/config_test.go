@@ -96,3 +96,25 @@ func TestLoadRejectsNegativeFlushMargin(t *testing.T) {
 		t.Fatalf("zero margin rejected: %v", err)
 	}
 }
+
+func TestLoadSweepDefaultsAndValidation(t *testing.T) {
+	env := validEnv()
+	cfg, err := config.Load(func(k string) string { return env[k] })
+	if err != nil || cfg.SweepInterval != time.Hour || cfg.GarbageGrace != 10*time.Minute {
+		t.Fatalf("defaults: %+v, %v", cfg, err)
+	}
+	env["BACKBONE_SWEEP_INTERVAL"] = "0s"
+	if _, err := config.Load(func(k string) string { return env[k] }); err == nil {
+		t.Fatal("zero sweep interval accepted")
+	}
+	env["BACKBONE_SWEEP_INTERVAL"] = "10s"
+	env["BACKBONE_GARBAGE_GRACE"] = "-1m"
+	if _, err := config.Load(func(k string) string { return env[k] }); err == nil {
+		t.Fatal("negative grace accepted")
+	}
+	env["BACKBONE_GARBAGE_GRACE"] = "0s"
+	cfg, err = config.Load(func(k string) string { return env[k] })
+	if err != nil || cfg.GarbageGrace != 0 || cfg.SweepInterval != 10*time.Second {
+		t.Fatalf("zero grace: %+v, %v", cfg, err)
+	}
+}

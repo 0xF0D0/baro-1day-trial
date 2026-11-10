@@ -61,6 +61,39 @@ type moveRow struct {
 	sealed  []byte
 }
 
+type customerDay struct {
+	key []byte
+	day int64
+}
+
+// buildIndexRows applies the events in order to state and returns the
+// sku_moves rows and the distinct (customer key, day) pairs they produce.
+// FlushDay and Rebuild both build their index rows with it.
+func buildIndexRows(sc Scope, state *fold.State, events []canon.Event) ([]moveRow, []customerDay, error) {
+	var moves []moveRow
+	var pairs []customerDay
+	seen := map[string]struct{}{}
+	for _, ev := range events {
+		for _, m := range state.ApplyMoves(ev) {
+			sealed, err := sealSKUMove(sc, ev.EventID, m.LineNo, m)
+			if err != nil {
+				return nil, nil, err
+			}
+			moves = append(moves, moveRow{sc.keys.SKUKey(m.SKU), ev.OccurredAtMs, ev.EventID, m.LineNo, sealed})
+		}
+		if ev.CustomerID != nil {
+			k := sc.keys.CustomerKey(*ev.CustomerID)
+			day := fold.Day(ev.OccurredAtMs)
+			id := string(k) + "\x00" + strconv.FormatInt(day, 10)
+			if _, ok := seen[id]; !ok {
+				seen[id] = struct{}{}
+				pairs = append(pairs, customerDay{k, day})
+			}
+		}
+	}
+	return moves, pairs, nil
+}
+
 // FlushDay moves the oldest unflushed hot day of the tenant into a cold bucket
 // and a new snapshot. It flushes at most one day and reports whether it did.
 // The watermark is the rank-th largest hot timestamp minus margin; a day is
@@ -175,20 +208,9 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 	} else {
 		state = fold.New(tenantID, sc.keys.CustomerKeyHex)
 	}
-	var moves []moveRow
-	customers := map[string][]byte{}
-	for _, ev := range events {
-		for _, m := range state.ApplyMoves(ev) {
-			sealed, err := sealSKUMove(sc, ev.EventID, m.LineNo, m)
-			if err != nil {
-				return false, err
-			}
-			moves = append(moves, moveRow{sc.keys.SKUKey(m.SKU), ev.OccurredAtMs, ev.EventID, m.LineNo, sealed})
-		}
-		if ev.CustomerID != nil {
-			k := sc.keys.CustomerKey(*ev.CustomerID)
-			customers[string(k)] = k
-		}
+	moves, customers, err := buildIndexRows(sc, state, events)
+	if err != nil {
+		return false, err
 	}
 
 	// New immutable objects, written before the commit that makes them current.
@@ -233,16 +255,10 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 		tenantID, newColdUntil, snapshot); err != nil {
 		return false, fmt.Errorf("store: update cold state: %w", err)
 	}
-	if oldSnapshot != nil {
-		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2)`,
-			*oldSnapshot, tenantID); err != nil {
-			return false, fmt.Errorf("store: insert garbage: %w", err)
-		}
-	}
 	batch := &pgx.Batch{}
-	for _, k := range customers {
+	for _, c := range customers {
 		batch.Queue(`INSERT INTO customer_days (tenant_id, customer_key, day) VALUES ($1, $2, $3)
-			ON CONFLICT DO NOTHING`, tenantID, k, day)
+			ON CONFLICT DO NOTHING`, tenantID, c.key, c.day)
 	}
 	for _, m := range moves {
 		batch.Queue(`INSERT INTO sku_moves (tenant_id, sku_key, occurred_at_ms, event_id, line_no, value)
@@ -259,6 +275,13 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 		(SELECT 1 FROM hot_events WHERE tenant_id = $1 AND occurred_at_ms < $2) WHERE tenant_id = $1`,
 		tenantID, newColdUntil); err != nil {
 		return false, fmt.Errorf("store: set dirty: %w", err)
+	}
+	// Last write before COMMIT: the grace period starts at the replacement.
+	if oldSnapshot != nil {
+		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2)`,
+			*oldSnapshot, tenantID); err != nil {
+			return false, fmt.Errorf("store: insert garbage: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return false, fmt.Errorf("store: flush commit: %w", err)

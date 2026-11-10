@@ -23,6 +23,9 @@ type Config struct {
 	FlushInterval time.Duration
 	FlushMargin   time.Duration
 	WatermarkRank int
+
+	SweepInterval time.Duration
+	GarbageGrace  time.Duration
 }
 
 // Load builds a Config from getenv. It reports every missing required variable at once.
@@ -72,6 +75,18 @@ func Load(getenv func(string) string) (Config, error) {
 	}
 	if cfg.FlushMargin < 0 {
 		return Config{}, fmt.Errorf("BACKBONE_FLUSH_MARGIN must not be negative")
+	}
+	if cfg.SweepInterval, err = duration(getenv, "BACKBONE_SWEEP_INTERVAL", time.Hour); err != nil {
+		return Config{}, err
+	}
+	if cfg.SweepInterval <= 0 {
+		return Config{}, fmt.Errorf("BACKBONE_SWEEP_INTERVAL must be positive")
+	}
+	if cfg.GarbageGrace, err = duration(getenv, "BACKBONE_GARBAGE_GRACE", 10*time.Minute); err != nil {
+		return Config{}, err
+	}
+	if cfg.GarbageGrace < 0 {
+		return Config{}, fmt.Errorf("BACKBONE_GARBAGE_GRACE must not be negative")
 	}
 	cfg.WatermarkRank = 100
 	if v := getenv("BACKBONE_WATERMARK_RANK"); v != "" {

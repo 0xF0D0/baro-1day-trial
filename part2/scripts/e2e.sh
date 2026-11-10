@@ -11,10 +11,13 @@ COMPOSE="$HERE/../docker-compose.yml"
 mkdir -p "$HERE/../out/secrets"
 export TENANTS_FILE="$DATA/tenants.json"
 export FLUSH_INTERVAL="${FLUSH_INTERVAL:-2s}"
+export SWEEP_INTERVAL="${SWEEP_INTERVAL:-10s}"
+export GARBAGE_GRACE="${GARBAGE_GRACE:-20s}"
 docker compose -f "$COMPOSE" down -v
 docker compose -f "$COMPOSE" up -d --build --wait
 "$HERE/replay.sh" "$DATA"
 rc=0
 "$HERE/verify.sh" "$DATA" || rc=$?
+sleep "${SETTLE_SECONDS:-0}"
 "$HERE/tier-stats.sh" "$DATA" || true
 exit "$rc"

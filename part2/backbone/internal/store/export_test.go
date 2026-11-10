@@ -60,3 +60,13 @@ func SealSKUMove(sc Scope, eventID string, lineNo int, m fold.Move) ([]byte, err
 func OpenSKUMove(sc Scope, eventID string, lineNo int, sealed []byte) (fold.Move, error) {
 	return openSKUMove(sc, eventID, lineNo, sealed)
 }
+
+// FinishErasure exposes finishErasure: the cross-tier part of a customer
+// erasure, driven by the tombstone's customer key.
+func (s *Store) FinishErasure(ctx context.Context, sc Scope, customerKey []byte) error {
+	return s.finishErasure(ctx, sc, customerKey)
+}
+
+// SetRebuildAfterRead installs a hook that Rebuild calls after reading the late
+// rows and before writing objects. Pass nil to remove it.
+func SetRebuildAfterRead(f func()) { rebuildAfterRead = f }
