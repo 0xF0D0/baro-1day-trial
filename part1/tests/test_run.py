@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 import unittest
+import unittest.mock
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -288,6 +289,71 @@ class RunTests(unittest.TestCase):
                            on_done=lambda j, e, s: seen.append((j, e)))
         self.assertEqual(res, {j: "not_started" for j in jobs})
         self.assertEqual(sorted(seen, key=lambda t: t[0].folder), [(j, "not_started") for j in jobs])
+
+    def test_permission_error_from_killpg_does_not_stop_the_pass(self):
+        self.make({"01_a": {"sleep": 60}, "05_b": {}})
+        real = os.killpg
+
+        def killpg_then_deny(pid, sig):
+            real(pid, sig)  # the signal is delivered, then macOS-style refusal
+            raise PermissionError(1, "Operation not permitted")
+
+        with unittest.mock.patch.object(run.os, "killpg", killpg_then_deny):
+            code, lines = self.run_pass("--timeout", "0.05")
+        self.assertEqual(code, 1)
+        self.assertTrue(any(l.startswith("collect 01_a all exit=timeout ") for l in lines), lines)
+        self.assertTrue(any(l.startswith("collect 05_b all exit=0 ") for l in lines), lines)
+        self.assertTrue(any(l.startswith("collect: jobs=2 failed=1 ") for l in lines), lines)
+        self.assertEqual(len(self.load_calls()), 1)
+
+    def test_unexpected_error_in_one_job_is_reported_and_the_rest_complete(self):
+        self.make({"01_a": {}, "05_b": {}})
+        real = run.subprocess.Popen
+
+        def popen(cmd, *a, **kw):
+            if "01_a" in str(cmd[1]):
+                raise RuntimeError("boom")
+            return real(cmd, *a, **kw)
+
+        with unittest.mock.patch.object(run.subprocess, "Popen", popen):
+            code, lines = self.run_pass()
+        self.assertEqual(code, 1)
+        self.assertTrue(any(l.startswith("collect 01_a all exit=error ") for l in lines), lines)
+        self.assertTrue(any(l.startswith("collect 05_b all exit=0 ") for l in lines), lines)
+        self.assertTrue(any(l.startswith("collect: jobs=2 failed=1 ") for l in lines), lines)
+        self.assertEqual(len(self.load_calls()), 1)
+
+    def test_odd_run_files_do_not_stop_the_pass(self):
+        self.make({"01_a": {}, "05_b": {}})
+        d = self.cdir / "05_b" / "raw" / "x"
+        d.mkdir(parents=True)
+        (d / "20990101T000001Z.run.json").write_text("[]")
+        (d / "20990101T000002Z.run.json").write_text("null")
+        (d / "20990101T000003Z.run.json").write_text(
+            json.dumps({"run_id": "20990101T000003Z", "status": "ok", "cost_usd": "abc"}))
+        (d / "20990101T000004Z.run.json").write_text('{"run_id": "2099')
+        (d / "20990101T000005Z.run.json").write_text(
+            json.dumps({"run_id": "20990101T000005Z", "status": "weird", "cost_usd": None}))
+        code, lines = self.run_pass()
+        self.assertEqual(code, 0)
+        # two good runs from the stubs (01_a and 05_b, one per brand-less --all: x and y each) plus
+        # the "abc" file (ok, cost 0) and the "weird" file (runs only)
+        self.assertIn("collect: jobs=2 failed=0 runs=6 ok=5 partial=0 could_not_look=0 cost_usd=0.0000", lines)
+        self.assertEqual(len(self.load_calls()), 1)
+
+    def test_bad_jobs_and_timeout_values_stop_before_anything_runs(self):
+        self.three()
+        for argv, msg in ((("--jobs", "0"), "--jobs must be at least 1"),
+                          (("--jobs", "-3"), "--jobs must be at least 1"),
+                          (("--timeout", "0"), "--timeout must be greater than 0"),
+                          (("--timeout", "-1"), "--timeout must be greater than 0")):
+            code, lines = self.run_pass(*argv)
+            self.assertEqual(code, 2, argv)
+            self.assertIn(msg, lines)
+        for f in ("01_a", "04_amazon", "05_b"):
+            self.assertIsNone(self.calls(f))
+        self.assertEqual(self.load_calls(), [])
+        self.assertFalse((self.state / "logs").exists())
 
 
 if __name__ == "__main__":
