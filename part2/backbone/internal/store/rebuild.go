@@ -170,6 +170,36 @@ func (s *Store) Rebuild(ctx context.Context, tenantID string) (bool, error) {
 		replaced = append(replaced, *oldSnapshot)
 	}
 
+	// Replace the index rows now, before tenant-status and cold-commit are
+	// taken. Only cold-writer holders read or write customer_days and
+	// sku_moves, and we hold that lock, so ingests of this tenant are not
+	// blocked while the rows are copied. The transaction keeps it atomic.
+	for _, q := range []string{
+		`DELETE FROM customer_days WHERE tenant_id = $1`,
+		`DELETE FROM sku_moves WHERE tenant_id = $1`,
+	} {
+		if _, err := tx.Exec(ctx, q, tenantID); err != nil {
+			return false, fmt.Errorf("store: clear index rows: %w", err)
+		}
+	}
+	dayRows := make([][]any, len(pairs))
+	for i, p := range pairs {
+		dayRows[i] = []any{tenantID, p.key, p.day}
+	}
+	if _, err := tx.CopyFrom(ctx, pgx.Identifier{"customer_days"},
+		[]string{"tenant_id", "customer_key", "day"}, pgx.CopyFromRows(dayRows)); err != nil {
+		return false, fmt.Errorf("store: copy customer_days: %w", err)
+	}
+	moveRows := make([][]any, len(moves))
+	for i, m := range moves {
+		moveRows[i] = []any{tenantID, m.skuKey, m.ms, m.eventID, m.lineNo, m.sealed}
+	}
+	if _, err := tx.CopyFrom(ctx, pgx.Identifier{"sku_moves"},
+		[]string{"tenant_id", "sku_key", "occurred_at_ms", "event_id", "line_no", "value"},
+		pgx.CopyFromRows(moveRows)); err != nil {
+		return false, fmt.Errorf("store: copy sku_moves: %w", err)
+	}
+	// Locks 2 and 4, then the erased re-check, exactly as flush does.
 	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`, lockKey("tenant-status", []byte(tenantID))); err != nil {
 		return false, fmt.Errorf("store: tenant status lock: %w", err)
 	}
@@ -195,31 +225,6 @@ func (s *Store) Rebuild(ctx context.Context, tenantID string) (bool, error) {
 	if _, err := tx.Exec(ctx, `UPDATE tenant_cold SET snapshot_object = $2 WHERE tenant_id = $1`,
 		tenantID, snapshot); err != nil {
 		return false, fmt.Errorf("store: update snapshot pointer: %w", err)
-	}
-	for _, q := range []string{
-		`DELETE FROM customer_days WHERE tenant_id = $1`,
-		`DELETE FROM sku_moves WHERE tenant_id = $1`,
-	} {
-		if _, err := tx.Exec(ctx, q, tenantID); err != nil {
-			return false, fmt.Errorf("store: clear index rows: %w", err)
-		}
-	}
-	dayRows := make([][]any, len(pairs))
-	for i, p := range pairs {
-		dayRows[i] = []any{tenantID, p.key, p.day}
-	}
-	if _, err := tx.CopyFrom(ctx, pgx.Identifier{"customer_days"},
-		[]string{"tenant_id", "customer_key", "day"}, pgx.CopyFromRows(dayRows)); err != nil {
-		return false, fmt.Errorf("store: copy customer_days: %w", err)
-	}
-	moveRows := make([][]any, len(moves))
-	for i, m := range moves {
-		moveRows[i] = []any{tenantID, m.skuKey, m.ms, m.eventID, m.lineNo, m.sealed}
-	}
-	if _, err := tx.CopyFrom(ctx, pgx.Identifier{"sku_moves"},
-		[]string{"tenant_id", "sku_key", "occurred_at_ms", "event_id", "line_no", "value"},
-		pgx.CopyFromRows(moveRows)); err != nil {
-		return false, fmt.Errorf("store: copy sku_moves: %w", err)
 	}
 	if _, err := tx.Exec(ctx, `DELETE FROM hot_events WHERE tenant_id = $1 AND event_id = ANY($2)`,
 		tenantID, lateIDs); err != nil {
