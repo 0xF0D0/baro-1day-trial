@@ -37,7 +37,7 @@ No Prometheus server is bundled; point one at these endpoints to get rates and `
 | `backbone_last_sweep_age_seconds` | above 7200 | The 2-hour erasure bound is broken. Check the worker. |
 | `backbone_pending_tombstones` | above 0 for longer than one sweep | An erasure is not finishing. Read the worker log. |
 | `backbone_dirty_tenants` | above 0 across several flush intervals | Rebuilds are not completing. |
-| `backbone_job_errors_total` | rising | Read it by `class` (`postgres_<SQLSTATE>`, `object_not_found`, `canceled`, `other`) and by `job`. |
+| `backbone_job_errors_total` | rising | Read it by `class` (`postgres_<SQLSTATE>`, `object_not_found`, `canceled`, `other`) and by `job`. A series appears only after its first error, so an absent metric means no errors. |
 | `backbone_ack_seconds` | p99 well above its baseline | Ingest is slow. Check Postgres first. |
 | `backbone_garbage_objects` | keeps growing | Sweep is not deleting. |
 | `backbone_read_seconds{kind="state",tier="hot"}` | read it knowing | `tier="hot"` includes snapshot cache hits, so a cold tenant's cached state read counts as hot. |
