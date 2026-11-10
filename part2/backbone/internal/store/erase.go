@@ -1,7 +1,9 @@
 package store
 
 import (
+	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	"backbone/internal/canon"
@@ -63,7 +65,7 @@ func (s *Store) EraseCustomer(ctx context.Context, sc Scope, customerID string) 
 		return nil
 	}
 
-	return s.eraseCustomerCold(ctx, sc, customerID)
+	return s.finishErasure(ctx, sc, customerKey)
 }
 
 // coldPlan is the object work of one customer erasure, prepared before the
@@ -79,12 +81,13 @@ type coldPlan struct {
 	removedIDs  []string
 }
 
-// eraseCustomerCold is the second transaction of EraseCustomer. It holds the
-// cold-writer lock for its whole length, so a flush that already read the
-// customer's hot rows finishes first and the erasure then sees its output.
-func (s *Store) eraseCustomerCold(ctx context.Context, sc Scope, customerID string) error {
+// finishErasure is the second transaction of EraseCustomer, driven by the
+// customer key alone, because a pending tombstone stores only the key. It
+// holds the cold-writer lock for its whole length, so a flush that already
+// read the customer's hot rows finishes first and the erasure then sees its
+// output.
+func (s *Store) finishErasure(ctx context.Context, sc Scope, customerKey []byte) error {
 	tenant := sc.TenantID()
-	customerKey := sc.Keys().CustomerKey(customerID)
 
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
@@ -111,7 +114,7 @@ func (s *Store) eraseCustomerCold(ctx context.Context, sc Scope, customerID stri
 		return nil
 	}
 
-	plan, err := s.planColdErase(ctx, tx, sc, customerID, customerKey)
+	plan, err := s.planColdErase(ctx, tx, sc, customerKey)
 	if err != nil {
 		return err
 	}
@@ -184,7 +187,7 @@ func (s *Store) eraseCustomerCold(ctx context.Context, sc Scope, customerID stri
 
 // planColdErase rewrites the customer's buckets and the snapshot as new
 // objects. It changes nothing in Postgres.
-func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customerID string, customerKey []byte) (coldPlan, error) {
+func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customerKey []byte) (coldPlan, error) {
 	tenant := sc.TenantID()
 	plan := coldPlan{replaceDays: map[int64]string{}, replaceN: map[int64]int{}, replaceB: map[int64]int{}}
 
@@ -226,7 +229,7 @@ func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customer
 		keep := make([]canon.Event, 0, len(events))
 		hit := false
 		for _, ev := range events {
-			if ev.CustomerID != nil && *ev.CustomerID == customerID {
+			if ev.CustomerID != nil && bytes.Equal(sc.Keys().CustomerKey(*ev.CustomerID), customerKey) {
 				removed = append(removed, ev)
 				plan.removedIDs = append(plan.removedIDs, ev.EventID)
 				hit = true
@@ -326,7 +329,7 @@ func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customer
 	if err != nil {
 		return plan, err
 	}
-	next := fold.RemoveCustomer(snap, sc.Keys().CustomerKeyHex(customerID), removed, moves, dayMax)
+	next := fold.RemoveCustomer(snap, hex.EncodeToString(customerKey), removed, moves, dayMax)
 	plan.newSnapshot, err = s.putSnapshot(ctx, sc, coldUntil, next)
 	if err != nil {
 		return plan, err
