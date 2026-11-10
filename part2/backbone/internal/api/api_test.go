@@ -205,14 +205,20 @@ func TestStateEndpoint(t *testing.T) {
 		t.Fatalf("empty state: %d %s", code, body)
 	}
 
+	// Events on days 1, 2 and 3; a flush in the middle moves day 1 to cold.
 	bodies := [][]byte{
-		orderBody("acct_a", "evt_s1", 3000, "cus_9"),
-		adMetric("acct_a", "evt_s2", 1000),
-		adMetric("acct_a", "evt_s3", 2000),
+		orderBody("acct_a", "evt_s1", 100000000, "cus_9"),
+		adMetric("acct_a", "evt_s2", 200000000),
+		adMetric("acct_a", "evt_s3", 300000000),
 	}
-	for _, b := range bodies {
+	for i, b := range bodies {
 		if c := e.postA(t, "sec_a1", b); c != 200 {
 			t.Fatal(c)
+		}
+		if i == 1 {
+			if ok, err := e.st.FlushDay(context.Background(), "t_a", 0, 1); err != nil || !ok {
+				t.Fatalf("flush: ok=%v err=%v", ok, err)
+			}
 		}
 	}
 	sc, err := e.st.Scope(context.Background(), "t_a")

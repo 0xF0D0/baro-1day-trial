@@ -158,26 +158,6 @@ func (s *Store) ScanAll(ctx context.Context, sc Scope, fn func(canon.Event) erro
 		ORDER BY occurred_at_ms, event_id`, []any{sc.TenantID()}, fn)
 }
 
-// Range returns events with fromMs <= occurred_at_ms < toMs and a key strictly
-// greater than after (when non-nil), in key order, at most limit of them.
-func (s *Store) Range(ctx context.Context, sc Scope, fromMs, toMs int64, after *Key, limit int) ([]canon.Event, error) {
-	afterMs, afterID := int64(-1<<63), ""
-	if after != nil {
-		afterMs, afterID = after.OccurredAtMs, after.EventID
-	}
-	out := []canon.Event{}
-	err := s.read(ctx, sc, `SELECT event_id, payload FROM hot_events
-		WHERE tenant_id = $1 AND occurred_at_ms >= $2 AND occurred_at_ms < $3
-		  AND (occurred_at_ms, event_id) > ($4, $5::text COLLATE "C")
-		ORDER BY occurred_at_ms, event_id LIMIT $6`,
-		[]any{sc.TenantID(), fromMs, toMs, afterMs, afterID, limit},
-		func(e canon.Event) error { out = append(out, e); return nil })
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // read runs query in a REPEATABLE READ READ ONLY transaction whose first
 // statement reads the tenant status, and feeds each decrypted event to fn.
 func (s *Store) read(ctx context.Context, sc Scope, query string, args []any, fn func(canon.Event) error) error {
@@ -195,6 +175,12 @@ func (s *Store) read(ctx context.Context, sc Scope, query string, args []any, fn
 		s.forgetKeys(tenant)
 		return ErrTenantErased
 	}
+	return scanHot(ctx, tx, sc, query, args, fn)
+}
+
+// scanHot runs query inside tx and feeds each decrypted event to fn.
+func scanHot(ctx context.Context, tx pgx.Tx, sc Scope, query string, args []any, fn func(canon.Event) error) error {
+	tenant := sc.TenantID()
 	rows, err := tx.Query(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("store: read events: %w", err)
