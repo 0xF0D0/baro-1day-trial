@@ -50,6 +50,11 @@ class ParseTests(unittest.TestCase):
         for bad in ("$33", "", None, True):
             with self.assertRaisesRegex(ValueError, "price_not_number"):
                 sc.product_page_offer(page(bad, "InStock"), "1")
+        for bad in (0, -1, "0", "0.00", float("nan"), float("inf")):
+            with self.assertRaisesRegex(ValueError, "price_not_number"):
+                sc.product_page_offer(page(bad, "InStock"), "1")
+        for ok in (0.5, "0.50"):
+            self.assertEqual(sc.product_page_offer(page(ok, "InStock"), "1")["price"], ok)
         html2 = (SAMPLES / "ulta" / "product_page_ld_xlsImpprod2040049.html").read_text()
         self.assertEqual(sc.product_page_offer(html2, "2515942"),
                          {"sku": "2515942", "price": "20.99", "currency": "USD", "availability": "InStock"})

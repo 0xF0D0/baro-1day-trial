@@ -1,5 +1,5 @@
 """Raw collector for source 5, retail shelf. See spec.md. No retries, no fallbacks."""
-import argparse, hashlib, json, os, re, sys, time, urllib.error, urllib.request
+import argparse, hashlib, json, math, os, re, sys, time, urllib.error, urllib.request
 from contextlib import ExitStack
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,7 +24,7 @@ FETCH_JS = ("async (u) => { try { const r = await fetch(u, {signal: AbortSignal.
             "return {status: r.status, text: await r.text()}; } catch (e) { return {status: 0, text: String(e)}; } }")
 
 
-PAGE_FETCH_JS = "async (u) => { const r = await fetch(u, {credentials: \"include\"}); return {status: r.status, text: await r.text()}; }"
+PAGE_FETCH_JS = ("async (u) => { const r = await fetch(u, {credentials: \"include\", signal: AbortSignal.timeout(20000)}); return {status: r.status, text: await r.text()}; }")
 LD_JSON_RE = re.compile(r'<script[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>', re.S | re.I)
 
 
@@ -112,8 +112,11 @@ def product_page_offer(html, sku):
             if not isinstance(offers, dict):
                 continue
             price = offers.get("price")
-            if isinstance(price, bool) or not (isinstance(price, (int, float)) or
-                                               (isinstance(price, str) and re.fullmatch(r"\d+(\.\d+)?", price.strip()))):
+            if isinstance(price, str) and re.fullmatch(r"\d+(\.\d+)?", price.strip()):
+                valid = float(price) > 0
+            else:
+                valid = isinstance(price, (int, float)) and not isinstance(price, bool) and math.isfinite(price) and price > 0
+            if not valid:
                 raise ValueError("price_not_number")
             avail = offers.get("availability")
             return {"sku": str(sku), "price": price, "currency": offers.get("priceCurrency"),
@@ -285,21 +288,26 @@ def ulta_fetch(ctx, page, apikey, p):
 
 
 def ulta_product_page(ctx, page, p):
-    """Returns (state, error, offer) for one product page, fetched from inside the open Ulta page."""
+    """Returns (state, error, offer) for one product page, fetched from inside the open Ulta page. Never raises."""
+    sku = p["row"].get("skuId")
+    if sku is None:
+        return "failed", "sku_missing", None
     time.sleep(ULTA_SPACING_S)
     ctx["requests"] += 1
     try:
         res = page.evaluate(PAGE_FETCH_JS, p["url"])
     except Exception as e:
         return "failed", f"browser: {msg(e)}", None
-    if res["status"] in (403, 429):
-        return "failed", f"blocked: http_{res['status']}", None
-    if res["status"] != 200:
-        return "failed", f"http_{res['status']}", None
     try:
-        return "fetched", None, product_page_offer(res["text"], p["row"]["skuId"])
+        if res["status"] in (403, 429):
+            return "failed", f"blocked: http_{res['status']}", None
+        if res["status"] != 200:
+            return "failed", f"http_{res['status']}", None
+        return "fetched", None, product_page_offer(res["text"], sku)
     except ValueError as e:
         return "failed", str(e), None
+    except Exception as e:
+        return "failed", f"{type(e).__name__}: {msg(e)}", None
 
 
 # ---------- Apify reviews ----------
