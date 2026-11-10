@@ -86,7 +86,9 @@ PRIMARY KEY (source, brand, kind, key)
 
 - `ads.channel` is one of `google`, `meta`, `tiktok` (paid media) or `site`, `signup_form`, `email` (the brand's own channels). There is no separate paid flag; the channel says it.
 - `ads.started_at` and `ads.last_shown_at` hold only dates the source itself states. TikTok's rows carry no dates, so both stay NULL there. How long an ad has been seen is in `first_seen_at`, `last_seen_at` and `ended_at`, which come from the runs and which every row has; they are never copied into `started_at`.
-- `products.retailer` is one of `amazon`, `ulta`, `target`, `sephora`, `chewy`, `tiktok_shop`, `own_site`; for Batiste's where-to-buy data it is the retailer name the widget returns.
+- `products.retailer` is one of `amazon`, `ulta`, `target`, `sephora`, `chewy`, `tiktok_shop`, `own_site`; for Batiste's where-to-buy data it is the retailer name the widget returns, lower-cased, so the same retailer has the same value in every source.
+- `products.availability` is `IN_STOCK`, `OUT_OF_STOCK` or NULL in every source. A source that gives a text (Amazon) is mapped by the words in it; a source that says nothing about stock leaves NULL.
+- `products.rating` is NULL, not 0, when the source reports no reviews.
 - `products.price` is the price as shown. When the seller shows a range (Ulta and Sephora show `$12.99 - $20.99` for a product with sizes), `price` is the lower end and `price_max` the upper end; otherwise `price_max` is NULL. `list_price` is the price before a discount, when the seller shows one.
 - A column a source does not provide stays NULL. Values not given a column stay reachable in `raw`.
 
@@ -132,7 +134,7 @@ For each row of the run, keyed by `(source, brand, kind, key)`:
 ### 7.3 Scopes
 A scope is the part of a run whose completeness is known on its own. A mapper returns, for a run, its rows (each with a scope) and a list of `(scope, status, reason)`, which is written to `run_scopes`.
 - Default: one scope named `all`, with the run's own status and reason.
-- Sources whose run result reports parts use them: source 5's retailer cells (`extra.cells`), source 10's `prices`, `offers` and `emails` (`extra.parts`).
+- Sources whose run result reports parts use them: source 5's retailer cells (`extra.cells`), source 10's `prices`, `offers_home`, `offers_klaviyo` and `emails` (`extra.parts`; the home page and the form list are reported separately, so a blocked home page does not stop forms from ending).
 - A scope may be as small as one search term or one barcode when the records tell whether that piece was fetched completely. Source 6 uses one scope per search term, plus `ads`. Batiste's where-to-buy data uses one scope per barcode instead of `prices`. Otherwise one failed piece would keep every other row of the source from ever ending.
 - Each source's mapping plan names its scopes.
 
@@ -161,7 +163,7 @@ One mapper per source: a pure function from a run result and its records to rows
 | 7 Search interest | `interest_point`, `interest_point_compared` | `search_interest` | record key | `series` from the kind |
 | 8 TikTok posts | `post` | `posts` | post id | The record key is `<path>/<post id>`. A post found by both paths is one row; `surfaced_by` lists the paths; `raw` is the record of the first path in the order `profile_popular`, `hashtag` |
 | 9 TikTok Shop | `product`, `search_result` | `products` | record key | `retailer` tiktok_shop; the two kinds stay separate rows. A tracked product the source answers as `unavailable` gives no row and leaves the tracked scope complete, so that product's row is ended. A tracked product the actor returned no row for (`missing`), or failed on, makes the scope `partial`, so nothing is ended |
-| 10 Brand site and emails | `product` | `products` | record key | `retailer` own_site; one row per product, price of the first variant |
+| 10 Brand site and emails | `product` | `products` | record key | `retailer` own_site; one row per product, price of the first variant. `list_price` only when the compare-at price is above the price (Shopify writes 0.00 for "none"). `availability` is `IN_STOCK` when any variant can be bought |
 | | `retailer_availability` | `products` | record key + retailer id | one record (one barcode) becomes one row per retailer returned; one scope per barcode |
 | | `offer_slot`, `klaviyo_form`, `email` | `ads` | record key | `channel` site, signup_form, email |
 
@@ -234,6 +236,17 @@ Made by the designer while the remaining mappers were built and reviewed, not ye
 26. Meta ad text falls back to the first card that has a value.
 27. A Google result page with no organic results is recorded as "could not look", not as "nothing ranks".
 28. A product whose detail page was not fetched (Amazon) gets a row from what the list gave, with the detail columns left empty until a run fetches them.
+29. One vocabulary for `availability` and lower-cased retailer names, so a query across sources does not miss one of them.
+30. No rating is stored for a product with no reviews.
+31. Own-site products: a list price only when it is above the price; in stock when any variant is.
+32. The barcode widget shows a retailer's online price and its store prices; the online one is stored.
+
+## 13. Known limits
+- A Batiste barcode that leaves the brand's site keeps its retailer rows open: each barcode is its own scope, and a barcode that is no longer looked at never gets a complete look again. `last_seen_at` shows such rows are stale. Ending them needs a loader rule that a complete parent part ends child scopes missing from the run.
+- An ad that disappears from Google's list without a newer last-shown date is not ended; only the date ends Google ads.
+- A brand with several Facebook pages is one scope: when one page could not be read, no ad of that brand is ended in that run.
+- Review dates from Ulta are UTC dates and can differ by one day from the date the site shows.
+- `posts.creator_handle` and TikTok Shop's `seller_name` hold account and shop names as published. Some belong to individuals. Whether to keep them is the user's decision; the brief asks for the creator of each top post.
 
 ## 12. Left to the builder
 - Module layout inside `part1/pipeline/`, and how mappers are registered.
