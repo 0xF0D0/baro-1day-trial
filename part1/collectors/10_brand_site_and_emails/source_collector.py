@@ -53,6 +53,7 @@ HOME_APIFY_MEMORY_MB = 2048
 HOME_APIFY_RUN_TIMEOUT_S = 180
 FIRST_DAY_S = 86400
 SIGNUP_TOLERANCE_S = 300
+IMAP_TIMEOUT_S = 60
 
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
@@ -1016,7 +1017,7 @@ def imap_folders(list_lines):
             name = re.sub(r"\\(.)", r"\1", name[1:-1])
         flags = m.group("flags").decode("ascii", "replace").lower().split()
         for flag, key in (("\\all", "all"), ("\\junk", "junk")):
-            if flag in flags and key not in found:
+            if flag in flags and "\\noselect" not in flags and key not in found:
                 found[key] = name
     return found.get("all"), found.get("junk")
 
@@ -1081,7 +1082,7 @@ def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
 
     def read_folder(conn, name, folder):
         for dom in sender_domains:
-            typ, data = command(conn.uid, "SEARCH", None, "FROM", f'"{dom}"', "SINCE", imap_since(start))
+            typ, data = command(conn.uid, "SEARCH", None, "FROM", f'"{dom}"', "SINCE", imap_since(start - timedelta(days=1)))
             if typ != "OK":
                 raise ImapCommandError("imap_error: search")
             uids = [u.decode("ascii") for u in (data[0] or b"").split()] if data and isinstance(data[0], bytes) else []
@@ -1091,10 +1092,10 @@ def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
                     raise ImapCommandError("imap_error: fetch")
                 item = next((d for d in data or [] if isinstance(d, tuple) and len(d) == 2), None)
                 if item is None:
-                    part["messages"] += 1
-                    part["eml_invalid"] += 1
                     continue
-                handle(item[0], item[1], folder)
+                attrs = b" ".join([item[0]] + [d for d in data if isinstance(d, bytes)]) \
+                    if isinstance(item[0], bytes) else item[0]
+                handle(attrs, item[1], folder)
 
     def handle(meta, raw, folder):
         gid, received, labels = parse_fetch(meta)
@@ -1103,6 +1104,12 @@ def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
         if gid in seen:
             return
         seen.add(gid)
+        try:
+            dom = _from_domain(raw)
+        except Exception:
+            return
+        if not dom or not _domain_in(dom, sender_domains):
+            return
         part["messages"] += 1
         if received is None:
             part["eml_invalid"] += 1
@@ -1112,11 +1119,6 @@ def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
             return
         path = None
         try:
-            dom = _from_domain(raw)
-            if not dom:
-                raise ValueError("no sender")
-            if not _domain_in(dom, sender_domains):
-                return
             strict = not _domain_in(dom, VERIFIED_DOMAINS)
             data, _ = redact_message(raw, gid, received, labels, inbox=address, strict=strict)
             out_dir.mkdir(parents=True, exist_ok=True)
@@ -1141,7 +1143,7 @@ def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
         found.append((received, gid, e, folder, "strict" if strict else "verified"))
 
     try:
-        conn = connect(host)
+        conn = connect(host, timeout=IMAP_TIMEOUT_S)
         try:
             try:
                 command(conn.login, address, password)
@@ -1161,7 +1163,7 @@ def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
             if junk_name is not None:
                 try:
                     typ, _ = command(conn.select, _quote(junk_name), readonly=True)
-                except imaplib.IMAP4.error:
+                except Exception:
                     typ = "NO"
                 if typ == "OK":
                     read_folder(conn, junk_name, "spam")

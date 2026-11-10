@@ -64,8 +64,9 @@ class FakeConn:
     """folders: {quoted folder name: {domain: [(uid, meta bytes or None, raw)]}}"""
 
     def __init__(self, folders, list_lines=LIST_LINES, login_error=None, fail=None, search_status="OK",
-                 bad_select=()):
+                 bad_select=(), select_raises=()):
         self.folders, self.list_lines = folders, list_lines
+        self.select_raises = select_raises
         self.login_error, self.fail, self.search_status, self.bad_select = login_error, fail, search_status, bad_select
         self.calls, self.current, self.loggedout = [], None, False
 
@@ -86,6 +87,8 @@ class FakeConn:
 
     def select(self, name, *a, **k):
         self._log("select", (name,) + a, k)
+        if name in self.select_raises:
+            raise OSError("select broke")
         if name in self.bad_select:
             return "NO", [b"no"]
         self.current = name
@@ -104,6 +107,8 @@ class FakeConn:
         for rows in box.values():
             for u, m, raw in rows:
                 if u == uid:
+                    if isinstance(m, tuple):  # attributes on both sides of the literal
+                        return "OK", [(m[0], raw), m[1]]
                     return "OK", [(m, raw), b")"]
         return "OK", [None]
 
@@ -123,7 +128,7 @@ def run_imap(conn, cfg=JINX, signup=SIGNUP, out_dir=None):
         with mock.patch.object(sc, "emit", lambda *a: records.append(a)), \
                 mock.patch.dict(sc.R, {"requests": 0, "kinds": Counter(), "fh": io.StringIO()}), \
                 mock.patch.object(sc, "utc_now", lambda: "2026-11-10T19:00:00Z"):
-            part = sc.emails_imap(cfg, signup, CREDS, out, connect=lambda host: conn)
+            part = sc.emails_imap(cfg, signup, CREDS, out, connect=lambda host, timeout=None: conn)
             requests = sc.R["requests"]
         files = sorted(p.name for p in out.glob("*.eml")) if out.exists() else None
         existed = out.exists()
@@ -188,7 +193,7 @@ class ImapRouteTests(unittest.TestCase):
         self.assertEqual([c[1][0] for c in selects], [ALL_Q, SPAM_Q])
         self.assertTrue(all(c[2].get("readonly") is True for c in selects))
         search = next(c for c in conn.calls if c[0] == "uid SEARCH")
-        self.assertEqual(search[1], (None, "FROM", '"thinkjinx.com"', "SINCE", "10-Nov-2026"))
+        self.assertEqual(search[1], (None, "FROM", '"thinkjinx.com"', "SINCE", "09-Nov-2026"))
         fetch = next(c for c in conn.calls if c[0] == "uid FETCH")
         self.assertEqual(fetch[1][0], "12")
         self.assertIn("BODY.PEEK[]", fetch[1][1])
@@ -235,7 +240,8 @@ class ImapRouteTests(unittest.TestCase):
         self.assertEqual(files, ["2.eml"])
         self.assertEqual([r[1] for r in recs], ["email/2"])
         since = next(c for c in conn.calls if c[0] == "uid SEARCH")[1][4]
-        self.assertEqual(since, "10-Nov-2026")
+        # start = 15:07:32 on the 10th, minus one day = the 9th
+        self.assertEqual(since, "09-Nov-2026")
 
     def test_after_first_day_is_kept_and_flagged(self):
         late = self.one("1", 5, "11-Nov-2026 15:12:32 +0000")
@@ -267,7 +273,80 @@ class ImapRouteTests(unittest.TestCase):
         conn = FakeConn({ALL_Q: {"thinkjinx.com": [other]}, SPAM_Q: {}})
         part, recs, _, files, _ = run_imap(conn)
         self.assertEqual((part["state"], part["in_window"], part["eml_invalid"], len(recs)), ("ok", 0, 0, 0))
+        self.assertEqual((part["messages"], part["before_signup"]), (0, 0))
         self.assertFalse(files)
+
+    def test_substring_sender_is_not_counted(self):
+        # the server's FROM search is a substring match: notthinkjinx.com comes back for thinkjinx.com
+        other = self.one("1", 1, "01-Nov-2026 10:00:00 +0000", sender="a@notthinkjinx.com")
+        broken = ("2", meta(2), b"")
+        mine = self.one("3", 3)
+        conn = FakeConn({ALL_Q: {"thinkjinx.com": [other, broken, mine]}, SPAM_Q: {}})
+        part, recs, *_ = run_imap(conn)
+        self.assertEqual((part["messages"], part["before_signup"], part["eml_invalid"], part["in_window"]),
+                         (1, 0, 0, 1))
+        self.assertEqual([r[1] for r in recs], ["email/3"])
+
+    def test_attributes_after_the_literal(self):
+        raw = raw_message()
+        head = b'1 (UID 12 BODY[] {%d}' % len(raw)
+        tail = b' X-GM-MSGID 1000 X-GM-LABELS ("\\\\Inbox") INTERNALDATE "10-Nov-2026 15:13:02 +0000" )'
+        conn = FakeConn({ALL_Q: {"thinkjinx.com": [("12", (head, tail), raw)]}, SPAM_Q: {}})
+        part, recs, *_ = run_imap(conn)
+        self.assertEqual((part["messages"], part["eml_invalid"], part["in_window"]), (1, 0, 1))
+        self.assertEqual(recs[0][1], "email/3e8")
+        self.assertIn("15:13:02", recs[0][4]["eml"])
+
+    def test_timeout_reaches_connect(self):
+        seen = {}
+
+        def connect(host, **kw):
+            seen.update(kw, host=host)
+            return FakeConn({ALL_Q: {}, SPAM_Q: {}})
+
+        with tempfile.TemporaryDirectory() as td, mock.patch.object(sc, "emit", lambda *a: None), \
+                mock.patch.dict(sc.R, {"requests": 0}):
+            sc.emails_imap(JINX, SIGNUP, CREDS, Path(td) / "x.eml", connect=connect)
+        self.assertEqual(sc.IMAP_TIMEOUT_S, 60)
+        self.assertEqual(seen, {"host": HOST, "timeout": 60})
+
+    def test_timeout_during_a_command_is_an_error(self):
+        conn = FakeConn({ALL_Q: {}}, fail=("list", TimeoutError("timed out")))
+        part, *_ = run_imap(conn)
+        self.assertEqual((part["state"], part["reason"]), ("could_not_look", "imap_error: TimeoutError"))
+
+    def test_since_is_one_day_early_and_exact_time_decides(self):
+        # signup 2026-11-10T23:57:00Z + 5 min... use 2026-11-11T00:02:00Z: start = 2026-11-10 23:57:00,
+        # minus one day = 2026-11-09 23:57:00 -> SINCE 09-Nov-2026
+        sign = dict(SIGNUP, signup_at="2026-11-11T00:02:00Z")
+        early = self.one("1", 1, "10-Nov-2026 23:56:59 +0000")
+        inside = self.one("2", 2, "10-Nov-2026 23:58:00 +0000")  # day before the signup, after start
+        conn = FakeConn({ALL_Q: {"thinkjinx.com": [early, inside]}, SPAM_Q: {}})
+        part, recs, *_ = run_imap(conn, signup=sign)
+        self.assertEqual(next(c for c in conn.calls if c[0] == "uid SEARCH")[1][4], "09-Nov-2026")
+        self.assertEqual((part["before_signup"], part["in_window"], part["messages"]), (1, 1, 2))
+        self.assertEqual([r[1] for r in recs], ["email/2"])
+
+    def test_since_for_a_signup_just_after_midnight(self):
+        # signup 2026-11-11T00:12:00Z: start = 00:07:00 on the 11th, minus one day = the 10th
+        sign = dict(SIGNUP, signup_at="2026-11-11T00:12:00Z")
+        conn = FakeConn({ALL_Q: {"thinkjinx.com": []}, SPAM_Q: {}})
+        run_imap(conn, signup=sign)
+        self.assertEqual(next(c for c in conn.calls if c[0] == "uid SEARCH")[1][4], "10-Nov-2026")
+
+    def test_junk_select_raising_keeps_all_mail(self):
+        conn = FakeConn({ALL_Q: {"thinkjinx.com": [self.one()]}}, select_raises=(SPAM_Q,))
+        part, recs, *_ = run_imap(conn)
+        self.assertEqual((part["state"], part["reason"], part["spam_checked"], len(recs)),
+                         ("partial", "spam_not_checked", False, 1))
+
+    def test_noselect_folders_are_ignored(self):
+        lines = [b'(\\Noselect \\All) "/" "[Gmail]"'] + LIST_LINES + [b'(\\Noselect \\Junk) "/" "Dead"']
+        self.assertEqual(sc.imap_folders(lines), ("[Gmail]/Alle Nachrichten", "[Gmail]/Spam"))
+        only = [b'(\\Noselect \\All) "/" "[Gmail]"']
+        conn = FakeConn({}, list_lines=only)
+        part, *_ = run_imap(conn)
+        self.assertEqual((part["state"], part["reason"]), ("could_not_look", "imap_no_all_folder"))
 
     def test_redaction_failure_is_counted_and_partial(self):
         bad = self.one("1", 1, subject="Hi radar.inbox77")
@@ -282,7 +361,8 @@ class ImapRouteTests(unittest.TestCase):
     def test_unparseable_message_is_counted(self):
         conn = FakeConn({ALL_Q: {"thinkjinx.com": [("1", meta(1), b"")]}, SPAM_Q: {}})
         part, recs, *_ = run_imap(conn)
-        self.assertEqual((part["state"], part["eml_invalid"], len(recs)), ("partial", 1, 0))
+        # no From can be read: skipped silently, counted nowhere
+        self.assertEqual((part["state"], part["messages"], part["eml_invalid"], len(recs)), ("ok", 0, 0, 0))
 
     def test_no_junk_folder_leaves_spam_unchecked(self):
         lines = [l for l in LIST_LINES if b"Junk" not in l]
@@ -320,7 +400,7 @@ class ImapRouteTests(unittest.TestCase):
         self.assertIsNone(part["exported_at"])
 
     def test_connect_failure_gives_type_name_only(self):
-        def connect(host):
+        def connect(host, timeout=None):
             raise OSError(f"cannot reach {host} for {ADDRESS}")
 
         with tempfile.TemporaryDirectory() as td, \
