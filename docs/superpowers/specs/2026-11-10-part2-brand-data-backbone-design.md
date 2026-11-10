@@ -70,12 +70,14 @@ The design favors the simplest structure that stays correct (User). Every speed-
 2. Verify the signature over the exact received bytes with that tenant's secret. Failure: `401`. Signing secrets come from the tenants file and survive tenant erasure, so a forged delivery to an erased tenant still gets `4xx`.
 3. Normalize to the canonical event per the SPEC table. `data/normalization_examples.json` wins if the table and the examples ever disagree. Unknown types keep their type and their payload verbatim, and take `customer_id` from the payload if present.
 4. Compute `customer_key = HMAC(tenant key, customer_id)` when `customer_id` is not null.
-5. In one Postgres transaction:
-   - take the shared tenant-status lock (§13). If the tenant is erased, return `410` (Designer's call; `2xx` or `404` would also pass);
+5. In one `READ COMMITTED` transaction, so that each statement sees what committed while it waited for a lock:
+   - take the shared tenant-status lock (§13) and read the tenant's status. If the tenant is erased, return `410` (Designer's call; `2xx` or `404` would also pass);
    - if `customer_key` is set, take the shared customer lock and check the tombstone. If the customer is erased, commit nothing and return `2xx`;
-   - if `occurred_at_ms < cold_until + 1 day`, take the shared cold lock and read `cold_until` again. If the event is now late (`occurred_at_ms < cold_until`), follow §12;
+   - take the shared cold-commit lock and read `cold_until`. If `occurred_at_ms < cold_until`, the event is late: follow §12;
    - otherwise `INSERT ... ON CONFLICT (tenant_id, event_id) DO NOTHING` into the hot table.
-6. Commit with `synchronous_commit = on`, then return `2xx` (User: `2xx` only after commit). A duplicate returns `2xx` without changing anything.
+6. Commit, then return `2xx` (User: `2xx` only after commit). A duplicate returns `2xx` without changing anything.
+
+`synchronous_commit = on` applies to every transaction in the service, not only ingest. The cold-commit lock is held exclusively only inside the short commit transactions of flush, erasure and rebuild, so an ingest waits for at most one commit.
 
 Any internal error returns `5xx` so the sender retries.
 
@@ -97,10 +99,13 @@ Other Postgres tables (names are the builder's choice):
 - `tenants`: status (active or erased), erased time.
 - `tenant_keys`: the tenant DEK wrapped by the KEK.
 - `tenant_cold`: `cold_until`, current snapshot object, reducer version, `dirty` flag.
-- `cold_manifest`: one row per tenant and day: current bucket object, generation, event count, bytes.
+- `cold_manifest`: one row per tenant and day: current bucket object, event count, bytes.
 - `tombstones`: `(tenant_id, customer_key)`, status (pending or done), requested time.
+- `garbage`: cold objects that a commit replaced, with the time they were replaced. The commit that moves a pointer off an object inserts that object here.
 
 Postgres is the single source of truth for which cold objects are current. A cold object that no pointer references is garbage.
+
+Every column that holds ciphertext has `SET STATISTICS 0`, so `ANALYZE` never copies sampled ciphertext into `pg_statistic`.
 
 ### 6.1 Indexes over cold data (User: Postgres tables)
 
@@ -115,11 +120,11 @@ The cost is size. On the supplied data there are about 0.66 `customer_days` rows
 
 ## 7. Cold tier (MinIO)
 
-Layout per tenant prefix (object names carry a generation so an object is never overwritten):
+Layout per tenant prefix. Every object name carries a random unique ID, so an object is never overwritten and a name is never reused, even after its manifest row is deleted. Caches rely on this.
 
 ```
-<tenant>/snapshot/<gen>.json.enc
-<tenant>/buckets/<YYYY-MM-DD>/<gen>.jsonl.enc
+<tenant>/snapshot/<id>.json.enc
+<tenant>/buckets/<YYYY-MM-DD>/<id>.jsonl.enc
 ```
 
 All objects are encrypted with the tenant DEK (AES-GCM, AAD binds tenant and object name).
@@ -140,10 +145,12 @@ The snapshot holds enough to continue the fold exactly where it stopped. The por
 
 ## 8. State reads
 
-1. Authenticate the tenant token. Token tenant differs from path tenant: `404`. Path tenant erased: `410`.
-2. In one `REPEATABLE READ` transaction, read the `tenant_cold` row (snapshot pointer, `dirty`) and the tenant's hot rows in key order.
+1. Authenticate the tenant token. Token tenant differs from path tenant: `404`.
+2. In one `REPEATABLE READ` transaction, read the tenant's status from Postgres (erased: `410`; never from node memory, because another api node may have handled the erasure), the `tenant_cold` row (snapshot pointer, `dirty`) and the tenant's hot rows in key order.
 3. If not dirty: load the snapshot (from the api node's cache if present), fold the hot rows onto a copy, and return the 16-field result.
 4. If dirty (§12): fold every bucket in the manifest and every hot row in key order. This is slow but correct, and only happens between a late-event arrival and the worker's rebuild.
+
+Every read has a deadline of 60 seconds, well inside the 10-minute grace period after which sweep may delete an object the read is using (§14) (Designer's call).
 
 Snapshot cache (Designer's call): each api node caches decrypted snapshots keyed by object name. Object names are immutable, so a cached copy is never stale for the pointer that was read in the same transaction. Entries expire after 1 hour so erased data does not linger in memory past the physical-removal bound.
 
@@ -151,26 +158,26 @@ Because every hot event has `occurred_at_ms >= cold_until` and every snapshot ev
 
 ## 9. Range reads (`/events`)
 
-- Merge two sorted streams in key order: cold buckets for the days in `[from_ms, to_ms)` that are before `cold_until`, read through the manifest in the same transaction; and hot rows in the range. Always merging both also covers late events waiting in hot.
+- Each page runs in one `REPEATABLE READ` transaction, with the same status and token checks as §8. It merges two sorted streams in key order: cold buckets for the days in `[from_ms, to_ms)` that are before `cold_until`, found through the manifest; and hot rows in the range. Because both come from one transaction, a flush that commits mid-page cannot drop or repeat a day. Always merging both also covers late events waiting in hot.
 - `limit` is capped at 1000 (Designer's call; `verify.py` uses 1000).
 - The cursor is opaque: the last returned key plus the query range, authenticated with a per-tenant HMAC so it cannot be replayed against another tenant or edited.
 - A page that starts inside a day bucket reads that bucket and skips to the cursor key. Caching decrypted buckets on api nodes is left to the builder.
 
 ## 10. Flush to cold (worker)
 
-**Trigger.** Every 5 minutes the worker checks each tenant. The watermark is `W = (100th largest occurred_at_ms in that tenant's hot rows, or the largest if there are fewer than 100) − 96 hours`. If `W >= cold_until + 1 day`, the day starting at `cold_until` is flushed, and the check repeats until no full day is past `W`. In event time this is about once a day per tenant. Under replay, where event time moves fast, it catches up in a loop (Designer's call on the 5-minute interval and on using the 100th largest value, which keeps a few future-dated outliers from pushing `W` ahead).
+**Trigger.** Every 5 minutes the worker checks each tenant. The watermark is `W = (100th largest occurred_at_ms in that tenant's hot rows, or the largest if there are fewer than 100) − 96 hours`. The candidate day `d` is the UTC day of the earliest hot row at or after `cold_until`. If `W >= d + 1 day`, day `d` is flushed, and the check repeats until no candidate day is fully past `W`. A new tenant starts with `cold_until` at the beginning of time, and days with no events get no bucket; `cold_until` simply jumps past them. In event time this is about once a day per tenant. Under replay, where event time moves fast, it catches up in a loop (Designer's call on the 5-minute interval and on using the 100th largest value, which keeps a few future-dated outliers from pushing `W` ahead).
 
 96 hours is the SPEC's 72-hour lateness plus a margin (User). It only decides what moves. Correctness does not depend on it (§12). A dirty tenant (§12) is rebuilt before it is flushed again.
 
-**Steps.** For the day `d = cold_until`:
-1. Take the exclusive cold lock for the tenant.
-2. Read the hot rows with `occurred_at_ms` in day `d`, in key order.
-3. Write the bucket object for `d` (new generation). Fold the day onto the current snapshot and write a new snapshot object.
-4. In one transaction: point the manifest and `tenant_cold` at the new objects, insert the day's `customer_days` and `sku_moves` rows, set `cold_until = d + 1 day`, delete the hot rows of day `d`, and commit. Release the lock.
+**Steps.**
+1. Take the tenant's cold-writer lock (§13) for the whole flush. If the tenant is erased, stop.
+2. Read the hot rows with `occurred_at_ms` in day `d`, in key order, and remember their event IDs.
+3. Write the bucket object for `d`. Fold the day onto the current snapshot and write a new snapshot object.
+4. Commit transaction: take the shared tenant-status lock and stop if the tenant is now erased; take the exclusive cold-commit lock; point the manifest and `tenant_cold` at the new objects and record the replaced objects in `garbage`; insert the day's `customer_days` and `sku_moves` rows; set `cold_until = d + 1 day`; delete exactly the hot rows read in step 2; if any hot row now has `occurred_at_ms < cold_until`, set `dirty`. Commit, then release the cold-writer lock.
 
-A crash before step 4 leaves only unreferenced objects, which sweep deletes. A crash after step 4 leaves the flush done. Re-running the flush from the start is always safe.
+A crash before step 4 commits leaves only objects that nothing references, which sweep deletes. A crash after it leaves the flush done. Re-running the flush from the start is always safe.
 
-**Concurrency.** Reads need no lock: they see either the old snapshot plus day `d` in hot, or the new snapshot without day `d` in hot, which give the same state. An ingest for day `d` (only possible for an event more than 96 hours late) takes the shared cold lock, so it waits for the flush to commit and then follows the late rules with the new `cold_until`. No event can land in hot after step 2 and be deleted in step 4 without being in the bucket.
+**Concurrency.** Reads need no lock: they see either the old snapshot plus day `d` in hot, or the new snapshot without day `d` in hot, which give the same state. Every ingest holds the shared cold-commit lock while it reads `cold_until` and inserts, so it either commits before step 4 or reads the new `cold_until` after it. An event for day `d` that commits between steps 2 and 4 is not deleted, because step 4 deletes only the rows it read. It stays in hot, now older than `cold_until`, and step 4 marks the tenant dirty, so the rebuild (§12) places it.
 
 ## 11. Erasure
 
@@ -178,9 +185,9 @@ A crash before step 4 leaves only unreferenced objects, which sweep deletes. A c
 The request returns `2xx` only after the customer is gone from state, reads and every current object. A read that runs while the request is in flight may still see the customer; once `2xx` is sent, no read will. The design document states this as the meaning of "from then on".
 
 1. **Tombstone.** Take the exclusive customer lock, insert the tombstone (status pending), commit. From here on, ingest drops the customer's events. If the tombstone is already done, return `2xx` immediately.
-2. **Lock.** Take the exclusive cold lock for the tenant.
+2. **Lock.** Take the tenant's cold-writer lock for the rest of the steps. If the tenant is erased, mark the tombstone done and return `2xx`; nothing of it is left.
 3. **Find.** Read the customer's days from `customer_days`.
-4. **Rewrite buckets.** For each of those days, read the bucket, remove the customer's events, keep them in memory, and write a new bucket generation.
+4. **Rewrite buckets.** For each of those days, read the bucket, remove the customer's events, keep them in memory, and write a new bucket object.
 5. **Update the snapshot** from the removed events:
    - subtract them from `event_count` and `messages_by_channel`; remove the key from the customer set;
    - remove the customer's orders whole (orders never mix customers; §18) and subtract the customer's orphan refunds and orphan shipments;
@@ -188,14 +195,14 @@ The request returns `2xx` only after the customer is gone from state, reads and 
    - for every SKU in the customer's first `order.created` lines, read that SKU's rows from `sku_moves` in key order, leave out the rows of the removed events, and refold inventory and oversold from zero;
    - match the reducer's key presence: a SKU with no remaining movements leaves `inventory`, and a channel whose count drops to zero leaves `messages_by_channel`. Campaigns are never affected, because `ad.metric` has no customer.
 6. Write the new snapshot object.
-7. **Commit** in one transaction: point the manifest and `tenant_cold` at the new objects, delete the customer's hot rows by `customer_key`, delete the customer's `customer_days` rows and the removed events' `sku_moves` rows, mark the tombstone done. Release the lock and return `2xx`.
+7. **Commit transaction**: take the shared tenant-status lock and the exclusive cold-commit lock; point the manifest and `tenant_cold` at the new objects and record the replaced objects in `garbage`; delete the customer's hot rows by `customer_key`; delete the customer's `customer_days` rows and the removed events' `sku_moves` rows; mark the tombstone done. Commit, release the cold-writer lock and return `2xx`.
 
 Any api node can run these steps, so erasure does not depend on the worker (Designer's call). If the node dies between steps 1 and 7, the client retries (it never got `2xx`) or the worker's sweep finishes pending tombstones. Every step reads current committed pointers, so a re-run is safe. Several pending erasures for the same tenant may be processed in one pass.
 
 The 10-second replay timeout bounds how long one erasure may take before the client retries. On the supplied data a customer appears in about five day buckets, so one erasure reads and rewrites a handful of objects.
 
 ### 11.2 Tenant erasure
-In one transaction: take the exclusive tenant-status lock, mark the tenant erased, delete its wrapped DEK, delete its hot rows, index rows, manifest rows and pointers; commit; return `2xx`. Cold objects become unreadable at once because the key is gone, and sweep deletes the tenant prefix. Signing secrets stay loaded from the tenants file so later deliveries can still be told apart: genuine ones get `410`, forged ones `401`.
+Take the tenant's cold-writer lock first, so no flush, customer erasure or rebuild of the tenant is in flight (and none can start, because each checks the status under that lock). Then, in one transaction: take the exclusive tenant-status lock, mark the tenant erased, delete its wrapped DEK, delete its hot rows, index rows, manifest rows, pointers and pending tombstones; commit; release the cold-writer lock; return `2xx`. Cold objects become unreadable at once because the key is gone, and sweep deletes the tenant prefix. Signing secrets stay loaded from the tenants file so later deliveries can still be told apart: genuine ones get `410`, forged ones `401`.
 
 ## 12. Late events and full rebuild
 
@@ -203,29 +210,34 @@ An event is **late** when `occurred_at_ms < cold_until`, which means it arrived 
 
 - **Duplicate check.** Read the bucket for the event's day. If the event ID is there, or in hot, return `2xx` and do nothing. Redeliveries of cold events are caught this way, so deduplication covers all retained events, not a time window.
 - **New late event.** Insert it into hot as usual and set `dirty` on `tenant_cold` in the same transaction, then return `2xx`. Reads on a dirty tenant use the slow path (§8).
-- **Rebuild (worker).** Under the exclusive cold lock: move hot rows older than `cold_until` into their day buckets (new generations), then rebuild the snapshot and the tenant's `customer_days` and `sku_moves` rows from all buckets. Commit pointers, replace the index rows, delete the moved hot rows and clear `dirty` in one transaction. A metric counts rebuilds and their reason.
+- **Rebuild (worker).** Under the tenant's cold-writer lock: move hot rows older than `cold_until` into their day buckets (new objects), then rebuild the snapshot and the tenant's `customer_days` and `sku_moves` rows from all buckets. The commit transaction takes the same locks as a flush commit, points at the new objects, records the replaced ones in `garbage`, replaces the index rows, deletes exactly the hot rows it moved, and clears `dirty` unless a newer late row has arrived meanwhile. A metric counts rebuilds and their reason.
 
 The same rebuild serves a reducer version change (§17) and is the reference the crash checker compares against.
 
 ## 13. Locks
 
-| Lock | Shared by | Exclusive by |
-|---|---|---|
-| tenant status | every ingest | tenant erasure |
-| customer `(tenant, customer_key)` | ingest of that customer's events | writing that customer's tombstone |
-| tenant cold | ingest of an event dated before `cold_until + 1 day` | flush, customer erasure, rebuild, sweep work on that tenant |
+| Lock (per tenant unless noted) | Shared by | Exclusive by | Held for |
+|---|---|---|---|
+| 1. cold-writer | none | flush, customer erasure (steps 2 to 7), rebuild, sweep work on the tenant, tenant erasure | the whole operation |
+| 2. tenant status | every ingest; the commit transactions of flush, customer erasure and rebuild | tenant erasure | one transaction |
+| 3. customer `(tenant, customer_key)` | ingest of that customer's events | writing that customer's tombstone | one transaction |
+| 4. cold-commit | every ingest | the commit transactions of flush, customer erasure and rebuild | one transaction |
 
-Normal ingest takes only the tenant-status lock (shared) and, for events with a customer, that customer's lock (shared), so it never waits on flushes. Reads take no lock. Postgres advisory locks are suggested so shared holders do not write to rows; the exact mechanism is the builder's choice.
+Locks are always taken in the order 1, 2, 3, 4, and no operation takes a lower-numbered lock while holding a higher-numbered one. This rules out deadlocks; for example, tenant erasure takes 1 before 2, so it never waits behind a flush commit that is itself waiting for 2. Ingest takes 2, 3 and 4 in shared mode and waits only while a commit transaction of the same tenant runs. Reads take no lock. Postgres advisory locks are suggested so shared holders do not write to rows (Designer's call on this scheme; the exact mechanism is the builder's choice).
 
 ## 14. Sweep and the physical-removal bound
 
-The worker runs sweep every hour (User):
+The worker runs sweep every hour (User). Per tenant it works under the cold-writer lock:
 - finish pending tombstones whose request died;
-- delete cold objects that no pointer references and that are older than a grace period long enough for in-flight reads (Designer's call: 10 minutes);
-- delete the prefixes of erased tenants;
-- run `VACUUM` on the hot table and `CHECKPOINT`, with WAL recycling disabled so old WAL files are removed rather than reused.
+- delete objects in `garbage` that were replaced more than 10 minutes ago (Designer's call). The grace period runs from replacement, not creation, so a read that fetched the old pointer can still finish (reads have a 60-second deadline, §8);
+- delete objects that no pointer references and that are not in `garbage`. They were left by an operation that crashed before its commit. No operation can be in flight, because sweep holds the cold-writer lock;
+- delete the prefixes of erased tenants.
 
-**Stated bound** (Designer's call): an erased customer's or tenant's data is out of reads and state immediately once `2xx` is returned. Within **2 hours** (one sweep interval plus its run time) it is gone from MinIO and from Postgres WAL files. It is gone from every Postgres query, including the index tables, at once.
+Then, once per sweep:
+- run `VACUUM` on every table that can hold erased data: hot events, `customer_days`, `sku_moves`, `tenant_keys`, `tombstones`;
+- run `pg_switch_wal()` and then `CHECKPOINT`, with WAL recycling turned off. A checkpoint alone does not remove the current WAL segment, and on a quiet system that segment can hold an erased row for days.
+
+**Stated bound** (Designer's call): an erased customer's or tenant's data is out of reads and state immediately once `2xx` is returned. It is gone from every Postgres query, including the index tables, at once. Within **2 hours** (one sweep interval plus its run time) it is also gone from MinIO and from Postgres WAL files. The bound assumes the worker is running; while it is down, the bound grows by the downtime, and a metric shows the age of the last completed sweep.
 
 **Stated limits** (User: acknowledge, do not engineer around):
 - **Postgres table files.** `DELETE` and `VACUUM` mark a row's space as reusable but do not overwrite it. The deleted row's ciphertext stays inside the table file until a new row takes that space, and there is no upper bound on when that happens. It is encrypted with the tenant DEK, which stays alive after a customer erasure. The same applies to the wrapped DEK row after a tenant erasure. Rewriting the table (`VACUUM FULL`) would close this gap but stops ingest while it runs, so it is not built. In production, DEKs in a KMS and volume encryption would cover it.
@@ -236,7 +248,10 @@ The worker runs sweep every hour (User):
 ## 15. Encryption and isolation
 
 - **Keys** (User: tenant DEK only, no per-customer keys). The KEK wraps one DEK per tenant; the wrapped DEK lives in Postgres. Customer erasure deletes hot rows and rewrites cold objects. Per-customer keys stored in the same Postgres would leave the same traces as the rows they protect (§14), so they would add a key lookup per event without closing the gap. In production the DEKs would move to a KMS.
+- **Key creation**: a tenant's DEK is created on first use by insert-if-absent, and every node then reads the stored DEK back and uses only that one. A node never encrypts or computes an HMAC with a DEK it generated but did not read back, because two nodes may race on the first delivery.
+- **Sub-keys**: separate keys for payload encryption, `customer_key`, `sku_key` and cursor authentication are derived from the DEK (for example with HKDF). Destroying the DEK destroys all of them.
 - **What is plaintext**: tenant ID, event ID, `occurred_at_ms`, day numbers, and keyed HMACs (`customer_key`, `sku_key`). Everything else, including `customer_id`, SKUs, amounts, PII and the whole `data` object, is inside AES-GCM ciphertext.
+- **Logs and metrics**: the customer erasure path contains the raw `customer_id`. LB access logs are turned off or redacted, the service logs route templates rather than raw paths, and metric labels use route templates. No log line carries a request path, body or customer ID.
 - **Isolation** (Designer's call): middleware turns the token into a tenant scope once, and storage functions take the scope and have no tenant ID parameter. Per-tenant keys are the second layer: another tenant's rows and objects cannot even be decrypted, because the AAD binds the tenant. MinIO access goes through per-tenant prefixes. Postgres row-level security is left out because it would need separate database roles and a per-transaction tenant setting for a third layer. The submitted design names it as production hardening.
 
 ## 16. Deep dive: crash safety (User)
@@ -244,7 +259,9 @@ The worker runs sweep every hour (User):
 **Claim.** Every operation that changes stored data follows one rule: write new immutable objects, then make them current with one Postgres transaction. Ingest is a single `INSERT` commit before `2xx`. So a crash at any point leaves either the old version or the new one, plus garbage that sweep removes.
 
 **Evidence to produce.**
-1. A fault-injection script that runs `replay.py` with aggressive settings (frequent flushes and sweeps) while a loop sends `SIGKILL` to random api nodes and to the worker at random intervals. Containers restart automatically.
+1. A fault-injection script that runs `replay.py` with aggressive settings while a loop sends `SIGKILL` to random api nodes, the worker and the Postgres container at random intervals. Containers restart automatically.
+   - Aggressive settings: frequent flushes and sweeps, and a flush margin much smaller than 96 hours (a test-only setting), so that late events, dirty tenants and rebuilds actually happen. The supplied data alone never produces a late event.
+   - `replay.py` sends erasures one at a time after in-flight webhooks finish, so a second driver sends customer and tenant erasures concurrently with webhooks to exercise the races in §13.
 2. Named crash points in each multi-step operation (after each object write and before each commit), switchable by configuration, so each window is hit on purpose rather than by luck.
 3. After the run: sweep, then `verify.py`, then a consistency checker:
    - no event ID appears twice across hot and cold;
@@ -266,7 +283,7 @@ The generator's change-request stream and `shipment.patch` events suggest a v2 r
 ## 19. Designer's calls to confirm
 
 These were proposed during the discussion without an explicit decision:
-1. Customer erasure is synchronous, run by any api node under the tenant cold lock (§11.1).
+1. Customer erasure is synchronous, run by any api node under the tenant's cold-writer lock (§11.1).
 2. The watermark uses the 100th largest hot `occurred_at_ms`, and the worker checks every 5 minutes (§10).
 3. The physical-removal bound is 2 hours, with a 10-minute grace period for old objects (§14).
 4. Snapshot cache on api nodes, keyed by object name, 1-hour TTL (§8).
@@ -276,11 +293,12 @@ These were proposed during the discussion without an explicit decision:
 8. Scale target: `verify.py` must pass on the supplied data and on a fresh small seed. Medium and large data are used for measurements and are expected to pass too.
 9. Build order (§22).
 10. In the index tables, SKUs are stored as keyed HMACs and amounts as ciphertext (§6.1).
+11. The four-lock scheme and its order (§13), and the 60-second read deadline (§8).
 
 ## 20. Operations
 
 - **Commands** (each one command): `docker compose up`; replay; verify; benchmark; crash test. Paths to `$INFRA` and the tenants file are parameters.
-- **Metrics** (Prometheus): ingest results by outcome, ack latency histogram, state and range read latency split by hot-only and cold-touching, events and bytes per tier, flush, rebuild and sweep durations, index table sizes, rebuild count by reason, late-event count, erasure duration, pending tombstones, process RSS.
+- **Metrics** (Prometheus): ingest results by outcome, ack latency histogram, state and range read latency split by hot-only and cold-touching, events and bytes per tier, flush, rebuild and sweep durations, index table sizes, rebuild count by reason, late-event count, erasure duration, pending tombstones, age of the last completed sweep, process RSS. Labels use route templates and tenant IDs only.
 - **Runbook** (one page): start, what to watch, how to recover from a crash (restart; sweep cleans up), how to run the crash test.
 - **Measurements** with method: ingest throughput, hot and cold read latency, bytes per event per tier, peak memory. The 96 to 120 hours of hot tail folded on each state read (about 45,000 events for the largest tenant in the large data set) is measured here rather than optimized in advance.
 
