@@ -143,7 +143,7 @@ func resolve(reg *tenants.Registry, path string, raw []byte) (string, canon.Even
 // count; never a customer ID.
 type Problem struct {
 	Tenant string
-	Kind   string // lost, unexpected, duplicate, bad_pointer, unreferenced, garbage, dirty, state_mismatch, unparsed
+	Kind   string // lost, unexpected, duplicate, bad_pointer, unreferenced, garbage, dirty, state_mismatch, index_mismatch, tier_invariant, unparsed
 	Detail string
 }
 
@@ -213,6 +213,40 @@ func Compare(exp Expectation, audits map[string]store.Audit) []Problem {
 		if !a.StateMatches {
 			add("state_mismatch", "")
 		}
+		if !a.IndexMatches {
+			add("index_mismatch", "")
+		}
+		for _, v := range a.TierViolations {
+			add("tier_invariant", v)
+		}
 	}
 	return out
+}
+
+// Unsettled adjusts audits for a check made before the settle. A dirty tenant
+// still has late hot rows, so its state and index comparisons are not
+// meaningful and are treated as matching.
+func Unsettled(audits map[string]store.Audit) map[string]store.Audit {
+	out := make(map[string]store.Audit, len(audits))
+	for id, a := range audits {
+		if a.Dirty {
+			a.StateMatches = true
+			a.IndexMatches = true
+		}
+		out[id] = a
+	}
+	return out
+}
+
+// Fatal reports whether a problem fails the check. Before the settle,
+// leftovers that the settle exists to remove (a dirty tenant, unreferenced
+// objects, garbage rows) are counted but do not fail it.
+func Fatal(p Problem, unsettled bool) bool {
+	if unsettled {
+		switch p.Kind {
+		case "dirty", "unreferenced", "garbage":
+			return false
+		}
+	}
+	return true
 }

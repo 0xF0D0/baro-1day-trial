@@ -88,14 +88,14 @@ func TestExpected(t *testing.T) {
 	}
 }
 
-func clean() store.Audit { return store.Audit{StateMatches: true} }
+func clean() store.Audit { return store.Audit{StateMatches: true, IndexMatches: true} }
 
 func TestCompare(t *testing.T) {
 	exp := check.Expectation{
 		Events:        map[string]map[string]bool{"t1": {"e1": true, "e2": true}, "t2": {}},
 		ErasedTenants: map[string]bool{"t3": true},
 	}
-	good := store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, StateMatches: true}
+	good := store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, StateMatches: true, IndexMatches: true}
 	kinds := func(audits map[string]store.Audit, e check.Expectation) []string {
 		var k []string
 		for _, p := range check.Compare(e, audits) {
@@ -113,19 +113,22 @@ func TestCompare(t *testing.T) {
 			t.Errorf("%s: got %v want [%s]", name, got, want)
 		}
 	}
-	if k := kinds(map[string]store.Audit{"t1": good, "t2": clean(), "t3": {Erased: true, StateMatches: true}}, exp); len(k) != 0 {
+	if k := kinds(map[string]store.Audit{"t1": good, "t2": clean(), "t3": {Erased: true, StateMatches: true, IndexMatches: true}}, exp); len(k) != 0 {
 		t.Fatalf("clean: %v", k)
 	}
-	one("lost", store.Audit{HotIDs: []string{"e1"}, StateMatches: true}, "lost")
-	one("unexpected", store.Audit{HotIDs: []string{"e1", "e9"}, ColdIDs: []string{"e2"}, StateMatches: true}, "unexpected")
-	one("duplicate", store.Audit{HotIDs: []string{"e1", "e2"}, ColdIDs: []string{"e2"}, StateMatches: true}, "duplicate")
-	one("bad", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, BadPointers: []string{"t1/x"}, StateMatches: true}, "bad_pointer")
-	one("unref", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, Unreferenced: []string{"t1/y"}, StateMatches: true}, "unreferenced")
-	one("garbage", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, GarbageRows: 2, StateMatches: true}, "garbage")
-	one("dirty", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, Dirty: true, StateMatches: true}, "dirty")
-	one("state", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}}, "state_mismatch")
+	one("lost", store.Audit{HotIDs: []string{"e1"}, StateMatches: true, IndexMatches: true}, "lost")
+	one("unexpected", store.Audit{HotIDs: []string{"e1", "e9"}, ColdIDs: []string{"e2"}, StateMatches: true, IndexMatches: true}, "unexpected")
+	one("duplicate", store.Audit{HotIDs: []string{"e1", "e2"}, ColdIDs: []string{"e2"}, StateMatches: true, IndexMatches: true}, "duplicate")
+	one("bad", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, BadPointers: []string{"t1/x"}, StateMatches: true, IndexMatches: true}, "bad_pointer")
+	one("unref", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, Unreferenced: []string{"t1/y"}, StateMatches: true, IndexMatches: true}, "unreferenced")
+	one("garbage", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, GarbageRows: 2, StateMatches: true, IndexMatches: true}, "garbage")
+	one("dirty", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, Dirty: true, StateMatches: true, IndexMatches: true}, "dirty")
+	one("state", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, IndexMatches: true}, "state_mismatch")
+	one("index", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, StateMatches: true}, "index_mismatch")
+	one("tier", store.Audit{HotIDs: []string{"e1"}, ColdIDs: []string{"e2"}, StateMatches: true, IndexMatches: true,
+		TierViolations: []string{"x"}}, "tier_invariant")
 	// non-empty store for an erased tenant
-	got := check.Compare(exp, map[string]store.Audit{"t3": {Erased: true, StateMatches: true, ColdIDs: []string{"z"}}})
+	got := check.Compare(exp, map[string]store.Audit{"t3": {Erased: true, StateMatches: true, IndexMatches: true, ColdIDs: []string{"z"}}})
 	if len(got) != 1 || got[0].Kind != "unexpected" {
 		t.Errorf("erased non-empty: %v", got)
 	}
@@ -135,5 +138,32 @@ func TestCompare(t *testing.T) {
 	got = check.Compare(e2, map[string]store.Audit{"t1": good})
 	if len(got) != 1 || got[0].Kind != "unparsed" || got[0].Tenant != "-" || got[0].Detail != "3" {
 		t.Errorf("unparsed: %v", got)
+	}
+}
+
+func TestUnsettled(t *testing.T) {
+	exp := check.Expectation{Events: map[string]map[string]bool{"t1": {"e1": true}}}
+	a := store.Audit{HotIDs: []string{"e1"}, Dirty: true} // StateMatches and IndexMatches false
+	if got := check.Compare(exp, map[string]store.Audit{"t1": a}); len(got) != 3 {
+		t.Fatalf("settled view: %v", got)
+	}
+	problems := check.Compare(exp, check.Unsettled(map[string]store.Audit{"t1": a}))
+	if len(problems) != 1 || problems[0].Kind != "dirty" || check.Fatal(problems[0], true) || !check.Fatal(problems[0], false) {
+		t.Fatalf("unsettled view: %v", problems)
+	}
+	for _, kind := range []string{"unreferenced", "garbage"} {
+		if check.Fatal(check.Problem{Kind: kind}, true) {
+			t.Errorf("%s must not fail unsettled", kind)
+		}
+	}
+	for _, kind := range []string{"lost", "unexpected", "duplicate", "bad_pointer", "state_mismatch", "index_mismatch", "tier_invariant", "unparsed"} {
+		if !check.Fatal(check.Problem{Kind: kind}, true) {
+			t.Errorf("%s must fail unsettled", kind)
+		}
+	}
+	// a clean tenant is not adjusted
+	b := store.Audit{HotIDs: []string{"e1"}}
+	if got := check.Compare(exp, check.Unsettled(map[string]store.Audit{"t1": b})); len(got) != 2 {
+		t.Fatalf("clean tenant not adjusted: %v", got)
 	}
 }

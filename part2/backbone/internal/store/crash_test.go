@@ -43,7 +43,10 @@ func pointers(t *testing.T, st *store.Store) string {
 		keys = append(keys, k)
 	}
 	slices.Sort(keys)
-	s += fmt.Sprintf(" garbage=%v hot=%d", keys, count(t, st, `SELECT count(*) FROM hot_events WHERE tenant_id='t_1'`))
+	s += fmt.Sprintf(" garbage=%v hot=%d customer_days=%d sku_moves=%d", keys,
+		count(t, st, `SELECT count(*) FROM hot_events WHERE tenant_id='t_1'`),
+		count(t, st, `SELECT count(*) FROM customer_days WHERE tenant_id='t_1'`),
+		count(t, st, `SELECT count(*) FROM sku_moves WHERE tenant_id='t_1'`))
 	return s
 }
 
@@ -80,6 +83,11 @@ func crashSetup(t *testing.T, name string) (*store.Store, []canon.Event, []canon
 		st, sc := newScope(t)
 		events := loadT18(t)
 		ingestAll(t, st, sc, events)
+		// One day is already flushed, so the crashed transaction also wrote
+		// index rows and a garbage row that must roll back.
+		if ok, err := st.FlushDay(context.Background(), "t_1", 0, 1); err != nil || !ok {
+			t.Fatalf("setup flush: ok=%v err=%v", ok, err)
+		}
 		return st, events, nil
 	}
 	st, _, all, late, _ := rebuildSetup(t)
@@ -147,7 +155,8 @@ func TestCrashPoints(t *testing.T) {
 			if !slices.Equal(got, want) {
 				t.Fatalf("ids: got %d, want %d (or repeats)", len(got), len(want))
 			}
-			if len(a.BadPointers) != 0 || len(a.Unreferenced) != 0 || a.GarbageRows != 0 || !a.StateMatches {
+			if len(a.BadPointers) != 0 || len(a.Unreferenced) != 0 || a.GarbageRows != 0 || !a.StateMatches ||
+				!a.IndexMatches || len(a.TierViolations) != 0 {
 				t.Fatalf("not clean: %+v", a)
 			}
 			sc, err := st.Scope(ctx, "t_1")

@@ -35,6 +35,7 @@ func main() {
 func run() (bool, error) {
 	deliveries := flag.String("deliveries", "", "path to deliveries.jsonl.gz")
 	responses := flag.String("responses", "", "path to replay_responses.json")
+	unsettled := flag.Bool("unsettled", false, "check a store left as a crash left it: dirty, unreferenced and garbage are counted but do not fail")
 	flag.Parse()
 	if *deliveries == "" || *responses == "" {
 		return false, fmt.Errorf("both -deliveries and -responses are required")
@@ -118,17 +119,24 @@ func run() (bool, error) {
 		}
 	}
 
+	if *unsettled {
+		audits = check.Unsettled(audits)
+	}
 	problems := check.Compare(exp, audits)
 	counts := map[string]int{}
+	failed := false
 	for i, p := range problems {
 		counts[p.Kind]++
+		if check.Fatal(p, *unsettled) {
+			failed = true
+		}
 		if i < 20 {
 			fmt.Printf("problem: tenant=%s kind=%s detail=%s\n", p.Tenant, p.Kind, p.Detail)
 		}
 	}
 	fmt.Printf("check: tenants=%d expected=%d stored=%d\n", len(audits), expected, len(stored))
-	fmt.Printf("lost=%d unexpected=%d duplicate=%d bad_pointer=%d unreferenced=%d garbage=%d dirty=%d state_mismatch=%d unparsed=%d\n",
+	fmt.Printf("lost=%d unexpected=%d duplicate=%d bad_pointer=%d unreferenced=%d garbage=%d dirty=%d state_mismatch=%d index_mismatch=%d tier_invariant=%d unparsed=%d\n",
 		counts["lost"], counts["unexpected"], counts["duplicate"], counts["bad_pointer"], counts["unreferenced"],
-		counts["garbage"], counts["dirty"], counts["state_mismatch"], counts["unparsed"])
-	return len(problems) == 0, nil
+		counts["garbage"], counts["dirty"], counts["state_mismatch"], counts["index_mismatch"], counts["tier_invariant"], counts["unparsed"])
+	return !failed, nil
 }
