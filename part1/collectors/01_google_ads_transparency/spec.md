@@ -58,7 +58,7 @@ Playwright, `chromium.launch(headless=True, channel="chrome")`, context `locale=
 1. **List.** Open the list URL and wait up to `LIST_TIMEOUT_S` for the first `SearchCreatives` response. Collect ads from every `SearchCreatives` response, de-duplicated by `2`.
 2. **Paging.** If the latest response has `2`: click `See all ads` once, then repeat: scroll to the bottom every `SCROLL_EVERY_S` for up to `PAGE_TIMEOUT_S` until a response containing an ad not seen before arrives. The list is complete when a response without `2` arrives. If no new response arrives, or `MAX_LIST_RESPONSES` is reached, the list is incomplete; go on with the ads collected.
 3. **Scope.** An ad gets a detail request when `int(item["7"]["1"]) >= run_start_epoch - DETAIL_WINDOW_DAYS * 86400`. Older ads are written from the list alone with `detail_state` `skipped_old`.
-   An in-scope ad whose detail was fetched less than `DETAIL_REFRESH_HOURS` before this run's start, according to the brand's earlier `raw/<brand>/*.jsonl` files (`detail_state` `fetched`, `fetched_at` inside the window), is also written from the list alone, with `detail_state` `skipped_recent`; its last detail stays in the earlier run's file. It counts as in scope and is not a failure.
+   An in-scope ad whose detail was fetched less than `DETAIL_REFRESH_HOURS` before this run's start, according to the brand's earlier `raw/<brand>/*.jsonl` files (`detail_state` `fetched`, `fetched_at` inside the window, no script file `null`), is written without loading its detail page: `detail_state` `skipped_recent`, with `raw.detail` and `raw.script_files` copied from the latest such record and `raw.detail_fetched_at` set to that record's `fetched_at`. It counts as in scope and is not a failure.
 4. **Detail.** For each in-scope ad in list order, open its detail URL and wait up to `DETAIL_TIMEOUT_S` for `GetCreativeById`. It is valid when its `1.1` and `1.2` match the list item and `1.5` is a list. Otherwise `detail_state` is `failed` with `detail_error` `timeout`, `invalid` or `blocked` (a navigation that raises counts as `timeout`). After `MAX_FAILURES_IN_A_ROW` failed ads in a row, or as soon as one is `blocked`, make no more detail requests: the remaining in-scope ads get `not_attempted`.
 5. **Script previews.** Only when the advertiser is in `named_advertiser_ids`: for each variation with `["1"]["4"]`, GET the URL once (`context.request.get`, `SCRIPT_TIMEOUT_S`) and write the body gzipped to `raw/<brand>/<run_id>.scripts/<creative id>_<variation index>.js.gz`.
 6. **Names.** When the advertiser is not in `named_advertiser_ids`, set `list_item["12"]` and `detail["22"]` to `null`.
@@ -73,10 +73,11 @@ One record per creative:
 | `url` | `https://adstransparency.google.com/advertiser/<item.1>/creative/<item.2>?region=US` |
 | `fetched_at` | When the detail response arrived; without one, when the list response arrived |
 | `raw.list_item` | The list item |
-| `raw.detail` | `1` of the detail response, or `null` |
+| `raw.detail` | `1` of the detail response (for `skipped_recent`, copied from the earlier record), or `null` |
 | `raw.detail_state` | `fetched`, `skipped_old`, `skipped_recent`, `failed` or `not_attempted` |
 | `raw.detail_error` | `null`, `timeout`, `invalid` or `blocked` |
-| `raw.script_files` | Object from variation index to file path relative to `raw/<brand>/`, or to `null` when the GET failed. `{}` when there was nothing to fetch |
+| `raw.script_files` | Object from variation index to file path relative to `raw/<brand>/`, or to `null` when the GET failed. `{}` when there was nothing to fetch. Copied from the earlier record for `skipped_recent` |
+| `raw.detail_fetched_at` | When the detail in `raw.detail` was read: equal to `fetched_at` for `fetched`, the earlier record's `fetched_at` for `skipped_recent`, else `null` |
 
 Run result: `source` is `google_ads_transparency`. `expected_total` is `int(4)` when `4` equals `5`, else `null`. `requests` counts page navigations, scrolls and script GETs. `extra` is `{"list_complete": true, "total_min": 200, "total_max": 300, "in_scope": 43, "details_fetched": 43, "details_skipped_recent": 0, "block_signal": null}`.
 

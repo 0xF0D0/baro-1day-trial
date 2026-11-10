@@ -61,11 +61,16 @@ class GoogleAdsTransparencyTest(unittest.TestCase):
         self.assertEqual((row.columns["format"], row.columns["variation_count"]), ("video", 1))
 
     def test_variation_count_left_out_unless_fetched(self):
-        for state, err in (("skipped_old", None), ("not_attempted", None), ("failed", "timeout")):
+        for state, err in (("skipped_old", None), ("not_attempted", None), ("failed", "timeout"),
+                           ("skipped_recent", None)):
             row = gat.map_run(RUN_PARTIAL, [record(TEXT_ITEM, None, state, err)]).rows[0]
             self.assertNotIn("variation_count", row.columns)
             self.assertEqual(row.columns["landing_domain"], "deathwishcoffee.com")
             self.assertEqual(row.columns["last_shown_at"], datetime(2026, 11, 10, 0, 57, 10, tzinfo=UTC))
+
+    def test_skipped_recent_with_detail_counts_variations(self):
+        row = gat.map_run(RUN_OK, [record(TEXT_ITEM, TEXT_DETAIL, "skipped_recent")]).rows[0]
+        self.assertEqual(row.columns["variation_count"], 3)
 
     def test_null_advertiser_name_stays_null(self):
         row = gat.map_run(RUN_OK, [record({**TEXT_ITEM, "12": None})]).rows[0]

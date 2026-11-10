@@ -181,6 +181,8 @@ def settle(st, token):
             v = call(st, "GET", "%s/actor-runs/%s" % (API, r["id"]), token)["data"]["usageTotalUsd"]
         except (Fail, KeyError, TypeError):
             continue
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            continue
         st["cost"] += v - r["cost"]
         r["cost"] = v
 

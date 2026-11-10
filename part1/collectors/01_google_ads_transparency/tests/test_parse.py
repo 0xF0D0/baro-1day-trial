@@ -66,8 +66,12 @@ def iso_at(epoch):
     return datetime.fromtimestamp(epoch, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def rec(key, state, epoch):
-    return json.dumps({"key": key, "fetched_at": iso_at(epoch), "raw": {"detail_state": state}})
+def rec(key, state, epoch, detail=None, files=None):
+    if detail is None and state == "fetched":
+        detail = {"id": key}
+    return json.dumps({"key": key, "fetched_at": iso_at(epoch),
+                       "raw": {"detail_state": state, "detail": detail,
+                               "script_files": {} if files is None else files}})
 
 
 class RecentDetailsTests(unittest.TestCase):
@@ -91,10 +95,38 @@ class RecentDetailsTests(unittest.TestCase):
             (d / "x.jsonl.part").write_text(rec("A/7", "fetched", self.START - 1 * h) + "\n")
             (d / "sub").mkdir()
             (d / "sub" / "c.jsonl").write_text(rec("A/8", "fetched", self.START - 1 * h) + "\n")
-            self.assertEqual(sc.recent_details(d, self.START), {"A/1", "A/5"})
+            got = sc.recent_details(d, self.START)
+            self.assertEqual(set(got), {"A/1", "A/5"})
+            self.assertEqual(got["A/5"], {"detail": {"id": "A/5"}, "script_files": {},
+                                          "fetched_at": iso_at(self.START - 3 * h)})
+
+    def test_latest_record_wins(self):
+        import tempfile
+        h = 3600
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "z.jsonl").write_text(rec("A/1", "fetched", self.START - 5 * h, {"v": "old"}, {"0": "o.gz"}) + "\n")
+            (d / "a.jsonl").write_text(rec("A/1", "fetched", self.START - 2 * h, {"v": "new"}, {"0": "n.gz"}) + "\n")
+            self.assertEqual(sc.recent_details(d, self.START)["A/1"],
+                             {"detail": {"v": "new"}, "script_files": {"0": "n.gz"},
+                              "fetched_at": iso_at(self.START - 2 * h)})
+
+    def test_unusable_records_not_returned(self):
+        import tempfile
+        h = 3600
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "a.jsonl").write_text("\n".join([
+                rec("A/1", "fetched", self.START - h, {"v": 1}, {"0": "x.gz", "1": None}),
+                json.dumps({"key": "A/2", "fetched_at": iso_at(self.START - h),
+                            "raw": {"detail_state": "fetched", "detail": None, "script_files": {}}}),
+                rec("A/3", "skipped_recent", self.START - h, {"v": 3}),
+                rec("A/4", "fetched", self.START - h, {"v": 4}, {"0": "ok.gz"}),
+            ]) + "\n")
+            self.assertEqual(set(sc.recent_details(d, self.START)), {"A/4"})
 
     def test_missing_folder(self):
-        self.assertEqual(sc.recent_details(Path("/nonexistent/brand_dir_xyz"), self.START), set())
+        self.assertEqual(sc.recent_details(Path("/nonexistent/brand_dir_xyz"), self.START), {})
 
 
 class CollectRecentTests(unittest.TestCase):
@@ -124,7 +156,8 @@ class CollectRecentTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
-            (d / "old.jsonl").write_text(rec("A/C1", "fetched", start - 3600) + "\n")
+            (d / "old.jsonl").write_text(rec("A/C1", "fetched", start - 3600, {"id": "old", "22": "adv", "5": []},
+                                             {"0": "old.gz"}) + "\n")
             st = {"records": 0, "requests": 0, "expected_total": None, "extra": {}, "block_signal": None, "totals": (2, 2)}
             out = io.StringIO()
             with mock.patch.object(sc, "Browsing", lambda ctx, st, nav: object()), \
@@ -134,10 +167,13 @@ class CollectRecentTests(unittest.TestCase):
         recs = [json.loads(l) for l in out.getvalue().splitlines()]
         self.assertEqual(fetched, ["C2"])
         self.assertEqual(recs[0]["raw"]["detail_state"], "skipped_recent")
-        self.assertIsNone(recs[0]["raw"]["detail"])
+        self.assertEqual(recs[0]["raw"]["detail"], {"id": "old", "22": None, "5": []})
         self.assertIsNone(recs[0]["raw"]["detail_error"])
-        self.assertEqual(recs[0]["raw"]["script_files"], {})
+        self.assertEqual(recs[0]["raw"]["script_files"], {"0": "old.gz"})
+        self.assertEqual(recs[0]["raw"]["detail_fetched_at"], iso_at(start - 3600))
+        self.assertEqual(recs[0]["fetched_at"], iso_at(start - 60))
         self.assertEqual(recs[1]["raw"]["detail_state"], "fetched")
+        self.assertEqual(recs[1]["raw"]["detail_fetched_at"], recs[1]["fetched_at"])
         self.assertEqual(st["extra"]["details_skipped_recent"], 1)
         self.assertEqual(st["extra"]["details_fetched"], 1)
         self.assertEqual(st["extra"]["in_scope"], 2)

@@ -96,10 +96,6 @@ class Reviews(unittest.TestCase):
             self.assertEqual(n, 1 if row["ReviewId"] == "R2LUGCESGD69T4" else 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Settling(unittest.TestCase):
     NOW = 1_800_000_000.0
 
@@ -206,3 +202,16 @@ class Settling(unittest.TestCase):
         self.assertEqual(self.gets, {"r1": 1})
         self.assertEqual(len(self.sleeps), n)
         self.assertAlmostEqual(st["cost"], 0.01)
+
+    def test_null_settled_cost_is_skipped(self):
+        self.settled["r2"] = None
+        st = self.st()
+        runs = self.run_three(st)
+        before = st["cost"]
+        sc.settle(st, "t")
+        self.assertAlmostEqual(st["cost"], before - 0.01 - 0.03 + 0.06 + 0.63)
+        self.assertEqual([r["cost"] for r in st["runs"]], [0.06, 0.02, 0.63])
+
+
+if __name__ == "__main__":
+    unittest.main()

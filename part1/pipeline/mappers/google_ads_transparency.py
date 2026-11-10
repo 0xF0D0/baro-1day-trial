@@ -23,7 +23,7 @@ def _map_record(rec: dict) -> Row:
         "landing_domain": item["14"], "started_at": _utc(item["6"]["1"]),
         "last_shown_at": _utc(item["7"]["1"]), "placements": None, "offer_code": None,
     }
-    if raw["detail_state"] == "fetched":
+    if raw["detail_state"] in ("fetched", "skipped_recent") and raw.get("detail") is not None:
         columns["variation_count"] = len(raw["detail"]["5"])
     return Row("ads", "ad", rec["key"], "all", rec["url"], rec["fetched_at"], raw, columns)
 

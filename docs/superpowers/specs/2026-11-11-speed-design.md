@@ -68,6 +68,9 @@ The old pace stays available, as the way back when a site objects.
 
 `--careful` can be combined with `--sources`, so only the source that was blocked needs to slow down.
 
+One difference from the old pace remains in careful mode: source 10's 4 seconds are counted between the starts of
+two requests (2.8), where they used to be counted from the end of the response.
+
 ### 2.4 Labels eight at a time
 
 `angles.py --label` sends the requests for pending texts up to `LABEL_WORKERS` (8) at a time. Lines are appended in
@@ -82,9 +85,10 @@ less with the reviewed labels on the message kind (31 of 36 values against 34 of
 A pass of `01_google_ads_transparency` loaded 169 ad details for the five brands, 12 seconds each: 34 of its 35
 minutes. Nearly all of them had been read an hour before. Now an ad whose detail was fetched within the last 24
 hours (`DETAIL_REFRESH_HOURS`), according to the brand's earlier record files, is written from the list alone with
-`detail_state` `skipped_recent`. Its last detail stays in the earlier file, and the loader keeps the stored
-variation count, because the mapper only sets it from a fetched detail. A change in an ad's variations is
-therefore seen within a day instead of within an hour.
+`detail_state` `skipped_recent`. The record carries the detail of that earlier read, copied from the earlier file
+together with the time it was read (`raw.detail_fetched_at`), so the stored row keeps its detail and every record
+file stands on its own. An earlier read with a missing script file does not count: that detail is loaded again. A
+change in an ad's variations is therefore seen within a day instead of within an hour.
 
 ### 2.6 Meta: media is not downloaded by the collector
 
