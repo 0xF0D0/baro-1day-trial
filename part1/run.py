@@ -125,6 +125,10 @@ def run_jobs(jobs, collectors_dir, log_dir, max_jobs, timeout_s, python=sys.exec
             try:
                 code = proc.wait(POLL_S)
                 text = str(code)
+                try:  # best effort: a child left behind in the group (a browser after a crash)
+                    os.killpg(proc.pid, signal.SIGTERM)
+                except (ProcessLookupError, PermissionError):
+                    pass
                 break
             except subprocess.TimeoutExpired:
                 pass
@@ -182,10 +186,20 @@ def _labels_state(path: Path) -> tuple[int, int]:
 
 def _run_command(cmd: list[str]) -> int:
     try:
-        return subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
+        proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL)
     except OSError as e:
         say(f"run: could not start {cmd[0]}: {e.strerror}")
         return 1
+    try:
+        return proc.wait()
+    except BaseException:  # an interrupt: stop the command, then let it go on up
+        proc.terminate()
+        try:
+            proc.wait(KILL_GRACE_S)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+        raise
 
 
 def main(argv=None, *, load_cmd=None, label_cmd=None, labels_file=None, state_dir=None) -> int:
@@ -236,34 +250,35 @@ def main(argv=None, *, load_cmd=None, label_cmd=None, labels_file=None, state_di
         def on_term(signum, frame):
             raise KeyboardInterrupt
 
-        previous = None
+        previous = {}
         try:
-            previous = signal.signal(signal.SIGTERM, on_term)
+            for sig in (signal.SIGTERM, signal.SIGHUP):
+                previous[sig] = signal.signal(sig, on_term)
         except ValueError:  # not the main thread
             pass
         try:
             results = run_jobs(jobs, cdir, state_dir / "logs" / start_stamp, a.jobs, a.timeout * 60,
                                on_done=on_done)
+
+            failed = sum(1 for t in results.values() if t != "0")
+            s = summarize(cdir, folders, start_stamp)
+            say(f"collect: jobs={len(jobs)} failed={failed} runs={s['runs']} ok={s['ok']} "
+                f"partial={s['partial']} could_not_look={s['could_not_look']} cost_usd={s['cost_usd']:.4f}")
+
+            load = [*load_cmd, "--collectors-dir", str(cdir)]
+            load_failed = _run_command(load) != 0
+            if not a.no_label:
+                before = _labels_state(labels_file)
+                _run_command(label_cmd)  # its exit code never changes ours
+                if _labels_state(labels_file) != before:
+                    load_failed |= _run_command(load) != 0
+            return 1 if failed or load_failed else 0
         except KeyboardInterrupt:
             say("run: interrupted")
             return 130
         finally:
-            if previous is not None:
-                signal.signal(signal.SIGTERM, previous)
-
-        failed = sum(1 for t in results.values() if t != "0")
-        s = summarize(cdir, folders, start_stamp)
-        say(f"collect: jobs={len(jobs)} failed={failed} runs={s['runs']} ok={s['ok']} partial={s['partial']} "
-            f"could_not_look={s['could_not_look']} cost_usd={s['cost_usd']:.4f}")
-
-        load = [*load_cmd, "--collectors-dir", str(cdir)]
-        load_failed = _run_command(load) != 0
-        if not a.no_label:
-            before = _labels_state(labels_file)
-            _run_command(label_cmd)  # its exit code never changes ours
-            if _labels_state(labels_file) != before:
-                load_failed |= _run_command(load) != 0
-        return 1 if failed or load_failed else 0
+            for sig, handler in previous.items():
+                signal.signal(sig, handler)
 
 
 if __name__ == "__main__":

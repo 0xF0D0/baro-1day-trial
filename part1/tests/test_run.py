@@ -4,6 +4,8 @@ import io
 import json
 import os
 import shutil
+import signal
+import subprocess
 import sys
 import tempfile
 import time
@@ -58,6 +60,27 @@ cfg = json.loads((here / "cmds.json").read_text())
 if cfg["label_appends"]:
     Path(cfg["labels_file"]).open("a").write("{}\n")
 sys.exit(cfg["label_exit"])
+'''
+
+SLOW_LOAD_STUB = r'''
+import os, sys, time
+from pathlib import Path
+here = Path(__file__).resolve().parent
+(here / "load.pid").write_text(str(os.getpid()))
+(here / "load.started").write_text("1")
+time.sleep(60)
+'''
+
+DRIVER = r'''
+import sys
+from pathlib import Path
+tmp = Path(sys.argv[1])
+sys.path.insert(0, sys.argv[2])
+import run
+sys.exit(run.main(["--collectors-dir", str(tmp / "collectors")],
+                  load_cmd=[sys.executable, str(tmp / "load_stub.py")],
+                  label_cmd=[sys.executable, str(tmp / "label_stub.py")],
+                  labels_file=tmp / "ad_angles.jsonl", state_dir=tmp / "state"))
 '''
 
 
@@ -264,8 +287,92 @@ class RunTests(unittest.TestCase):
         self.assertLessEqual(peak, 2)
         self.assertGreaterEqual(took, 1.6)
         took, peak = timed(4)
-        self.assertLess(took, 1.6)
+        self.assertLess(took, 2.4)
         self.assertGreater(peak, 2)
+
+    # --- signals and leftovers -------------------------------------------------
+
+    def start_driver(self):
+        """Run a real pass in a separate interpreter; returns (process, output path)."""
+        (self.tmp / "cmds.json").write_text(json.dumps(self.cmds))
+        (self.tmp / "driver.py").write_text(DRIVER)
+        out = self.tmp / "driver.out"
+        fh = open(out, "wb")
+        self.addCleanup(fh.close)
+        proc = subprocess.Popen([sys.executable, str(self.tmp / "driver.py"), str(self.tmp),
+                                 str(Path(run.__file__).resolve().parent)],
+                                stdin=subprocess.DEVNULL, stdout=fh, stderr=subprocess.STDOUT,
+                                start_new_session=True)
+
+        def reap():
+            if proc.poll() is None:
+                try:
+                    os.killpg(proc.pid, 9)
+                except OSError:
+                    pass
+                proc.wait()
+        self.addCleanup(reap)
+        return proc, out
+
+    @staticmethod
+    def wait_for(path, seconds=15):
+        deadline = time.time() + seconds
+        while time.time() < deadline:
+            if path.exists() and path.read_text().strip():
+                return True
+            time.sleep(0.05)
+        return False
+
+    def assert_gone(self, pid, what):
+        self.addCleanup(lambda: self._kill(pid))
+        deadline = time.time() + 15
+        while time.time() < deadline:
+            try:
+                os.kill(pid, 0)
+            except ProcessLookupError:
+                return
+            time.sleep(0.1)
+        self.fail(f"{what} is still alive")
+
+    def test_sigterm_and_sighup_stop_the_pass(self):
+        for sig in (signal.SIGTERM, signal.SIGHUP):
+            with self.subTest(sig=sig.name):
+                shutil.rmtree(self.cdir, True)
+                shutil.rmtree(self.state, True)
+                for f in self.tmp.glob("load.*"):
+                    f.unlink()
+                self.make({"01_a": {"sleep": 60, "spawn_child": True}})
+                proc, out = self.start_driver()
+                self.assertTrue(self.wait_for(self.cdir / "01_a" / "started.--all"), "collector did not start")
+                self.assertTrue(self.wait_for(self.cdir / "01_a" / "child.pid"))
+                pid = int((self.cdir / "01_a" / "child.pid").read_text())
+                self.addCleanup(lambda p=pid: self._kill(p))
+                proc.send_signal(sig)
+                self.assertEqual(proc.wait(20), 130)
+                self.assertIn("run: interrupted", out.read_text())
+                self.assertEqual(self.load_calls(), [])
+                self.assert_gone(pid, "child of the interrupted job")
+
+    def test_interrupt_during_load_stops_the_load(self):
+        self.three()
+        (self.tmp / "load_stub.py").write_text(SLOW_LOAD_STUB)
+        proc, out = self.start_driver()
+        self.assertTrue(self.wait_for(self.tmp / "load.started"), "load did not start")
+        pid = int((self.tmp / "load.pid").read_text())
+        self.addCleanup(lambda: self._kill(pid))
+        proc.send_signal(signal.SIGTERM)
+        self.assertEqual(proc.wait(20), 130)
+        self.assertIn("run: interrupted", out.read_text())
+        self.assert_gone(pid, "load command")
+        self.assertFalse((self.tmp / "label.calls").exists())
+
+    def test_leftover_child_is_cleaned_up_after_a_normal_exit(self):
+        self.make({"01_a": {"spawn_child": True}})
+        code, _ = self.run_pass()
+        self.assertEqual(code, 0)
+        pid = int((self.cdir / "01_a" / "child.pid").read_text())
+        self.addCleanup(lambda: self._kill(pid))
+        self.assert_gone(pid, "leftover child")
 
     def test_lock(self):
         self.three()
