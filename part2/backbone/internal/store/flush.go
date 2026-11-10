@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"backbone/internal/canon"
+	"backbone/internal/crashpoint"
 	"backbone/internal/fold"
 
 	"github.com/jackc/pgx/v5"
@@ -218,10 +219,12 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 	if err != nil {
 		return false, err
 	}
+	crashpoint.Hit("flush.after_bucket")
 	snapshot, err := s.putSnapshot(ctx, sc, newColdUntil, state.Snapshot())
 	if err != nil {
 		return false, err
 	}
+	crashpoint.Hit("flush.after_snapshot")
 
 	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`, lockKey("tenant-status", []byte(tenantID))); err != nil {
 		return false, fmt.Errorf("store: tenant status lock: %w", err)
@@ -283,6 +286,7 @@ func (s *Store) FlushDay(ctx context.Context, tenantID string, margin time.Durat
 			return false, fmt.Errorf("store: insert garbage: %w", err)
 		}
 	}
+	crashpoint.Hit("flush.before_commit")
 	if err := tx.Commit(ctx); err != nil {
 		return false, fmt.Errorf("store: flush commit: %w", err)
 	}

@@ -118,3 +118,24 @@ func TestLoadSweepDefaultsAndValidation(t *testing.T) {
 		t.Fatalf("zero grace: %+v, %v", cfg, err)
 	}
 }
+
+func TestLoadCrashSettings(t *testing.T) {
+	env := validEnv()
+	cfg, err := config.Load(func(k string) string { return env[k] })
+	if err != nil || len(cfg.CrashPoints) != 0 || cfg.CrashProbability != 0 {
+		t.Fatalf("defaults: %+v, %v", cfg, err)
+	}
+	env["BACKBONE_CRASH_POINTS"] = " flush.after_bucket , rebuild.before_commit "
+	env["BACKBONE_CRASH_PROBABILITY"] = "0.25"
+	cfg, err = config.Load(func(k string) string { return env[k] })
+	if err != nil || len(cfg.CrashPoints) != 2 || cfg.CrashPoints[0] != "flush.after_bucket" ||
+		cfg.CrashPoints[1] != "rebuild.before_commit" || cfg.CrashProbability != 0.25 {
+		t.Fatalf("parsed: %+v, %v", cfg, err)
+	}
+	for _, bad := range []string{"1.5", "-0.1"} {
+		env["BACKBONE_CRASH_PROBABILITY"] = bad
+		if _, err := config.Load(func(k string) string { return env[k] }); err == nil {
+			t.Fatalf("probability %s accepted", bad)
+		}
+	}
+}

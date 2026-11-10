@@ -82,20 +82,29 @@ func (s *Store) putSnapshot(ctx context.Context, sc Scope, coldUntil int64, snap
 
 // getSnapshot reads and opens a snapshot object.
 func (s *Store) getSnapshot(ctx context.Context, sc Scope, name string) (fold.Snapshot, error) {
+	doc, err := s.getSnapshotDoc(ctx, sc, name)
+	if err != nil {
+		return fold.Snapshot{}, err
+	}
+	return doc.State, nil
+}
+
+// getSnapshotDoc reads and opens a snapshot object, with its cold-until.
+func (s *Store) getSnapshotDoc(ctx context.Context, sc Scope, name string) (snapshotDoc, error) {
 	sealed, err := s.objects.Get(ctx, name)
 	if err != nil {
-		return fold.Snapshot{}, fmt.Errorf("store: get snapshot: %w", err)
+		return snapshotDoc{}, fmt.Errorf("store: get snapshot: %w", err)
 	}
 	plain, err := sc.keys.Open(objectAAD(sc.tenantID, name), sealed)
 	if err != nil {
-		return fold.Snapshot{}, fmt.Errorf("store: open snapshot: %w", err)
+		return snapshotDoc{}, fmt.Errorf("store: open snapshot: %w", err)
 	}
 	var doc snapshotDoc
 	if err := json.Unmarshal(plain, &doc); err != nil {
-		return fold.Snapshot{}, fmt.Errorf("store: decode snapshot: %w", err)
+		return snapshotDoc{}, fmt.Errorf("store: decode snapshot: %w", err)
 	}
 	if doc.Version != "v1" {
-		return fold.Snapshot{}, fmt.Errorf("store: unknown snapshot version %q", doc.Version)
+		return snapshotDoc{}, fmt.Errorf("store: unknown snapshot version %q", doc.Version)
 	}
-	return doc.State, nil
+	return doc, nil
 }

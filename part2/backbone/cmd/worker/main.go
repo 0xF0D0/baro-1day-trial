@@ -13,6 +13,7 @@ import (
 
 	"backbone/internal/cold"
 	"backbone/internal/config"
+	"backbone/internal/crashpoint"
 	"backbone/internal/crypto"
 	"backbone/internal/store"
 	"backbone/internal/tenants"
@@ -30,6 +31,12 @@ func run(log *slog.Logger) error {
 	cfg, err := config.Load(os.Getenv)
 	if err != nil {
 		return err
+	}
+	if err := crashpoint.Arm(cfg.CrashPoints, cfg.CrashProbability); err != nil {
+		return err
+	}
+	if len(cfg.CrashPoints) > 0 {
+		log.Warn("crash points armed", "points", cfg.CrashPoints, "probability", cfg.CrashProbability)
 	}
 	reg, err := tenants.Load(cfg.TenantsFile)
 	if err != nil {
