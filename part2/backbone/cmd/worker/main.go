@@ -183,6 +183,7 @@ func tick(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.St
 func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.Store, ids []string, lastSweep *atomic.Int64) {
 	start := time.Now()
 	var total store.SweepResult
+	clean := true
 	for _, id := range ids {
 		if ctx.Err() != nil {
 			return
@@ -191,6 +192,9 @@ func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.S
 		total.Tombstones += r.Tombstones
 		total.GarbageDeleted += r.GarbageDeleted
 		total.OrphansDeleted += r.OrphansDeleted
+		if err != nil {
+			clean = false
+		}
 		if err != nil && ctx.Err() == nil {
 			class := metrics.ErrorClass(err)
 			metrics.JobErrorsTotal.WithLabelValues("sweep", class).Inc()
@@ -203,6 +207,10 @@ func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.S
 			metrics.JobErrorsTotal.WithLabelValues("maintain", class).Inc()
 			log.Error("maintenance failed", "class", class)
 		}
+		return
+	}
+	if !clean {
+		// Failures are counted in job_errors_total; the sweep age keeps growing.
 		return
 	}
 	metrics.JobSeconds.WithLabelValues("sweep").Observe(time.Since(start).Seconds())
