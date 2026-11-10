@@ -168,6 +168,7 @@ services:
     volumes:
       - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
       - ${DATA_DIR:-./out}:/data:ro
+      - ${BENCH_OUT:-./out}:/bench:ro
     depends_on:
       lb:
         condition: service_started

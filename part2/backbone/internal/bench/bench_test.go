@@ -43,3 +43,17 @@ func TestSummarize(t *testing.T) {
 		t.Fatalf("empty: %+v", z)
 	}
 }
+
+func TestReadIDs(t *testing.T) {
+	got, err := ReadIDs(strings.NewReader("t_1\n\n  t_2  \nt_1\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || !got["t_1"] || !got["t_2"] {
+		t.Fatalf("got %v", got)
+	}
+	empty, err := ReadIDs(strings.NewReader("\n"))
+	if err != nil || len(empty) != 0 {
+		t.Fatalf("empty: %v %v", empty, err)
+	}
+}

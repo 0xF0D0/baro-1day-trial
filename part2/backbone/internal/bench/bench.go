@@ -10,6 +10,7 @@ import (
 	"io"
 	"math"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -77,4 +78,16 @@ func Summarize(samples []time.Duration) Summary {
 		return s[min(max(r, 1), len(s))-1]
 	}
 	return Summary{Count: len(s), P50: rank(50), P95: rank(95), P99: rank(99), Max: s[len(s)-1]}
+}
+
+// ReadIDs reads one ID per line, ignoring blank lines and surrounding spaces.
+func ReadIDs(r io.Reader) (map[string]bool, error) {
+	ids := map[string]bool{}
+	sc := bufio.NewScanner(r)
+	for sc.Scan() {
+		if id := strings.TrimSpace(sc.Text()); id != "" {
+			ids[id] = true
+		}
+	}
+	return ids, sc.Err()
 }

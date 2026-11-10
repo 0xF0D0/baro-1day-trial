@@ -92,15 +92,23 @@ fi
 brc=0
 BENCH_LINES=""
 if [ "$rc" -eq 0 ]; then
+  # Tenants that have a cold_manifest row for the earliest manifest day: only they have cold data
+  # on the first day, so only they get range_cold requests.
+  dc exec -T postgres psql -U postgres -tA -c \
+    "SELECT tenant_id FROM cold_manifest WHERE day = (SELECT min(day) FROM cold_manifest) ORDER BY tenant_id" \
+    > "$OUT/cold-tenants.txt"
   dc --profile tools build bench
-  DATA_DIR="$DATA" dc run --rm -T bench -tenants /config/tenants.json \
+  DATA_DIR="$DATA" BENCH_OUT="$OUT" dc run --rm -T bench -tenants /config/tenants.json \
     -deliveries /data/deliveries.jsonl.gz -rounds "$ROUNDS" -concurrency "$CONCURRENCY" \
+    -cold-tenants /bench/cold-tenants.txt \
     > "$OUT/bench-latency.txt" 2>&1 || brc=$?
   BENCH_LINES="$(grep -E '^(state |range_cold |range_hot |slowest_state |skipped_erased=|errors=)' "$OUT/bench-latency.txt" || true)"
   if [ "$brc" -ne 0 ]; then fail "bench failed (exit $brc)"; fi
 fi
 
-# 6. Storage numbers from Postgres.
+# 6. Storage numbers from Postgres. Flush deletes leave dead space that DELETE and autovacuum do
+# not return to the OS, so rewrite the tables first.
+dc exec -T postgres psql -U postgres -c "VACUUM FULL hot_events, customer_days, sku_moves" > /dev/null 2>&1 || fail "VACUUM FULL failed"
 SQL="SELECT
   coalesce(round((SELECT pg_total_relation_size('hot_events')::numeric / nullif(count(*), 0) FROM hot_events), 1)::text, 'n/a'),
   (SELECT count(*) FROM hot_events),
@@ -137,21 +145,25 @@ DOCKER_CPU="${DOCKER_CPU:-n/a}"
   echo "settings: FLUSH_INTERVAL=$FLUSH_INTERVAL SETTLE_TIMEOUT_S=$SETTLE_TIMEOUT_S ROUNDS=$ROUNDS CONCURRENCY=$CONCURRENCY (other settings are the compose defaults)"
   echo
   echo "ingest throughput: ${DONE_LINE:-not measured}"
-  echo "  method: replay.py's own summary line (deliveries per second through the load balancer)."
+  echo "  method: replay.py's own summary line (deliveries per second through the load balancer). Closed loop: replay.py at its fixed concurrency of 8, through nginx, with the worker flushing every ${FLUSH_INTERVAL}; it measures the system under that client, not its ceiling."
   echo "settle: $([ "$SETTLED" -eq 1 ] && echo "worker idle ${SETTLE_S}s after replay" || echo "not settled")"
   echo "  method: first flush tick logged after the replay ended with days_flushed=0 (the first tick after the replay is skipped)."
   echo
   echo "read latency (ms, through the load balancer):"
   echo "${BENCH_LINES:-not measured}" | sed 's/^/  /'
   echo "  method: cmd/bench, $ROUNDS rounds x all tenants, concurrency $CONCURRENCY; state, then the first page of the first-day (cold) and last-day (hot) range of the deliveries; nearest-rank percentiles; 410 on the first state read skips the tenant."
+  echo "    state: the first read per api node misses the snapshot cache and later reads hit it; tenants with no cold data have no snapshot, so their state is a hot read."
+  echo "    range_cold: sent only to tenants with a cold_manifest row for the earliest manifest day (range_cold tenants=<n> is how many answered); the other tenants have too few events for the watermark to flush a day, so a first-day read there would be a hot read."
+  echo "    range_hot: some tenants have no event on the last day, so their page is empty but still a hot read."
+  echo "    connections: nginx opens a new upstream connection per request (no upstream keepalive); the bench client keeps MaxIdleConnsPerHost = concurrency."
   echo
   echo "storage:"
   echo "  hot bytes per event: $HOT_BPE (hot events: $HOT_N)"
-  echo "    method: pg_total_relation_size('hot_events') / count(*) from hot_events."
+  echo "    method: measured after VACUUM FULL of hot_events, customer_days and sku_moves (flush deletes leave dead space otherwise); pg_total_relation_size('hot_events') / count(*) from hot_events."
   echo "  cold bytes per event: $COLD_BPE (cold events: $COLD_N)"
-  echo "    method: sum(bytes) / sum(events) from cold_manifest."
+  echo "    method: sum(bytes) / sum(events) from cold_manifest; counts sealed day-bucket bytes only (snapshots and MinIO's on-disk overhead are excluded)."
   echo "  index bytes per cold event: $IDX_BPE"
-  echo "    method: (pg_total_relation_size('customer_days') + pg_total_relation_size('sku_moves')) / sum(events) from cold_manifest."
+  echo "    method: (pg_total_relation_size('customer_days') + pg_total_relation_size('sku_moves')) / sum(events) from cold_manifest, measured after VACUUM FULL."
   echo
   echo "peak memory:"
   printf '%s' "$MEM"

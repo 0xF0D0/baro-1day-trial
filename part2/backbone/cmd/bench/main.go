@@ -43,6 +43,7 @@ func run() (bool, error) {
 	deliveries := flag.String("deliveries", "", "path to deliveries.jsonl.gz")
 	rounds := flag.Int("rounds", 5, "rounds per tenant")
 	conc := flag.Int("concurrency", 8, "concurrent requests")
+	coldTenants := flag.String("cold-tenants", "", "file with one tenant ID per line; range_cold requests go only to these tenants")
 	flag.Parse()
 	if *tenantsPath == "" || *deliveries == "" || *rounds < 1 || *conc < 1 {
 		return false, fmt.Errorf("-tenants and -deliveries are required; -rounds and -concurrency must be >= 1")
@@ -65,7 +66,23 @@ func run() (bool, error) {
 		return false, err
 	}
 
-	client := &http.Client{Timeout: 90 * time.Second}
+	var coldSet map[string]bool
+	if *coldTenants != "" {
+		cfile, err := os.Open(*coldTenants)
+		if err != nil {
+			return false, err
+		}
+		coldSet, err = bench.ReadIDs(cfile)
+		cfile.Close()
+		if err != nil {
+			return false, err
+		}
+	}
+
+	client := &http.Client{
+		Timeout:   90 * time.Second,
+		Transport: &http.Transport{MaxIdleConnsPerHost: *conc, MaxIdleConns: *conc},
+	}
 	get := func(url, token string) (int, time.Duration, error) {
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
@@ -87,6 +104,7 @@ func run() (bool, error) {
 	samples := map[string][]time.Duration{}
 	stateMax := map[string]time.Duration{}
 	skipped, errs := 0, 0
+	coldSeen := map[string]bool{} // tenants that got a successful range_cold read
 
 	type job struct {
 		t     int
@@ -98,11 +116,11 @@ func run() (bool, error) {
 		var jobs []job
 		for i, t := range all {
 			base := *target + "/tenants/" + t.ID
-			jobs = append(jobs,
-				job{i, "state", base + "/state"},
-				job{i, "range_cold", fmt.Sprintf("%s/events?from_ms=%d&to_ms=%d", base, cf, ct)},
-				job{i, "range_hot", fmt.Sprintf("%s/events?from_ms=%d&to_ms=%d", base, hf, ht)},
-			)
+			jobs = append(jobs, job{i, "state", base + "/state"})
+			if coldSet == nil || coldSet[t.ID] {
+				jobs = append(jobs, job{i, "range_cold", fmt.Sprintf("%s/events?from_ms=%d&to_ms=%d", base, cf, ct)})
+			}
+			jobs = append(jobs, job{i, "range_hot", fmt.Sprintf("%s/events?from_ms=%d&to_ms=%d", base, hf, ht)})
 		}
 		// The first state read of each tenant decides whether it is erased; do it
 		// before the rest of the round so a 410 skips all three requests.
@@ -163,6 +181,9 @@ func run() (bool, error) {
 					return
 				}
 				samples[j.class] = append(samples[j.class], d)
+				if j.class == "range_cold" {
+					coldSeen[t.ID] = true
+				}
 				if j.class == "state" {
 					stateMax[t.ID] = max(stateMax[t.ID], d)
 				}
@@ -175,6 +196,7 @@ func run() (bool, error) {
 		s := bench.Summarize(samples[c])
 		fmt.Printf("%s count=%d p50=%s p95=%s p99=%s max=%s\n", c, s.Count, ms(s.P50), ms(s.P95), ms(s.P99), ms(s.Max))
 	}
+	fmt.Printf("range_cold tenants=%d\n", len(coldSeen))
 	type kv struct {
 		id string
 		d  time.Duration
