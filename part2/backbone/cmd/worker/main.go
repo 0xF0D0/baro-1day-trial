@@ -75,26 +75,45 @@ func run(log *slog.Logger) error {
 		return err
 	}
 
-	log.Info("worker started", "tenants", len(ids), "interval", cfg.FlushInterval.String())
-	ticker := time.NewTicker(cfg.FlushInterval)
-	defer ticker.Stop()
+	log.Info("worker started", "tenants", len(ids), "interval", cfg.FlushInterval.String(), "sweep_interval", cfg.SweepInterval.String())
+	flushTicker := time.NewTicker(cfg.FlushInterval)
+	defer flushTicker.Stop()
+	sweepTicker := time.NewTicker(cfg.SweepInterval)
+	defer sweepTicker.Stop()
+	// One loop serves both tickers, so rebuild, flush and sweep never overlap.
+	tick(ctx, log, cfg, st, ids)
 	for {
-		tick(ctx, log, cfg, st, ids)
 		select {
 		case <-ctx.Done():
 			log.Info("worker stopping")
 			return nil
-		case <-ticker.C:
+		case <-flushTicker.C:
+			tick(ctx, log, cfg, st, ids)
+		case <-sweepTicker.C:
+			sweep(ctx, log, cfg, st, ids)
 		}
 	}
 }
 
-// tick flushes every tenant until none has a day left to flush. An error from
-// one tenant is logged by tenant ID and does not stop the others.
+// tick rebuilds a dirty tenant, then flushes it until no day is left to flush.
+// An error from one tenant is logged by tenant ID and does not stop the others.
 func tick(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.Store, ids []string) {
 	start := time.Now()
 	days := 0
 	for _, id := range ids {
+		if ctx.Err() != nil {
+			break
+		}
+		rebuilt, err := st.Rebuild(ctx, id)
+		if err != nil {
+			if ctx.Err() == nil {
+				log.Error("rebuild failed", "tenant", id)
+			}
+			continue
+		}
+		if rebuilt {
+			log.Info("tenant rebuilt", "tenant", id)
+		}
 		for ctx.Err() == nil {
 			ok, err := st.FlushDay(ctx, id, cfg.FlushMargin, cfg.WatermarkRank)
 			if err != nil {
@@ -110,4 +129,35 @@ func tick(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.St
 		}
 	}
 	log.Info("flush tick", "days_flushed", days, "duration_ms", time.Since(start).Milliseconds())
+}
+
+// sweep deletes expired garbage, leftovers and erased customers' objects for
+// every registry tenant (erased tenants stay in the registry), then runs
+// Postgres maintenance.
+func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.Store, ids []string) {
+	start := time.Now()
+	var total store.SweepResult
+	for _, id := range ids {
+		if ctx.Err() != nil {
+			return
+		}
+		r, err := st.SweepTenant(ctx, id, cfg.GarbageGrace)
+		if err != nil {
+			if ctx.Err() == nil {
+				log.Error("sweep failed", "tenant", id)
+			}
+			continue
+		}
+		total.Tombstones += r.Tombstones
+		total.GarbageDeleted += r.GarbageDeleted
+		total.OrphansDeleted += r.OrphansDeleted
+	}
+	if err := st.Maintain(ctx); err != nil {
+		if ctx.Err() == nil {
+			log.Error("maintenance failed")
+		}
+		return
+	}
+	log.Info("sweep done", "tombstones", total.Tombstones, "garbage_deleted", total.GarbageDeleted,
+		"orphans_deleted", total.OrphansDeleted, "duration_ms", time.Since(start).Milliseconds())
 }
