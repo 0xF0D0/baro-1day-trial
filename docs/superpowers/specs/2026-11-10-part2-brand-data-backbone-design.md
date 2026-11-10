@@ -11,7 +11,7 @@ Build a service that receives webhooks from two vendors for many tenants and kee
 
 The hard part is not the fold. The fold is fully specified and an in-memory oracle already reproduces every expected hash (`part2/analysis/oracle.py`). The hard part is producing that answer while keeping durability, two storage tiers, per-tenant encryption, erasure and tenant isolation correct at the same time.
 
-The design favors the simplest structure that stays correct. Speed-ups are added only where a measurement or a requirement shows the need, and every speed-up has a slower path that is always correct (User).
+The design favors the simplest structure that stays correct (User). Every speed-up has a slower path that is always correct: the full rebuild in §12. The one speed-up built from the start is incremental customer erasure (§11.1), because a requirement forces it. `replay.py` gives each request 10 seconds, and the generator always plans three customer erasures for the largest tenant, which has about one million events at large scale. Rebuilding that tenant from cold inside one erasure request would risk the timeout.
 
 ## 2. Goals, non-goals, anti-goals
 
@@ -30,7 +30,7 @@ The design favors the simplest structure that stays correct. Speed-ups are added
 - The other three deep dives beyond one paragraph each in the submitted design document.
 
 ### Anti-goals (would count as failure even if `verify.py` passes)
-- Correctness that depends on a dataset observation rather than the SPEC. Measured values (72-hour lateness, 76-hour redelivery, erasure frequency) may tune performance but must never be required for a correct answer.
+- Correctness that depends on a dataset observation rather than the SPEC. Measured values (72-hour lateness, 76-hour redelivery, erasure frequency) may tune performance but must never be required for a correct answer. The only exceptions are the domain assumptions the user accepted, listed in §18.
 - Plaintext `customer_id` or PII anywhere outside the encrypted payload, including logs and metrics labels.
 - Tiering, watermarks or retention driven by the wall clock. The replay clock is simulated (events are dated July to September 2026).
 - A single process whose death stops ingest (User: no single point of failure on the ingest path).
@@ -62,7 +62,7 @@ The design favors the simplest structure that stays correct. Speed-ups are added
 - api nodes are stateless and interchangeable (User). Any of them can ingest, read or erase. Losing one loses nothing.
 - One worker runs background jobs (User). If it is down, ingest, reads and erasure keep working; only flushing, compaction and sweep pause. Erasure does not depend on the worker (§11).
 - Postgres, MinIO and the LB are single containers in `docker compose` and would be managed services in production (User).
-- `docker compose up` starts the LB, two api nodes, one worker, Postgres and MinIO (Designer's call: two api nodes show that nothing depends on a single api process).
+- `docker compose up` starts the LB, two api nodes, one worker, Postgres and MinIO. Two api nodes follow from the user's rule that ingest must not depend on one process. The LB is the builder's choice.
 
 ## 5. Ingest
 
@@ -184,7 +184,8 @@ The request returns `2xx` only after the customer is gone from state, reads and 
    - subtract them from `event_count` and `messages_by_channel`; remove the key from the customer set;
    - remove the customer's orders whole (orders never mix customers; §18) and subtract the customer's orphan refunds and orphan shipments;
    - recompute the latest message time of each rewritten day, then `last_contact_ms` from the per-day values;
-   - for every SKU in the customer's first `order.created` lines, read that SKU's movements from the SKU index, skip movements of any tombstoned customer (this one included), and refold inventory and oversold from zero.
+   - for every SKU in the customer's first `order.created` lines, read that SKU's movements from the SKU index, skip movements of any tombstoned customer (this one included), and refold inventory and oversold from zero;
+   - match the reducer's key presence: a SKU with no remaining movements leaves `inventory`, and a channel whose count drops to zero leaves `messages_by_channel`. Campaigns are never affected, because `ad.metric` has no customer.
 6. Write the new snapshot object.
 7. **Commit** in one transaction: point the manifest and `tenant_cold` at the new objects, delete the customer's hot rows by `customer_key`, mark the tombstone done, set `needs_compaction`. Release the lock and return `2xx`.
 
@@ -226,13 +227,19 @@ The worker runs sweep every hour (User):
 - delete the prefixes of erased tenants;
 - run `VACUUM` on the hot table and `CHECKPOINT`, with WAL recycling disabled so old WAL files are removed rather than reused.
 
-**Stated bound** (Designer's call): an erased customer's or tenant's data is gone from every place Postgres and MinIO can read within **2 hours** (one sweep interval plus its run time). It is out of reads and state immediately once `2xx` is returned. Outside the bound and stated as such: raw disk blocks below Postgres and MinIO (covered by volume encryption in production) and backups (none in this setup; in production the backup retention adds to the bound). Tombstones keep the customer's HMAC key forever, because later arrivals must stay blocked; it is a keyed hash, not the ID.
+**Stated bound** (Designer's call): an erased customer's or tenant's data is out of reads and state immediately once `2xx` is returned. Within **2 hours** (one sweep interval plus its run time) it is gone from MinIO, from every Postgres query, from the indexes, and from Postgres WAL files.
+
+**Stated limits** (User: acknowledge, do not engineer around):
+- **Postgres table files.** `DELETE` and `VACUUM` mark a row's space as reusable but do not overwrite it. The deleted row's ciphertext stays inside the table file until a new row takes that space, and there is no upper bound on when that happens. It is encrypted with the tenant DEK, which stays alive after a customer erasure. The same applies to the wrapped DEK row after a tenant erasure. Rewriting the table (`VACUUM FULL`) would close this gap but stops ingest while it runs, so it is not built. In production, DEKs in a KMS and volume encryption would cover it.
+- **Raw disk blocks** below Postgres and MinIO (volume encryption in production).
+- **Backups**: none in this setup. In production the backup retention adds to the bound.
+- **Tombstones** keep the customer's HMAC key forever, because later arrivals must stay blocked. It is a keyed hash, not the ID.
 
 ## 15. Encryption and isolation
 
-- **Keys** (User: tenant DEK only, no per-customer keys). The KEK wraps one DEK per tenant; the wrapped DEK lives in Postgres. Customer erasure is physical (rewrite and delete), so per-customer keys would add a key lookup per event without making anything more recoverable. In production the DEKs would move to a KMS.
+- **Keys** (User: tenant DEK only, no per-customer keys). The KEK wraps one DEK per tenant; the wrapped DEK lives in Postgres. Customer erasure deletes hot rows and rewrites cold objects. Per-customer keys stored in the same Postgres would leave the same traces as the rows they protect (§14), so they would add a key lookup per event without closing the gap. In production the DEKs would move to a KMS.
 - **What is plaintext**: tenant ID, event ID, `occurred_at_ms`, `customer_key` (keyed HMAC), day numbers, SKUs and amounts inside the encrypted SKU index. Everything else, including `customer_id`, PII and the whole `data` object, is inside AES-GCM ciphertext.
-- **Isolation** (Designer's call, from the analysis): middleware turns the token into a tenant scope once; storage functions take the scope and have no tenant ID parameter. Postgres row-level security is a second layer. Per-tenant keys are a third: another tenant's rows and objects cannot even be decrypted. MinIO access goes through per-tenant prefixes.
+- **Isolation** (Designer's call): middleware turns the token into a tenant scope once, and storage functions take the scope and have no tenant ID parameter. Per-tenant keys are the second layer: another tenant's rows and objects cannot even be decrypted, because the AAD binds the tenant. MinIO access goes through per-tenant prefixes. Postgres row-level security is left out because it would need separate database roles and a per-transaction tenant setting for a third layer. The submitted design names it as production hardening.
 
 ## 16. Deep dive: crash safety (User)
 
@@ -268,8 +275,9 @@ These were proposed during the discussion without an explicit decision:
 5. Index compaction after more than 8 deltas (§7.2).
 6. `410` for genuine deliveries and reads of an erased tenant (§5, §8).
 7. `limit` capped at 1000 (§9).
-8. `docker compose` runs two api nodes behind an LB (§4).
-9. Isolation in three layers: scope type, row-level security, per-tenant keys (§15).
+8. Isolation by scope type and per-tenant keys, without Postgres row-level security (§15).
+9. Scale target: `verify.py` must pass on the supplied data and on a fresh small seed. Medium and large data are used for measurements and are expected to pass too.
+10. Build order (§22).
 
 ## 20. Operations
 
@@ -283,3 +291,12 @@ These were proposed during the discussion without an explicit decision:
 - Go libraries, Postgres schema details, file encodings inside the encrypted objects, LB choice, metric names, the lock mechanism.
 - How the Go fold port is tested, as long as it is checked against `reducer.fold` hashes on the supplied data and on a fresh seed, and checks that "snapshot then tail" equals a full fold at many split points.
 - Where the submitted design document (at most 3 pages, with one paragraph for each deep dive not chosen) and the runbook live in the repository. They are separate deliverables written from this document.
+
+## 22. Build order (Designer's call)
+
+Each step ends with something that runs, so the work can stop after any step and still separate what is built from what is proposed:
+1. Ingest, a hot table only, and state and range reads by a full fold. `verify.py` passes.
+2. Flush to cold: day buckets, snapshot, both indexes, and reads that merge cold and hot.
+3. Erasure across both tiers, late events and rebuild.
+4. The crash test (§16).
+5. Sweep, metrics, runbook and measurements.
