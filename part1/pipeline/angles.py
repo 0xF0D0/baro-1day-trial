@@ -1,4 +1,5 @@
 import argparse
+import concurrent.futures
 import datetime
 import hashlib
 import json
@@ -20,6 +21,7 @@ LABELS_FILE = Path(__file__).resolve().parent / "labels" / "ad_angles.jsonl"
 KEYS = ("text_sha256", "list_version", "labeled_by", "labeled_at", "angle_offer", "offer_evidence",
         "angle_message", "message_evidence", "angle_voice", "voice_evidence")
 MAX_WORDS = 12
+LABEL_WORKERS = 8
 DEFAULT_MODEL = "claude-opus-5-5"
 PROMPT_VERSION = "prompt-v1"
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
@@ -273,32 +275,38 @@ def ask_model(client, model: str, text: str) -> dict:
 
 def label_pending(conn, path: Path, client, model: str, now: str, on_failure=None) -> tuple[int, int]:
     labeled = failed = 0
-    for item in pending(conn, path):
-        reason = None
-        try:
-            got = ask_model(client, model, item["text"])
-        except LabelFailure as e:
-            reason = e.reason
-        else:
-            answered = got.pop("model", model)
-            line = {"text_sha256": item["text_sha256"], "list_version": LIST_VERSION,
-                    "labeled_by": f"{answered}/{PROMPT_VERSION}", "labeled_at": now, **got}
-            reason = check_label(line) or check_evidence(line, item["text"])
-        if reason:
-            failed += 1
-            if on_failure:
-                on_failure(item["text_sha256"], reason)
-            continue
-        with open(path, "a+b") as f:
-            f.seek(0, os.SEEK_END)
-            if f.tell():
-                f.seek(-1, os.SEEK_END)
-                if f.read(1) != b"\n":
-                    f.write(b"\n")
-        with open(path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(line, ensure_ascii=False) + "\n")
-            f.flush()
-        labeled += 1
+    items = pending(conn, path)
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=LABEL_WORKERS)
+    try:
+        futures = [pool.submit(ask_model, client, model, item["text"]) for item in items]
+        for item, future in zip(items, futures):
+            reason = None
+            try:
+                got = future.result()
+            except LabelFailure as e:
+                reason = e.reason
+            else:
+                answered = got.pop("model", model)
+                line = {"text_sha256": item["text_sha256"], "list_version": LIST_VERSION,
+                        "labeled_by": f"{answered}/{PROMPT_VERSION}", "labeled_at": now, **got}
+                reason = check_label(line) or check_evidence(line, item["text"])
+            if reason:
+                failed += 1
+                if on_failure:
+                    on_failure(item["text_sha256"], reason)
+                continue
+            with open(path, "a+b") as f:
+                f.seek(0, os.SEEK_END)
+                if f.tell():
+                    f.seek(-1, os.SEEK_END)
+                    if f.read(1) != b"\n":
+                        f.write(b"\n")
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(line, ensure_ascii=False) + "\n")
+                f.flush()
+            labeled += 1
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)  # requests not yet started are dropped; running ones finish
     return labeled, failed
 
 

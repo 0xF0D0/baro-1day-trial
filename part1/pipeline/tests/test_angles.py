@@ -3,6 +3,8 @@ import hashlib
 import io
 import json
 import os
+import threading
+import time
 from types import SimpleNamespace
 from unittest import mock
 
@@ -190,6 +192,32 @@ class FakeClient:
         return answer
 
 
+class TextFakeClient:
+    """Thread-safe fake: the answer depends on the text asked; `delays` and `errors` map text to seconds / exception."""
+
+    def __init__(self, delays=None, errors=None):
+        self.delays, self.errors = delays or {}, errors or {}
+        self.lock = threading.Lock()
+        self.calls, self.in_flight, self.max_in_flight = [], 0, 0
+        self.beta = SimpleNamespace(messages=SimpleNamespace(create=self._create))
+        self.messages = self.beta.messages
+
+    def _create(self, **kwargs):
+        text = kwargs["messages"][0]["content"]
+        with self.lock:
+            self.calls.append(text)
+            self.in_flight += 1
+            self.max_in_flight = max(self.max_in_flight, self.in_flight)
+        try:
+            time.sleep(self.delays.get(text, 0))
+            if text in self.errors:
+                raise self.errors[text]
+            return reply(answer(angle_offer="discount", offer_evidence=text.split("\n")[0]))
+        finally:
+            with self.lock:
+                self.in_flight -= 1
+
+
 def reply(payload, stop_reason="end_turn", **extra):
     text = payload if isinstance(payload, str) else json.dumps(payload)
     return SimpleNamespace(stop_reason=stop_reason, content=[SimpleNamespace(type="thinking", thinking="x"),
@@ -246,6 +274,62 @@ class LabelTest(AngleBase):
         self.assertEqual(props["angle_voice"]["enum"], list(angles.VOICE))
         for banned in ("thinking", "temperature", "top_p"):
             self.assertNotIn(banned, kw)
+
+    def many_ads(self, n):
+        for i in range(n):
+            self.ad(f"m{i}", f"Offer {i}", "words")
+        return [item["text"] for item in angles.pending(self.conn, self.labels)]
+
+    def written_texts(self):
+        by_hash = {angles.text_hash(t): t for t in self.texts}
+        return [by_hash[x["text_sha256"]] for x in self.lines()]
+
+    def test_label_workers_is_eight(self):
+        self.assertEqual(angles.LABEL_WORKERS, 8)
+
+    def test_requests_run_at_the_same_time(self):
+        self.texts = self.many_ads(7)  # plus the one from setUp
+        self.assertEqual(len(self.texts), 8)
+        client = TextFakeClient(delays={t: 0.3 for t in self.texts})
+        started = time.monotonic()
+        self.assertEqual(self.run_label(client), (8, 0))
+        self.assertLess(time.monotonic() - started, 1.5)
+        self.assertEqual(self.written_texts(), self.texts)
+        self.assertLessEqual(client.max_in_flight, 8)
+
+    def test_slow_first_answer_still_written_first(self):
+        self.texts = self.many_ads(3)
+        client = TextFakeClient(delays={self.texts[0]: 0.4, self.texts[1]: 0.2})
+        self.assertEqual(self.run_label(client), (4, 0))
+        self.assertEqual(self.written_texts(), self.texts)
+
+    def test_never_more_than_eight_in_flight(self):
+        self.texts = self.many_ads(15)
+        client = TextFakeClient(delays={t: 0.05 for t in self.texts})
+        self.assertEqual(self.run_label(client), (16, 0))
+        self.assertGreater(client.max_in_flight, 1)
+        self.assertLessEqual(client.max_in_flight, 8)
+        self.assertEqual(self.written_texts(), self.texts)
+
+    def test_stopping_error_writes_only_the_texts_before_it(self):
+        import anthropic
+        self.texts = self.many_ads(5)  # six texts; one worker, so later requests are still queued when the error comes
+        client = TextFakeClient(delays={t: 0.3 for t in self.texts[3:]}, errors={self.texts[2]: self.bad_request()})
+        with mock.patch.object(angles, "LABEL_WORKERS", 1), self.assertRaises(anthropic.BadRequestError):
+            self.run_label(client)
+        self.assertEqual(self.written_texts(), self.texts[:2])
+        self.assertLess(len(client.calls), 6)
+
+    def test_failed_text_is_counted_and_the_rest_go_on(self):
+        self.texts = self.many_ads(3)
+        bad = self.texts[1]
+        seen = []
+        client = TextFakeClient(errors={bad: angles.LabelFailure("refusal")})
+        got = angles.label_pending(self.conn, self.labels, client, angles.DEFAULT_MODEL, self.NOW,
+                                   lambda h, r: seen.append((h, r)))
+        self.assertEqual(got, (3, 1))
+        self.assertEqual(seen, [(angles.text_hash(bad), "refusal")])
+        self.assertEqual(self.written_texts(), [t for t in self.texts if t != bad])
 
     def test_labeled_by_names_the_model_that_answered(self):
         client = FakeClient([reply(answer(), model="claude-opus-4-8")])
@@ -329,7 +413,8 @@ class LabelTest(AngleBase):
     def test_bad_request_stops_the_run(self):
         import anthropic
         self.ad("2", "Other", "words")
-        client = FakeClient([reply(answer()), self.bad_request()])
+        second = angles.pending(self.conn, self.labels)[1]["text"]
+        client = TextFakeClient(errors={second: self.bad_request()})
         buffer = io.StringIO()
         with mock.patch.dict(os.environ, {"DATABASE_URL": self.url}), \
                 mock.patch.object(angles, "read_key", return_value="k"), \

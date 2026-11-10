@@ -71,8 +71,8 @@ runs. It refuses a file with a value outside the lists, or with a phrase that is
     .venv/bin/python part1/pipeline/angles.py --pending    # the ad texts that have no line yet, as JSON lines
     .venv/bin/python part1/pipeline/angles.py --label      # ask a model for them and append the lines
 
-`--label` sends each pending text once to the model named by `ANGLE_MODEL` (default `claude-opus-5-5`), checks the
-answer like any other line, and never asks again for a text that has a line. Without a key it prints
+`--label` sends each pending text once, up to 8 requests at a time, to the model named by `ANGLE_MODEL` (default
+`claude-opus-5-5`), checks the answer like any other line, and never asks again for a text that has a line. Without a key it prints
 `label: could not look: missing_key`; when the API rejects the request it stops and prints the API's reason. A text
 without a line is shown as `not_labeled`, never as an ad without an angle. Lines can also be written or corrected
 by hand.
