@@ -16,7 +16,7 @@ What a machine needs before the first pass. Nothing here is started or installed
 | Needed | Used by | Without it |
 |---|---|---|
 | Python 3.10 or newer (developed on 3.14) | everything | nothing runs |
-| A PostgreSQL server that is already running (developed on 16, local) and a database in it | the loader and the tables | the collectors still write their files; nothing is loaded |
+| A running PostgreSQL server with a database in it (developed on 16): one already installed, or Docker for the compose file in this folder | the loader and the tables | the collectors still write their files; nothing is loaded |
 | Google Chrome, installed | sources 1, 3, 5, 7 and 10, through Playwright with `channel="chrome"`. No Playwright browser download is needed | those sources fail |
 | A desktop session | source 7 opens a visible Chrome window | source 7 fails |
 | An Apify account with usage available, and its API token | sources 2, 3, 4, 6, 8, 9 and parts of 5 and 10 | each of those records "could not look" (`missing_token`); the rest runs |
@@ -37,9 +37,16 @@ Three lines, in `.env` at the repository root (`.env.example` is the template; `
 
 ### Postgres
 
-The code connects to `DATABASE_URL` and expects the server to be up and the database to exist (`createdb
-market_radar`). The loader creates the tables and views on its first run. On macOS, Homebrew Postgres may refuse to
-start without a locale: `LC_ALL=en_US.UTF-8 pg_ctl -D <data directory> start`.
+The code connects to `DATABASE_URL` and expects the server to be up and the database to exist. The loader creates
+the tables and views on its first run. Two ways to have a server:
+
+- **One that is already installed.** `createdb market_radar`; the default `DATABASE_URL` then works as it is. On
+  macOS, Homebrew Postgres may refuse to start without a locale:
+  `LC_ALL=en_US.UTF-8 pg_ctl -D <data directory> start`.
+- **Docker.** `docker compose -f part1/docker-compose.yml up -d` starts Postgres 16 with the database already
+  created, on `127.0.0.1:5433` so that it does not collide with a server on 5432. Put
+  `DATABASE_URL=postgresql://postgres@localhost:5433/market_radar` in `.env`. The data stays in a Docker volume
+  until `docker compose -f part1/docker-compose.yml down -v`.
 
 ### Apify
 
@@ -95,7 +102,7 @@ From the repository root:
 
     python3 -m venv .venv
     .venv/bin/pip install -r part1/requirements.txt
-    createdb market_radar
+    createdb market_radar       # or: docker compose -f part1/docker-compose.yml up -d  (see "Postgres")
     cp .env.example .env        # then fill in what you have
 
 ## One pass
