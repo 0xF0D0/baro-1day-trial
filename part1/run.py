@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # Normal plan: every collector gets one job per brand, except these, which get one --all job.
-BRAND_SEQUENTIAL = ("07_search_interest",)
+BRAND_SEQUENTIAL = ("01_google_ads_transparency", "07_search_interest")
 # --careful plan: only these (they just call the Apify API) get one job per brand; the rest get one --all job.
 CAREFUL_BRAND_PARALLEL = ("02_tiktok_ad_library", "04_amazon", "06_google_results", "08_tiktok_posts",
                           "09_tiktok_shop")

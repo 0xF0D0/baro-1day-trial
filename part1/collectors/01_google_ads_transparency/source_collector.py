@@ -3,7 +3,6 @@ import argparse
 import copy
 import gzip
 import json
-import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -19,7 +18,8 @@ SCROLL_EVERY_S = 2.5
 MAX_LIST_RESPONSES = 50
 DETAIL_WINDOW_DAYS = 7
 DETAIL_TIMEOUT_S = 20
-DETAIL_SPACING_S = 10 if os.environ.get("RADAR_CAREFUL") else 2
+DETAIL_SPACING_S = 10
+DETAIL_REFRESH_HOURS = 24
 MAX_FAILURES_IN_A_ROW = 5
 SCRIPT_TIMEOUT_S = 20
 
@@ -40,6 +40,32 @@ def parse_list(resp):
 
 def in_scope(item, run_start_epoch):
     return int(item["7"]["1"]) >= run_start_epoch - DETAIL_WINDOW_DAYS * 86400
+
+
+def recent_details(brand_dir, start_epoch):
+    """Keys whose detail was fetched within DETAIL_REFRESH_HOURS before start_epoch, per earlier record files."""
+    keys = set()
+    low = start_epoch - DETAIL_REFRESH_HOURS * 3600
+    try:
+        files = sorted(Path(brand_dir).glob("*.jsonl"))
+    except OSError:
+        return keys
+    for f in files:
+        try:
+            with f.open(encoding="utf-8") as fh:
+                for line in fh:
+                    try:
+                        r = json.loads(line)
+                        if r["raw"]["detail_state"] != "fetched":
+                            continue
+                        t = datetime.strptime(r["fetched_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
+                        if low <= t < start_epoch:
+                            keys.add(r["key"])
+                    except Exception:
+                        continue
+        except Exception:
+            continue
+    return keys
 
 
 def script_urls(detail):
@@ -256,7 +282,9 @@ def collect(browser, slug, cfg, run_id, start_epoch, brand_dir, out, st, nav):
         lo, hi = st["totals"]
         st["expected_total"] = lo if lo == hi else None
         named = set(cfg["named_advertiser_ids"])
-        counts = {"in_scope": 0, "fetched": 0, "failed": 0, "not_attempted": 0, "scripts_failed": 0}
+        counts = {"in_scope": 0, "fetched": 0, "failed": 0, "not_attempted": 0, "scripts_failed": 0,
+                  "skipped_recent": 0}
+        recent = recent_details(brand_dir, start_epoch)
         stopped, fails = False, 0
         for item, arrival in ads:
             item = copy.deepcopy(item)
@@ -265,7 +293,9 @@ def collect(browser, slug, cfg, run_id, start_epoch, brand_dir, out, st, nav):
                 state = "skipped_old"
             else:
                 counts["in_scope"] += 1
-                if stopped:
+                if "%s/%s" % (item["1"], item["2"]) in recent:
+                    state = "skipped_recent"
+                elif stopped:
                     state = "not_attempted"
                 else:
                     state, err, detail, t = fetch_detail(b, item, counts["fetched"])
@@ -291,7 +321,8 @@ def collect(browser, slug, cfg, run_id, start_epoch, brand_dir, out, st, nav):
             out.flush()
             st["records"] += 1
         st["extra"] = {"list_complete": complete, "total_min": lo, "total_max": hi,
-                       "in_scope": counts["in_scope"], "details_fetched": counts["fetched"]}
+                       "in_scope": counts["in_scope"], "details_fetched": counts["fetched"],
+                       "details_skipped_recent": counts["skipped_recent"]}
         if not ads:
             return "ok", ""
         parts = []

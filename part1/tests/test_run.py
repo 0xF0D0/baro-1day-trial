@@ -135,6 +135,9 @@ class RunTests(unittest.TestCase):
         return self.make(cfgs)
 
     def test_plan_jobs(self):
+        self.assertEqual(run.BRAND_SEQUENTIAL, ("01_google_ads_transparency", "07_search_interest"))
+        self.assertEqual(run.plan_jobs(["01_google_ads_transparency", "03_x"], ["a", "b"], None),
+                         [Job("01_google_ads_transparency", None), Job("03_x", "a"), Job("03_x", "b")])
         folders = ["01_a", "04_amazon", "07_search_interest"]
         self.assertEqual(run.plan_jobs(folders, ["x", "y"], None),
                          [Job("01_a", "x"), Job("01_a", "y"), Job("04_amazon", "x"), Job("04_amazon", "y"),
