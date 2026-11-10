@@ -88,11 +88,10 @@ Everything here was developed and run from a US IP address (a datacenter VPN). W
   in `collectors/10_brand_site_and_emails/inbox_export/` and never connects to a mailbox. The repository holds the
   export of 2026-11-10: one email each for Living Proof, Death Wish Coffee and Black Rifle Coffee. A rerun reads
   these same files, so it needs no email account.
-- **Adding newer mail is a manual step outside the pass.** It needs an inbox that is signed up to the brands' lists
-  (the signups are recorded in `data/email_signups.json`) and the export procedure in section 12 of that
-  collector's `source_info.md`: the mailbox is read by hand, each message is redacted with `tools/redact_eml.py`
-  and the result is checked with `tools/verify_eml.py`. Batiste and Jinx have no exported mail: their emails are
-  recorded as `not_signed_up`.
+- **Adding newer mail is a manual step outside the pass.** It needs a dedicated inbox, a signup on each brand's
+  site, a record of each signup and an export of the mailbox. The whole procedure, with the form to use on each
+  brand's site, is in `collectors/10_brand_site_and_emails/inbox_setup.md`. Batiste and Jinx have no exported
+  mail: their emails are recorded as `not_signed_up`.
 - **Only for checking records by hand:** an Amazon review link opens only when signed in to Amazon, and a TikTok ad
   detail link only with a TikTok Creative Center login. Neither is needed to run.
 
