@@ -1,8 +1,8 @@
 # Market Radar: notes
 
-Five brands, ten sources, one command (`part1/run.py`) into a local Postgres. The full pass of 2026-11-11: 3,933
-records in 7 minutes for 7.05 USD (1.79 per 1,000, most of it Amazon and Meta); of 50 source-and-brand cells 41
-`ok`, 8 `partial`, 1 `could not look`. The tables are in `part1/data/market_radar.sql.gz`. Last column: USD per 1,000.
+Five brands, ten sources, one command (`part1/run.py`) into a local Postgres. A full pass takes 7 minutes. The
+latest run of every source and brand, 2026-11-11: 3,933 records for 7.05 USD (1.79 per 1,000, most of it Amazon and
+Meta); of 50 cells 41 `ok`, 8 `partial`, 1 `could not look`. The tables come as a dump file. Last column: USD per 1,000.
 
 | # | Source | How, and why this way | Where it blocked | $/1,000 | Breaks first |
 |---|---|---|---|---|---|

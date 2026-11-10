@@ -222,21 +222,32 @@ describes its fields and how the values were found.
 
 ## The filled tables
 
-`part1/data/market_radar.sql.gz` is a dump of the tables after the full pass of 2026-11-11: the ten tables with
-their rows and the three views. To look at it without running a collector:
+The tables hold other people's text (reviews, captions, search snippets) and this repository is public, so the
+filled tables are handed over as a dump file, outside the repository. A dump is made with
 
-    createdb market_radar
-    gunzip -c part1/data/market_radar.sql.gz | psql -q -d market_radar
+    pg_dump --no-owner --no-privileges -d postgresql://localhost:5432/market_radar | gzip -9 > market_radar.sql.gz
 
-(With the compose file: `gunzip -c part1/data/market_radar.sql.gz | psql -q -d postgresql://postgres@localhost:5433/market_radar`.)
-A pass run afterwards continues from it: rows are updated, and what is gone is marked ended.
+and restored into an **empty** database. If `market_radar` already exists (for example from "Setup" or from a
+pass), drop it first or use another name:
 
-The dump was made with
+    dropdb --if-exists market_radar && createdb market_radar
+    gunzip -c market_radar.sql.gz | psql -q -v ON_ERROR_STOP=1 -d market_radar
 
-    pg_dump --no-owner --no-privileges -d postgresql://localhost:5432/market_radar | gzip -9 > part1/data/market_radar.sql.gz
+With the compose file, which has no `psql` on the host side, start from an empty volume and use the container's:
 
-and checked before it was committed: it restores into an empty database, and it holds no token, key, mailbox
-address or local path, no reviewer names and no profile data of persons. The collectors' files (`collectors/*/raw/`, ignored by git) are the
+    docker compose -f part1/docker-compose.yml down -v && docker compose -f part1/docker-compose.yml up -d --wait
+    gunzip -c market_radar.sql.gz | docker compose -f part1/docker-compose.yml exec -T postgres psql -q -v ON_ERROR_STOP=1 -U postgres -d market_radar
+
+A pass run afterwards continues from it: rows are updated, and what is gone is marked ended. A dump written by
+`pg_dump` 16 has `\restrict` lines; an older `psql` prints two "invalid command" lines for them and goes on.
+
+The dump of 2026-11-11 (ten tables, three views, the state under "Did it work") was checked before it was handed
+over: it restores into an empty database; it holds no token, key, mailbox address or local path; reviewers' names,
+creators' display names and email addresses found in page text are not in it. TikTok creator handles and TikTok
+Shop seller names are, on purpose. What it cannot promise: the text of a search result, an ad or a post is stored
+as the source showed it and can name a person.
+
+The collectors' files (`collectors/*/raw/`, ignored by git) are the
 other way: the loader rebuilds every table from them.
 
 ## Tests
@@ -253,5 +264,5 @@ The loader tests read `TEST_DATABASE_URL` (default `postgresql://localhost:5432/
 ## Where to look
 
 - The tables and views, with example queries: `pipeline/README.md`.
-- The filled tables: `data/market_radar.sql.gz` (see "The filled tables").
+- The filled tables: a dump handed over separately (see "The filled tables").
 - The designs: `docs/superpowers/specs/` at the repository root.
