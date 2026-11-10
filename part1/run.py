@@ -253,6 +253,8 @@ def main(argv=None, *, load_cmd=None, label_cmd=None, labels_file=None, state_di
         previous = {}
         try:
             for sig in (signal.SIGTERM, signal.SIGHUP):
+                if signal.getsignal(sig) == signal.SIG_IGN:  # e.g. started under nohup: stay ignored
+                    continue
                 previous[sig] = signal.signal(sig, on_term)
         except ValueError:  # not the main thread
             pass

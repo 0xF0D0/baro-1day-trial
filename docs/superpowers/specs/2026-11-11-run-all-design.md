@@ -44,7 +44,7 @@ A failed job does not stop the pass: the other collectors' files are still loade
 When `run.py` itself is interrupted (Ctrl-C, `SIGTERM` or `SIGHUP`), it stops every running job the same way as a
 timed-out one, prints `run: interrupted` and exits 130 without loading. Interrupted during the load or the label
 step, it stops that command and exits 130. Without this, closing the terminal would leave collectors running
-behind a released lock.
+behind a released lock. A signal that was already ignored when `run.py` started (as under `nohup`) stays ignored.
 
 ## 3. Which jobs, and what runs side by side
 
