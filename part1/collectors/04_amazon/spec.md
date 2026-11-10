@@ -57,7 +57,7 @@ Jinx uses `jinx dog food` because the bare word matches unrelated products; Jinx
 | `RUN_TIMEOUT_S` | 600 |
 | `RUN_MEMORY_MB` | search 512, detail 4096, reviews 256 |
 | `MAX_CHARGE_USD` | search 0.10, detail 0.10, reviews 0.70 |
-| `POLL_S` | 10 |
+| `POLL_S` | 3 |
 | `WAIT_MARGIN_S` | 120 |
 | `CHARGE_READ_DELAY_S` | 30 |
 | `HTTP_TIMEOUT_S` | 60 |
@@ -71,7 +71,7 @@ If `APIFY_TOKEN` is missing or empty, stop with `missing_token` and send nothing
 1. `POST https://api.apify.com/v2/acts/<actor>/runs?timeout=<RUN_TIMEOUT_S>&memory=<RUN_MEMORY_MB>&maxTotalChargeUsd=<MAX_CHARGE_USD>` with the input as a JSON body. Keep `data.id`.
 2. Every `POLL_S` seconds, `GET https://api.apify.com/v2/actor-runs/<id>` until `data.status` is `SUCCEEDED`, `FAILED`, `ABORTED` or `TIMED-OUT`. Give up after `RUN_TIMEOUT_S + WAIT_MARGIN_S` seconds.
 3. If `SUCCEEDED`: `GET https://api.apify.com/v2/datasets/<defaultDatasetId>/items?format=json&clean=true`.
-4. If the run ended: wait until `CHARGE_READ_DELAY_S` seconds after `finishedAt`, `GET` the run once more, and add its `usageTotalUsd` to `cost_usd` (F12). If that read fails, or step 2 gave up, add the last value seen in step 2.
+4. Cost is read once per brand, after the brand's last run (whatever its outcome, including an early stop): wait until `CHARGE_READ_DELAY_S` seconds after the latest `finishedAt` among the runs that ended, then `GET` each of those runs once and use its `usageTotalUsd` (F12). If a read fails, or the run never ended (step 2 gave up), use the last value seen in step 2. `cost_usd` is the sum over the brand's runs. With no ended run there is no wait and no read.
 
 The stage error is `http_<status>` or `request_error` for a failed request, `wait_exceeded` for step 2, and `failed`, `aborted` or `timed_out` for the other end states.
 
