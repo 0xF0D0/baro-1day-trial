@@ -135,6 +135,24 @@ func TestLoadSweepDefaultsAndValidation(t *testing.T) {
 	}
 }
 
+func TestLoadSnapshotCacheTTL(t *testing.T) {
+	env := validEnv()
+	load := func() (config.Config, error) { return config.Load(func(k string) string { return env[k] }) }
+	cfg, err := load()
+	if err != nil || cfg.SnapshotCacheTTL != time.Hour {
+		t.Fatalf("default: %v, %v", cfg.SnapshotCacheTTL, err)
+	}
+	env["BACKBONE_SNAPSHOT_CACHE_TTL"] = "0s"
+	cfg, err = load()
+	if err != nil || cfg.SnapshotCacheTTL != 0 {
+		t.Fatalf("zero: %v, %v", cfg.SnapshotCacheTTL, err)
+	}
+	env["BACKBONE_SNAPSHOT_CACHE_TTL"] = "-1m"
+	if _, err := load(); err == nil {
+		t.Fatal("negative ttl accepted")
+	}
+}
+
 func TestLoadCrashSettings(t *testing.T) {
 	env := validEnv()
 	cfg, err := config.Load(func(k string) string { return env[k] })

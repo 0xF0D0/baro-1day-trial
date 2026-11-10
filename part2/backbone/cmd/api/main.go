@@ -67,6 +67,7 @@ func run(log *slog.Logger) error {
 		return err
 	}
 	defer st.Close()
+	st.SetSnapshotCacheTTL(cfg.SnapshotCacheTTL)
 	if err := st.Migrate(ctx); err != nil {
 		return err
 	}

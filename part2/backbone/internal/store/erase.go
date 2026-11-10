@@ -21,6 +21,12 @@ func (s *Store) forgetKeys(tenantID string) {
 	s.mu.Unlock()
 }
 
+// forgetTenant drops everything cached for an erased tenant.
+func (s *Store) forgetTenant(tenantID string) {
+	s.forgetKeys(tenantID)
+	s.snaps.drop(tenantID)
+}
+
 // EraseCustomer removes every hot event of the customer and leaves a done
 // tombstone. It is idempotent. The tombstone commits first (under the
 // exclusive customer lock) so that later ingests are refused; the delete runs
@@ -400,6 +406,6 @@ func (s *Store) eraseTenant(ctx context.Context, tenantID string) error {
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("store: erase tenant commit: %w", err)
 	}
-	s.forgetKeys(tenantID)
+	s.forgetTenant(tenantID)
 	return nil
 }

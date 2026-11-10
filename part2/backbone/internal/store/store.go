@@ -33,6 +33,8 @@ type Store struct {
 
 	mu   sync.Mutex
 	keys map[string]*crypto.TenantKeys
+
+	snaps *snapCache
 }
 
 // Open connects to Postgres with synchronous_commit=on for every session.
@@ -50,7 +52,7 @@ func Open(ctx context.Context, databaseURL string, kek *crypto.KEK, objects *col
 		pool.Close()
 		return nil, fmt.Errorf("store: ping: %w", err)
 	}
-	return &Store{pool: pool, kek: kek, objects: objects, keys: map[string]*crypto.TenantKeys{}}, nil
+	return &Store{pool: pool, kek: kek, objects: objects, keys: map[string]*crypto.TenantKeys{}, snaps: newSnapCache()}, nil
 }
 
 // Close releases the pool.

@@ -29,7 +29,7 @@ func (s *Store) beginRead(ctx context.Context, sc Scope) (tx pgx.Tx, coldUntil i
 		return fail(err)
 	}
 	if status == "erased" {
-		s.forgetKeys(tenant)
+		s.forgetTenant(tenant)
 		return fail(ErrTenantErased)
 	}
 	if err := tx.QueryRow(ctx, `SELECT cold_until, dirty, snapshot_object FROM tenant_cold WHERE tenant_id = $1`,
@@ -94,13 +94,15 @@ func (s *Store) state(ctx context.Context, sc Scope) (fold.Result, bool, error) 
 	}
 
 	var st *fold.State
+	readSnapshot := false
 	if snapshot == nil {
 		st = fold.New(tenant, sc.Keys().CustomerKeyHex)
 	} else {
-		snap, err := s.getSnapshot(ctx, sc, *snapshot)
+		snap, read, err := s.cachedSnapshot(ctx, sc, *snapshot)
 		if err != nil {
 			return fold.Result{}, false, err
 		}
+		readSnapshot = read
 		st = fold.Restore(tenant, sc.Keys().CustomerKeyHex, snap)
 	}
 	for _, e := range hot {
@@ -108,7 +110,7 @@ func (s *Store) state(ctx context.Context, sc Scope) (fold.Result, bool, error) 
 			return fold.Result{}, false, err
 		}
 	}
-	return st.Result(), snapshot != nil, nil
+	return st.Result(), readSnapshot, nil
 }
 
 // manifestObjects returns the object names selected by a query whose first
