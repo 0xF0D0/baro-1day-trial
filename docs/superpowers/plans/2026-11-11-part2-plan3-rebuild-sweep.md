@@ -284,3 +284,35 @@ Expected: `0`. The worker logs show sweep lines and no rebuild, flush or sweep f
 git add part2/backbone part2/docker-compose.yml part2/scripts part2/README.md
 git commit -m "Schedule rebuild and sweep in the worker and verify end to end"
 ```
+
+---
+
+## Outcome and follow-ups (added after execution, 2026-11-11)
+
+**Result.** All four tasks are done and reviewed. The whole-branch review found no Critical issue, and its four fixes are applied (listed below). End-to-end on the supplied data at the final commit:
+
+| Flush margin | Result | Tiers after 60 s settle | dirty / garbage / pending |
+|---|---|---|---|
+| 96 h (default) | `PASS`: state 200/200, isolation 0 leaks, ranges 48/48 | hot 23,214, cold 74,574 | 0 / 0 / 0 |
+| 1 h (stress) | `PASS` | hot 19,142, cold 78,646 | 0 / 0 / 0 |
+
+The 1-hour run logged 48 rebuilds, so the 4 tenants that Plan 2 left dirty are cleared. Sweeps drained `garbage` to 0. No `cus_` appears in any container log, and the worker logged no failure.
+
+**Deviations from this plan.**
+- The compose `postgres` service had no `command:`; it now has `["postgres", "-c", "wal_recycle=off"]`.
+- `SweepTenant` takes the cold-writer lock separately for each pass, because `finishErasure` takes it itself.
+- Fixes from the whole-branch review:
+  - `garbage.replaced_at` defaults to `clock_timestamp()` (migrated with `ALTER … SET DEFAULT`), and the garbage inserts are the last writes before commit. With `now()`, the grace period started at `BEGIN`, before the lock wait and the object work.
+  - Rebuild rewrites `customer_days` and `sku_moves` before it takes tenant-status and cold-commit, so ingest is not blocked during the rewrite. Only cold-writer holders use those tables.
+  - The worker sweeps once at startup, so frequent restarts do not postpone sweeps.
+  - The tombstone, garbage and orphan passes of `SweepTenant` run independently and join their errors.
+
+**Follow-ups for later plans.**
+1. An erasure whose request died and was never retried is finished by sweep N, and its replaced objects are deleted by sweep N+1, up to two intervals later. The 2-hour bound counts from `2xx`, which such a request never got. State this case in the design document, or finish pending tombstones on the flush tick.
+2. Worker failure logs carry only the tenant ID and a fixed message. Add an error class that carries no customer data (SQLSTATE, `cold.ErrNotFound`) with the metrics.
+3. Rebuild holds the cold-writer lock while it folds every bucket, and keeps the whole tenant's index rows in memory. Measure it on a large tenant against the 10-second erasure timeout.
+4. Crash checker: treat `garbage` rows still within grace as referenced, and stop the api nodes before checking that no unreferenced object remains.
+5. Carried over from Plan 2:
+   - A late ingest reads MinIO while holding shared locks.
+   - `EraseCustomer` timing at scale.
+   - Snapshot cache, metrics (rebuild count and reason, age of the last sweep), runbook, crash test.
