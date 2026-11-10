@@ -201,3 +201,21 @@ CREATE TABLE IF NOT EXISTS changes (
 );
 CREATE INDEX IF NOT EXISTS changes_item ON changes (source, brand, table_name, kind, key, field, changed_at);
 CREATE INDEX IF NOT EXISTS changes_changed_at ON changes (changed_at);
+
+CREATE TABLE IF NOT EXISTS ad_angles (
+  source text NOT NULL,
+  brand text NOT NULL,
+  kind text NOT NULL,
+  key text NOT NULL,
+  angle_offer text NOT NULL,
+  offer_evidence text,
+  angle_message text NOT NULL,
+  message_evidence text,
+  angle_voice text NOT NULL,
+  voice_evidence text,
+  text_sha256 text NOT NULL,
+  list_version integer NOT NULL,
+  labeled_by text NOT NULL,
+  labeled_at timestamptz NOT NULL,
+  PRIMARY KEY (source, brand, kind, key)
+);
