@@ -84,7 +84,8 @@ func (s *Store) EraseCustomer(ctx context.Context, sc Scope, customerID string) 
 }
 
 // EraseTenant marks the tenant erased and deletes its key, events and
-// tombstones in one transaction, then drops its cached keys. It is idempotent.
+// tombstones in one transaction, then drops its cached keys. A tenant with no
+// row is recorded as erased. It is idempotent and never returns ErrUnknownTenant.
 func (s *Store) EraseTenant(ctx context.Context, tenantID string) error {
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
@@ -94,15 +95,12 @@ func (s *Store) EraseTenant(ctx context.Context, tenantID string) error {
 	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, lockKey("tenant-status", []byte(tenantID))); err != nil {
 		return fmt.Errorf("store: tenant status lock: %w", err)
 	}
-	tag, err := tx.Exec(ctx,
-		`UPDATE tenants SET status = 'erased', erased_at = now() WHERE tenant_id = $1 AND status <> 'erased'`, tenantID)
-	if err != nil {
+	// A tenant with no row is inserted as erased; an erased one stays as is.
+	if _, err := tx.Exec(ctx,
+		`INSERT INTO tenants (tenant_id, status, erased_at) VALUES ($1, 'erased', now())
+		 ON CONFLICT (tenant_id) DO UPDATE SET status = 'erased', erased_at = now()
+		 WHERE tenants.status <> 'erased'`, tenantID); err != nil {
 		return fmt.Errorf("store: mark tenant erased: %w", err)
-	}
-	if tag.RowsAffected() == 0 {
-		if _, err := tenantStatus(ctx, tx, tenantID); err != nil {
-			return err // unknown tenant; an already erased one returns nil below
-		}
 	}
 	for _, q := range []string{
 		`DELETE FROM tenant_keys WHERE tenant_id = $1`,

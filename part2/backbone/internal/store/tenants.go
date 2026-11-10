@@ -76,7 +76,10 @@ func (s *Store) ensureTenant(ctx context.Context, id string) error {
 	return nil
 }
 
-// Scope returns the tenant's keys, always from the stored DEK.
+// Scope returns the tenant's keys, always from the stored DEK. A tenant with
+// no row is created on first use (insert-if-absent), so callers must pass only
+// tenant IDs from the registry. An erased tenant gives ErrTenantErased and
+// never gets a key.
 func (s *Store) Scope(ctx context.Context, tenantID string) (Scope, error) {
 	s.mu.Lock()
 	keys, ok := s.keys[tenantID]
@@ -90,7 +93,10 @@ func (s *Store) Scope(ctx context.Context, tenantID string) (Scope, error) {
 		var status string
 		err = s.pool.QueryRow(ctx, `SELECT status FROM tenants WHERE tenant_id = $1`, tenantID).Scan(&status)
 		if errors.Is(err, pgx.ErrNoRows) {
-			return Scope{}, ErrUnknownTenant
+			if err := s.ensureTenant(ctx, tenantID); err != nil {
+				return Scope{}, err
+			}
+			return s.Scope(ctx, tenantID)
 		}
 		if err != nil {
 			return Scope{}, fmt.Errorf("store: tenant status: %w", err)

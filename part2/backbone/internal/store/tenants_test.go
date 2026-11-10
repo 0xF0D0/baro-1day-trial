@@ -62,8 +62,8 @@ func TestEnsureTenantsConcurrent(t *testing.T) {
 func TestScopeErrors(t *testing.T) {
 	ctx := context.Background()
 	st1, kek := storetest.New(t)
-	if _, err := st1.Scope(ctx, "t_missing"); !errors.Is(err, store.ErrUnknownTenant) {
-		t.Fatalf("want ErrUnknownTenant, got %v", err)
+	if _, err := st1.Scope(ctx, "t_missing"); err != nil {
+		t.Fatalf("missing tenant should be created: %v", err)
 	}
 	if err := st1.EnsureTenants(ctx, []string{"t_1"}); err != nil {
 		t.Fatal(err)
@@ -101,5 +101,47 @@ func TestCiphertextStatisticsOff(t *testing.T) {
 		if target != 0 {
 			t.Fatalf("%s.%s attstattarget = %d, want 0", c.table, c.col, target)
 		}
+	}
+}
+
+func TestScopeCreatesMissingTenant(t *testing.T) {
+	ctx := context.Background()
+	st1, kek := storetest.New(t)
+	st2 := storetest.Reopen(t, st1, kek)
+	var sc1, sc2 store.Scope
+	runBoth(t,
+		func() (err error) { sc1, err = st1.Scope(ctx, "t_new"); return },
+		func() (err error) { sc2, err = st2.Scope(ctx, "t_new"); return })
+	if !bytes.Equal(sc1.Keys().CustomerKey("c"), sc2.Keys().CustomerKey("c")) {
+		t.Fatal("nodes disagree on tenant keys")
+	}
+	var n int
+	if err := st1.Pool().QueryRow(ctx, `SELECT count(*) FROM tenant_keys WHERE tenant_id='t_new'`).Scan(&n); err != nil || n != 1 {
+		t.Fatalf("tenant_keys rows = %d, err %v", n, err)
+	}
+}
+
+func TestEraseTenantWithoutRowStaysErased(t *testing.T) {
+	ctx := context.Background()
+	st, _ := storetest.New(t)
+	if err := st.EraseTenant(ctx, "t_never"); err != nil {
+		t.Fatal(err)
+	}
+	var status string
+	if err := st.Pool().QueryRow(ctx, `SELECT status FROM tenants WHERE tenant_id='t_never'`).Scan(&status); err != nil || status != "erased" {
+		t.Fatalf("status %q, err %v", status, err)
+	}
+	var n int
+	if err := st.Pool().QueryRow(ctx, `SELECT count(*) FROM tenant_keys WHERE tenant_id='t_never'`).Scan(&n); err != nil || n != 0 {
+		t.Fatalf("keys = %d, err %v", n, err)
+	}
+	if _, err := st.Scope(ctx, "t_never"); !errors.Is(err, store.ErrTenantErased) {
+		t.Fatalf("scope: %v", err)
+	}
+	if err := st.EnsureTenants(ctx, []string{"t_never"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.Pool().QueryRow(ctx, `SELECT count(*) FROM tenant_keys WHERE tenant_id='t_never'`).Scan(&n); err != nil || n != 0 {
+		t.Fatalf("key created after ensure: %d, err %v", n, err)
 	}
 }
