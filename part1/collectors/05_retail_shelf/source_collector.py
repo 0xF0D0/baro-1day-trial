@@ -1,5 +1,6 @@
 """Raw collector for source 5, retail shelf. See spec.md. No retries, no fallbacks."""
-import argparse, hashlib, json, math, os, re, sys, time, urllib.error, urllib.request
+import argparse, hashlib, json, math, os, re, sys, threading, time, urllib.error, urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 from datetime import datetime, timezone
 from pathlib import Path
@@ -7,8 +8,11 @@ from urllib.parse import parse_qs, urlparse
 
 HERE = Path(__file__).parent
 PRODUCTS_PER_CELL, NAV_TIMEOUT_S, REVIEW_KEY_WAIT_S, REVIEW_FETCH_TIMEOUT_S = 10, 45, 20, 20
-ULTA_SPACING_S, MAX_FAILURES_IN_A_ROW = 3, 3
-APIFY_TIMEOUT_S, APIFY_POLL_S, APIFY_COST_WAIT_S = 300, 10, 15
+ULTA_SPACING_S = 3 if os.environ.get("RADAR_CAREFUL") else 2
+MAX_FAILURES_IN_A_ROW = 3
+REVIEW_WORKERS = 4
+COUNT_LOCK = threading.Lock()
+APIFY_TIMEOUT_S, APIFY_POLL_S, APIFY_COST_WAIT_S = 300, 3, 15
 BLOCK_WORDS = ("access denied", "captcha", "unusual traffic")
 ROW_KEYS = {
     "ulta": ["productId", "brandName", "reviewCount"],
@@ -171,8 +175,9 @@ def apify(ctx, actor, body, cap):
     if st != 201:
         raise Fail(f"apify_start: http_{st}")
     t0, run = time.monotonic(), d["data"]
-    ctx["requests"] += 1
-    ctx["runs"][run["id"]] = run.get("usageTotalUsd") or 0
+    with COUNT_LOCK:
+        ctx["requests"] += 1
+        ctx["runs"][run["id"]] = run.get("usageTotalUsd") or 0
     while run["status"] not in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
         if time.monotonic() - t0 > APIFY_TIMEOUT_S + 60:
             raise Fail("apify_wait_timeout")
@@ -184,7 +189,8 @@ def apify(ctx, actor, body, cap):
         except Exception as e:
             raise Fail(f"apify_poll: {msg(e)}")
         run = d["data"]
-        ctx["runs"][run["id"]] = run.get("usageTotalUsd") or ctx["runs"][run["id"]]
+        with COUNT_LOCK:
+            ctx["runs"][run["id"]] = run.get("usageTotalUsd") or ctx["runs"][run["id"]]
     print(f"apify {actor}: {run['status']}", flush=True)
     if run["status"] != "SUCCEEDED":
         raise Fail("apify_" + run["status"].lower())
@@ -428,8 +434,11 @@ def run_cell(ctx, cell):
                     set_state(p, "failed", err)
                 todo = []
             fetch = lambda p: ulta_fetch(ctx, page, apikey, p)
-        elif todo:
-            fetch = lambda p: apify_reviews(ctx, r, p)
+        if todo and r != "ulta":
+            pool = ThreadPoolExecutor(REVIEW_WORKERS)
+            stack.callback(pool.shutdown, wait=True, cancel_futures=True)
+            futures = {p["key"]: pool.submit(apify_reviews, ctx, r, p) for p in todo}
+            fetch = lambda p: futures[p["key"]].result()
         fails, stop = 0, False
         for p in todo:
             if stop:

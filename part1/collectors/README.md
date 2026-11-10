@@ -123,7 +123,7 @@ If the process is killed, a `.jsonl.part` file is left with no run result. The p
 
 ## 6. Rules every collector follows
 - **Stop when blocked.** If a CAPTCHA, puzzle, login wall or block page appears, stop there and record it. Do not work around it.
-- **Request spacing.** Leave the interval set in the `spec.md` between requests to the same site. Do not send requests in parallel.
+- **Request spacing.** Inside one process a collector sends its requests to one site one at a time and leaves the interval set in its `spec.md` between them. Requests to two different hosts, and runs waiting on the Apify API, may go side by side where the collector's `spec.md` says so (`05_retail_shelf`, `10_brand_site_and_emails`). `part1/run.py` starts one process per brand, so one site can see several sessions; `--careful` goes back to one.
 - **Secrets.** Tokens are read from `.env` at the repository root. They are never written to logs or files. If a token is missing, record `could_not_look` with `reason` `missing_token`.
 - **Personal data.** Names and profiles of private individuals are not stored.
 - **Tests.** Code that parses responses is tested against the real responses in `part1/collectors/<nn_name>/samples/`. Tests do not use the network.

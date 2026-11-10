@@ -96,5 +96,122 @@ class Reviews(unittest.TestCase):
             self.assertEqual(n, 1 if row["ReviewId"] == "R2LUGCESGD69T4" else 0)
 
 
+class Settling(unittest.TestCase):
+    NOW = 1_800_000_000.0
+
+    def fin(self, ago):
+        t = self.NOW - ago
+        return __import__("datetime").datetime.fromtimestamp(t, __import__("datetime").timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+    def setUp(self):
+        from unittest import mock
+        self.sleeps, self.gets = [], {}
+        self.last = {"r1": 0.01, "r2": 0.02, "r3": 0.03}
+        self.settled = {"r1": 0.06, "r2": 0.075, "r3": 0.63}
+        self.ago = {"r1": 50, "r2": 30, "r3": 10}
+        self.status = {"r1": "SUCCEEDED", "r2": "SUCCEEDED", "r3": "SUCCEEDED"}
+        self.fail_settle = set()
+        self.posts = []
+        for p in (mock.patch.object(sc.time, "sleep", self.sleeps.append),
+                  mock.patch.object(sc.time, "time", lambda: self.NOW),
+                  mock.patch.object(sc, "call", self.fake_call)):
+            p.start()
+            self.addCleanup(p.stop)
+
+    def fake_call(self, st, method, url, token, body=None):
+        st["requests"] += 1
+        if method == "POST":
+            self.posts.append(url)
+            rid = "r%d" % len(self.posts)
+            return {"data": {"id": rid}}
+        if "/datasets/" in url:
+            return []
+        rid = url.rsplit("/", 1)[1]
+        n = self.gets[rid] = self.gets.get(rid, 0) + 1
+        if n == 1:
+            return {"data": {"id": rid, "status": self.status[rid], "usageTotalUsd": self.last[rid],
+                             "finishedAt": self.fin(self.ago[rid]), "defaultDatasetId": "d"}}
+        if rid in self.fail_settle:
+            raise sc.Fail("http_500")
+        return {"data": {"usageTotalUsd": self.settled[rid]}}
+
+    def st(self):
+        return {"requests": 0, "cost": 0.0, "runs": [], "extra": {}}
+
+    def run_three(self, st):
+        return [sc.run_actor(st, "t", sc.SEARCH, {}) for _ in range(3)]
+
+    def test_poll_interval(self):
+        self.assertEqual(sc.POLL_S, 3)
+
+    def test_settled_once_after_last_run(self):
+        st = self.st()
+        self.run_three(st)
+        self.assertEqual(self.gets, {"r1": 1, "r2": 1, "r3": 1})
+        self.assertEqual([s for s in self.sleeps if s > sc.POLL_S], [])
+        sc.settle(st, "t")
+        self.assertEqual(self.gets, {"r1": 2, "r2": 2, "r3": 2})
+        self.assertAlmostEqual(st["cost"], 0.765)
+        self.assertEqual([s for s in self.sleeps if s > sc.POLL_S], [sc.CHARGE_READ_DELAY_S - 10])
+
+    def test_failed_second_run_still_settled_via_run_brand(self):
+        from unittest import mock
+        import tempfile
+        self.status["r2"] = "FAILED"
+
+        def fake_collect(st, cfg, token, emit):
+            for _ in range(3):
+                err, _, _ = sc.run_actor(st, token, sc.SEARCH, {})
+                if err:
+                    return "could_not_look", "search_" + err
+            return "ok", ""
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(sc, "HERE", Path(d)), \
+                mock.patch.object(sc, "collect", fake_collect):
+            sc.run_brand("x", {}, "t")
+            res = json.loads(next(Path(d).glob("raw/x/*.run.json")).read_text())
+        self.assertEqual(self.gets, {"r1": 2, "r2": 2})
+        self.assertAlmostEqual(res["cost_usd"], 0.135)
+
+    def test_exception_in_collect_still_settles(self):
+        from unittest import mock
+        import tempfile
+
+        def boom(st, cfg, token, emit):
+            sc.run_actor(st, token, sc.SEARCH, {})
+            raise RuntimeError("x")
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(sc, "HERE", Path(d)), \
+                mock.patch.object(sc, "collect", boom):
+            sc.run_brand("x", {}, "t")
+            res = json.loads(next(Path(d).glob("raw/x/*.run.json")).read_text())
+        self.assertAlmostEqual(res["cost_usd"], 0.06)
+
+    def test_failed_settle_read_keeps_last_seen(self):
+        self.fail_settle = {"r2"}
+        st = self.st()
+        self.run_three(st)
+        sc.settle(st, "t")
+        self.assertAlmostEqual(st["cost"], 0.06 + 0.02 + 0.63)
+
+    def test_unended_run_not_read_and_no_wait(self):
+        self.status["r1"] = "RUNNING"
+        st = self.st()
+        with __import__("unittest").mock.patch.object(sc, "RUN_TIMEOUT_S", -sc.WAIT_MARGIN_S - 1):
+            sc.run_actor(st, "t", sc.SEARCH, {})
+        n = len(self.sleeps)
+        sc.settle(st, "t")
+        self.assertEqual(self.gets, {"r1": 1})
+        self.assertEqual(len(self.sleeps), n)
+        self.assertAlmostEqual(st["cost"], 0.01)
+
+    def test_null_settled_cost_is_skipped(self):
+        self.settled["r2"] = None
+        st = self.st()
+        runs = self.run_three(st)
+        before = st["cost"]
+        sc.settle(st, "t")
+        self.assertAlmostEqual(st["cost"], before - 0.01 - 0.03 + 0.06 + 0.63)
+        self.assertEqual([r["cost"] for r in st["runs"]], [0.06, 0.02, 0.63])
+
+
 if __name__ == "__main__":
     unittest.main()

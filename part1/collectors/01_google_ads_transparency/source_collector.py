@@ -19,6 +19,7 @@ MAX_LIST_RESPONSES = 50
 DETAIL_WINDOW_DAYS = 7
 DETAIL_TIMEOUT_S = 20
 DETAIL_SPACING_S = 10
+DETAIL_REFRESH_HOURS = 24
 MAX_FAILURES_IN_A_ROW = 5
 SCRIPT_TIMEOUT_S = 20
 
@@ -39,6 +40,36 @@ def parse_list(resp):
 
 def in_scope(item, run_start_epoch):
     return int(item["7"]["1"]) >= run_start_epoch - DETAIL_WINDOW_DAYS * 86400
+
+
+def recent_details(brand_dir, start_epoch):
+    """Latest usable detail per key fetched within DETAIL_REFRESH_HOURS before start_epoch, per earlier record files."""
+    found = {}
+    low = start_epoch - DETAIL_REFRESH_HOURS * 3600
+    try:
+        files = sorted(Path(brand_dir).glob("*.jsonl"))
+    except OSError:
+        return found
+    for f in files:
+        try:
+            with f.open(encoding="utf-8") as fh:
+                for line in fh:
+                    try:
+                        r = json.loads(line)
+                        raw = r["raw"]
+                        if raw["detail_state"] != "fetched" or not isinstance(raw["detail"], dict):
+                            continue
+                        if any(v is None for v in raw["script_files"].values()):
+                            continue
+                        t = datetime.strptime(r["fetched_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
+                        if low <= t < start_epoch and (r["key"] not in found or t >= found[r["key"]][0]):
+                            found[r["key"]] = (t, {"detail": raw["detail"], "script_files": raw["script_files"],
+                                                   "fetched_at": r["fetched_at"]})
+                    except Exception:
+                        continue
+        except Exception:
+            continue
+    return {k: v[1] for k, v in found.items()}
 
 
 def script_urls(detail):
@@ -255,16 +286,23 @@ def collect(browser, slug, cfg, run_id, start_epoch, brand_dir, out, st, nav):
         lo, hi = st["totals"]
         st["expected_total"] = lo if lo == hi else None
         named = set(cfg["named_advertiser_ids"])
-        counts = {"in_scope": 0, "fetched": 0, "failed": 0, "not_attempted": 0, "scripts_failed": 0}
+        counts = {"in_scope": 0, "fetched": 0, "failed": 0, "not_attempted": 0, "scripts_failed": 0,
+                  "skipped_recent": 0}
+        recent = recent_details(brand_dir, start_epoch)
         stopped, fails = False, 0
         for item, arrival in ads:
             item = copy.deepcopy(item)
-            detail, files, err, fetched_at = None, {}, None, arrival
+            detail, files, err, fetched_at, detail_at = None, {}, None, arrival, None
             if not in_scope(item, start_epoch):
                 state = "skipped_old"
             else:
                 counts["in_scope"] += 1
-                if stopped:
+                prior = recent.get("%s/%s" % (item["1"], item["2"]))
+                if prior:
+                    state = "skipped_recent"
+                    detail, files = copy.deepcopy(prior["detail"]), dict(prior["script_files"])
+                    detail_at = prior["fetched_at"]
+                elif stopped:
                     state = "not_attempted"
                 else:
                     state, err, detail, t = fetch_detail(b, item, counts["fetched"])
@@ -281,16 +319,20 @@ def collect(browser, slug, cfg, run_id, start_epoch, brand_dir, out, st, nav):
                 item["12"] = None
                 if detail is not None:
                     detail["22"] = None
+            if state == "fetched":
+                detail_at = iso(fetched_at)
             rec = {"key": "%s/%s" % (item["1"], item["2"]), "kind": "ad",
                    "url": "https://%s/advertiser/%s/creative/%s?region=US" % (HOST, item["1"], item["2"]),
                    "fetched_at": iso(fetched_at),
                    "raw": {"list_item": item, "detail": detail, "detail_state": state,
-                           "detail_error": err, "script_files": files}}
+                           "detail_error": err, "script_files": files,
+                           "detail_fetched_at": detail_at}}
             out.write(json.dumps(rec, ensure_ascii=False) + "\n")
             out.flush()
             st["records"] += 1
         st["extra"] = {"list_complete": complete, "total_min": lo, "total_max": hi,
-                       "in_scope": counts["in_scope"], "details_fetched": counts["fetched"]}
+                       "in_scope": counts["in_scope"], "details_fetched": counts["fetched"],
+                       "details_skipped_recent": counts["skipped_recent"]}
         if not ads:
             return "ok", ""
         parts = []

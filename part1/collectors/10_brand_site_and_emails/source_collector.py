@@ -10,8 +10,11 @@ import email.policy
 import email.utils
 import hashlib
 import json
+import os
 import re
+import queue
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -30,7 +33,7 @@ RAW_DIR = HERE / "raw"
 NAV_TIMEOUT_S = 45
 HOME_SETTLE_S = 8
 HTTP_TIMEOUT_S = 30
-SPACING_S = 4
+SPACING_S = 4 if os.environ.get("RADAR_CAREFUL") else 2
 PRODUCTS_PAGE_SIZE = 250
 MAX_PRODUCT_PAGES = 10
 APIFY_MAX_PRODUCTS = 80
@@ -303,7 +306,8 @@ def emails_part(signup, sender_domains, manifest, emls):
 
 # ---------------------------------------------------------------- run plumbing
 R = {}  # per-brand run state: fh, kinds, requests
-_last = {}  # host -> monotonic time of the last request end
+_last = {}  # host -> monotonic time of the last plain request's start, or of the last Chrome navigation's end
+_lock = threading.Lock()  # guards R["requests"] and _last writes (the Batiste route uses two threads)
 
 
 def utc_now():
@@ -340,17 +344,16 @@ def http(url, method="GET", headers=None, data=None, timeout=HTTP_TIMEOUT_S, spa
     host = urlparse(url).hostname
     if spaced:
         space(host)
-    R["requests"] += 1
+    with _lock:
+        R["requests"] += 1
+        _last[host] = time.monotonic()
     h = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"}
     h.update(headers or {})
     try:
-        try:
-            with _opener.open(urllib.request.Request(url, data=data, headers=h, method=method), timeout=timeout) as r:
-                return r.status, r.headers, r.read()
-        except urllib.error.HTTPError as e:
-            return e.code, e.headers, e.read()
-    finally:
-        _last[host] = time.monotonic()
+        with _opener.open(urllib.request.Request(url, data=data, headers=h, method=method), timeout=timeout) as r:
+            return r.status, r.headers, r.read()
+    except urllib.error.HTTPError as e:
+        return e.code, e.headers, e.read()
 
 
 def err_reason(e):
@@ -670,60 +673,88 @@ def batiste_prices(cfg, out_dir):
     except ShapeError as e:
         part["reason"] = str(e)
         return part
-    # 2. product pages
+    # 2. product pages (this thread) and 4. widget API (one worker thread, fed in first-discovery order)
     pages, ean_pages, failures = [], {}, 0
-    for path in paths:
-        p = {"path": path, "state": None, "eans": [], "location": None, "error": None}
-        try:
-            status, hd, b = http(base + path)
-            p["state"], p["eans"] = classify_batiste_page(status, hd.get("Location"), b.decode("utf-8", "replace"), c["wtbid"])
-            if p["state"] == "redirected":
-                p["location"] = hd.get("Location")
-            elif p["state"] == "failed":
-                p["error"] = f"http_{status}"
-        except Exception as e:
-            p["state"], p["error"] = "failed", err_reason(e)
-        failures += p["state"] in ("failed", "widget_missing")
-        for ean in p["eans"]:
-            ean_pages.setdefault(ean, []).append(path)
-        pages.append(p)
+    res = {}
+    state = {"stopped": False, "not_us": None, "stop_at": None}
+    q = queue.Queue()
+
+    def mark_stop():
+        if state["stop_at"] is None:
+            state["stop_at"] = utc_now()
+
+    def widget_worker():
+        while True:
+            ean = q.get()
+            if ean is None:
+                mark_stop()
+                return
+            if state["stopped"] or state["not_us"]:
+                continue
+            r = res[ean]
+            keep_going = False
+            try:
+                status, _, b = http(WTB_URL.format(ean=ean, wtbid=c["wtbid"]), headers={"Accept": "application/json"})
+                r["at"] = utc_now()
+                if status != 200:
+                    r["error"], must_stop = wtb_failure(status, b)
+                    keep_going = not must_stop
+                else:
+                    try:
+                        resp = json.loads(b)
+                        loc = validate_wtb(resp, ean)
+                        if market_ok(*loc):
+                            r["state"], r["response"] = "fetched", resp
+                        else:
+                            state["not_us"] = loc
+                            mark_stop()
+                    except (ValueError, ShapeError):
+                        r["error"] = "shape_changed"
+            except Exception as e:
+                r["at"] = utc_now()
+                r["error"] = err_reason(e)
+            if state["not_us"]:
+                continue
+            if r["error"]:
+                r["state"] = "failed"
+                state["stopped"] = not keep_going
+                if state["stopped"]:
+                    mark_stop()
+
+    worker = threading.Thread(target=widget_worker, name="batiste-widget", daemon=True)
+    worker.start()
+    try:
+        for path in paths:
+            p = {"path": path, "state": None, "eans": [], "location": None, "error": None}
+            try:
+                status, hd, b = http(base + path)
+                p["state"], p["eans"] = classify_batiste_page(status, hd.get("Location"), b.decode("utf-8", "replace"), c["wtbid"])
+                if p["state"] == "redirected":
+                    p["location"] = hd.get("Location")
+                elif p["state"] == "failed":
+                    p["error"] = f"http_{status}"
+            except Exception as e:
+                p["state"], p["error"] = "failed", err_reason(e)
+            failures += p["state"] in ("failed", "widget_missing")
+            for ean in p["eans"]:
+                if ean not in ean_pages:
+                    res[ean] = {"state": "not_attempted", "error": None, "response": None, "at": None}
+                    ean_pages[ean] = []
+                    q.put(ean)
+                ean_pages[ean].append(path)
+            pages.append(p)
+    except BaseException:
+        state["stopped"] = True
+        raise
+    finally:
+        q.put(None)
+        worker.join()
     part["product_pages"] = pages
     if not ean_pages:
         part["reason"] = "no_eans"
         return part
-    # 4. widget API
-    res = {ean: {"state": "not_attempted", "error": None, "response": None, "at": None} for ean in ean_pages}
-    stopped, not_us = False, None
-    for ean in ean_pages:
-        if stopped:
-            break
-        r = res[ean]
-        keep_going = False
-        try:
-            status, _, b = http(WTB_URL.format(ean=ean, wtbid=c["wtbid"]), headers={"Accept": "application/json"})
-            r["at"] = utc_now()
-            if status != 200:
-                r["error"], must_stop = wtb_failure(status, b)
-                keep_going = not must_stop
-            else:
-                try:
-                    resp = json.loads(b)
-                    loc = validate_wtb(resp, ean)
-                    if market_ok(*loc):
-                        r["state"], r["response"] = "fetched", resp
-                    else:
-                        not_us = loc
-                except (ValueError, ShapeError):
-                    r["error"] = "shape_changed"
-        except Exception as e:
-            r["at"] = utc_now()
-            r["error"] = err_reason(e)
-        if not_us:
-            break
-        if r["error"]:
-            r["state"] = "failed"
-            stopped = not keep_going
-    stop_at = utc_now()
+    not_us = state["not_us"]
+    stop_at = state["stop_at"]
     if not_us:
         for r in res.values():
             r.update(state="not_us", response=None, error=None)

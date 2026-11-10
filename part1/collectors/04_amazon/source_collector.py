@@ -12,7 +12,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 API = "https://api.apify.com/v2"
 SEARCH_RESULTS, TOP_N, MIN_RATINGS_TO_MERGE, DETAIL_CANDIDATES, REVIEWS_PER_PRODUCT = 60, 10, 100, 15, 10
-RUN_TIMEOUT_S, POLL_S, WAIT_MARGIN_S, CHARGE_READ_DELAY_S, HTTP_TIMEOUT_S = 600, 10, 120, 30, 60
+RUN_TIMEOUT_S, POLL_S, WAIT_MARGIN_S, CHARGE_READ_DELAY_S, HTTP_TIMEOUT_S = 600, 3, 120, 30, 60
 SEARCH = ("apt_marble~amazon-search-results-scraper", 512, 0.10)
 DETAIL = ("junglee~Amazon-crawler", 4096, 0.10)
 REVIEWS = ("delicious_zebu~amazon-reviews-scraper-with-advanced-filters", 256, 0.70)
@@ -164,15 +164,27 @@ def run_actor(st, token, actor, body):
             except KeyError:
                 err = "request_error"
     fin = run.get("finishedAt") if status in ENDED else None
-    if fin:
-        end = datetime.strptime(fin[:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc).timestamp()
-        time.sleep(max(0.0, end + CHARGE_READ_DELAY_S - time.time()))
-        try:
-            cost = call(st, "GET", "%s/actor-runs/%s" % (API, run["id"]), token)["data"]["usageTotalUsd"]
-        except (Fail, KeyError, TypeError):
-            pass
+    end = datetime.strptime(fin[:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc).timestamp() if fin else None
+    st["runs"].append({"id": run["id"], "cost": cost, "end": end})
     st["cost"] += cost
     return err, items, (ts(fin) if fin else None)
+
+
+def settle(st, token):
+    """Once per brand, after its last run: replace each ended run's last-seen cost with its settled usageTotalUsd (F12)."""
+    ended = [r for r in st["runs"] if r["end"] is not None]
+    if not ended:
+        return
+    time.sleep(max(0.0, max(r["end"] for r in ended) + CHARGE_READ_DELAY_S - time.time()))
+    for r in ended:
+        try:
+            v = call(st, "GET", "%s/actor-runs/%s" % (API, r["id"]), token)["data"]["usageTotalUsd"]
+        except (Fail, KeyError, TypeError):
+            continue
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            continue
+        st["cost"] += v - r["cost"]
+        r["cost"] = v
 
 
 # ---------- brand run ----------
@@ -279,7 +291,7 @@ def run_brand(slug, cfg, token):
     d = HERE / "raw" / slug
     d.mkdir(parents=True, exist_ok=True)
     part = d / (run_id + ".jsonl.part")
-    st = {"requests": 0, "cost": 0.0, "extra": {"search_rows": 0, "candidates": 0, "selected": 0}}
+    st = {"requests": 0, "cost": 0.0, "runs": [], "extra": {"search_rows": 0, "candidates": 0, "selected": 0}}
     kinds, failed = {}, False
     with open(part, "w", encoding="utf-8") as f:
         def emit(rec):
@@ -292,6 +304,7 @@ def run_brand(slug, cfg, token):
             failed = True
             status = "partial" if kinds else "could_not_look"
             reason = "exception: %s: %s" % (type(e).__name__, e)
+    settle(st, token)
     part.rename(d / (run_id + ".jsonl"))
     result = {"source": "amazon", "brand": slug, "run_id": run_id, "started_at": started.strftime("%Y-%m-%dT%H:%M:%SZ"),
               "finished_at": now(), "status": status, "reason": reason, "records": sum(kinds.values()),

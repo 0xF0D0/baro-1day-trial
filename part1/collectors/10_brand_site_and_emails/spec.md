@@ -160,7 +160,7 @@ The folder now holds the export of F19:
 | `NAV_TIMEOUT_S` | 45 | every Chrome navigation (F1, F2: within 10 s) |
 | `HOME_SETTLE_S` | 8 | wait after the home load event (F6 was counted this way) |
 | `HTTP_TIMEOUT_S` | 30 | every plain HTTP request, except the Apify poll |
-| `SPACING_S` | 4 | minimum gap between two requests the collector sends to the same host (F11 used 4 s). Requests to different hosts need no gap. Does not apply to `api.apify.com` |
+| `SPACING_S` | 2 (4 when `RADAR_CAREFUL` is set) | minimum time between the starts of two plain HTTP requests the collector sends to the same host; after a Chrome navigation the gap is counted from the end of the navigation (F11 used 4 s). Requests to different hosts need no gap. Does not apply to `api.apify.com` |
 | `PRODUCTS_PAGE_SIZE` | 250 | 4.3 |
 | `MAX_PRODUCT_PAGES` | 10 | 4.3 |
 | `APIFY_MAX_PRODUCTS` | 80 | 4.4. With F14 prices, 80 products and the two listing-page charges of F15 cost at most $0.8891, below the $1 cap. The coffee listing had 55 products (F15) |
@@ -173,6 +173,8 @@ The folder now holds the export of F19:
 | `APIFY_MAX_TOTAL_WAIT_S` | 4200 | 4.4 |
 | `FIRST_DAY_S` | 86400 | 4.6 |
 | `SIGNUP_TOLERANCE_S` | 300 | 4.6 (F19: the Death Wish Coffee email arrived 3 s before `signup_at`) |
+
+`RADAR_CAREFUL` (any non-empty value) restores the earlier pace; `part1/run.py --careful` sets it.
 
 ## 4. Procedure
 **Browser.** Playwright 1.48.0 (`requirements.txt`: `playwright==1.48.0`).
@@ -297,7 +299,7 @@ With the item shape of F15, every Black Rifle run ends `partial` with the reason
    | Any other 200 | `widget_missing` | yes |
    | Any other status, a timeout or an error | `failed`, with `http_<status>`, `timeout` or `request_error: <message>` | yes |
 3. **EAN list.** Take the EANs of all `widget` pages in page order. When an EAN appears on more than one page, the first page wins and every page is listed in the record.
-4. **Widget API.** For each EAN in order, GET `https://wtb-api-hub.swaven.com/wtb/v2/api/search/availabilities/<EAN>?wtbid=<wtbid>&lang=en&country=US&nextEndpointV2=true&applyTiedHouseLaw=true`.
+4. **Widget API.** For each EAN in order, GET `https://wtb-api-hub.swaven.com/wtb/v2/api/search/availabilities/<EAN>?wtbid=<wtbid>&lang=en&country=US&nextEndpointV2=true&applyTiedHouseLaw=true`. The widget API requests are sent by a second thread while the product pages are still being read: the two go to different hosts, each host still gets one request at a time, `SPACING_S` apart, and the EANs are requested in the order they are first found.
    - The response is valid when the status is 200 and the body is a JSON object with a list `d`, an object `prd` whose `ean` equals the EAN, and an object `loc`.
    - A valid response with `loc.Country` `US` and `loc.ISOCurrencySymbol` `USD` gives the EAN `fetched`.
    - A valid response with any other country or currency: every EAN, including those already fetched, gets `not_us`, and every response is dropped. `prices` is `could_not_look` with the reason `not_us(country=<value>,currency=<value>)`. No further requests are sent.

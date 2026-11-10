@@ -64,11 +64,14 @@ Samples for all of these are in `part1/collectors/05_retail_shelf/samples/` (`ul
 | `NAV_TIMEOUT_S` | 45 |
 | `REVIEW_KEY_WAIT_S` | 20 |
 | `REVIEW_FETCH_TIMEOUT_S` | 20 |
-| `ULTA_SPACING_S` | 3 |
+| `ULTA_SPACING_S` | 2 (3 when `RADAR_CAREFUL` is set) |
 | `MAX_FAILURES_IN_A_ROW` | 3 |
+| `REVIEW_WORKERS` | 4. A pass at `run.py --jobs` 16 then has at most 5 × 4 + 11 = 31 actor runs going at once; the account allows 32 |
 | `APIFY_TIMEOUT_S` | 300 |
-| `APIFY_POLL_S` | 10 |
+| `APIFY_POLL_S` | 3 |
 | `APIFY_COST_WAIT_S` | 15 |
+
+`RADAR_CAREFUL` (any non-empty value) restores the earlier pace; `part1/run.py --careful` sets it.
 
 ## 4. Procedure
 Cells run in the order of `brand_inputs.json`, one request at a time. A failed cell does not stop the next one.
@@ -101,9 +104,9 @@ One search term per Target run (F7). The Sephora filters are set because leaving
 
 **Reviews.** A product whose listed review count (Ulta and Target `reviewCount`, Sephora `reviews`, Chewy `ratingCount`) is `null` or 0 gets `reviews_state` `none` and no request. For the others:
 - Ulta: open the first such product's `action.url` (same timeout and block test as the list page), wait 3 s, scroll `page.mouse.wheel(0, 3500)` twice 2.5 s apart, and wait up to `REVIEW_KEY_WAIT_S` for the PowerReviews request; take its `apikey` (F3). If the page does not load, is blocked, or no request comes, these products get `failed` with `browser: <message>`, `blocked` or `review_key_not_found`. Otherwise fetch the F3 URL once per product from that page with `page.evaluate` and `fetch(url, {signal: AbortSignal.timeout(REVIEW_FETCH_TIMEOUT_S * 1000)})`. Status 403 or 429 is `blocked`. Leave `ULTA_SPACING_S` between all Ulta navigations and fetches.
-- Target and Sephora: one e-commerce call per product with the product record's `url`. Chewy: one Chewy reviews call per product.
+- Target and Sephora: one e-commerce call per product with the product record's `url`. Chewy: one Chewy reviews call per product. The review runs of one cell are started up to `REVIEW_WORKERS` at a time; their results are taken in product order and the records are written in that order, as before. Ulta reviews are still read one product at a time.
 - `fetched` when the response has the expected shape: Ulta `results[0].reviews` is a list; e-commerce items have `reviewBody`, `datePublished` and `inputUrl` equal to the URL sent; Chewy items have `reviewId`. Otherwise `failed` with `http_<status>`, `timeout`, `invalid` or the Apify failure.
-- After `MAX_FAILURES_IN_A_ROW` failed products in a row, or one `blocked`, the cell's remaining products get `not_attempted`.
+- After `MAX_FAILURES_IN_A_ROW` failed products in a row, or one `blocked`, the cell's remaining products get `not_attempted`. The rule is applied in product order, so a product after the stopping point keeps `not_attempted` even if its run had already been started (its result is not used). A run that had not been started yet when the cell stops is not started.
 - Personal data: Ulta sets `details.nickname`, `details.location` and `media` to `null`; e-commerce deletes `author`; Chewy deletes `reviewerName`.
 
 **Writing.** Review records are written as each response is handled. A cell's product records are written when its reviews are done, because they carry `reviews_state`; an unexpected exception writes them as they are before the run result.
