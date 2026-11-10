@@ -359,3 +359,47 @@ Expected: `0` for both.
 git add part2/scripts/crash.sh part2/README.md
 git commit -m "Add the crash test harness for tier moves and compaction"
 ```
+
+---
+
+## Outcome and follow-ups (added after execution, 2026-11-11)
+
+**Result.** All four tasks are done and reviewed. The whole-branch review found no correctness bug, and its fixes are applied (listed below). At the final commit:
+
+- **In-process:** `TestCrashPoints` crashes at each of the six points. Each time it shows four things:
+  - nothing committed: pointers, manifest, garbage rows, hot rows and index rows are unchanged;
+  - the next run completes;
+  - sweep removes the orphans;
+  - the audit is clean.
+- **Chaos run** (`crash.sh` on the supplied data, defaults):
+  - The worker was killed with `kill -9` 11 times while it was running.
+  - Crash points fired 13, 7 and 6 times at `flush.after_bucket`, `flush.after_snapshot` and `flush.before_commit`. The three `rebuild.*` points did not fire, at probability 0.002 over 41 rebuilds, and the report names them under "points never hit".
+  - Replay: 0 deliveries never succeeded.
+  - `verify.py` `PASS`: state 200/200, isolation 0, ranges 48/48.
+- **Checks in the chaos run:**
+  - **Before the settle**, right after a final `kill -9`, the `-unsettled` check passes: `lost=0 unexpected=0 duplicate=0 bad_pointer=0 state_mismatch=0 index_mismatch=0 tier_invariant=0 unparsed=0`. What remains for the settle is 31 unreferenced objects and 78 garbage rows.
+  - **After the settle**, every count is 0 and the check passes, with `expected=97788 stored=97788`.
+- **Plain e2e with crash points off:** `PASS` and `dirty=0 garbage=0 pending=0`, and the checker passes.
+- No `cus_` appears in any report or log.
+
+**Deviations from this plan.**
+- `cmd/check` exits 2 on setup errors.
+- Two extra checker rules:
+  - an acknowledged tenant erasure whose audit is not `Erased` is reported as `unexpected`;
+  - leftover objects of an erased tenant are reported as `unreferenced`.
+- Fixes from the whole-branch review:
+  - `Audit` also checks `customer_days` and `sku_moves` against rows rebuilt from the buckets. It also checks three tier invariants: no hot row below `cold_until` when the tenant is clean; every manifest day ends at or before `cold_until`; the snapshot's cold-until matches. The checker reports these as `index_mismatch` and `tier_invariant`.
+  - The harness kills the worker once more and checks the store with `-unsettled` before the settle, because the settle repairs leftovers.
+  - An external kill counts only when the worker was running.
+  - The default crash probability is 0.002.
+  - The report names any points that never fired.
+  - Harness polish: the INT and TERM traps exit, the worker is force-recreated, the check image is built before it runs, the settle log is saved, and the kill interval is validated. The README gains a scope paragraph.
+  - The flush crash cases start from a tenant that has already flushed, so the crashed transaction also rolls back a garbage insert.
+
+**Follow-ups.**
+1. The rebuild crash points rarely fire in the chaos run, because there are about 40 rebuilds per run against thousands of flushes. A per-point probability, or a rebuild-only pass, would exercise them under load. Only `TestCrashPoints` covers them today.
+2. The scope excludes api, Postgres and MinIO kills, ingest, and customer-erasure rewrites (spec §16 lists more targets). Adding them would also need the second erasure driver, plus checker handling of a customer whose erasure request died but which sweep finished.
+3. Harness edge cases:
+   - A `docker compose start` that is in flight can outlive the kill loop by a moment.
+   - With an empty `CRASH_POINTS`, the script may trip `set -u` on bash 3.2.
+   - A dirty tenant whose late row duplicates a bucket event would give a false pre-settle `duplicate`.
