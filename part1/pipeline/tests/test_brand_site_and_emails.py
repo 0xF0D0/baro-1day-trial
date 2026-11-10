@@ -124,18 +124,46 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
                           Scope("wtb/3", "could_not_look", "not_us")])
 
     def _listing(self, pages, parts=None):
-        prices = {**BATISTE_PARTS["prices"], "product_pages": pages}
-        run = {**RUN, "extra": {"parts": {**BATISTE_PARTS, "prices": prices}}}
+        prices = {**BATISTE_PARTS["prices"], **(parts or {}), "product_pages": pages}
+        run = {**RUN, "brand": "batiste", "extra": {"parts": {**BATISTE_PARTS, "prices": prices}}}
         return [s for s in map_run(run, []).scopes if s.name == "wtb_listing"]
 
+    LISTING = "https://www.batistehair.com/batiste-products"
+
     def test_wtb_listing_ok_when_every_product_page_was_read(self):
-        pages = [{"path": "/p/1", "state": s} for s in ("widget", "redirected", "not_found_page")]
+        pages = [{"path": "/p/1", "state": "widget", "eans": ["5010724526705"]},
+                 {"path": "/p/2", "state": "redirected", "eans": [], "location": self.LISTING},
+                 {"path": "/p/3", "state": "not_found_page", "eans": []}]
         self.assertEqual(self._listing(pages), [Scope("wtb_listing", "ok", "", "wtb/")])
 
     def test_wtb_listing_partial_when_product_pages_failed(self):
-        pages = [{"path": "/p/1", "state": "widget"}, {"path": "/p/2", "state": "failed"},
-                 {"path": "/p/3", "state": "widget_missing"}]
+        pages = [{"path": "/p/1", "state": "widget", "eans": ["5010724526705"]}, {"path": "/p/2", "state": "failed", "eans": []},
+                 {"path": "/p/3", "state": "widget_missing", "eans": []}]
         self.assertEqual(self._listing(pages), [Scope("wtb_listing", "partial", "product_pages_failed=2", "wtb/")])
+
+    def test_wtb_listing_could_not_look_when_no_barcode_was_found(self):
+        pages = [{"path": f"/p/{i}", "state": "redirected", "eans": [], "location": self.LISTING} for i in range(3)]
+        self.assertEqual(self._listing(pages, {"state": "could_not_look", "reason": "no_eans"}),
+                         [Scope("wtb_listing", "could_not_look", "no_eans", "wtb/")])
+
+    def test_wtb_listing_partial_when_a_page_redirects_elsewhere(self):
+        pages = [{"path": "/p/1", "state": "widget", "eans": ["5010724526705"]},
+                 {"path": "/p/2", "state": "redirected", "eans": [], "location": "https://www.batistehair.com/challenge"}]
+        self.assertEqual(self._listing(pages), [Scope("wtb_listing", "partial", "product_pages_failed=1", "wtb/")])
+
+    def test_wtb_listing_redirect_to_the_listing_in_other_spellings(self):
+        for loc in ("/batiste-products", "/batiste-products/", "https://www.batistehair.com/batiste-products/?a=1#x"):
+            pages = [{"path": "/p/1", "state": "widget", "eans": ["5010724526705"]},
+                     {"path": "/p/2", "state": "redirected", "eans": [], "location": loc}]
+            self.assertEqual(self._listing(pages), [Scope("wtb_listing", "ok", "", "wtb/")], loc)
+
+    def test_wtb_listing_redirect_without_a_known_listing_is_not_read(self):
+        pages = [{"path": "/p/1", "state": "widget", "eans": ["5010724526705"]},
+                 {"path": "/p/2", "state": "redirected", "eans": [], "location": self.LISTING}]
+        prices = {**BATISTE_PARTS["prices"], "product_pages": pages}
+        run = {**RUN, "brand": "no-such-brand", "extra": {"parts": {**BATISTE_PARTS, "prices": prices}}}
+        got = [s for s in map_run(run, []).scopes if s.name == "wtb_listing"]
+        self.assertEqual(got, [Scope("wtb_listing", "partial", "product_pages_failed=1", "wtb/")])
 
     def test_wtb_listing_could_not_look_without_the_listing(self):
         self.assertEqual(self._listing(None), [Scope("wtb_listing", "could_not_look", "blocked: http_403", "wtb/")])

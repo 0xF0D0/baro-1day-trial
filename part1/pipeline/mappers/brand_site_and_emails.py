@@ -1,8 +1,11 @@
 import email
 import email.policy
 import email.utils
+import json
 from datetime import timezone
 from decimal import Decimal
+from pathlib import Path
+from urllib.parse import urljoin, urlsplit
 
 from model import MapError, MappedRun, Row, Scope
 
@@ -10,11 +13,34 @@ SOURCE = "brand_site_and_emails"
 ENDING = {("products", "product"): "absent", ("products", "retailer_availability"): "absent",
           ("ads", "offer_slot"): "absent", ("ads", "klaviyo_form"): "absent", ("ads", "email"): "never"}
 
+_BRANDS = json.loads((Path(__file__).resolve().parents[2] / "collectors" / "10_brand_site_and_emails" / "brand_inputs.json").read_text())
 _CENT = Decimal("0.01")
 _ADS = ("channel", "advertiser_id", "advertiser_name", "format", "headline", "body", "cta", "landing_url",
         "landing_domain", "started_at", "last_shown_at", "variation_count", "placements", "offer_code")
 _PRODUCTS = ("retailer", "product_id", "title", "price", "price_max", "list_price", "currency", "rating",
              "review_count", "rank", "sponsored", "availability", "seller_name", "sold_count")
+
+
+def _page_key(url: str, base: str) -> str:
+    """A URL resolved against base, without query, fragment or trailing slash, for comparing two pages."""
+    parts = urlsplit(urljoin(base, url))
+    return f"{parts.scheme}://{parts.netloc}{parts.path.rstrip('/')}".lower()
+
+
+def _unread_pages(pages: list, listing_url) -> int:
+    """Product pages not read cleanly: failed, widget missing, or redirected anywhere but the brand's listing page."""
+    n = 0
+    for p in pages:
+        if not isinstance(p, dict):
+            continue
+        state = p.get("state")
+        if state in ("failed", "widget_missing"):
+            n += 1
+        elif state == "redirected":
+            loc = p.get("location")
+            if not (listing_url and isinstance(loc, str) and _page_key(loc, listing_url) == _page_key(listing_url, listing_url)):
+                n += 1
+    return n
 
 
 def _dec(value) -> Decimal | None:
@@ -136,10 +162,12 @@ def map_run(run: dict, records: list[dict]) -> MappedRun:
             scopes.append(Scope(name, part["state"], part["reason"]))
         if name == "prices" and part.get("route") == "batiste_wtb":   # the product-page list the barcodes come from
             pages = part.get("product_pages")
-            if not isinstance(pages, list):
+            found = isinstance(pages, list) and any(isinstance(p, dict) and p.get("eans") for p in pages)
+            if not found:     # no list, or not one barcode in it: the rows of the brand cannot be judged
                 scopes.append(Scope("wtb_listing", "could_not_look", part["reason"], covers="wtb/"))
             else:
-                bad = sum(1 for p in pages if isinstance(p, dict) and p.get("state") in ("failed", "widget_missing"))
+                listing = ((_BRANDS.get(run.get("brand")) or {}).get("prices") or {}).get("listing_url")
+                bad = _unread_pages(pages, listing)
                 scopes.append(Scope("wtb_listing", "partial" if bad else "ok",
                                     f"product_pages_failed={bad}" if bad else "", covers="wtb/"))
     names = {s.name for s in scopes}
