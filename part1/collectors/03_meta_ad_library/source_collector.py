@@ -1,7 +1,6 @@
 """Raw collector for the Meta Ad Library. See spec.md."""
 import argparse, json, os, re, sys, time
 import urllib.request, urllib.error
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -9,8 +8,7 @@ from urllib.parse import urlparse
 COUNT_TIMEOUT_S, RESULTS_MARGIN, RESULTS_MAX = 30, 50, 1000
 SITE_SPACING_S = 15 if os.environ.get("RADAR_CAREFUL") else 5
 PRICE_USD, RUN_TIMEOUT_S, WAIT_LIMIT_S = 0.0058, 1800, 2100
-HTTP_TIMEOUT_S, MEDIA_TIMEOUT_S, MEDIA_WORKERS = 90, 60, 8
-USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+HTTP_TIMEOUT_S = 90
 ACTOR, SOURCE = "apify~facebook-ads-scraper", "meta_ad_library"
 TERMINAL = ("SUCCEEDED", "FAILED", "TIMED-OUT", "ABORTED")
 HERE = Path(__file__).resolve().parent
@@ -53,26 +51,6 @@ def _find_key(node):
         if r is not None:
             return r
     return None
-
-
-def media_targets(item):
-    snap = item.get("snapshot") or {}
-    out = []
-
-    def add(path, obj, key):
-        url = obj.get(key)
-        if url:
-            out.append((f"{path}.{key}", url))
-
-    for i, im in enumerate(snap.get("images") or []):
-        add(f"snapshot.images[{i}]", im, "originalImageUrl")
-    for i, v in enumerate(snap.get("videos") or []):
-        add(f"snapshot.videos[{i}]", v, "videoSdUrl")
-        add(f"snapshot.videos[{i}]", v, "videoPreviewImageUrl")
-    for i, c in enumerate(snap.get("cards") or []):
-        for k in ("originalImageUrl", "videoSdUrl", "videoPreviewImageUrl"):
-            add(f"snapshot.cards[{i}]", c, k)
-    return out
 
 
 def remove_partner_fields(item):
@@ -120,40 +98,6 @@ def api(S, url, token, body=None):
 
 def err(e):
     return f"http_{e.code}" if isinstance(e, urllib.error.HTTPError) else type(e).__name__
-
-
-def fetch_media(brand, url):
-    """One GET, sent once. Returns (relative path or None, whether a request was sent)."""
-    name = urlparse(url).path.rsplit("/", 1)[-1]
-    dest = HERE / "media" / brand / name
-    rel = f"media/{brand}/{name}"
-    if dest.exists():
-        return rel, False
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        with urllib.request.urlopen(req, timeout=MEDIA_TIMEOUT_S) as r:
-            ok, body = r.status == 200, r.read()
-    except Exception:
-        return None, True
-    if not ok:
-        return None, True
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    part = dest.with_name(name + ".part")
-    part.write_bytes(body)
-    part.replace(dest)
-    return rel, True
-
-
-def fetch_all_media(S, brand, urls):
-    """Up to MEDIA_WORKERS GETs at a time. Returns {url: relative path or None}."""
-    name_of = lambda u: urlparse(u).path.rsplit("/", 1)[-1]
-    first = {}
-    for u in urls:
-        first.setdefault(name_of(u), u)
-    with ThreadPoolExecutor(MEDIA_WORKERS) as pool:
-        done = dict(zip(first, pool.map(lambda u: fetch_media(brand, u), first.values())))
-    S["requests"] += sum(sent for _, sent in done.values())
-    return {u: done[name_of(u)][0] for u in urls}
 
 
 def get_counts(S, page_ids):
@@ -278,19 +222,14 @@ def write_page(S, slug, pid, count, run, items):
         S["bad"].add(pid); S["reasons"].append(f"incomplete({pid}): got={n} count={count}")
     elif problem == "truncated":
         S["bad"].add(pid); S["reasons"].append(f"truncated({pid}): got={n} limit={limit}")
-    paths = fetch_all_media(S, slug, [u for it in items if it["adArchiveID"] not in S["seen"]
-                                      for _, u in media_targets(it)])
     for it in items:
         ad = it["adArchiveID"]
         if ad in S["seen"]:
             continue
         S["seen"].add(ad)
         remove_partner_fields(it)
-        media = {field: paths[url] for field, url in media_targets(it)}
-        S["media_files"] += len(media)
-        S["media_failed"] += sum(v is None for v in media.values())
         rec = {"key": ad, "kind": "ad", "url": f"https://www.facebook.com/ads/library/?id={ad}",
-               "fetched_at": run["finishedAt"][:19] + "Z", "raw": {"page_id": pid, "item": it, "media": media}}
+               "fetched_at": run["finishedAt"][:19] + "Z", "raw": {"page_id": pid, "item": it}}
         S["fh"].write(json.dumps(rec, ensure_ascii=False) + "\n")
         S["fh"].flush()
         S["records"] += 1
@@ -324,12 +263,11 @@ def decide(S):
         return "could_not_look", "missing_token"
     if S["browser_err"]:
         return "could_not_look", f"browser: {S['browser_err']}"
-    if not S["reasons"] and S["media_failed"] == 0:
+    if not S["reasons"]:
         return "ok", ""
     if S["records"] == 0:
         return "could_not_look", "; ".join(S["reasons"])
-    extra = [f"media_failed={S['media_failed']}"] if S["media_failed"] else []
-    return "partial", "; ".join(S["reasons"] + extra)
+    return "partial", "; ".join(S["reasons"])
 
 
 def page_states(S):
@@ -345,7 +283,7 @@ def run_brand(slug) -> int:
     out = HERE / "raw" / slug
     out.mkdir(parents=True, exist_ok=True)
     part = out / f"{run_id}.jsonl.part"
-    S = {"requests": 0, "cost": 0.0, "records": 0, "counts": {}, "runs": {}, "media_files": 0, "media_failed": 0,
+    S = {"requests": 0, "cost": 0.0, "records": 0, "counts": {}, "runs": {},
          "reasons": [], "bad": set(), "done": set(), "seen": set(), "browser_err": None, "missing": False, "page_ids": [],
          "fh": part.open("w", encoding="utf-8")}
     code = 0
@@ -363,8 +301,7 @@ def run_brand(slug) -> int:
               "status": status, "reason": reason, "records": S["records"], "records_by_kind": {"ad": S["records"]},
               "expected_total": sum(S["counts"].values()) if complete else None,
               "requests": S["requests"], "cost_usd": round(S["cost"], 4),
-              "extra": {"counts": S["counts"], "runs": S["runs"], "media_files": S["media_files"],
-                        "media_failed": S["media_failed"],
+              "extra": {"counts": S["counts"], "runs": S["runs"],
                         "pages": page_states(S)}}
     (out / f"{run_id}.run.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     return code

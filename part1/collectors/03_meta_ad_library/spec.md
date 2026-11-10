@@ -40,7 +40,7 @@ Samples are in `part1/collectors/03_meta_ad_library/samples/`: `site/` for the p
 }
 ```
 
-Choices made with the user on 2026-11-10: both Batiste pages; one record per ad; media = original images, SD videos and video preview images; partner ads kept with the creator fields removed; all placements kept.
+Choices made with the user on 2026-11-10: both Batiste pages; one record per ad; media is not downloaded (changed on 2026-11-11: no table or view used the files; archiving is left to a separate step); partner ads kept with the creator fields removed; all placements kept.
 
 | Constant | Value |
 |---|---|
@@ -52,15 +52,13 @@ Choices made with the user on 2026-11-10: both Batiste pages; one record per ad;
 | `RUN_TIMEOUT_S` | 1800 |
 | `WAIT_LIMIT_S` | 2100 |
 | `HTTP_TIMEOUT_S` | 90 |
-| `MEDIA_TIMEOUT_S` | 60 |
-| `MEDIA_WORKERS` | 8 |
 
 `RADAR_CAREFUL` (any non-empty value) restores the earlier pace; `part1/run.py --careful` sets it.
 
 ## 4. Procedure
 If `APIFY_TOKEN` is missing from `.env`, write the run result (`could_not_look`, `missing_token`) and stop before any request.
 
-Navigations to `www.facebook.com` and Apify API requests are made one at a time, with `SITE_SPACING_S` between navigations (also across brands). Media GETs go to the CDN host named in each item, not to `www.facebook.com`, and run up to `MEDIA_WORKERS` at a time with no spacing. A page that gets a reason skips its remaining steps, except where a step says otherwise.
+Navigations to `www.facebook.com` and Apify API requests are made one at a time, with `SITE_SPACING_S` between navigations (also across brands). A page that gets a reason skips its remaining steps, except where a step says otherwise.
 
 1. **Counts.** Start Playwright (`chromium.launch(headless=True, channel="chrome")`, context `locale="en-US"`) and keep the body of every response whose `request.resource_type` is `document`. For each page ID:
    - Open the list URL with `wait_until="domcontentloaded"`. Call `page.wait_for_timeout(500)` until a kept body contains `search_results_connection` or `COUNT_TIMEOUT_S` has passed.
@@ -81,11 +79,9 @@ Navigations to `www.facebook.com` and Apify API requests are made one at a time,
    - Items whose `adArchiveID` was already seen in this brand run are skipped.
    - Fewer distinct ads than `count` gives `incomplete: got=<n> count=<count>`; the ads received are still written. More than `count` is fine (ads that started in the meantime).
    - As many distinct ads as the requested `limit`, or more, gives `truncated: got=<n> limit=<limit>`; the ads received are still written.
-5. **Media, then ads.** First the media of the page: take `media_targets(item)` of every ad of the page that is not yet written. The file is `media/<brand>/<last path segment of url>`; when several URLs share a file name, the first one is used. A file that exists (from this or an earlier run) is used with no request. Every other file is requested once (`MEDIA_TIMEOUT_S`, a Chrome `User-Agent`), up to `MEDIA_WORKERS` at a time; on HTTP 200 the body is written to `<name>.part` and renamed, so an interrupted run leaves no truncated file under the final name. Any other outcome makes the entry `null`. Then, for each ad in dataset order: call `remove_partner_fields(item)` and write the record.
+5. **Ads.** For each ad in dataset order: call `remove_partner_fields(item)` and write the record.
 
 `remove_partner_fields(item)`: if `str(snapshot.pageId) != str(item.pageId)`, set `snapshot.pageName`, `pageProfileUri`, `pageProfilePictureUrl` and `pageId` to `null`. If `snapshot.brandedContent` is an object whose `pageId` differs from `item.pageId`, set its `pageName`, `pageProfileUri` and `pageId` to `null`.
-
-`media_targets(item)` returns `(field path, url)` for the non-null values of `snapshot.images[i].originalImageUrl`, then `snapshot.videos[i]` `videoSdUrl` and `videoPreviewImageUrl`, then `snapshot.cards[i]` `originalImageUrl`, `videoSdUrl` and `videoPreviewImageUrl`.
 
 ## 5. Output
 One record per ad:
@@ -96,10 +92,9 @@ One record per ad:
 | `url` | `https://www.facebook.com/ads/library/?id=<adArchiveID>` (F4) |
 | `fetched_at` | The run's `finishedAt`, to the second, for example `2026-11-10T08:55:17Z` |
 | `raw.page_id` | The page ID the ad was fetched for |
-| `raw.item` | The Actor's item, after `remove_partner_fields` |
-| `raw.media` | Object from field path (for example `snapshot.cards[0].originalImageUrl`) to `media/<brand>/<name>`, or to `null` when the GET failed |
+| `raw.item` | The Actor's item, after `remove_partner_fields`. The media URLs inside `snapshot` (F9) are kept as returned; they are signed and expire a few days after the run (see `source_info.md`), and nothing is downloaded. |
 
-Run result: `source` is `meta_ad_library`. `expected_total` is the sum of the pages' `count` when every page has one, else `null`. `requests` counts page navigations, Apify API requests and media GETs. `cost_usd` is items read × `PRICE_USD` (F7), summed over the runs. `extra` is like `{"counts": {"40730897173": 98}, "runs": {"40730897173": "<run id>"}, "media_files": 350, "media_failed": 0}`, where `media_files` counts `raw.media` entries and `media_failed` the `null` ones. `extra.pages` is like `{"40730897173": {"ads_complete": true, "reasons": []}}`, one entry per page ID in input order (`{}` when no page ID is known). `ads_complete` is true when the page's ad list was read in full (its items were all written, or its count is 0, and it has no page reason); media download failures do not affect it. `reasons` are the page reasons that name the page.
+Run result: `source` is `meta_ad_library`. `expected_total` is the sum of the pages' `count` when every page has one, else `null`. `requests` counts page navigations, and Apify API requests. `cost_usd` is items read × `PRICE_USD` (F7), summed over the runs. `extra` is like `{"counts": {"40730897173": 98}, "runs": {"40730897173": "<run id>"}}`. `extra.pages` is like `{"40730897173": {"ads_complete": true, "reasons": []}}`, one entry per page ID in input order (`{}` when no page ID is known). `ads_complete` is true when the page's ad list was read in full (its items were all written, or its count is 0, and it has no page reason). `reasons` are the page reasons that name the page.
 
 A page reason is written `<reason>(<page_id>)`, plus `: <detail>` when it has one, for example `incomplete(2012712129023317): got=240 count=250`.
 
@@ -107,17 +102,16 @@ A page reason is written `<reason>(<page_id>)`, plus `: <detail>` when it has on
 |---|---|---|
 | No token | `could_not_look` | `missing_token` |
 | Chrome did not start | `could_not_look` | `browser: <message>` |
-| No page has a reason and no media entry is `null` | `ok` | empty |
+| No page has a reason | `ok` | empty |
 | 0 records written | `could_not_look` | the page reasons, joined with `; ` |
-| Anything else | `partial` | the page reasons, then `media_failed=<n>` if above 0, joined with `; ` |
+| Anything else | `partial` | the page reasons, joined with `; ` |
 
 A brand whose pages all have `count` 0 is `ok` with 0 records.
 
 ## 6. Tests
-Three pure functions, tested against `part1/collectors/03_meta_ad_library/samples/`. No network.
+Two pure functions, tested against `part1/collectors/03_meta_ad_library/samples/`. No network.
 ```python
 def parse_site_count(html: str) -> int: ...                  # ValueError if the block, the key or an integer count is missing
-def media_targets(item: dict) -> list[tuple[str, str]]: ...
 def remove_partner_fields(item: dict) -> None: ...            # changes item in place
 ```
 | Input | Expected |
@@ -125,18 +119,15 @@ def remove_partner_fields(item: dict) -> None: ...            # changes item in 
 | `site/list_page_livingproof.html` | 98 |
 | `site/list_page_zero.html` | 0 |
 | `site/challenge_403.html` | `ValueError` |
-| `media_targets` over all items of `apify/items_livingproof_98.json` | 350 pairs, 273 distinct last path segments |
-| item `1107817355342261` (VIDEO) | `snapshot.videos[0].videoSdUrl`, `snapshot.videos[0].videoPreviewImageUrl` |
-| item `2233227510961160` | no pair for `snapshot.cards[1]`, a card without media |
 | `remove_partner_fields` over the 98 items | 11 items change; in each, the four `snapshot` fields are `null` and `snapshot.brandedContent.pageId` is still `40730897173` |
 | item `1776927800243326` with `brandedContent` `{"pageId": "111", "pageIsDeleted": false, "pageProfileUri": "https://www.facebook.com/x/", "pageName": "X"}` | `brandedContent.pageId`, `pageName` and `pageProfileUri` are `null`; nothing else changes |
 
 ## 7. Done when
 These runs cost money. At the counts of 2026-11-10, items 2 to 4 fetch 50 ads ($0.29), and one `--all` run fetches 426 ads ($2.47).
 1. The tests pass.
-2. `--brand black-rifle-coffee` ends `ok`, with `records` at least `expected_total` and a file for every non-null `raw.media` entry.
+2. `--brand black-rifle-coffee` ends `ok`, with `records` at least `expected_total`; no `media/` folder is created.
 3. `--brand batiste` ends `ok`, with both page IDs in `extra.counts`.
-4. A second run of item 2 adds new files, leaves the first run's files unchanged, and downloads no media file that already exists.
+4. A second run of item 2 writes a new raw file and leaves the first run's files unchanged.
 5. Without `APIFY_TOKEN` the run ends `could_not_look` / `missing_token` with `requests` 0.
 6. For three records, `url` shows the same Library ID, and a start date equal to the UTC date of `raw.item.startDateFormatted`.
 7. In the Jinx records, every `raw.item.snapshot.pageName` is `Jinx` or `null`.
@@ -153,5 +144,5 @@ Field meanings are in `source_info.md` sections 4 to 7, which use snake_case nam
 | format | `raw.item.snapshot.displayFormat` (`IMAGE`, `VIDEO`, `DCO`, `DPA`) |
 | body, title, caption, landing URL, call to action | `raw.item.snapshot.body.text`, `.title`, `.caption`, `.linkUrl`, `.ctaText`; per card in `snapshot.cards[]` |
 | partner ad | `raw.item.snapshot.brandedContent` is not `null` |
-| media files | `raw.media` (field path to file) |
+| media URLs | `raw.item.snapshot.images[]`, `.videos[]`, `.cards[]` (F9) |
 | reach, spend | `raw.item.reachEstimate`, `raw.item.spend`: empty for US commercial ads |
