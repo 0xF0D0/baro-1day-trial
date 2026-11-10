@@ -31,6 +31,66 @@ database (`dropdb market_radar && createdb market_radar`; the views depend on th
 `DROP TABLE` is refused) and run the loader again; it reloads every run from the files, `changes` included.
 The three views are dropped and created on every run, so a changed view definition takes effect at once.
 
+## The tables
+
+Ten tables, defined in `schema.sql`. Six hold items; four hold what the loader knows about the looks themselves.
+
+### Item tables
+
+One row per item of one source for one brand. Every item table starts with the same columns:
+
+| Column | Meaning |
+|---|---|
+| `source`, `brand` | where the item was seen, and for which brand |
+| `kind` | what the row is within its source: an ad, a product, a review |
+| `key` | the item's identity in its source. `(source, brand, kind, key)` is the primary key, so a second run updates the row instead of adding one |
+| `scope` | the part of the source the item belongs to (see `run_scopes`) |
+| `url` | where to check it |
+| `fetched_at` | when this copy was collected |
+| `first_seen_at`, `last_seen_at` | start time of the first and of the latest run that saw it |
+| `ended_at` | when it was found gone, or the end date the source itself gives; `NULL` while it is there. Rows are never deleted |
+| `last_run_id` | the run that last wrote the row |
+| `raw` | the source's own record, as collected |
+
+| Table | One row is | Sources | Its own columns |
+|---|---|---|---|
+| `ads` | a paid ad, or an offer, signup form or email on the brand's own channels | 1, 2, 3, 10 | `channel`, `advertiser_id`, `advertiser_name`, `format`, `headline`, `body`, `cta`, `landing_url`, `landing_domain`, `started_at`, `last_shown_at`, `variation_count`, `placements`, `offer_code` |
+| `products` | a product at a retailer or on the brand's site; for Batiste a retailer's availability of one barcode; a TikTok Shop search result | 4, 5, 9, 10 | `retailer`, `product_id`, `title`, `price`, `price_max`, `list_price`, `currency`, `rating`, `review_count`, `rank`, `sponsored`, `availability`, `seller_name`, `sold_count` |
+| `reviews` | a review of a product; `product_key` is the `key` of its `products` row | 4, 5 | `product_key`, `rating`, `title`, `body`, `review_date`, `verified`, `helpful_votes` |
+| `search_rankings` | one result for one search term | 6 | `keyword`, `keyword_rank`, `position`, `result_url`, `domain`, `title`, `description`, `result_type` |
+| `search_interest` | one week of one term's search interest | 7 | `keyword`, `series`, `week_start`, `value`, `has_data`, `is_partial`, `geo` |
+| `posts` | a TikTok post | 8 | `post_id`, `posted_at`, `creator_handle`, `creator_is_brand`, `creator_followers`, `views`, `likes`, `comments`, `shares`, `saves`, `caption`, `hashtags`, `surfaced_by` |
+
+### `runs` and `run_scopes`
+
+`runs` has one row per run: one look at one source for one brand. It is where "could not look" lives.
+
+| Column | Meaning |
+|---|---|
+| `source`, `brand`, `run_id` | the look. `run_id` is its start time in UTC, `YYYYMMDDTHHMMSSZ`. Primary key |
+| `started_at`, `finished_at` | when the collector started and ended |
+| `status` | `ok`: everything in scope was read. `partial`: some of it was. `could_not_look`: nothing could be read |
+| `reason` | empty for `ok`; otherwise what was not read and why |
+| `records`, `expected_total` | the records the collector wrote; the total the source itself reported, when it reports one |
+| `requests`, `cost_usd` | the requests the collector sent; what its paid runs cost |
+| `extra` | the collector's own details, part by part |
+| `result` | what the loader did with the run: `applied`, `superseded` (a newer run of the same source and brand was already loaded) or `empty_no_mapper` |
+| `loaded_at` | when the loader handled it |
+
+The latest state of every source and brand:
+
+    SELECT DISTINCT ON (source, brand) source, brand, status, reason, records, finished_at
+    FROM runs WHERE result = 'applied' ORDER BY source, brand, run_id DESC;
+
+`run_scopes` has one row per scope of a run (`source`, `brand`, `run_id`, `scope`, `status`, `reason`). A scope is a
+part of a source that can be complete or not by itself: one retailer of the shelf (`ulta`, `target`), the `prices`,
+`offers_home` or `emails` of a brand's site, one Facebook page of a brand. An item is marked ended only by a run
+whose scope for that item was `ok`, so a partial look never ends what it did not see.
+
+### `changes` and `ad_angles`
+
+Described under "What the agents read".
+
 ## What the agents read
 
 | Name | One row is | Answers |
