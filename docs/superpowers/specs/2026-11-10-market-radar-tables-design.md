@@ -137,7 +137,7 @@ A scope is the part of a run whose completeness is known on its own. A mapper re
 - Default: one scope named `all`, with the run's own status and reason.
 - Sources whose run result reports parts use them: source 5's retailer cells (`extra.cells`), source 10's `prices`, `offers_home`, `offers_klaviyo` and `emails` (`extra.parts`; the home page and the form list are reported separately, so a blocked home page does not stop forms from ending).
 - A scope may be as small as one search term or one barcode when the records tell whether that piece was fetched completely. Source 6 uses one scope per search term, plus `ads`. Batiste's where-to-buy data uses one scope per barcode instead of `prices`. Otherwise one failed piece would keep every other row of the source from ever ending.
-- A scope can cover other scopes. When the pieces of a source are themselves a list that can change (Batiste's barcodes come from its product pages), the mapper also returns one scope for that list, with `covers` set to the name prefix of the pieces (`wtb/`). It is `ok` only when the list itself was read completely. It has no rows of its own; it says "these are all the pieces there are" (section 7.4).
+- A scope can cover other scopes. When the pieces of a source are themselves a list that can change (Batiste's barcodes come from its product pages), the mapper also returns one scope for that list, with `covers` set to the name prefix of the pieces (`wtb/`). It is `ok` only when the list itself was read completely. It has no rows of its own; it says "these are all the pieces there are" (section 7.4). For Batiste that means: the listing was read, at least one barcode was found, and every product page either gave its barcodes, was not found, or redirected to the listing page (how the site answers for a removed product). A page that failed, lost its widget or redirected anywhere else makes it `partial`; a run that found no barcode at all makes it `could_not_look`.
 - Source 3 uses one scope per Facebook page, from the per-page state the collector writes in the run result.
 - Each source's mapping plan names its scopes.
 
@@ -252,6 +252,8 @@ Asked for by the user on 2026-11-10 ("fix both"), with the mechanism chosen by t
 
 ## 13. Known limits
 - An ad that disappears from Google's list without a newer last-shown date is not ended; only the date ends Google ads.
+- If Batiste's listing page is served with only some of its product links (status 200, fewer links), the barcodes of the missing products are ended in that run. Nothing compares the listing with the previous one. The next complete run reopens them.
+- A Facebook page whose count reads 0 is taken as "no active ads" and its stored ads are ended. The count step has no second check, and no real run of that source exists yet to confirm it.
 - Review dates from Ulta are UTC dates and can differ by one day from the date the site shows.
 - `posts.creator_handle` and TikTok Shop's `seller_name` hold account and shop names as published, and some belong to individuals. The user decided on 2026-11-10 that they are kept: the brief asks for the creator of each top post. Display names, avatars and locations are still not stored.
 
