@@ -13,5 +13,66 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  kek-init:
+    image: alpine:3.20
+    command: ["sh", "-c", "[ -s /secrets/kek ] || head -c 32 /dev/urandom > /secrets/kek"]
+    volumes:
+      - secrets:/secrets
+
+  api1:
+    build: ./backbone
+    environment:
+      - BACKBONE_DATABASE_URL=postgres://postgres@postgres:5432/postgres?sslmode=disable
+      - BACKBONE_TENANTS_FILE=/config/tenants.json
+      - BACKBONE_KEK_FILE=/secrets/kek
+    volumes:
+      - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
+      - secrets:/secrets:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kek-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  api2:
+    build: ./backbone
+    environment:
+      - BACKBONE_DATABASE_URL=postgres://postgres@postgres:5432/postgres?sslmode=disable
+      - BACKBONE_TENANTS_FILE=/config/tenants.json
+      - BACKBONE_KEK_FILE=/secrets/kek
+    volumes:
+      - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
+      - secrets:/secrets:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kek-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  lb:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api1:
+        condition: service_healthy
+      api2:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  secrets:
