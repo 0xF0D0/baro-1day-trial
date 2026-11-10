@@ -27,7 +27,8 @@ ad, and three views (see "What the agents read").
 `part1/pipeline/labels/ad_angles.jsonl`. The schema is created if missing.
 
 The ten tables are created only when they do not exist. After a change to a table in `schema.sql`, drop the
-tables (or the database) and run the loader again; it reloads every run from the files, `changes` included.
+database (`dropdb market_radar && createdb market_radar`; the views depend on the tables, so a plain
+`DROP TABLE` is refused) and run the loader again; it reloads every run from the files, `changes` included.
 The three views are dropped and created on every run, so a changed view definition takes effect at once.
 
 ## What the agents read

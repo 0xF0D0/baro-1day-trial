@@ -244,7 +244,7 @@ the answer and appends a line per text.
 - The key is `ANTHROPIC_API_KEY`, from the environment or from `.env` at the repository root. Without it the command
   prints `label: could not look: missing_key`, writes nothing and exits 1.
 - The model is `claude-opus-5-5`; the environment variable `ANGLE_MODEL` overrides it. `labeled_by` is
-  `<model>/prompt-v1`.
+  `<model>/prompt-v1`, with the model that answered, which is another one when a fallback served the request.
 - A request the API rejects as invalid (HTTP 400: a request shape it does not accept, or an account it will not
   serve) will not get better for the next text. The run stops, prints `label: could not look: bad_request: <the
   API's message>` and exits 1; lines already appended stay. An authentication or permission error stops it the
@@ -252,8 +252,12 @@ the answer and appends a line per text.
 - It prints `label: labeled=<n> failed=<n> pending=<n>` and exits 0 when nothing failed, 1 otherwise.
 - The official `anthropic` Python package is used; it is added to `part1/pipeline/requirements.txt`.
 
-A person may also add or correct lines by hand; the file is the record either way. For this delivery the lines come
-from `--label` with a key that is not committed, and the main session reads a sample of them against the texts.
+A person may also add or correct lines by hand; the file is the record either way.
+
+For this delivery the API account had no credit when the lines were due: the real `--label` run stopped at the
+API's account check, so the request has not yet been accepted by the real service. The 119 lines in the file were
+read in the session instead, by a model given the same prompt, and passed the same checks (`labeled_by` says so).
+The main session then read every line against its text and corrected two evidence phrases.
 
 ### 5.4 Table and loading
 
@@ -432,6 +436,10 @@ These numbers move when new runs are added.
   a wrong choice of value.
 - The 30-day and 7-day thresholds are a convention from ad-intelligence tools, not something measured on these brands.
 - With `start_basis` `first_seen`, `days_live` is a lower bound.
+- `destination` uses one list of brand domains for all brands: an ad of one brand that lands on another brand's
+  site would count as `brand_site`. No such ad is in the data.
+- `moved` in `radar_response` is the current value minus the old value of the latest recorded change. A change
+  that was not recorded (a value unknown in between) is not in it.
 - A scope seen for the first time writes no `appeared` rows, even when a covering scope was complete before: the
   retailer rows of a barcode that Batiste newly lists show up with `first_seen_at` only.
 
