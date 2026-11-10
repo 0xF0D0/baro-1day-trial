@@ -96,6 +96,7 @@ func (s *Store) Scope(ctx context.Context, tenantID string) (Scope, error) {
 			return Scope{}, fmt.Errorf("store: tenant status: %w", err)
 		}
 		if status == "erased" {
+			s.forgetKeys(tenantID)
 			return Scope{}, ErrTenantErased
 		}
 		return Scope{}, fmt.Errorf("store: tenant %q is active but has no key", tenantID)

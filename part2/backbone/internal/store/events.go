@@ -54,6 +54,7 @@ func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestRes
 		return 0, err
 	}
 	if status == "erased" {
+		s.forgetKeys(tenant)
 		return TenantErased, nil
 	}
 
@@ -149,6 +150,7 @@ func (s *Store) read(ctx context.Context, sc Scope, query string, args []any, fn
 		return err
 	}
 	if status == "erased" {
+		s.forgetKeys(tenant)
 		return ErrTenantErased
 	}
 	rows, err := tx.Query(ctx, query, args...)
