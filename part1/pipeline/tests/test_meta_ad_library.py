@@ -120,6 +120,46 @@ class MetaAdLibraryTest(unittest.TestCase):
         self.assertEqual(map_run(run, []).scopes, [Scope("all", "could_not_look", "missing_token")])
         self.assertEqual(map_run(RUN, [record("1776927800243326")]).not_fetched, 0)
 
+    def test_scopes_per_page(self):
+        pages = {"40730897173": {"ads_complete": True, "reasons": []},
+                 "999": {"ads_complete": False, "reasons": ["blocked(999)", "count_timeout(999)"]}}
+        run = {"status": "partial", "reason": "blocked(999)", "extra": {"pages": pages}}
+        m = map_run(run, [record("1776927800243326")])
+        self.assertEqual(m.scopes, [Scope("40730897173", "ok", ""),
+                                    Scope("999", "could_not_look", "blocked(999); count_timeout(999)")])
+        self.assertEqual([r.scope for r in m.rows], ["40730897173"])
+        other = record("1107817355342261")
+        other["raw"]["page_id"] = "999"
+        m = map_run(run, [record("1776927800243326"), other])
+        self.assertEqual(m.scopes[1], Scope("999", "partial", "blocked(999); count_timeout(999)"))
+        self.assertEqual([r.scope for r in m.rows], ["40730897173", "999"])
+
+    def test_complete_page_without_records_is_ok(self):
+        pages = {"40730897173": {"ads_complete": True, "reasons": []}}
+        run = {"status": "ok", "reason": "", "extra": {"pages": pages}}
+        self.assertEqual(map_run(run, []).scopes, [Scope("40730897173", "ok", "")])
+
+    def test_empty_reasons_fall_back_to_run_reason(self):
+        pages = {"999": {"ads_complete": False, "reasons": []}}
+        run = {"status": "could_not_look", "reason": "missing_token", "extra": {"pages": pages}}
+        self.assertEqual(map_run(run, []).scopes, [Scope("999", "could_not_look", "missing_token")])
+
+    def test_missing_or_empty_pages_keep_single_scope(self):
+        for extra in ({}, {"pages": {}}):
+            run = {"status": "ok", "reason": "", "extra": extra}
+            m = map_run(run, [record("1776927800243326")])
+            self.assertEqual(m.scopes, [Scope("all", "ok", "")])
+            self.assertEqual([r.scope for r in m.rows], ["all"])
+
+    def test_record_page_not_in_pages_gets_partial_scope(self):
+        pages = {"40730897173": {"ads_complete": True, "reasons": []}}
+        run = {"status": "ok", "reason": "", "extra": {"pages": pages}}
+        rec = record("1776927800243326")
+        rec["raw"]["page_id"] = "555"
+        m = map_run(run, [rec])
+        self.assertEqual(m.scopes, [Scope("40730897173", "ok", ""), Scope("555", "partial", "")])
+        self.assertEqual(m.rows[0].scope, "555")
+
     def test_unknown_kind_raises_keyed_error(self):
         rec = {**record("1776927800243326"), "kind": "page"}
         with self.assertRaisesRegex(MapError, r"^1776927800243326"):

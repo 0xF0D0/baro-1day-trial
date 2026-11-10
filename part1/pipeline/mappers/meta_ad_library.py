@@ -27,7 +27,7 @@ def _host(url):
     return host.removeprefix("www.") if host else None
 
 
-def _map_record(rec: dict) -> Row:
+def _map_record(rec: dict, scope: str = "all") -> Row:
     if rec["kind"] != "ad":
         raise ValueError(f"unknown record kind {rec['kind']!r}")
     item = rec["raw"]["item"]
@@ -52,14 +52,33 @@ def _map_record(rec: dict) -> Row:
         "last_shown_at": None, "variation_count": count,
         "placements": list(platforms), "offer_code": None,
     }
-    return Row("ads", "ad", rec["key"], "all", rec["url"], rec["fetched_at"], rec["raw"], columns)
+    return Row("ads", "ad", rec["key"], scope, rec["url"], rec["fetched_at"], rec["raw"], columns)
+
+
+def _page_scopes(run: dict, pages: dict, queried: set) -> list[Scope]:
+    scopes = []
+    for page_id, state in pages.items():
+        if state["ads_complete"]:
+            scopes.append(Scope(page_id, "ok", ""))
+            continue
+        reason = "; ".join(state["reasons"]) or run["reason"]
+        scopes.append(Scope(page_id, "partial" if page_id in queried else "could_not_look", reason))
+    return scopes
 
 
 def map_run(run: dict, records: list[dict]) -> MappedRun:
+    pages = run["extra"].get("pages")
+    per_page = isinstance(pages, dict) and bool(pages)
     rows = []
     for rec in records:
         try:
-            rows.append(_map_record(rec))
+            scope = str(rec["raw"]["page_id"]) if per_page else "all"
+            rows.append(_map_record(rec, scope))
         except (KeyError, IndexError, TypeError, ValueError, AttributeError, ArithmeticError, OverflowError, OSError) as e:
             raise MapError(f"{rec.get('key')}: {type(e).__name__}: {e}") from e
-    return MappedRun(rows, [Scope("all", run["status"], run["reason"])])
+    if not per_page:
+        return MappedRun(rows, [Scope("all", run["status"], run["reason"])])
+    queried = {r.scope for r in rows}
+    scopes = _page_scopes(run, pages, queried)
+    scopes += [Scope(p, "partial", run["reason"]) for p in sorted(queried - set(pages))]
+    return MappedRun(rows, scopes)

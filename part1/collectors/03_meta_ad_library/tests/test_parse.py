@@ -49,6 +49,16 @@ class ParseTests(unittest.TestCase):
         self.assertIs(bc["pageIsDeleted"], False)
         self.assertEqual(it["snapshot"]["pageName"], "Living Proof")
 
+    def test_page_states(self):
+        S = {"page_ids": ["A", "B", "C", "D"], "counts": {"A": 5, "C": 0}, "bad": {"B"},
+             "reasons": ["blocked(B)", "media_failed(X)"]}
+        self.assertEqual(sc.page_states(S), {
+            "A": {"ads_complete": True, "reasons": []},
+            "B": {"ads_complete": False, "reasons": ["blocked(B)"]},
+            "C": {"ads_complete": True, "reasons": []},
+            "D": {"ads_complete": False, "reasons": []}})
+        self.assertEqual(sc.page_states({"page_ids": [], "counts": {}, "bad": set(), "reasons": []}), {})
+
 
 if __name__ == "__main__":
     unittest.main()

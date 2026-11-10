@@ -299,6 +299,13 @@ def decide(S):
     return "partial", "; ".join(S["reasons"] + extra)
 
 
+def page_states(S):
+    """Per page id: whether its ad list was read in full, and the reasons that name it."""
+    return {pid: {"ads_complete": pid in S["counts"] and pid not in S["bad"],
+                  "reasons": [r for r in S["reasons"] if f"({pid})" in r]}
+            for pid in S["page_ids"]}
+
+
 def run_brand(slug) -> int:
     started = now_z()
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -324,7 +331,8 @@ def run_brand(slug) -> int:
               "expected_total": sum(S["counts"].values()) if complete else None,
               "requests": S["requests"], "cost_usd": round(S["cost"], 4),
               "extra": {"counts": S["counts"], "runs": S["runs"], "media_files": S["media_files"],
-                        "media_failed": S["media_failed"]}}
+                        "media_failed": S["media_failed"],
+                        "pages": page_states(S)}}
     (out / f"{run_id}.run.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     return code
 

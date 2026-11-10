@@ -96,7 +96,7 @@ One record per ad:
 | `raw.item` | The Actor's item, after `remove_partner_fields` |
 | `raw.media` | Object from field path (for example `snapshot.cards[0].originalImageUrl`) to `media/<brand>/<name>`, or to `null` when the GET failed |
 
-Run result: `source` is `meta_ad_library`. `expected_total` is the sum of the pages' `count` when every page has one, else `null`. `requests` counts page navigations, Apify API requests and media GETs. `cost_usd` is items read × `PRICE_USD` (F7), summed over the runs. `extra` is like `{"counts": {"40730897173": 98}, "runs": {"40730897173": "<run id>"}, "media_files": 350, "media_failed": 0}`, where `media_files` counts `raw.media` entries and `media_failed` the `null` ones.
+Run result: `source` is `meta_ad_library`. `expected_total` is the sum of the pages' `count` when every page has one, else `null`. `requests` counts page navigations, Apify API requests and media GETs. `cost_usd` is items read × `PRICE_USD` (F7), summed over the runs. `extra` is like `{"counts": {"40730897173": 98}, "runs": {"40730897173": "<run id>"}, "media_files": 350, "media_failed": 0}`, where `media_files` counts `raw.media` entries and `media_failed` the `null` ones. `extra.pages` is like `{"40730897173": {"ads_complete": true, "reasons": []}}`, one entry per page ID in input order (`{}` when no page ID is known). `ads_complete` is true when the page's ad list was read in full (it has a count and no page reason); media download failures do not affect it. `reasons` are the page reasons that name the page.
 
 A page reason is written `<reason>(<page_id>)`, plus `: <detail>` when it has one, for example `incomplete(2012712129023317): got=240 count=250`.
 
