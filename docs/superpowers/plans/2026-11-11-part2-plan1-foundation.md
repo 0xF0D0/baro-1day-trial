@@ -817,7 +817,7 @@ git commit -m "Add api binary, compose stack and end-to-end scripts"
 
 **Open decisions and follow-ups for Plan 2 or later.**
 1. **Normalization strictness.** A genuine, signed delivery with a null or missing field that the reducer never reads (`email`, `name`, `carrier`, `tracking`, `reason`, `body`) gets `400`. The sender never retries a `400`, so the event would be lost. The supplied and generated data never contain such a delivery. This needs an explicit decision.
-2. **Cross-vendor type names.** An unknown-type delivery whose type name equals a known type (for example a vendor B `order.created`) is stored verbatim. The fold then fails to decode it, so that tenant's state reads return `500` permanently. The reference reducer is undefined here too.
+2. **Cross-vendor type names (resolved).** An unknown-type delivery whose type name equals a known type (for example a vendor B `order.created`) is still stored verbatim, as the SPEC requires. If its data lacks a field that `reducer.py` reads for that type, or has the wrong JSON type, the fold now counts it like an unknown type: `event_count` and the customer only. The reference reducer raises `KeyError` there, so this case is undefined. Well-formed events are applied as before.
 3. **Operations.**
    - A `500` records no cause; log a fixed reason code per call site.
    - Every startup's `CREATE INDEX IF NOT EXISTS` briefly blocks writers. Skip the DDL when the schema version is current.
