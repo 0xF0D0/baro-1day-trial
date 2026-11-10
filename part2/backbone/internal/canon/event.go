@@ -102,6 +102,9 @@ func customerIDOf(obj json.RawMessage) *string {
 	if json.Unmarshal(obj, &m) != nil {
 		return nil
 	}
+	if len(m.C) == 0 || m.C[0] != '"' {
+		return nil
+	}
 	var s string
 	if json.Unmarshal(m.C, &s) != nil {
 		return nil

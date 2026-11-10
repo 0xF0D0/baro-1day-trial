@@ -173,3 +173,18 @@ func TestNullStringIsMalformed(t *testing.T) {
 		t.Fatalf("got %v", err)
 	}
 }
+
+func TestUnknownTypeNullCustomer(t *testing.T) {
+	raw := []byte(`{"event_uuid":"u1","event":"shop.note","shop_domain":"x","timestamp":"2026-07-01T12:00:00.123Z","api_version":"1","payload":{"customer_id":null,"text":"x"}}`)
+	ev, err := FromVendorB(raw, "t_1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ev.CustomerID != nil {
+		t.Fatalf("want nil customer, got %q", *ev.CustomerID)
+	}
+	out, _ := json.Marshal(ev)
+	if !strings.Contains(string(out), `"customer_id":null`) {
+		t.Fatalf("customer_id not null: %s", out)
+	}
+}
