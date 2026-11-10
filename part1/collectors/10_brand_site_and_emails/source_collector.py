@@ -47,7 +47,7 @@ SIGNUP_TOLERANCE_S = 300
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
 APIFY_ACTOR = "apify~e-commerce-scraping-tool"
-APIFY_BR_RE = re.compile(r"^https://www\.blackriflecoffee\.com/products/([^/?#]+)$")
+APIFY_BR_RE = re.compile(r"^https://www\.blackriflecoffee\.com/products/([^/?#]+)(?:\?variant=\d+)?$")
 WTB_URL = ("https://wtb-api-hub.swaven.com/wtb/v2/api/search/availabilities/{ean}"
            "?wtbid={wtbid}&lang=en&country=US&nextEndpointV2=true&applyTiedHouseLaw=true")
 TS_RE = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")

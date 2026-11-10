@@ -48,6 +48,7 @@ It does not extract prices, offer texts or email contents, does not decide what 
 | F18 | The three redacted `.eml` files are ASCII with CRLF line ends. They have `From`, `Subject`, `Date`, `X-Trial-Gmail-Id`, `X-Trial-Received-At` (Gmail receive time, UTC, whole seconds), `X-Trial-Gmail-Labels`, `X-Trial-Redaction`, and `To: TRIAL_INBOX <trial_inbox@redacted.invalid>` | `eml/*.eml` |
 | F19 | The inbox was searched once, at 2026-11-10T07:26:17Z, for the three sender domains. The spam folder was not searched. One email per brand was found. The Death Wish Coffee email arrived 3 s **before** the recorded `signup_at`, because `signup_at` was recorded after the submit click finished | export session log; `eml/`; `part1/data/email_signups.json` (`note`) |
 | F20 | `part1/data/email_signups.json` lists Batiste and Jinx as `not_signed_up` with `signup_at` `null`. Black Rifle is `submitted_unconfirmed`, although its email arrived 94 s after `signup_at` | `part1/data/email_signups.json`, `eml/` |
+| F21 | A run with the same input at 2026-11-10T15:49Z again returned 55 items, but 47 of the item URLs ended in `?variant=<digits>` (for example `/products/dark-roast-bundle?variant=42986248175712`), and the log had six `Found` lines for pages 1 to 6 (12, 10, 20, 30, 22, 5), which sum to 99; a run nine minutes later, again with 55 items, summed to 109 and reported `priceCurrency`. The pages' counts overlap, so `listed` no longer equals the item count and such a run is `partial` with `apify_count_mismatch` | runs of 2026-11-10T15:49Z and 15:58Z (not kept as samples) |
 
 Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - `products_*`;
@@ -264,7 +265,7 @@ Order within a brand's run: (1) home page, (2) prices, (3) Klaviyo, (4) emails.
    
    The token is never written anywhere.
 6. Take the items in list order.
-   - An item's key comes from its `url`, which must match `^https://www\.blackriflecoffee\.com/products/([^/?#]+)$`. An item without a match is not written and is counted in `items_without_product_url`.
+   - An item's key comes from its `url`, which must match `^https://www\.blackriflecoffee\.com/products/([^/?#]+)(?:\?variant=\d+)?$` (F21). The key uses the product handle only; the record's `url` is the item's `url` as returned. An item without a match is not written and is counted in `items_without_product_url`.
    - An item whose key was already taken is not written and is counted in `duplicate_items`.
    - An item without `offers.price`, or with it `null`, is still written and is counted in `items_without_price`.
 7. Currency check on the items to be written:

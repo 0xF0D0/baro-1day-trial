@@ -56,6 +56,10 @@ class ParserTests(unittest.TestCase):
         keys = [sc.apify_item_key(i) for i in items]
         self.assertEqual(len(keys), 55)
         self.assertEqual(keys[0], "product/www.blackriflecoffee.com/fall-coffee-lineup")
+        base = "https://www.blackriflecoffee.com/products/dark-roast-bundle"
+        self.assertEqual(sc.apify_item_key({"url": base + "?variant=42986248175712"}),
+                         "product/www.blackriflecoffee.com/dark-roast-bundle")
+        self.assertIsNone(sc.apify_item_key({"url": base + "?ref=home"}))
         url = "https://www.blackriflecoffee.com/collections/coffee"
         self.assertEqual(sc.apify_listed((SAMPLES / "apify/blackrifle_run2_log.txt").read_text(), url), 55)
 
