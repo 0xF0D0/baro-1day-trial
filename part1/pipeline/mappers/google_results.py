@@ -23,13 +23,21 @@ def _domain(url: str) -> str:
     return host.removeprefix("www.")
 
 
-def _rows(rec: dict) -> list[Row]:
+def _is_google_link(url: str) -> bool:
+    parts = urlsplit(url)
+    return (parts.hostname or "").lower().removeprefix("www.") == "google.com" and parts.path == "/search"
+
+
+def _rows(rec: dict) -> tuple[list[Row], int]:
     raw, term = rec["raw"], rec["key"]
     rank = raw["keyword_index"]
     if not isinstance(rank, int) or isinstance(rank, bool):
         raise ValueError(f"keyword_index is not an integer: {rank!r}")
-    rows, seen = [], set()
+    rows, seen, skipped = [], set(), 0
     for res in raw["serp"]["organicResults"]:
+        if _is_google_link(res["url"]):
+            skipped += 1
+            continue
         url_key = _url_key(res["url"])
         if url_key in seen:
             continue
@@ -37,12 +45,12 @@ def _rows(rec: dict) -> list[Row]:
         position = res["position"]
         if not isinstance(position, int) or isinstance(position, bool):
             raise ValueError(f"position is not an integer: {position!r}")
-        columns = {"keyword": term, "keyword_rank": rank, "position": position, "result_url": res["url"],
+        columns = {"keyword": term, "keyword_rank": rank, "position": position - skipped, "result_url": res["url"],
                    "domain": _domain(res["url"]), "title": res.get("title"),
                    "description": res.get("description"), "result_type": res.get("type")}
         rows.append(Row("search_rankings", "search_result", f"{term}|{url_key}", term, rec["url"],
                         rec["fetched_at"], raw, columns))
-    return rows
+    return rows, skipped
 
 
 def map_run(run: dict, records: list[dict]) -> MappedRun:
@@ -54,11 +62,15 @@ def map_run(run: dict, records: list[dict]) -> MappedRun:
         try:
             error = rec["raw"]["error"]
             if error is None:
-                got = _rows(rec)
-                if not got:
+                got, skipped = _rows(rec)
+                if got:
+                    rows.extend(got)
+                    scopes.append(Scope(key, "ok", ""))
+                elif skipped:
+                    not_fetched += 1
+                    scopes.append(Scope(key, "could_not_look", "no_organic_results"))
+                else:
                     raise ValueError("fetched page has no organic results")
-                rows.extend(got)
-                scopes.append(Scope(key, "ok", ""))
             elif error in NOT_FETCHED:
                 not_fetched += 1
                 scopes.append(Scope(key, "could_not_look", error))

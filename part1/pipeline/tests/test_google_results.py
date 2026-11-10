@@ -60,6 +60,45 @@ class GoogleResultsTest(unittest.TestCase):
         rows = map_run(RUN_OK, [record("jinx dog food", 1, serp=serp)]).rows
         self.assertEqual([r.columns["position"] for r in rows], [1, 2])
 
+    def _three_results_with(self, url, title, position):
+        serp = copy.deepcopy(ITEMS["jinx dog food"])
+        serp["organicResults"] = serp["organicResults"][:3]
+        before = [r.key for r in map_run(RUN_OK, [record("jinx dog food", 1, serp=copy.deepcopy(serp))]).rows]
+        extra = {"url": url, "type": "organic", "title": title, "position": position, "siteLinks": [],
+                 "description": "", "productInfo": {}, "displayedUrl": "", "emphasizedKeywords": []}
+        serp["organicResults"].insert(1, extra)
+        for res in serp["organicResults"][2:]:
+            res["position"] += 1
+        return serp, before
+
+    def test_google_own_search_link_is_not_a_result(self):
+        serp, before = self._three_results_with(
+            "https://www.google.com/search?q=jinx+dog+food&sca_esv=abc&gl=us&hl=en&udm=local&ved=xyz", "Map", 2)
+        m = map_run(RUN_OK, [record("jinx dog food", 1, serp=serp)])
+        self.assertEqual(len(m.rows), 3)
+        self.assertEqual([r.columns["position"] for r in m.rows], [1, 2, 3])
+        self.assertNotIn("google.com", [r.columns["domain"] for r in m.rows])
+        self.assertEqual([r.key for r in m.rows], before)
+        self.assertEqual(m.scopes, [Scope("jinx dog food", "ok", ""), ADS])
+        self.assertEqual(m.not_fetched, 0)
+
+    def test_other_google_urls_are_kept(self):
+        serp, _ = self._three_results_with("https://support.google.com/websearch/answer/1", "Help", 2)
+        rows = map_run(RUN_OK, [record("jinx dog food", 1, serp=serp)]).rows
+        self.assertEqual(len(rows), 4)
+        self.assertEqual([r.columns["position"] for r in rows], [1, 2, 3, 4])
+        self.assertEqual(rows[1].columns["domain"], "support.google.com")
+
+    def test_page_with_only_a_google_link_is_could_not_look(self):
+        serp = copy.deepcopy(ITEMS["jinx dog food"])
+        serp["organicResults"] = [{"url": "https://www.google.com/search?q=jinx+dog+food&udm=local&ved=xyz",
+                                   "type": "organic", "title": "Map", "position": 1, "siteLinks": [],
+                                   "description": "", "productInfo": {}, "displayedUrl": "", "emphasizedKeywords": []}]
+        m = map_run(RUN_OK, [record("jinx dog food", 1, serp=serp)])
+        self.assertEqual(m.rows, [])
+        self.assertEqual(m.scopes, [Scope("jinx dog food", "could_not_look", "no_organic_results"), ADS])
+        self.assertEqual(m.not_fetched, 1)
+
     def test_scopes_for_a_complete_run(self):
         m = map_run(RUN_OK, [record("death wish coffee", 1), record("jinx dog food", 2)])
         self.assertEqual(m.scopes, [Scope("death wish coffee", "ok", ""), Scope("jinx dog food", "ok", ""), ADS])

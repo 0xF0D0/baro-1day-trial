@@ -164,7 +164,7 @@ One mapper per source: a pure function from a run result and its records to rows
 | 3 Meta Ad Library | `ad` | `ads` | record key | `channel` meta, `advertiser_*` from the page, `variation_count` from the creative group. `headline`, `body`, `cta` and `landing_url` come from the ad itself, and when it has none, from the first of its cards that has one. One scope per Facebook page: `ok` when that page's ad list is complete, whatever happened on the brand's other pages or to media downloads |
 | 4 Amazon | `product`, `review` | `products`, `reviews` | record key | `retailer` amazon |
 | 5 Retail shelf | `product`, `review` | `products`, `reviews` | record key | `retailer` from the cell; scope per cell. Ulta: `price` and `availability` come from the product page of the size in the URL (`raw.product_page`); when that page was not fetched in a run, the three columns `price`, `price_max`, `availability` are left out so the stored values stay |
-| 6 Google results | `search_results_page` | `search_rankings` | record key + result URL without tracking parameter | one record becomes one row per organic result; first occurrence wins when a URL repeats; one scope per search term |
+| 6 Google results | `search_results_page` | `search_rankings` | record key + result URL without tracking parameter | one record becomes one row per organic result; first occurrence wins when a URL repeats; Google's own `google.com/search` links are not results (call 37); one scope per search term |
 | 7 Search interest | `interest_point`, `interest_point_compared` | `search_interest` | record key | `series` from the kind |
 | 8 TikTok posts | `post` | `posts` | post id | The record key is `<path>/<post id>`. A post found by both paths is one row; `surfaced_by` lists the paths; `raw` is the record of the first path in the order `profile_popular`, `hashtag` |
 | 9 TikTok Shop | `product`, `search_result` | `products` | record key | `retailer` tiktok_shop; the two kinds stay separate rows. A tracked product the source answers as `unavailable` gives no row and leaves the tracked scope complete, so that product's row is ended. A tracked product the actor returned no row for (`missing`), or failed on, makes the scope `partial`, so nothing is ended |
@@ -253,6 +253,7 @@ Asked for by the user on 2026-11-10 ("fix both"), with the mechanism chosen by t
 Found when stored rows were compared with the live sites on 2026-11-10; the user asked for the fix and accepted the method:
 35. Ulta's price is read from the product page of the size in the stored URL, not from the range on the listing card. 14 of 20 real Ulta rows showed a price that was not the one at their URL.
 36. One Playwright version for every collector, one `part1/requirements.txt`, and the install steps in the collector README.
+37. An organic item whose URL is Google's own `google.com/search` link is not a result line. On pages with a local pack the Actor lists the pack's "Map" link as an organic result (4 of 837 real rows), and that URL carries per-request tokens, so its key would change on every run. The mapper leaves such an item out and lowers the `position` of the results after it by one; a page left with no other result is "could not look".
 
 ## 13. Known limits
 - An ad that disappears from Google's list without a newer last-shown date is not ended; only the date ends Google ads.
