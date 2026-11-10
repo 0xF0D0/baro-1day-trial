@@ -15,8 +15,9 @@ INFRA=$INFRA part2/scripts/benchmark.sh "$INFRA/data"
 part2/scripts/crash.sh "$INFRA/data"              # kill -9 the worker during a replay
 ```
 
+**`e2e.sh`, `benchmark.sh` and `crash.sh` wipe all storage (`down -v`) and rebuild the stack with their own settings.** Never run them against data you need.
 A replay needs empty storage. Run `docker compose ... down -v` first, or use `part2/scripts/e2e.sh "$INFRA/data"`.
-The tuning variables are `FLUSH_INTERVAL`, `FLUSH_MARGIN`, `SWEEP_INTERVAL`, `GARBAGE_GRACE` and `SETTLE_SECONDS`.
+Compose settings: `FLUSH_INTERVAL` (default 5m), `FLUSH_MARGIN`, `SWEEP_INTERVAL` (default 1h), `GARBAGE_GRACE`, `SNAPSHOT_CACHE_TTL`. `SETTLE_SECONDS` is read by `e2e.sh` only.
 
 ## Scrape metrics
 
@@ -27,6 +28,7 @@ docker compose -f part2/docker-compose.yml exec -T worker wget -qO- localhost:91
 
 nginx answers 404 for `/metrics`, so the api metrics are reachable only inside the compose network.
 Storage gauges and job metrics come from the worker. Ingest and read metrics come from each api node.
+No Prometheus server is bundled; point one at these endpoints to get rates and `histogram_quantile` percentiles.
 
 ## What to watch
 
@@ -47,7 +49,7 @@ Storage gauges and job metrics come from the worker. Ingest and read metrics com
 3. Leftover objects are deleted by the next sweep. The worker also sweeps at startup.
 4. Pending customer erasures finish in that sweep.
 5. A dirty tenant is rebuilt on the next flush tick.
-6. Check with `part2/scripts/tier-stats.sh "$INFRA/data"`. After a sweep, `dirty` and `pending` should be 0.
+6. Check with `part2/scripts/tier-stats.sh "$INFRA/data"`. `pending` should be 0 after the next sweep and `dirty` 0 after the next flush tick.
 
 `crash.sh` shows this on purpose. It ends with `verify.py` and the consistency checker, and writes `part2/out/<name>/crash-report.txt`.
 
@@ -55,7 +57,7 @@ Storage gauges and job metrics come from the worker. Ingest and read metrics com
 
 - Reads and Postgres queries: the data is gone as soon as the erasure returns 2xx.
 - MinIO and Postgres WAL files: gone within 2 hours (one sweep interval plus its run time), while the worker runs.
-- The bound grows by the worker's downtime. A longer `SWEEP_INTERVAL` also extends it.
+- The bound grows by the worker's downtime. A longer `SWEEP_INTERVAL` or `GARBAGE_GRACE` (default 10m) also extends it.
 - Backups would add their retention. This setup has none.
 
 ## Known limits

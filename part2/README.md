@@ -2,6 +2,8 @@
 
 A Go service that ingests vendor webhooks into an encrypted Postgres hot table and serves state and range reads, with customer and tenant erasure. A worker moves older events into encrypted day buckets in MinIO (the cold tier), and reads span both tiers. Two api nodes sit behind an nginx load balancer on port 8080.
 
+Operating it: [RUNBOOK.md](RUNBOOK.md) (start, metrics to watch, crash recovery, erasure bound). Measured numbers: [docs/measurements.md](docs/measurements.md).
+
 ## Requirements
 
 Docker with Compose v2, Python 3 (only for the supplied `replay.py` and `verify.py`), and the supplied `infrastructure/` folder.
