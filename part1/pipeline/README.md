@@ -10,6 +10,7 @@ Running it twice adds no duplicates: items that disappear are marked ended, neve
    `LC_ALL=en_US.UTF-8 pg_ctl -D <data directory> start`.
 2. `createdb market_radar`
 3. A virtual environment with the one dependency: `python3 -m venv .venv && .venv/bin/pip install -r part1/pipeline/requirements.txt`
+   (or `-r part1/requirements.txt`, which also installs what the collectors need)
 4. Optional: `DATABASE_URL` (environment, or a line in `.env` at the repository root).
    Default: `postgresql://localhost:5432/market_radar`.
 

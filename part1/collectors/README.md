@@ -38,9 +38,20 @@ part1/collectors/
 - `<run_id>` is the UTC time the run started, for example `20261110T083000Z`.
 
 ## 2. How to run
+Setup, once, from the repository root:
 ```
-python part1/collectors/<nn_name>/source_collector.py --brand death-wish-coffee
-python part1/collectors/<nn_name>/source_collector.py --all
+python3 -m venv .venv
+.venv/bin/pip install -r part1/requirements.txt
+```
+- Sources 1, 3, 5, 7 and 10 drive a browser. They start the Google Chrome installed on the machine (`channel="chrome"`), so Chrome must be installed and `playwright install` is not needed. Source 7 opens a visible window.
+- The other collectors use only the standard library.
+- Collectors that call Apify (sources 2, 3, 4, 6, 8, 9, and parts of 5 and 10) read `APIFY_TOKEN` from `.env` at the repository root; copy `.env.example`. Without a token they record `could_not_look` with reason `missing_token`.
+- `part1/requirements.txt` pins one Playwright version for every collector and also installs what the loader needs. Each collector folder's own `requirements.txt` names the same version.
+
+Then, with that environment's Python:
+```
+.venv/bin/python part1/collectors/<nn_name>/source_collector.py --brand death-wish-coffee
+.venv/bin/python part1/collectors/<nn_name>/source_collector.py --all
 ```
 - `--all` runs the five brands one after another. A failure in one brand does not stop the others.
 
