@@ -254,10 +254,13 @@ the answer and appends a line per text.
 
 A person may also add or correct lines by hand; the file is the record either way.
 
-For this delivery the API account had no credit when the lines were due: the real `--label` run stopped at the
-API's account check, so the request has not yet been accepted by the real service. The 119 lines in the file were
-read in the session instead, by a model given the same prompt, and passed the same checks (`labeled_by` says so).
-The main session then read every line against its text and corrected two evidence phrases.
+For this delivery the API account had no credit when the lines were due, so the 119 lines in the file were read in
+the session instead, by a model given the same prompt, and passed the same checks (`labeled_by` says so). The main
+session then read every line against its text and corrected two evidence phrases.
+
+Once credit was added, `--label` was run against the real API for three of those texts, with a temporary copy of
+the file: all three were labeled, and eight of the nine values matched the session's lines. The ninth was the
+message of a sentence that names both convenience and gifting; the API chose the first, the session the second.
 
 ### 5.4 Table and loading
 
