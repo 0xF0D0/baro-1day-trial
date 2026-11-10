@@ -10,6 +10,37 @@ SAMPLES = HERE.parents[2] / "collectors" / "05_retail_shelf" / "samples"
 INPUTS = json.load(open(HERE.parent / "brand_inputs.json"))
 
 
+class RollupTests(unittest.TestCase):
+    ROLLUP = {"review_count": 12, "rating_histogram": [1, 0, 2, 4, 5],
+              "media": [{"id": 1, "nickname": "invented_nick_a", "uri": "https://example.test/a.jpg"},
+                        {"id": 2, "nickname": "invented_nick_b", "uri": "https://example.test/b.jpg"}]}
+
+    def test_clean_rollup(self):
+        before = json.dumps(self.ROLLUP)
+        out = sc.clean_rollup(self.ROLLUP)
+        self.assertIsNone(out["media"])
+        self.assertEqual(out["review_count"], 12)
+        self.assertEqual(out["rating_histogram"], [1, 0, 2, 4, 5])
+        self.assertEqual(json.dumps(self.ROLLUP), before)
+
+    def test_clean_rollup_passes_through(self):
+        plain = {"review_count": 3}
+        self.assertEqual(sc.clean_rollup(plain), {"review_count": 3})
+        self.assertIsNone(sc.clean_rollup(None))
+        self.assertEqual(sc.clean_rollup("x"), "x")
+
+    def test_ulta_fetch_meta_has_no_nickname(self):
+        body = {"paging": {"total_results": 1}, "results": [{"rollup": self.ROLLUP, "reviews": []}]}
+        page = mock.Mock()
+        page.evaluate.return_value = {"status": 200, "text": json.dumps(body)}
+        ctx = {"requests": 0}
+        with mock.patch.object(sc.time, "sleep"):
+            err, _, meta = sc.ulta_fetch(ctx, page, "key", {"row": {"productId": "p1"}})
+        self.assertIsNone(err)
+        self.assertNotIn("nickname", json.dumps(meta))
+        self.assertEqual(meta["rollup"]["review_count"], 12)
+
+
 class ParseTests(unittest.TestCase):
     def test_ulta_batiste(self):
         module = json.load(open(SAMPLES / "ulta" / "listing_module_batiste.json"))["module"]

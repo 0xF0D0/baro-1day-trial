@@ -33,6 +33,38 @@ class CollectorTest(unittest.TestCase):
                          ["Death Wish Coffee", "Amazon.com", None, None, "Walmart", "Wikipedia"])
         self.assertEqual(json.dumps(item), before)
 
+    def test_drop_personal_info(self):
+        item = {"a": 1, "organicResults": [{"url": "u1", "personalInfo": {"rawText": "x"}, "title": "t"}, "odd", {"url": "u2"}],
+                "paidResults": [{"url": "p", "personalInfo": {}}], "suggestedResults": [{"personalInfo": 1, "q": 2}],
+                "paidProducts": [{"personalInfo": 1}], "z": 2}
+        before = json.dumps(item)
+        out = sc.drop_personal_info(item)
+        self.assertEqual(out["organicResults"], [{"url": "u1", "title": "t"}, "odd", {"url": "u2"}])
+        self.assertEqual(list(out["organicResults"][0]), ["url", "title"])
+        self.assertEqual(out["paidResults"], [{"url": "p"}])
+        self.assertEqual(out["suggestedResults"], [{"q": 2}])
+        self.assertEqual(out["paidProducts"], [{}])
+        self.assertEqual(list(out), list(item))
+        self.assertEqual(json.dumps(item), before)
+        for odd in ({"a": 1}, {"organicResults": None}, {"organicResults": "x"}):
+            self.assertEqual(sc.drop_personal_info(odd), odd)
+
+    def test_collect_writes_no_personal_info(self):
+        import io
+        from unittest import mock
+        item = json.loads(json.dumps(next(i for i in ITEMS if i["searchQuery"]["term"] == "death wish coffee")))
+        item["organicResults"][0]["personalInfo"] = {"rawText": "invented", "location": "Nowhere", "companyName": "Acme"}
+        run = {"status": "SUCCEEDED", "finishedAt": "2026-11-11T00:00:00.000Z", "chargedEventCounts": {"search-page-scraped": 1}}
+        st = {"token": "t", "requests": 0, "records": 0, "status": None, "cost": 0, "run_id": None}
+        out = io.StringIO()
+        with mock.patch.object(sc, "call", return_value={"data": {"id": "r", "defaultDatasetId": "d"}}) as call, \
+                mock.patch.object(sc, "read_run", return_value=run):
+            call.side_effect = [{"data": {"id": "r", "defaultDatasetId": "d"}}, [item]]
+            sc.collect(st, ["death wish coffee"], out)
+        rec = json.loads(out.getvalue().splitlines()[0])
+        self.assertIsNotNone(rec["raw"]["serp"])
+        self.assertNotIn("personalInfo", json.dumps(rec["raw"]))
+
 
 if __name__ == "__main__":
     unittest.main()

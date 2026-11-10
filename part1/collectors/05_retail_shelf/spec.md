@@ -107,7 +107,7 @@ One search term per Target run (F7). The Sephora filters are set because leaving
 - Target and Sephora: one e-commerce call per product with the product record's `url`. Chewy: one Chewy reviews call per product. The review runs of one cell are started up to `REVIEW_WORKERS` at a time; their results are taken in product order and the records are written in that order, as before. Ulta reviews are still read one product at a time.
 - `fetched` when the response has the expected shape: Ulta `results[0].reviews` is a list; e-commerce items have `reviewBody`, `datePublished` and `inputUrl` equal to the URL sent; Chewy items have `reviewId`. Otherwise `failed` with `http_<status>`, `timeout`, `invalid` or the Apify failure.
 - After `MAX_FAILURES_IN_A_ROW` failed products in a row, or one `blocked`, the cell's remaining products get `not_attempted`. The rule is applied in product order, so a product after the stopping point keeps `not_attempted` even if its run had already been started (its result is not used). A run that had not been started yet when the cell stops is not started.
-- Personal data: Ulta sets `details.nickname`, `details.location` and `media` to `null`; e-commerce deletes `author`; Chewy deletes `reviewerName`.
+- Personal data: Ulta sets `details.nickname`, `details.location` and `media` to `null`, and `rollup.media` of the product's review summary to `null` (its items carry reviewers' nicknames); e-commerce deletes `author`; Chewy deletes `reviewerName`.
 
 **Writing.** Review records are written as each response is handled. A cell's product records are written when its reviews are done, because they carry `reviews_state`; an unexpected exception writes them as they are before the run result.
 
@@ -119,7 +119,7 @@ One search term per Target run (F7). The Sephora filters are set because leaving
 | `fetched_at` | When the listing was read | When the review response arrived |
 | `raw` | `{"retailer", "rank", "listing_item", "product_page", "reviews_state", "reviews_error", "reviews_meta"}` | `{"retailer", "product_key", "review"}` |
 
-- `listing_item` is the row as received. `rank` is 1 to n in selection order. `reviews_state` is `fetched`, `none`, `failed` or `not_attempted`; `reviews_error` is `null` or the failure text. `reviews_meta` is Ulta's `{"total_results": <paging.total_results>, "rollup": <results[0].rollup>}`, otherwise `null`.
+- `listing_item` is the row as received. `rank` is 1 to n in selection order. `reviews_state` is `fetched`, `none`, `failed` or `not_attempted`; `reviews_error` is `null` or the failure text. `reviews_meta` is Ulta's `{"total_results": <paging.total_results>, "rollup": <results[0].rollup>}` with `rollup.media` set to `null`, otherwise `null`.
 - `product_page` is `null` except for Ulta: `{"state", "error", "sku", "price", "currency", "availability"}`, `state` `fetched`, `failed` or `not_attempted`, `error` `null` or the failure text (`sku_missing` when the listing item has no `skuId`: no request is made, and it counts as a failed page), the last four `null` unless `fetched`.
 - `review` is the review as received, after the personal data is removed. The same Ulta review can appear under several products of one pool (F2); the product in the key keeps them apart.
 

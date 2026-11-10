@@ -43,6 +43,20 @@ def match(keywords, items):
     return out
 
 
+RESULT_LISTS = ("organicResults", "paidResults", "paidProducts", "suggestedResults")
+
+
+def drop_personal_info(serp):
+    """Copy of the item without `personalInfo` (a person's location and employer) in any result entry."""
+    serp = copy.deepcopy(serp)
+    for name in RESULT_LISTS:
+        if isinstance(serp.get(name), list):
+            for r in serp[name]:
+                if isinstance(r, dict):
+                    r.pop("personalInfo", None)
+    return serp
+
+
 def remove_names(item):
     item = copy.deepcopy(item)
     for r in item.get("organicResults") or []:
@@ -135,7 +149,7 @@ def collect(st, keywords, out):
     fetched_at = finished[:19] + "Z" if finished else datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     for i, (term, (item, err)) in enumerate(zip(keywords, matched), 1):
         rec = {"key": term, "kind": "search_results_page", "url": search_url(term), "fetched_at": fetched_at,
-               "raw": {"keyword_index": i, "serp": remove_names(item) if item else None, "error": err,
+               "raw": {"keyword_index": i, "serp": remove_names(drop_personal_info(item)) if item else None, "error": err,
                        "ads": "could_not_look"}}
         out.write(json.dumps(rec, ensure_ascii=False) + "\n")
         st["records"] += 1

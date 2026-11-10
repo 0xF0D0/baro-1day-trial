@@ -23,6 +23,7 @@ It does not request Google itself (F1), choose or change the search terms, extra
 | F7 | On social and community results `websiteTitle` is `<platform> · <account or page name>` (middle dot U+00B7), for example a Facebook page name or a YouTube channel name. On other results it is a site name without `·` |
 | F8 | Charges reach the run record after its status does: the first read showing `SUCCEEDED` counted 2 of 3 pages; a later read counted 3 |
 | F9 | The Google autocomplete order changes within hours (4 of 10 suggestions for `death wish coffee` changed in 3 hours), so the terms are fixed in `brand_inputs.json` and never rebuilt |
+| F10 | A result for a person's profile page can carry `personalInfo` (`rawText`, `location`, `companyName`); seen once, on 2026-11-11, for the term `black rifle coffee owner` |
 
 Samples are in `part1/collectors/06_google_results/samples/`: `apify/trial_run_dataset.json` (F5 to F7), `apify/trial_run_summary.json` and `apify/trial_run_poll_log.md` (F3, F8), `apify/actor_pricing.json` (F2), `apify/start_rejected_min_charge.json` (F3), `google_search_captcha_sorry_page.html` (F1). F4 is from Apify's documentation.
 
@@ -64,7 +65,7 @@ Standard library `urllib.request`. Every request goes to `https://api.apify.com`
    - `actor_error` when its `#error` is not `false`;
    - `no_organic_results` when `organicResults` is missing or an empty list;
    - otherwise `null`: the page is good.
-6. **Names.** In every stored item, set each `organicResults[i].websiteTitle` that contains `·` to `null` (F7). `url` and `title` are kept: they are the public address and headline of the ranked page and are needed to check the record against Google.
+6. **Names.** In every stored item, set each `organicResults[i].websiteTitle` that contains `·` to `null` (F7). `url` and `title` are kept: they are the public address and headline of the ranked page and are needed to check the record against Google. Also remove the key `personalInfo` from every entry of `organicResults`, `paidResults`, `paidProducts` and `suggestedResults` (F10): it holds a person's location and employer.
 7. **Write** one record per term, 20 in total, unless the status is `could_not_look`; then write none.
 
 ## 5. Output
@@ -76,7 +77,7 @@ One record per search term:
 | `url` | `"https://www.google.com/search?" + urlencode({"q": term, "gl": "us", "hl": "en"})`, for example `https://www.google.com/search?q=batiste+dry+shampoo&gl=us&hl=en` |
 | `fetched_at` | The run's `finishedAt`, to whole seconds. The Actor does not report a time per page |
 | `raw.keyword_index` | The term's place in `brand_inputs.json`, 1 to 20 |
-| `raw.serp` | The dataset item after step 6, or `null` when `missing` |
+| `raw.serp` | The dataset item after step 6 (names and `personalInfo` removed), or `null` when `missing` |
 | `raw.error` | `null`, `missing`, `actor_error` or `no_organic_results` |
 | `raw.ads` | Always `could_not_look` |
 
@@ -94,12 +95,13 @@ Run result: `source` is `google_results`, `expected_total` is `null`, `requests`
 | Anything else | `partial` | the counts that are not 0, joined with `; `: `missing=<n>`, `actor_error=<n>`, `no_organic_results=<n>`, then `apify_status=<status>` when it is not `SUCCEEDED` |
 
 ## 6. Tests
-Four pure functions, tested against the samples. No network.
+Five pure functions, tested against the samples. No network.
 ```python
 def actor_input(keywords: list[str]) -> dict: ...
 def search_url(term: str) -> str: ...
 def match(keywords: list[str], items: list[dict]) -> list[tuple[dict | None, str | None]]: ...  # (item, error) per term
 def remove_names(item: dict) -> dict: ...  # returns a copy
+def drop_personal_info(serp: dict) -> dict: ...  # returns a copy, no `personalInfo` in any result entry
 ```
 
 | Input | Expected |
