@@ -245,6 +245,10 @@ the answer and appends a line per text.
   prints `label: could not look: missing_key`, writes nothing and exits 1.
 - The model is `claude-opus-5-5`; the environment variable `ANGLE_MODEL` overrides it. `labeled_by` is
   `<model>/prompt-v1`.
+- A request the API rejects as invalid (HTTP 400: a request shape it does not accept, or an account it will not
+  serve) will not get better for the next text. The run stops, prints `label: could not look: bad_request: <the
+  API's message>` and exits 1; lines already appended stay. An authentication or permission error stops it the
+  same way with `label: could not look: auth`.
 - It prints `label: labeled=<n> failed=<n> pending=<n>` and exits 0 when nothing failed, 1 otherwise.
 - The official `anthropic` Python package is used; it is added to `part1/pipeline/requirements.txt`.
 
