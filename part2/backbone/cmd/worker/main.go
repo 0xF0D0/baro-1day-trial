@@ -5,9 +5,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -15,8 +17,11 @@ import (
 	"backbone/internal/config"
 	"backbone/internal/crashpoint"
 	"backbone/internal/crypto"
+	"backbone/internal/metrics"
 	"backbone/internal/store"
 	"backbone/internal/tenants"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func main() {
@@ -82,6 +87,28 @@ func run(log *slog.Logger) error {
 		return err
 	}
 
+	// lastSweep is the unix-nano time of the last completed sweep, or of the
+	// worker start until one completes.
+	var lastSweep atomic.Int64
+	lastSweep.Store(time.Now().UnixNano())
+	metrics.Register(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+		Name: "backbone_last_sweep_age_seconds",
+		Help: "Seconds since the last completed sweep (or worker start).",
+	}, func() float64 { return time.Since(time.Unix(0, lastSweep.Load())).Seconds() }))
+	metrics.Register(newStatsCollector(st.Stats))
+	mux := http.NewServeMux()
+	mux.Handle("GET /metrics", metrics.Handler())
+	srv := &http.Server{
+		Addr: cfg.MetricsListen, Handler: mux,
+		ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second,
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("metrics server failed", "err", err.Error())
+		}
+	}()
+	defer srv.Close()
+
 	log.Info("worker started", "tenants", len(ids), "interval", cfg.FlushInterval.String(), "sweep_interval", cfg.SweepInterval.String())
 	flushTicker := time.NewTicker(cfg.FlushInterval)
 	defer flushTicker.Stop()
@@ -91,7 +118,7 @@ func run(log *slog.Logger) error {
 	tick(ctx, log, cfg, st, ids)
 	// Sweep once at startup too, so a worker that restarts more often than the
 	// sweep interval still sweeps.
-	sweep(ctx, log, cfg, st, ids)
+	sweep(ctx, log, cfg, st, ids, &lastSweep)
 	for {
 		select {
 		case <-ctx.Done():
@@ -100,7 +127,7 @@ func run(log *slog.Logger) error {
 		case <-flushTicker.C:
 			tick(ctx, log, cfg, st, ids)
 		case <-sweepTicker.C:
-			sweep(ctx, log, cfg, st, ids)
+			sweep(ctx, log, cfg, st, ids, &lastSweep)
 		}
 	}
 }
@@ -114,27 +141,36 @@ func tick(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.St
 		if ctx.Err() != nil {
 			break
 		}
+		rebuildStart := time.Now()
 		rebuilt, err := st.Rebuild(ctx, id)
 		if err != nil {
 			if ctx.Err() == nil {
-				log.Error("rebuild failed", "tenant", id)
+				class := metrics.ErrorClass(err)
+				metrics.JobErrorsTotal.WithLabelValues("rebuild", class).Inc()
+				log.Error("rebuild failed", "tenant", id, "class", class)
 			}
 			continue
 		}
 		if rebuilt {
+			metrics.JobSeconds.WithLabelValues("rebuild").Observe(time.Since(rebuildStart).Seconds())
+			metrics.RebuildsTotal.WithLabelValues("late_events").Inc()
 			log.Info("tenant rebuilt", "tenant", id)
 		}
 		for ctx.Err() == nil {
+			flushStart := time.Now()
 			ok, err := st.FlushDay(ctx, id, cfg.FlushMargin, cfg.WatermarkRank)
 			if err != nil {
 				if ctx.Err() == nil {
-					log.Error("flush failed", "tenant", id)
+					class := metrics.ErrorClass(err)
+					metrics.JobErrorsTotal.WithLabelValues("flush", class).Inc()
+					log.Error("flush failed", "tenant", id, "class", class)
 				}
 				break
 			}
 			if !ok {
 				break
 			}
+			metrics.JobSeconds.WithLabelValues("flush").Observe(time.Since(flushStart).Seconds())
 			days++
 		}
 	}
@@ -144,9 +180,10 @@ func tick(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.St
 // sweep deletes expired garbage, leftovers and erased customers' objects for
 // every registry tenant (erased tenants stay in the registry), then runs
 // Postgres maintenance.
-func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.Store, ids []string) {
+func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.Store, ids []string, lastSweep *atomic.Int64) {
 	start := time.Now()
 	var total store.SweepResult
+	clean := true
 	for _, id := range ids {
 		if ctx.Err() != nil {
 			return
@@ -155,16 +192,29 @@ func sweep(ctx context.Context, log *slog.Logger, cfg config.Config, st *store.S
 		total.Tombstones += r.Tombstones
 		total.GarbageDeleted += r.GarbageDeleted
 		total.OrphansDeleted += r.OrphansDeleted
+		if err != nil {
+			clean = false
+		}
 		if err != nil && ctx.Err() == nil {
-			log.Error("sweep failed", "tenant", id)
+			class := metrics.ErrorClass(err)
+			metrics.JobErrorsTotal.WithLabelValues("sweep", class).Inc()
+			log.Error("sweep failed", "tenant", id, "class", class)
 		}
 	}
 	if err := st.Maintain(ctx); err != nil {
 		if ctx.Err() == nil {
-			log.Error("maintenance failed")
+			class := metrics.ErrorClass(err)
+			metrics.JobErrorsTotal.WithLabelValues("maintain", class).Inc()
+			log.Error("maintenance failed", "class", class)
 		}
 		return
 	}
+	if !clean {
+		// Failures are counted in job_errors_total; the sweep age keeps growing.
+		return
+	}
+	metrics.JobSeconds.WithLabelValues("sweep").Observe(time.Since(start).Seconds())
+	lastSweep.Store(time.Now().UnixNano())
 	log.Info("sweep done", "tombstones", total.Tombstones, "garbage_deleted", total.GarbageDeleted,
 		"orphans_deleted", total.OrphansDeleted, "duration_ms", time.Since(start).Milliseconds())
 }

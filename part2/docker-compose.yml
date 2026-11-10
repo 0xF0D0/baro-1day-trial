@@ -64,6 +64,7 @@ services:
       - BACKBONE_MINIO_ENDPOINT=minio:9000
       - BACKBONE_MINIO_USER_FILE=/secrets/minio_user
       - BACKBONE_MINIO_PASSWORD_FILE=/secrets/minio_password
+      - BACKBONE_SNAPSHOT_CACHE_TTL=${SNAPSHOT_CACHE_TTL:-1h}
     volumes:
       - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
       - ./out/secrets:/secrets:ro
@@ -90,6 +91,7 @@ services:
       - BACKBONE_MINIO_ENDPOINT=minio:9000
       - BACKBONE_MINIO_USER_FILE=/secrets/minio_user
       - BACKBONE_MINIO_PASSWORD_FILE=/secrets/minio_password
+      - BACKBONE_SNAPSHOT_CACHE_TTL=${SNAPSHOT_CACHE_TTL:-1h}
     volumes:
       - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
       - ./out/secrets:/secrets:ro
@@ -117,6 +119,7 @@ services:
       - BACKBONE_MINIO_ENDPOINT=minio:9000
       - BACKBONE_MINIO_USER_FILE=/secrets/minio_user
       - BACKBONE_MINIO_PASSWORD_FILE=/secrets/minio_password
+      - BACKBONE_METRICS_LISTEN=:9100
       - BACKBONE_FLUSH_INTERVAL=${FLUSH_INTERVAL:-5m}
       - BACKBONE_FLUSH_MARGIN=${FLUSH_MARGIN:-96h}
       - BACKBONE_SWEEP_INTERVAL=${SWEEP_INTERVAL:-1h}
@@ -157,6 +160,18 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+
+  bench:
+    build: ./backbone
+    profiles: ["tools"]
+    entrypoint: ["/usr/local/bin/bench"]
+    volumes:
+      - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
+      - ${DATA_DIR:-./out}:/data:ro
+      - ${BENCH_OUT:-./out}:/bench:ro
+    depends_on:
+      lb:
+        condition: service_started
 
   lb:
     image: nginx:1.27-alpine

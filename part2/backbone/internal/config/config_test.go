@@ -29,6 +29,22 @@ func TestLoadDefaultsListen(t *testing.T) {
 	}
 }
 
+func TestLoadMetricsListen(t *testing.T) {
+	env := validEnv()
+	cfg, err := config.Load(func(k string) string { return env[k] })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.MetricsListen != ":9100" {
+		t.Fatalf("default %q", cfg.MetricsListen)
+	}
+	env["BACKBONE_METRICS_LISTEN"] = ":9200"
+	cfg, err = config.Load(func(k string) string { return env[k] })
+	if err != nil || cfg.MetricsListen != ":9200" {
+		t.Fatalf("override %q %v", cfg.MetricsListen, err)
+	}
+}
+
 func TestLoadListenOverride(t *testing.T) {
 	env := validEnv()
 	env["BACKBONE_LISTEN"] = ":9"
@@ -116,6 +132,24 @@ func TestLoadSweepDefaultsAndValidation(t *testing.T) {
 	cfg, err = config.Load(func(k string) string { return env[k] })
 	if err != nil || cfg.GarbageGrace != 0 || cfg.SweepInterval != 10*time.Second {
 		t.Fatalf("zero grace: %+v, %v", cfg, err)
+	}
+}
+
+func TestLoadSnapshotCacheTTL(t *testing.T) {
+	env := validEnv()
+	load := func() (config.Config, error) { return config.Load(func(k string) string { return env[k] }) }
+	cfg, err := load()
+	if err != nil || cfg.SnapshotCacheTTL != time.Hour {
+		t.Fatalf("default: %v, %v", cfg.SnapshotCacheTTL, err)
+	}
+	env["BACKBONE_SNAPSHOT_CACHE_TTL"] = "0s"
+	cfg, err = load()
+	if err != nil || cfg.SnapshotCacheTTL != 0 {
+		t.Fatalf("zero: %v, %v", cfg.SnapshotCacheTTL, err)
+	}
+	env["BACKBONE_SNAPSHOT_CACHE_TTL"] = "-1m"
+	if _, err := load(); err == nil {
+		t.Fatal("negative ttl accepted")
 	}
 }
 

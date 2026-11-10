@@ -5,18 +5,27 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	"backbone/internal/canon"
 	"backbone/internal/fold"
+	"backbone/internal/metrics"
 
 	"github.com/jackc/pgx/v5"
 )
 
-// forgetKeys drops the tenant's cached keys.
+// forgetKeys drops the tenant's cached keys and cached snapshot, so that no
+// path that forgets an erased tenant's keys leaves decrypted data in memory.
 func (s *Store) forgetKeys(tenantID string) {
 	s.mu.Lock()
 	delete(s.keys, tenantID)
 	s.mu.Unlock()
+	s.snaps.drop(tenantID)
+}
+
+// forgetTenant drops everything cached for an erased tenant.
+func (s *Store) forgetTenant(tenantID string) {
+	s.forgetKeys(tenantID)
 }
 
 // EraseCustomer removes every hot event of the customer and leaves a done
@@ -24,6 +33,16 @@ func (s *Store) forgetKeys(tenantID string) {
 // exclusive customer lock) so that later ingests are refused; the delete runs
 // in a second transaction.
 func (s *Store) EraseCustomer(ctx context.Context, sc Scope, customerID string) error {
+	start := time.Now()
+	err := s.eraseCustomer(ctx, sc, customerID)
+	if err == nil {
+		s.snaps.drop(sc.TenantID())
+		metrics.ErasureSeconds.WithLabelValues("customer").Observe(time.Since(start).Seconds())
+	}
+	return err
+}
+
+func (s *Store) eraseCustomer(ctx context.Context, sc Scope, customerID string) error {
 	tenant := sc.TenantID()
 	customerKey := sc.Keys().CustomerKey(customerID)
 
@@ -342,6 +361,15 @@ func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customer
 // EraseTenant marks the tenant erased and deletes its key, events and
 // tombstones, and its cold-tier index rows in one transaction, then drops its cached keys. It is idempotent.
 func (s *Store) EraseTenant(ctx context.Context, tenantID string) error {
+	start := time.Now()
+	err := s.eraseTenant(ctx, tenantID)
+	if err == nil {
+		metrics.ErasureSeconds.WithLabelValues("tenant").Observe(time.Since(start).Seconds())
+	}
+	return err
+}
+
+func (s *Store) eraseTenant(ctx context.Context, tenantID string) error {
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return fmt.Errorf("store: erase tenant begin: %w", err)
@@ -380,6 +408,6 @@ func (s *Store) EraseTenant(ctx context.Context, tenantID string) error {
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("store: erase tenant commit: %w", err)
 	}
-	s.forgetKeys(tenantID)
+	s.forgetTenant(tenantID)
 	return nil
 }

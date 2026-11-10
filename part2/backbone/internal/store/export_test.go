@@ -2,10 +2,26 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"backbone/internal/canon"
 	"backbone/internal/fold"
 )
+
+// SetSnapCacheClock replaces the snapshot cache's clock.
+func (s *Store) SetSnapCacheClock(now func() time.Time) {
+	s.snaps.mu.Lock()
+	s.snaps.now = now
+	s.snaps.mu.Unlock()
+}
+
+// SnapCacheHas reports whether the cache holds an entry for the tenant.
+func (s *Store) SnapCacheHas(tenant string) bool {
+	s.snaps.mu.Lock()
+	defer s.snaps.mu.Unlock()
+	_, ok := s.snaps.entries[tenant]
+	return ok
+}
 
 // LockKey exposes lockKey to the external store tests.
 func LockKey(kind string, parts ...[]byte) int64 { return lockKey(kind, parts...) }
@@ -70,3 +86,6 @@ func (s *Store) FinishErasure(ctx context.Context, sc Scope, customerKey []byte)
 // SetRebuildAfterRead installs a hook that Rebuild calls after reading the late
 // rows and before writing objects. Pass nil to remove it.
 func SetRebuildAfterRead(f func()) { rebuildAfterRead = f }
+
+// SnapCacheSweepOnce runs one janitor pass synchronously.
+func (s *Store) SnapCacheSweepOnce() { s.snaps.sweep() }

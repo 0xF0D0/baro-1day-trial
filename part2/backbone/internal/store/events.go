@@ -8,6 +8,7 @@ import (
 
 	"backbone/internal/canon"
 	"backbone/internal/fold"
+	"backbone/internal/metrics"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -135,6 +136,9 @@ func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestRes
 	}
 	if tag.RowsAffected() == 0 {
 		return Duplicate, nil
+	}
+	if late {
+		metrics.LateEventsTotal.Inc()
 	}
 	return Stored, nil
 }

@@ -3,9 +3,11 @@ package store
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"backbone/internal/canon"
 	"backbone/internal/fold"
+	"backbone/internal/metrics"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -27,7 +29,7 @@ func (s *Store) beginRead(ctx context.Context, sc Scope) (tx pgx.Tx, coldUntil i
 		return fail(err)
 	}
 	if status == "erased" {
-		s.forgetKeys(tenant)
+		s.forgetTenant(tenant)
 		return fail(ErrTenantErased)
 	}
 	if err := tx.QueryRow(ctx, `SELECT cold_until, dirty, snapshot_object FROM tenant_cold WHERE tenant_id = $1`,
@@ -41,10 +43,29 @@ func (s *Store) beginRead(ctx context.Context, sc Scope) (tx pgx.Tx, coldUntil i
 // is dirty it restores the snapshot and applies the hot rows in key order; a
 // dirty tenant folds every manifest bucket and every hot row.
 func (s *Store) State(ctx context.Context, sc Scope) (fold.Result, error) {
+	start := time.Now()
+	res, readCold, err := s.state(ctx, sc)
+	if err == nil {
+		observeRead("state", readCold, start)
+	}
+	return res, err
+}
+
+// observeRead records a successful read; tier is cold when it read at least
+// one object.
+func observeRead(kind string, readCold bool, start time.Time) {
+	tier := "hot"
+	if readCold {
+		tier = "cold"
+	}
+	metrics.ReadSeconds.WithLabelValues(kind, tier).Observe(time.Since(start).Seconds())
+}
+
+func (s *Store) state(ctx context.Context, sc Scope) (fold.Result, bool, error) {
 	tenant := sc.TenantID()
 	tx, _, dirty, snapshot, err := s.beginRead(ctx, sc)
 	if err != nil {
-		return fold.Result{}, err
+		return fold.Result{}, false, err
 	}
 	defer tx.Rollback(ctx) //nolint:errcheck
 
@@ -52,41 +73,44 @@ func (s *Store) State(ctx context.Context, sc Scope) (fold.Result, error) {
 	if err := scanHot(ctx, tx, sc, `SELECT event_id, payload FROM hot_events WHERE tenant_id = $1
 		ORDER BY occurred_at_ms, event_id`, []any{tenant},
 		func(e canon.Event) error { hot = append(hot, e); return nil }); err != nil {
-		return fold.Result{}, err
+		return fold.Result{}, false, err
 	}
 
 	if dirty {
 		objects, err := manifestObjects(ctx, tx, `SELECT object FROM cold_manifest WHERE tenant_id = $1 ORDER BY day`, tenant)
 		if err != nil {
-			return fold.Result{}, err
+			return fold.Result{}, false, err
 		}
 		all := hot
 		for _, name := range objects {
 			b, err := s.getBucket(ctx, sc, name)
 			if err != nil {
-				return fold.Result{}, err
+				return fold.Result{}, false, err
 			}
 			all = append(all, b...)
 		}
-		return fold.Fold(tenant, all, sc.Keys().CustomerKeyHex)
+		res, err := fold.Fold(tenant, all, sc.Keys().CustomerKeyHex)
+		return res, len(objects) > 0, err
 	}
 
 	var st *fold.State
+	readSnapshot := false
 	if snapshot == nil {
 		st = fold.New(tenant, sc.Keys().CustomerKeyHex)
 	} else {
-		snap, err := s.getSnapshot(ctx, sc, *snapshot)
+		snap, read, err := s.cachedSnapshot(ctx, sc, *snapshot)
 		if err != nil {
-			return fold.Result{}, err
+			return fold.Result{}, false, err
 		}
+		readSnapshot = read
 		st = fold.Restore(tenant, sc.Keys().CustomerKeyHex, snap)
 	}
 	for _, e := range hot {
 		if err := st.Apply(e); err != nil {
-			return fold.Result{}, err
+			return fold.Result{}, false, err
 		}
 	}
-	return st.Result(), nil
+	return st.Result(), readSnapshot, nil
 }
 
 // manifestObjects returns the object names selected by a query whose first
@@ -116,10 +140,19 @@ func manifestObjects(ctx context.Context, tx pgx.Tx, query string, args ...any) 
 // merges cold buckets (days before cold_until) with hot rows, which include
 // any late events still waiting for a rebuild.
 func (s *Store) Range(ctx context.Context, sc Scope, fromMs, toMs int64, after *Key, limit int) ([]canon.Event, error) {
+	start := time.Now()
+	out, readCold, err := s.rangeRead(ctx, sc, fromMs, toMs, after, limit)
+	if err == nil {
+		observeRead("range", readCold, start)
+	}
+	return out, err
+}
+
+func (s *Store) rangeRead(ctx context.Context, sc Scope, fromMs, toMs int64, after *Key, limit int) ([]canon.Event, bool, error) {
 	tenant := sc.TenantID()
 	tx, coldUntil, _, _, err := s.beginRead(ctx, sc)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer tx.Rollback(ctx) //nolint:errcheck
 
@@ -129,7 +162,7 @@ func (s *Store) Range(ctx context.Context, sc Scope, fromMs, toMs int64, after *
 	}
 	merged := []canon.Event{}
 	if toMs <= fromMs || limit < 1 {
-		return merged, nil
+		return merged, false, nil
 	}
 
 	hot := []canon.Event{}
@@ -139,7 +172,7 @@ func (s *Store) Range(ctx context.Context, sc Scope, fromMs, toMs int64, after *
 		ORDER BY occurred_at_ms, event_id LIMIT $6`,
 		[]any{tenant, fromMs, toMs, afterMs, afterID, limit},
 		func(e canon.Event) error { hot = append(hot, e); return nil }); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	// Days of cold buckets that can hold events in the range: from the day of
@@ -150,16 +183,18 @@ func (s *Store) Range(ctx context.Context, sc Scope, fromMs, toMs int64, after *
 	}
 	lastDay := min(fold.Day(toMs-1), fold.Day(coldUntil)-1)
 	cold := []canon.Event{}
+	readCold := false
 	if firstDay <= lastDay {
 		objects, err := manifestObjects(ctx, tx, `SELECT object FROM cold_manifest
 			WHERE tenant_id = $1 AND day >= $2 AND day <= $3 ORDER BY day`, tenant, firstDay, lastDay)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
+		readCold = len(objects) > 0
 		for _, name := range objects {
 			b, err := s.getBucket(ctx, sc, name)
 			if err != nil {
-				return nil, err
+				return nil, false, err
 			}
 			for _, e := range b {
 				if e.OccurredAtMs < fromMs || e.OccurredAtMs >= toMs {
@@ -182,5 +217,5 @@ func (s *Store) Range(ctx context.Context, sc Scope, fromMs, toMs int64, after *
 	if len(merged) > limit {
 		merged = merged[:limit]
 	}
-	return merged, nil
+	return merged, readCold, nil
 }

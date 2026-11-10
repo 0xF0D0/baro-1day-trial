@@ -10,10 +10,11 @@ import (
 
 // Config holds the process-level settings.
 type Config struct {
-	Listen      string
-	TenantsFile string
-	KEKFile     string
-	DatabaseURL string
+	Listen        string
+	MetricsListen string
+	TenantsFile   string
+	KEKFile       string
+	DatabaseURL   string
 
 	MinioEndpoint     string
 	MinioBucket       string
@@ -26,6 +27,9 @@ type Config struct {
 
 	SweepInterval time.Duration
 	GarbageGrace  time.Duration
+
+	// SnapshotCacheTTL is how long an api node keeps a decrypted snapshot; 0 disables the cache.
+	SnapshotCacheTTL time.Duration
 
 	CrashPoints      []string
 	CrashProbability float64
@@ -46,6 +50,10 @@ func Load(getenv func(string) string) (Config, error) {
 	}
 	if cfg.MinioBucket == "" {
 		cfg.MinioBucket = "backbone"
+	}
+	cfg.MetricsListen = getenv("BACKBONE_METRICS_LISTEN")
+	if cfg.MetricsListen == "" {
+		cfg.MetricsListen = ":9100"
 	}
 	if cfg.Listen == "" {
 		cfg.Listen = ":8080"
@@ -90,6 +98,12 @@ func Load(getenv func(string) string) (Config, error) {
 	}
 	if cfg.GarbageGrace < 0 {
 		return Config{}, fmt.Errorf("BACKBONE_GARBAGE_GRACE must not be negative")
+	}
+	if cfg.SnapshotCacheTTL, err = duration(getenv, "BACKBONE_SNAPSHOT_CACHE_TTL", time.Hour); err != nil {
+		return Config{}, err
+	}
+	if cfg.SnapshotCacheTTL < 0 {
+		return Config{}, fmt.Errorf("BACKBONE_SNAPSHOT_CACHE_TTL must not be negative")
 	}
 	for _, p := range strings.Split(getenv("BACKBONE_CRASH_POINTS"), ",") {
 		if p = strings.TrimSpace(p); p != "" {

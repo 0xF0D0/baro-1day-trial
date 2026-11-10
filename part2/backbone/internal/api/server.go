@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"backbone/internal/metrics"
 	"backbone/internal/store"
 	"backbone/internal/tenants"
 )
@@ -30,6 +31,7 @@ func NewServer(reg *tenants.Registry, st *store.Store, log *slog.Logger) http.Ha
 	mux.HandleFunc("DELETE /tenants/{id}/customers/{customer_id}", s.eraseCustomer)
 	mux.HandleFunc("DELETE /tenants/{id}", s.eraseTenant)
 	mux.HandleFunc("GET /healthz", s.healthz)
+	mux.Handle("GET /metrics", metrics.Handler())
 	return logRequests(log, mux)
 }
 

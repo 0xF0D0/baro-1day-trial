@@ -2,6 +2,8 @@
 
 A Go service that ingests vendor webhooks into an encrypted Postgres hot table and serves state and range reads, with customer and tenant erasure. A worker moves older events into encrypted day buckets in MinIO (the cold tier), and reads span both tiers. Two api nodes sit behind an nginx load balancer on port 8080.
 
+Design (start here): [DESIGN.md](DESIGN.md). Operating it: [RUNBOOK.md](RUNBOOK.md) (start, metrics to watch, crash recovery, erasure bound). Measured numbers: [docs/measurements.md](docs/measurements.md).
+
 ## Requirements
 
 Docker with Compose v2, Python 3 (only for the supplied `replay.py` and `verify.py`), and the supplied `infrastructure/` folder.
@@ -70,6 +72,19 @@ Scope: only the worker is killed (flush is the tier move, rebuild is the compact
 The `worker` compose service runs the same image with the `worker` binary. Every flush interval it walks the tenant registry and flushes one day at a time per tenant until nothing is left to flush, moving events older than the watermark from `hot_events` into encrypted day buckets in MinIO. The watermark is the rank-th largest event time among a tenant's hot events minus the margin, in event time, not wall-clock time. It logs one line per tick with the number of days flushed and the tick duration; a failing tenant is logged by tenant ID only, and the loop continues. Before flushing a tenant, the worker rebuilds it from its cold buckets if a late event marked it dirty. On a separate sweep interval it deletes `garbage` objects older than the grace period, deletes objects that nothing references (leftovers of crashed operations), finishes pending customer erasures, then runs Postgres maintenance (`VACUUM` of the hot tables, `pg_switch_wal()`, `CHECKPOINT`) and logs the totals and the sweep duration. One loop serves both intervals, so rebuild, flush and sweep never overlap. It stops cleanly on SIGTERM.
 
 `part2/scripts/tier-stats.sh <data-dir>` prints `hot=<rows in hot_events> cold=<events in cold buckets> dirty=<tenants marked dirty> garbage=<rows in garbage> pending=<pending tombstones>` from the running Postgres. `e2e.sh` uses a 2s flush interval (override with `FLUSH_INTERVAL`) so the cold tier is exercised during the replay, and runs `tier-stats.sh` after verify and an optional `SETTLE_SECONDS` wait; its exit code is still the verifier's.
+
+## Benchmark
+
+`INFRA=<supplied infrastructure dir> part2/scripts/benchmark.sh <data-dir>` measures the stack on one data set. It starts from `down -v` and `up -d --build --wait` (with `FLUSH_INTERVAL=10s` unless set), runs `replay.sh` and keeps its `done:` line (ingest throughput), waits until the worker logs a `flush tick` with `"days_flushed":0` after the replay ended (the first tick logged after the replay is skipped, because it may have started earlier; `SETTLE_TIMEOUT_S`, default 600), runs `verify.sh`, then runs the `bench` tool service (`cmd/bench`).
+
+`bench` takes the first and the last UTC day of the delivery times as the cold and the hot window. With `-cold-tenants <file>` (the script passes the tenants that have a `cold_manifest` row for the earliest manifest day) `range_cold` goes only to those tenants and a `range_cold tenants=<n>` line is printed. The script runs `VACUUM FULL` on the hot and index tables before it measures storage. For every tenant and each of `ROUNDS` rounds (default 5) it reads `/state` and the first page of `/events` for each window, through the load balancer with the tenant's own token, `CONCURRENCY` (default 8) at a time. It prints `state`, `range_cold` and `range_hot` lines (`count`, `p50`, `p95`, `p99`, `max` in ms, nearest-rank), the three tenants with the slowest state reads, `skipped_erased` (a `410` on a tenant's first state read skips that tenant) and `errors`; any other non-200 answer is an error and the exit code is 1.
+
+The script then reads from Postgres the hot bytes per event, the cold bytes per event (`cold_manifest`) and the index bytes per cold event (`customer_days` and `sku_moves`), and the peak memory of `api1`, `api2`, `worker`, `postgres` and `minio` from `/sys/fs/cgroup/memory.peak` (`n/a` if unreadable). It writes `part2/out/<name>/benchmark.txt` (machine, settings, each number with a one-line method, verify's result) and prints it. The exit code is 0 only if verify and `bench` both succeed. It never prints customer IDs.
+
+```sh
+export INFRA=~/Downloads/BARO_Work_Trial/infrastructure
+part2/scripts/benchmark.sh "$INFRA/data"
+```
 
 ## Stop
 
