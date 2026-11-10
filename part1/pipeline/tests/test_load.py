@@ -1,3 +1,4 @@
+import json
 import types
 from decimal import Decimal
 
@@ -97,6 +98,15 @@ class LoadTest(DbTestCase):
         out = self.load()
         self.assertEqual((out[0].result, out[0].inserted), ("applied", 1))
         self.assertEqual([r["title"] for r in self.table("products")], ["second"])
+
+    def test_unicode_line_separators_inside_a_record_do_not_split_it(self):
+        odd = "a b c\u0085d"
+        p = self.write_run("fake", "b", T1, records=[rec("a", note=odd)])
+        p.with_name(T1 + ".jsonl").write_text(
+            json.dumps(rec("a", note=odd), ensure_ascii=False) + "\n", encoding="utf-8")
+        out = self.load()
+        self.assertEqual([(o.result, o.inserted) for o in out], [("applied", 1)])
+        self.assertEqual(self.table("products")[0]["raw"]["note"], odd)
 
     def test_broken_records_file_fails_run(self):
         p = self.write_run("fake", "b1", T1, records=[rec("a")])

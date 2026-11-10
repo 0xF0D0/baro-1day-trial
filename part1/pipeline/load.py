@@ -59,7 +59,11 @@ def _read_records(path: Path) -> list[dict]:
     if not path.is_file():
         raise ValueError("records file missing")
     records = []
-    for number, line in enumerate(path.read_text().splitlines(), 1):
+    pieces = path.read_text(encoding="utf-8").split("\n")
+    if pieces and pieces[-1] == "":
+        pieces.pop()
+    for number, line in enumerate(pieces, 1):
+        line = line.removesuffix("\r")
         if not line.strip():
             continue
         try:

@@ -44,6 +44,27 @@ class ParseTests(unittest.TestCase):
         first = load("hashtag_deathwishcoffee_10.json")["items"][0]
         self.assertNotIn("locationMeta", sc.remove_personal(first))
 
+    def test_cut_sound_title(self):
+        def item(name, original, **extra): return {"id": "1", "musicMeta": {"musicName": name, "musicOriginal": original, **extra}}
+        for name, want in (("original sound - Holly Invented", "original sound"), ("sonido original - Holly Invented", "sonido original"),
+                           ("original sound - A - B", "original sound"), ("original sound", "original sound")):
+            it = item(name, True)
+            before = json.dumps(it)
+            self.assertEqual(sc.cut_sound_title(it)["musicMeta"]["musicName"], want)
+            self.assertEqual(json.dumps(it), before)
+        for it in (item("Espresso - Sabrina Carpenter", False), {"musicMeta": {"musicName": "Espresso - Sabrina Carpenter"}}):
+            self.assertEqual(sc.cut_sound_title(it), it)
+        for it in ({"id": "1"}, {"musicMeta": None}, {"musicMeta": "x"}, {"musicMeta": ["original sound - Q"]}, {"musicMeta": {"musicOriginal": True}},
+                   {"musicMeta": {"musicOriginal": True, "musicName": None}}):
+            self.assertEqual(sc.cut_sound_title(it), it)
+
+    def test_record_has_no_sound_display_name(self):
+        raw = {"id": "123", "webVideoUrl": "https://www.tiktok.com/@h/video/123", "musicMeta": {"musicName": "original sound - Holly Invented", "musicOriginal": True}}
+        recs, bad = sc.path_records([raw], "hashtag", "x")
+        self.assertEqual(bad, 0)
+        self.assertNotIn("Holly Invented", json.dumps(recs[0]))
+        self.assertEqual(recs[0]["item"]["musicMeta"]["musicName"], "original sound")
+
     def test_run_input_and_status(self):
         self.assertEqual(sc.run_input("profile_popular", "deathwishcoffee"), load("profile_run.json")["input"])
         self.assertEqual(sc.run_input("hashtag", "deathwishcoffee"), {**load("hashtag_run.json")["input"], "resultsPerPage": 30})

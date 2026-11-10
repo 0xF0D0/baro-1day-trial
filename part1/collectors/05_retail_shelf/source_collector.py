@@ -265,6 +265,13 @@ def ulta_find_key(ctx, page, url):
     return parse_qs(urlparse(seen[0]).query)["apikey"][0], None
 
 
+def clean_rollup(rollup):
+    """Copy of the review summary without `media`: its items carry reviewers' nicknames."""
+    if isinstance(rollup, dict) and "media" in rollup:
+        return {**rollup, "media": None}
+    return rollup
+
+
 def ulta_fetch(ctx, page, apikey, p):
     time.sleep(ULTA_SPACING_S)
     ctx["requests"] += 1
@@ -290,7 +297,7 @@ def ulta_fetch(ctx, page, apikey, p):
             rv["details"]["nickname"] = None
             rv["details"]["location"] = None
         rv["media"] = None
-    return None, reviews, {"total_results": (data.get("paging") or {}).get("total_results"), "rollup": first.get("rollup")}
+    return None, reviews, {"total_results": (data.get("paging") or {}).get("total_results"), "rollup": clean_rollup(first.get("rollup"))}
 
 
 def ulta_product_page(ctx, page, p):

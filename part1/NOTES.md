@@ -1,21 +1,21 @@
 # Market Radar: notes
 
-Five brands, ten sources, one command (`part1/run.py`) into a local Postgres. On 2026-11-11: 3,933 records; of 50
-source-and-brand cells 43 `ok`, 6 `partial`, 1 `could not look`. A pass of everything cost 7.34 USD (1.87 per 1,000
-records, three quarters of it Amazon and Meta) and takes minutes. The last column is USD per 1,000 records.
+Five brands, ten sources, one command (`part1/run.py`) into a local Postgres. A full pass takes 7 minutes. The
+latest run of every source and brand, 2026-11-11: 3,933 records for 7.05 USD (1.79 per 1,000, most of it Amazon and
+Meta); of 50 cells 41 `ok`, 8 `partial`, 1 `could not look`. The tables come as a dump file. Last column: USD per 1,000.
 
 | # | Source | How, and why this way | Where it blocked | $/1,000 | Breaks first |
 |---|---|---|---|---|---|
 | 1 | Google Ads Transparency | Own code: headless Chrome reads the page's own list and detail responses. Public, no login | HTTP 429 when pages load 3 s apart: 10 s kept, and an ad's detail is re-read once a day | 0 | The numbered keys of those responses |
-| 2 | TikTok ads | Apify actor on Creative Center "Top Ads": TikTok's Ad Library has no US region | Top-performing ads only; 3 of 296 rows name a brand. Batiste: `could not look` | 24.23 * | Matching a brand by text |
+| 2 | TikTok ads | Apify actor on Creative Center "Top Ads": TikTok's Ad Library has no US region | Top-performing ads only; 3 of 296 rows name a brand. Batiste: `could not look` | 24.47 * | Matching a brand by text |
 | 3 | Meta Ad Library | Own browser reads each page's ad count; the ads come through an Apify actor and are checked against it | The library refuses paging from a datacenter address | 5.80 | The count read from the page |
-| 4 | Amazon | Three Apify actors (search, product, reviews): no account is used, and review text needs a signed-in browser | Review pages redirect to sign-in. Actor sessions see no sponsored results | 5.67 | Search order varies by session |
+| 4 | Amazon | Three Apify actors (search, product, reviews): no account is used, and review text needs a signed-in browser | Review pages redirect to sign-in. Actor sessions see no sponsored results | 5.68 | Search order varies by session |
 | 5 | Retail shelf | Ulta: own code (listing in the page, reviews from its review API). Target, Sephora, Chewy: Apify | Target answers a bot-protection block, Sephora 403 to every browser | 0.94 | Ulta's embedded page state |
-| 6 | Google results | Apify actor | Automated Chrome gets reCAPTCHA on the first search. Ads came back empty: `could not look` per term | 2.48 | Result types (a "Map" row) |
+| 6 | Google results | Apify actor | Automated Chrome gets reCAPTCHA on the first search. Ads came back empty: `could not look` per term | 2.41 | Results differ run to run: half the URLs changed in 5 hours |
 | 7 | Search interest | Own code: a visible Chrome opens Google Trends and reads the chart's own data request | Headless Chrome gets 429 at once; 28 s between pages; needs a desktop session | 0 | Trends' per-client limit |
-| 8 | TikTok posts | Apify actor: the brand profile's popular posts and one hashtag feed | Read by ourselves, TikTok gave only reposts and hashtag statistics | 1.70 | The chosen hashtag |
-| 9 | TikTok Shop | Apify actor | A slider puzzle for a logged-out browser; it is not solved. 15 to 19 of 20 products came back for three brands | 1.88 | Per-product fetches |
-| 10 | Brand site, emails | Own code: Shopify `products.json`, Batiste's where-to-buy API, home-page offers, signup forms, the inbox over IMAP. Black Rifle refuses our browser: Apify for it | Batiste's API refuses 6 of 63 barcodes. Black Rifle's actor reports no currency. Batiste and Jinx send account mail only | 0.26 | Offer-slot selectors; the app password |
+| 8 | TikTok posts | Apify actor: the brand profile's popular posts and one hashtag feed | Read by ourselves, TikTok gave only reposts and hashtag statistics | 0.63 | The chosen hashtag |
+| 9 | TikTok Shop | Apify actor | A slider puzzle for a logged-out browser; it is not solved. 11 to 18 of 20 products came back, for every brand | 1.34 | Per-product fetches |
+| 10 | Brand site, emails | Own code: Shopify `products.json`, Batiste's where-to-buy API, home-page offers, signup forms, the inbox over IMAP. Black Rifle refuses our browser: Apify for it | Batiste's API refuses 6 of 63 barcodes. Black Rifle's actor sometimes reports no currency. Batiste and Jinx send account mail only | 0.23 | Offer-slot selectors; the app password |
 
 \* 3 records: a keyword search costs the same whatever it finds.
 
@@ -30,9 +30,9 @@ one Target store, the inbox signups) were set up by hand. "Working" means an ad 
 angles are a model's reading of the ad text.
 
 **Left out, and not verified.** Each collector was compared with the live site while it was built (its `spec.md`
-lists what matched); the final tables were not compared record by record. No pass of all ten sources at once at the
-current pace, and no run from a fresh clone (install and start only). Left out: Google search ads, ad media files,
-mail from senders outside each brand's listed domains, retries inside a pass.
+lists what matched); the final tables were not compared record by record. The full pass ran from a fresh
+environment built by the README, on the machine it was written on, not on another. Left out: Google search ads,
+ad media files, mail from senders outside each brand's listed domains, retries inside a pass.
 
 **Next to build.** (1) A worker that archives ad media before its URLs expire. (2) Backing off after a block, and a
 schedule per source (free hourly, paid daily). (3) A routine check of stored records against the live sites.

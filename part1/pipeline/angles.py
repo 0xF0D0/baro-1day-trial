@@ -140,7 +140,11 @@ def _read(path: Path) -> dict[str, tuple[int, dict]]:
     found = {}
     if not Path(path).is_file():
         return found
-    for number, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
+    pieces = Path(path).read_text(encoding="utf-8").split("\n")
+    if pieces and pieces[-1] == "":
+        pieces.pop()
+    for number, line in enumerate(pieces, 1):
+        line = line.removesuffix("\r")
         if not line.strip():
             continue
         try:

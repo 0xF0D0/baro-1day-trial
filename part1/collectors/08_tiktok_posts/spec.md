@@ -23,7 +23,7 @@ The brief asks for "top posts about the brand: creator, views, likes and date". 
 | F4 | The profile path returned the same 10 posts, in the same order, as the Popular tab of `https://www.tiktok.com/@deathwishcoffee`, and each `playCount` equals the view count on the tile (1.8M = 1800000). That order is by likes |
 | F5 | Each item is one post. `id` is a string of digits. `webVideoUrl` is `https://www.tiktok.com/@<authorMeta.name>/video/<id>`; for a slideshow it redirects to `/photo/<id>` |
 | F6 | The hashtag feed is in no order of views, likes or date, and includes the brand's own posts. On TikTok's tag pages, 20 of the first 20 posts were about the brand or its product for each of the four other chosen tags, and 8 of 10 for `#deathwishcoffee` in the Apify run, versus 0 for `#jinx` (Arcane character), 11 for `#livingproof` and 18 for `#batiste` (the musician Jon Batiste). Every chosen tag has more than 30 posts (smallest: `jinxdogfood`, 159) |
-| F7 | Items carry creators' personal data: display name, bio, bio link, avatar and profile URL in `authorMeta`; for a creator's original sound, `musicMeta.musicAuthor` is their display name and `musicMeta.coverMediumUrl` their avatar; display names in `mentions` and `detailedMentions`; a place in `locationMeta` |
+| F7 | Items carry creators' personal data: display name, bio, bio link, avatar and profile URL in `authorMeta`; for a creator's original sound, `musicMeta.musicAuthor` is their display name and `musicMeta.coverMediumUrl` their avatar; display names in `mentions` and `detailedMentions`; a place in `locationMeta`; the display name of an original sound's author is also written into `musicMeta.musicName` |
 | F8 | Apify API: run statuses `READY`, `RUNNING`, `TIMING-OUT`, `ABORTING` (not finished) and `SUCCEEDED`, `FAILED`, `TIMED-OUT`, `ABORTED` (finished). `waitForFinish` is at most 60 s. `timeout` on the start request stops the run after that many seconds. `GET /datasets/<id>/items` without `limit` returns every item in order |
 | F9 | An Apify run can end `SUCCEEDED` with 0 items (seen by the source 4 thread on Amazon Actors) |
 
@@ -89,7 +89,7 @@ One record per post and path:
 
 A post found by both paths gives two records with the same `id` and different keys. The pipeline joins them by `id`.
 
-**Personal data removed** (set to `null` when the key exists; missing keys are not added), in every item including the brand's own: `authorMeta.nickName`, `.signature`, `.bioLink`, `.avatar`, `.originalAvatarUrl`, `.profileUrl`; `musicMeta.musicAuthor`, `.coverMediumUrl`, `.originalCoverMediumUrl`; `mentions`; `nickName` and `profileUrl` in each `detailedMentions` entry; `locationMeta`. Kept: the handle `authorMeta.name`, `authorMeta.id`, `verified` and the public counts. The caption `text` is kept as published.
+**Personal data removed** (set to `null` when the key exists; missing keys are not added), in every item including the brand's own: `authorMeta.nickName`, `.signature`, `.bioLink`, `.avatar`, `.originalAvatarUrl`, `.profileUrl`; `musicMeta.musicAuthor`, `.coverMediumUrl`, `.originalCoverMediumUrl`; `mentions`; `nickName` and `profileUrl` in each `detailedMentions` entry; `locationMeta`. The title of a creator's original sound ends in their display name (`original sound - <name>`, also localized): when `musicMeta.musicOriginal` is `true` and `musicMeta.musicName` is a string containing ` - `, only the part before the first ` - ` is kept (`original sound`); the title of a published track is kept as it is. Kept: the handle `authorMeta.name`, `authorMeta.id`, `verified` and the public counts. The caption `text` is kept as published.
 
 Run result: `source` is `tiktok_posts`. `expected_total` is `null`. `cost_usd` is the sum of both paths' costs (a start that raised adds 0; its reason shows `start_error`). `extra`:
 ```json
@@ -111,6 +111,7 @@ Four pure functions, tested against `part1/collectors/08_tiktok_posts/samples/ap
 def run_input(path: str, query: str) -> dict: ...
 def path_records(dataset: object, path: str, query: str) -> tuple[list[dict], int]: ...  # raw objects (personal data removed), bad_items; ValueError if not a list
 def remove_personal(item: dict) -> dict: ...  # returns a copy
+def cut_sound_title(item: dict) -> dict: ...  # returns a copy; original sound title cut at the first " - " (called by remove_personal)
 def decide_status(paths: dict[str, dict]) -> tuple[str, str]: ...  # path -> {"state", "error"}
 ```
 

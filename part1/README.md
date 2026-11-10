@@ -70,9 +70,9 @@ the tables and views on its first run. Two ways to have a server:
   | 9 TikTok Shop | `lurkapi/tiktok-shop-scraper` |
   | 10 brand site (Black Rifle only) | `apify/e-commerce-scraping-tool` |
 
-- **Cost.** One pass of all ten sources and five brands cost 7.34 USD (the latest run of each on 2026-11-11):
-  Amazon 3.12, Meta 2.41, retail shelf 0.78, TikTok posts 0.34, Google results 0.25, TikTok Shop 0.24, brand site
-  0.13, TikTok ads 0.07. The account's plan credit or monthly limit has to leave room for that; a run the account
+- **Cost.** One pass of all ten sources and five brands cost 7.05 USD (the latest run of each on 2026-11-11):
+  Amazon 3.13, Meta 2.41, retail shelf 0.79, Google results 0.24, TikTok Shop 0.17, TikTok posts 0.13, brand site
+  0.11, TikTok ads 0.07. The account's plan credit or monthly limit has to leave room for that; a run the account
   refuses to start is recorded as a failure of that step, not retried.
 - **Runs at once.** At `--jobs` 16 a pass can have 31 actor runs going at the same time. The account used here
   allows 32. With a lower limit, lower `--jobs`.
@@ -119,12 +119,11 @@ From the repository root:
 It runs the collectors side by side, loads their files, asks a model for the angles of ad texts it has not seen, and
 applies them. Running it again adds no duplicates.
 
-**How long.** Minutes. Measured on 2026-11-11, per source, for the slowest of its processes: source 1 about 2
-minutes, source 3 under 2, source 5 under 2.5, source 10 under 3 except Black Rifle Coffee (4 to 5, one Apify run).
-Source 4 took about 5 minutes before the waits were shortened and was not timed since; the remaining sources took
-between 20 seconds and 5 minutes in earlier runs. The first pass of a day is longer: source 1 then loads every ad's
-detail page, about 12 seconds each (about 170 of them on that day). A pass of all ten sources at once has not been
-timed.
+**How long.** A pass of all ten sources and five brands took 7 minutes 8 seconds on 2026-11-11: 42 collector
+processes, none failed. The slowest of each source: TikTok Shop 273 s, Amazon 253 s, the brand site 200 s, search
+interest 171 s, Google ads 147 s, the retail shelf 125 s, Meta 109 s, Google results 79 s, TikTok posts 40 s. The
+first pass of a day is longer: source 1 then loads every ad's detail page, about 12 seconds each (about 170 of
+them on that day).
 
 | Option | Meaning | Default |
 |---|---|---|
@@ -193,12 +192,12 @@ That is fifty rows after a full pass.
 | `exit=timeout` on a `collect` line | The process was stopped and wrote nothing. The next pass reads that source again; raise `--timeout` if it keeps happening |
 | anything else | Each collector's `spec.md` lists its reasons, and its output is in `part1/logs/` |
 
-For comparison, the state on 2026-11-11, with a mailbox configured: 43 `ok`, 6 `partial`, 1 `could_not_look`. Not
-`ok` were the brand site for Batiste (6 of 63 barcodes refused by the where-to-buy API) and for Black Rifle Coffee
-(its product actor reported no currency and one error), TikTok Shop for three brands (15 to 19 of 20 search
-results fetched), the retail shelf for Batiste (one product's reviews) and TikTok ads for Batiste
-(`could_not_look`). The tables held 1,167 ads, 753 products, 1,266 reviews, 199 posts, 833 search rankings, 530
-search-interest rows and 42 changes.
+For comparison, the state after the full pass of 2026-11-11, with a mailbox configured: 41 `ok`, 8 `partial`, 1
+`could_not_look`. Not `ok` were TikTok Shop for all five brands (11 to 18 of 20 search results fetched, also on a
+second try), and for Batiste the brand site (6 of 63 barcodes refused by the where-to-buy API), Google ads (one
+script file not fetched), the retail shelf (one product's reviews) and TikTok ads (`could_not_look`). The tables
+held 1,168 ads, 819 products, 1,427 reviews, 272 posts, 1,342 search rankings, 530 search-interest rows and 1,817
+changes; most of the changes are between that pass and the one five hours before it.
 
 ## Every hour
 
@@ -208,7 +207,7 @@ search-interest rows and 42 changes.
 
 - The schedule has to run inside a desktop session, because source 7 opens a browser window.
 - Every pass costs what its Apify collectors cost; the `collect:` line prints the sum. A pass of everything cost
-  7.34 USD on 2026-11-11, 3.12 USD of it source 4 (see "Apify"). Sources 1 and 7 cost nothing. Which sources run
+  7.05 USD on 2026-11-11, 3.13 USD of it source 4 (see "Apify"). Sources 1 and 7 cost nothing. Which sources run
   every hour and which once a day is a choice made with `--sources`, for example:
 
       0 * * * * cd <repository> && mkdir -p part1/logs && .venv/bin/python part1/run.py --sources 1,7 >> part1/logs/cron.log 2>&1
@@ -221,17 +220,34 @@ its own with what it needs for each brand: page IDs, search terms, product listi
 Adding a brand means adding it to `brands.json` and to all ten `brand_inputs.json` files; each collector's `spec.md`
 describes its fields and how the values were found.
 
-## Handing the tables over
+## The filled tables
 
-The tables are in the local database only. To give them to someone else:
+The tables hold other people's text (reviews, captions, search snippets) and this repository is public, so the
+filled tables are handed over as a dump file, outside the repository. A dump is made with
 
-    pg_dump --no-owner -d postgresql://localhost:5432/market_radar -f market_radar.sql
+    pg_dump --no-owner --no-privileges -d postgresql://localhost:5432/market_radar | gzip -9 > market_radar.sql.gz
 
-and on the other side:
+and restored into an **empty** database. If `market_radar` already exists (for example from "Setup" or from a
+pass), drop it first or use another name:
 
-    createdb market_radar && psql -d market_radar -f market_radar.sql
+    dropdb --if-exists market_radar && createdb market_radar
+    gunzip -c market_radar.sql.gz | psql -q -v ON_ERROR_STOP=1 -d market_radar
 
-The dump holds the tables and the three views. The collectors' files (`collectors/*/raw/`, ignored by git) are the
+With the compose file, which has no `psql` on the host side, start from an empty volume and use the container's:
+
+    docker compose -f part1/docker-compose.yml down -v && docker compose -f part1/docker-compose.yml up -d --wait
+    gunzip -c market_radar.sql.gz | docker compose -f part1/docker-compose.yml exec -T postgres psql -q -v ON_ERROR_STOP=1 -U postgres -d market_radar
+
+A pass run afterwards continues from it: rows are updated, and what is gone is marked ended. A dump written by
+`pg_dump` 16 has `\restrict` lines; an older `psql` prints two "invalid command" lines for them and goes on.
+
+The dump of 2026-11-11 (ten tables, three views, the state under "Did it work") was checked before it was handed
+over: it restores into an empty database; it holds no token, key, mailbox address or local path; reviewers' names,
+creators' display names and email addresses found in page text are not in it. TikTok creator handles and TikTok
+Shop seller names are, on purpose. What it cannot promise: the text of a search result, an ad or a post is stored
+as the source showed it and can name a person.
+
+The collectors' files (`collectors/*/raw/`, ignored by git) are the
 other way: the loader rebuilds every table from them.
 
 ## Tests
@@ -248,4 +264,5 @@ The loader tests read `TEST_DATABASE_URL` (default `postgresql://localhost:5432/
 ## Where to look
 
 - The tables and views, with example queries: `pipeline/README.md`.
+- The filled tables: a dump handed over separately (see "The filled tables").
 - The designs: `docs/superpowers/specs/` at the repository root.
