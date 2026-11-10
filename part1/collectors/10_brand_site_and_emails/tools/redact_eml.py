@@ -18,12 +18,22 @@ Rules
   X-Trial-Gmail-Labels, X-Trial-Redaction.
 - The script refuses to write a file if the inbox address or its local part is
   still anywhere in the output.
+
+Two levels (redact_message):
+- verified (default): senders we checked by hand; the rules above apply, the body is
+  otherwise unchanged and keeps both text parts.
+- strict (strict=True): unknown senders. Output is one text/plain part (the first plain
+  part, else the text of the first HTML part); headers From/Subject/Date/MIME-Version
+  only; every link cut to its host, mailto: and other addresses replaced; the inbox
+  address and its local part replaced; any error raises RedactionError with a fixed text.
 """
-import base64, datetime, json, re, sys
+import base64, datetime, html as html_lib, json, re, sys, urllib.parse
+from html.parser import HTMLParser
 from email import policy
 from email.message import EmailMessage
 from email.parser import BytesParser
 from email.utils import getaddresses
+from urllib.parse import urlsplit
 
 KEEP = ['From', 'Reply-To', 'Subject', 'Date', 'Message-ID', 'MIME-Version',
         'Feedback-ID', 'List-Unsubscribe-Post', 'X-Kmail-Account', 'X-Kmail-Flow',
@@ -66,15 +76,206 @@ def slug(from_header):
             'blackriflecoffee.com': 'blackrifle'}.get(dom, dom.replace('.', '_'))
 
 
-def convert(path, out_dir):
-    d = json.load(open(path))
-    raw = d['raw']
-    src = base64.urlsafe_b64decode(raw + '=' * (-len(raw) % 4))
+VERIFIED_DOMAINS = ("livingproof.com", "deathwishcoffee.com", "blackriflecoffee.com")
+
+STRICT_KEEP = ['From', 'Subject', 'Date', 'MIME-Version']
+LINK_RE = re.compile(
+    r'(?P<url>https?://[^\s<>"]+)'
+    r'|(?P<mailto>mailto:[^\s<>"]+)'
+    r'|(?<![\w/])(?P<bare>(?://|www\.)[^\s<>"]+)',
+    re.I)
+EMAIL_RE = re.compile(r'[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}')
+HOST_RE = re.compile(r'[A-Za-z0-9.\-]+')
+BLOCK_TAGS = {'p', 'div', 'br', 'tr', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table'}
+SKIP_TAGS = {'script', 'style', 'head', 'title'}
+
+
+class RedactionError(Exception):
+    """The message cannot be written. `convert` turns it into the old SystemExit text:
+    before + joiner + path + after."""
+
+    def __init__(self, before, joiner='', after=''):
+        super().__init__(before + after)
+        self.before, self.joiner, self.after = before, joiner, after
+
+
+def cut_links(t):
+    """Cut links to scheme://host/REDACTED (host-only links stay), mailto: to mailto:REDACTED,
+    scheme-less //host/... and www.host/... to host/REDACTED. Returns (text, replacements)."""
+    n = [0]
+
+    def cut(m):
+        if m.group('url'):
+            tok = m.group('url')
+            scheme = tok.split('://', 1)[0].lower()
+            try:
+                host = urlsplit(tok).hostname
+            except ValueError:
+                host = None
+            if host and not HOST_RE.fullmatch(host):
+                host = None
+            if host and tok.lower() in (f'{scheme}://{host}', f'{scheme}://{host}/'):
+                return tok
+            n[0] += 1
+            return f'{scheme}://{host}/REDACTED' if host else f'{scheme}://REDACTED'
+        if m.group('mailto'):
+            n[0] += 1
+            return 'mailto:REDACTED'
+        tok = m.group('bare')
+        rest = tok[2:] if tok.startswith('//') else tok
+        i = min((rest.find(c) for c in '/?#:' if c in rest), default=len(rest))
+        host, tail = rest[:i], rest[i:]
+        if not HOST_RE.fullmatch(host):
+            n[0] += 1
+            return 'REDACTED'
+        if tail in ('', '/'):
+            return tok
+        n[0] += 1
+        return f'{host}/REDACTED'
+
+    return LINK_RE.sub(cut, t), n[0]
+
+
+class _TextExtractor(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts, self.skip = [], 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in SKIP_TAGS:
+            self.skip += 1
+        elif tag in BLOCK_TAGS:
+            self.parts.append('\n')
+
+    def handle_endtag(self, tag):
+        if tag in SKIP_TAGS:
+            self.skip = max(0, self.skip - 1)
+        elif tag in BLOCK_TAGS:
+            self.parts.append('\n')
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.parts.append(data)
+
+
+def html_to_text(html):
+    p = _TextExtractor()
+    p.feed(html)
+    p.close()
+    return _tidy(''.join(p.parts))
+
+
+def _tidy(text):
+    lines = []
+    for line in text.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
+        line = line.rstrip()
+        if line or (lines and lines[-1]):
+            lines.append(line)
+    while lines and not lines[-1]:
+        lines.pop()
+    return '\n'.join(lines) + '\n'
+
+
+def _strict_text(t, inbox, local):
+    """Links first, then addresses. Returns (text, links_cut, addresses_replaced)."""
+    t, links = cut_links(t)
+    t, a1 = re.subn(re.escape(inbox), 'TRIAL_INBOX', t, flags=re.I)
+    t, a2 = EMAIL_RE.subn(lambda m: 'REDACTED@' + m.group(0).split('@', 1)[1], t)
+    t, a3 = re.subn(re.escape(local), 'TRIAL_INBOX', t, flags=re.I)
+    return t, links, a1 + a2 + a3
+
+
+def _redact_strict(src, gmail_id, received_at, labels, inbox):
+    try:
+        return _redact_strict_inner(src, gmail_id, received_at, labels, inbox)
+    except RedactionError:
+        raise
+    except Exception:
+        raise RedactionError('unreadable message', ' for ', '; nothing written') from None
+
+
+def _redact_strict_inner(src, gmail_id, received_at, labels, inbox):
     msg = BytesParser(policy=policy.default).parsebytes(src)
-    inbox = getaddresses(msg.get_all('To', []))[0][1].lower()
+    if inbox is None:
+        inbox = getaddresses(msg.get_all('To', []))[0][1]
+    inbox = inbox.lower()
     local = inbox.split('@')[0]
+    received = received_at.astimezone(datetime.timezone.utc)
+
+    plain = html = None
+    dropped = 0
+    for part in msg.walk():
+        if part.is_multipart():
+            continue
+        ct = part.get_content_type()
+        if part.get_content_disposition() != 'attachment':
+            if ct == 'text/plain' and plain is None:
+                plain = part.get_content()
+                continue
+            if ct == 'text/html' and html is None:
+                html = part.get_content()
+                continue
+        dropped += 1
+    if plain is not None:
+        source, text = 'plain', plain
+    elif html is not None:
+        source, text = 'html', html_to_text(html)
+    else:
+        raise RedactionError('missing text part', ' in ')
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    text, links, addresses = _strict_text(text, inbox, local)
+    counts = {'urls': links, 'addresses': addresses, 'parts_dropped': dropped,
+              'source': source, 'html_not_kept': 1 if (source == 'plain' and html is not None) else 0}
+
+    out = EmailMessage(policy=policy.default.clone(linesep='\r\n'))
+    for h in STRICT_KEEP:
+        v = msg.get(h)
+        if v is not None:
+            out[h] = str(v)
+    out['To'] = 'TRIAL_INBOX <trial_inbox@redacted.invalid>'
+    out['X-Trial-Gmail-Id'] = gmail_id
+    out['X-Trial-Received-At'] = received.strftime('%Y-%m-%dT%H:%M:%SZ')
+    out['X-Trial-Gmail-Labels'] = ', '.join(labels)
+    out.set_content(text, subtype='plain', charset='utf-8', cte='quoted-printable')
+    out['X-Trial-Redaction'] = (
+        f'strict: plain text only (from {source}); headers reduced; To replaced; '
+        f'{links} link(s) cut; {addresses} address(es) replaced; {dropped} part(s) dropped.')
+
+    data = out.as_bytes()
+    if _address_present(out, data, [out.get_content()], inbox, local):
+        raise RedactionError('inbox address still present', ' for ', '; nothing written')
+    return data, counts
+
+
+def _address_present(out, data, bodies, inbox, local):
+    """Hard check shared by both levels: the inbox address or its local part is anywhere in the
+    output bytes, the decoded header values (encoded words are invisible in the bytes) or the
+    decoded bodies, also after percent- and entity-decoding."""
+    check = data.decode('latin-1')
+    for k, v in out.items():
+        check += '\n' + str(v)
+    for b in bodies:
+        check += '\n' + b
+    low = check.lower()
+    low += '\n' + low.replace('%40', '@')
+    decoded = html_lib.unescape(urllib.parse.unquote(check)).lower()
+    return any(x in t for t in (low, decoded) for x in (inbox, local))
+
+
+def redact_message(src, gmail_id, received_at, labels, inbox=None, strict=False):
+    """Redact one RFC 822 message. Returns (ASCII CRLF bytes, counts); raises RedactionError."""
+    if strict:
+        return _redact_strict(src, gmail_id, received_at, labels, inbox)
+    msg = BytesParser(policy=policy.default).parsebytes(src)
+    if inbox is None:
+        inbox = getaddresses(msg.get_all('To', []))[0][1]
+    inbox = inbox.lower()
+    local = inbox.split('@')[0]
+    received = received_at.astimezone(datetime.timezone.utc)
 
     removed = set()
+    counts = {}
+    out = EmailMessage(policy=policy.default.clone(linesep='\r\n'))
     for h in ('X-Kmail-Ops', 'X-SG-ID', 'X-SG-EID', 'X-Entity-ID'):
         for v in msg.get_all(h, []):
             removed.update(s for s in re.split(r'[^A-Za-z0-9]', str(v)) if len(s) >= 10)
@@ -99,16 +300,15 @@ def convert(path, out_dir):
         elif ct == 'text/html' and html is None:
             html, html_cs = txt, part.get_content_charset() or 'utf-8'
         else:
-            raise SystemExit(f'unexpected part {ct} in {path}')
+            raise RedactionError(f'unexpected part {ct}', ' in ')
     if plain is None or html is None:
-        raise SystemExit(f'missing text part in {path}')
+        raise RedactionError('missing text part', ' in ')
     plain, n1 = redact_text(plain, removed)
     html, n2 = redact_text(html, removed)
     for k in counts:
         counts[k] = n1[k] + n2[k]
 
     # headers are written after the body pass so every removed token is known
-    out = EmailMessage(policy=policy.default.clone(linesep='\r\n'))
     header_hits = []
     for h in KEEP:
         for v in msg.get_all(h, []):
@@ -118,36 +318,55 @@ def convert(path, out_dir):
                     v = v.replace(tok, 'REDACTED')
                     header_hits.append(h)
             out[h] = v
-    out['To'] = 'TRIAL_INBOX <trial_inbox@redacted.invalid>'
-    if lu_new:
-        out['List-Unsubscribe'] = lu_new
-    received = datetime.datetime.fromtimestamp(int(d['internalDate']) / 1000, datetime.UTC)
-    out['X-Trial-Gmail-Id'] = d['id']
-    out['X-Trial-Received-At'] = received.strftime('%Y-%m-%dT%H:%M:%SZ')
-    out['X-Trial-Gmail-Labels'] = ', '.join(d.get('labelIds', []))
     counts['header_tokens'] = sorted(set(header_hits))
-
-    out.set_content(plain, subtype='plain', charset=plain_cs, cte='quoted-printable')
-    out.add_alternative(html, subtype='html', charset=html_cs, cte='quoted-printable')
-    out['X-Trial-Redaction'] = (
+    redaction = (
         'Receiving-path headers dropped; To replaced; per-recipient tracking tokens '
         f'replaced ({counts["tracking"]} tracking, {counts["manage"]} unsubscribe/manage'
         f'{", also in " + "/".join(counts["header_tokens"]) if counts["header_tokens"] else ""}). '
         'Body text otherwise unchanged; parts re-encoded as quoted-printable.')
 
+    out['To'] = 'TRIAL_INBOX <trial_inbox@redacted.invalid>'
+    if lu_new:
+        out['List-Unsubscribe'] = lu_new
+    out['X-Trial-Gmail-Id'] = gmail_id
+    out['X-Trial-Received-At'] = received.strftime('%Y-%m-%dT%H:%M:%SZ')
+    out['X-Trial-Gmail-Labels'] = ', '.join(labels)
+
+    if plain is not None and html is not None:
+        out.set_content(plain, subtype='plain', charset=plain_cs, cte='quoted-printable')
+        out.add_alternative(html, subtype='html', charset=html_cs, cte='quoted-printable')
+    elif plain is not None:
+        out.set_content(plain, subtype='plain', charset=plain_cs, cte='quoted-printable')
+    else:
+        out.set_content(html, subtype='html', charset=html_cs, cte='quoted-printable')
+    out['X-Trial-Redaction'] = redaction
+
     data = out.as_bytes()
     check = data.decode('latin-1')
-    for part in out.walk():
-        if not part.is_multipart():
-            check += part.get_content()
-    if inbox in check.lower() or local in check.lower():
-        raise SystemExit(f'inbox address still present for {path}; nothing written')
+    bodies = [p.get_content() for p in out.walk() if not p.is_multipart()]
+    for b in bodies:
+        check += b
+    if _address_present(out, data, bodies, inbox, local):
+        raise RedactionError('inbox address still present', ' for ', '; nothing written')
     if LEFTOVER_RE.search(check):
-        raise SystemExit(f'tracking token still present for {path}; nothing written')
+        raise RedactionError('tracking token still present', ' for ', '; nothing written')
     leaked = sorted(t for t in removed if t in check)
     if leaked:
-        raise SystemExit(f'{len(leaked)} removed token(s) still present for {path} (e.g. in Message-ID); nothing written')
+        raise RedactionError(f'{len(leaked)} removed token(s) still present', ' for ',
+                             ' (e.g. in Message-ID); nothing written')
+    return data, counts
 
+
+def convert(path, out_dir):
+    d = json.load(open(path))
+    raw = d['raw']
+    src = base64.urlsafe_b64decode(raw + '=' * (-len(raw) % 4))
+    received = datetime.datetime.fromtimestamp(int(d['internalDate']) / 1000, datetime.UTC)
+    try:
+        data, counts = redact_message(src, d['id'], received, d.get('labelIds', []), strict=False)
+    except RedactionError as e:
+        raise SystemExit(f'{e.before}{e.joiner}{path}{e.after}')
+    msg = BytesParser(policy=policy.default).parsebytes(src)
     name = f'{slug(msg["From"])}_{received.strftime("%Y%m%dT%H%M%SZ")}_{d["id"]}.eml'
     with open(f'{out_dir}/{name}', 'wb') as f:
         f.write(data)

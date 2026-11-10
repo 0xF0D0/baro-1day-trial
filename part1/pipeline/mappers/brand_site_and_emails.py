@@ -2,7 +2,7 @@ import email
 import email.policy
 import email.utils
 import json
-from datetime import timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
@@ -104,9 +104,16 @@ def _ads_row(rec: dict, scope: str, **values) -> Row:
 
 def _email_row(rec: dict) -> Row:
     msg = email.message_from_string(rec["raw"]["eml"], policy=email.policy.default)
-    sent = email.utils.parsedate_to_datetime(str(msg["Date"]))
-    if sent.tzinfo is None:
-        raise ValueError(f"Date without a time zone: {msg['Date']!r}")
+    try:
+        sent = email.utils.parsedate_to_datetime(str(msg["Date"]))
+    except (TypeError, ValueError, IndexError):
+        sent = None
+    if sent is None or sent.tzinfo is None:     # no usable Date: the time the message reached the inbox
+        received = str(msg["X-Trial-Received-At"])
+        try:
+            sent = datetime.strptime(received, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        except ValueError:
+            raise ValueError(f"Date unusable ({msg['Date']!r}) and X-Trial-Received-At unusable ({received!r})") from None
     name = email.utils.parseaddr(str(msg["From"]))[0]
     return _ads_row(rec, "emails", channel="email", headline=str(msg["Subject"]), advertiser_name=name or None,
                     started_at=sent.astimezone(timezone.utc),

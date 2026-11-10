@@ -33,23 +33,23 @@
     },
     {
       "brand": "Batiste",
-      "status": "not_signed_up",
-      "signup_at": null,
-      "signup_url": "https://www.batistehair.com/",
-      "form": null,
+      "status": "submitted_unconfirmed",
+      "signup_at": "2026-11-10T15:13:02Z",
+      "signup_url": "https://batistenation.socialmedialink.com/",
+      "form": "community signup on a third-party site",
       "offer_text": null,
-      "result": "No email form on the brand site. The 'JOIN NOW' link goes to batistenation.socialmedialink.com, a third-party community site; it was not used.",
-      "first_email_at": null
+      "result": "No email form on the brand site. The 'JOIN NOW' link goes to batistenation.socialmedialink.com, a third-party community site, where an account was created. A 'Verify your email' mail arrived and was not confirmed. signup_at is the arrival time of the first mail.",
+      "first_email_at": "2026-11-10T15:13:02Z"
     },
     {
       "brand": "Jinx",
-      "status": "not_signed_up",
-      "signup_at": null,
+      "status": "signed_up",
+      "signup_at": "2026-11-10T15:12:32Z",
       "signup_url": "https://www.thinkjinx.com/",
-      "form": null,
+      "form": "customer account registration",
       "offer_text": null,
-      "result": "No email-only signup found. The theme's newsletter section renders empty, no popup appeared in about 60 seconds on the home and a product page, and the only other routes are a loyalty account and a support form.",
-      "first_email_at": null
+      "result": "No email-only signup found; a customer account was registered instead. A 'Customer account confirmation' mail arrived. signup_at is the arrival time of the first mail.",
+      "first_email_at": "2026-11-10T15:12:32Z"
     }
   ]
 }

@@ -9,6 +9,7 @@ import email.parser
 import email.policy
 import email.utils
 import hashlib
+import imaplib
 import json
 import os
 import re
@@ -30,6 +31,9 @@ SIGNUPS_JSON = ROOT / "part1/data/email_signups.json"
 EXPORT_DIR = HERE / "inbox_export"
 RAW_DIR = HERE / "raw"
 
+sys.path.insert(0, str(HERE / "tools"))
+from redact_eml import VERIFIED_DOMAINS, RedactionError, redact_message  # noqa: E402
+
 NAV_TIMEOUT_S = 45
 HOME_SETTLE_S = 8
 HTTP_TIMEOUT_S = 30
@@ -44,8 +48,12 @@ APIFY_POLL_HTTP_TIMEOUT_S = 90
 APIFY_POLL_ERRORS_MAX = 3
 APIFY_POLL_ERROR_WAIT_S = 15
 APIFY_MAX_TOTAL_WAIT_S = 4200
+HOME_APIFY_ACTOR = "apify~playwright-scraper"
+HOME_APIFY_MEMORY_MB = 2048
+HOME_APIFY_RUN_TIMEOUT_S = 180
 FIRST_DAY_S = 86400
 SIGNUP_TOLERANCE_S = 300
+IMAP_TIMEOUT_S = 60
 
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
@@ -140,11 +148,16 @@ def apify_item_key(item):
 
 
 def apify_listed(log, listing_url):
-    pairs = {}
+    handled = set(re.findall(r"Product handled: (\S+)", log))
+    return len(handled) if handled else None
+
+
+def apify_found_per_page(log, listing_url):
+    pages = {}
     for n, url, page in re.findall(r"Found (\d+) products in the listing page: (\S+)\. Page: (\d+)", log):
         if url == listing_url:
-            pairs[(url, page)] = int(n)
-    return sum(pairs.values()) if pairs else None
+            pages[int(page)] = int(n)
+    return [pages[k] for k in sorted(pages)]
 
 
 def apify_prices_state(run_status, records, listed, max_hit, errors, log_read, counts):
@@ -376,6 +389,31 @@ def read_token():
     return None
 
 
+def _dotenv_value(key):
+    try:
+        for line in (ROOT / ".env").read_text().splitlines():
+            if line.startswith(key + "="):
+                v = line[len(key) + 1:].strip()
+                if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+                    v = v[1:-1]
+                return v
+    except OSError:
+        pass
+    return None
+
+
+def inbox_credentials():
+    """(address, app password, host) from the environment, then .env; None unless address and password are set."""
+    def get(key):
+        v = os.environ.get(key)
+        return v.strip() if v and v.strip() else (_dotenv_value(key) or "").strip()
+
+    address, password = get("INBOX_ADDRESS"), "".join(get("INBOX_APP_PASSWORD").split())
+    if not address or not password:
+        return None
+    return address, password, get("INBOX_IMAP_HOST") or "imap.gmail.com"
+
+
 # ---------------------------------------------------------------- Chrome steps
 def navigate(page, url, host):
     """-> (response, reason). Counts one request."""
@@ -435,6 +473,144 @@ def home_step(page, cfg):
     part.update(state="ok" if not missing else "partial",
                 reason=f"slots_not_found({','.join(missing)})" if missing else "", slots_not_found=missing)
     return part
+
+
+def home_page_function(slots, settle_s):
+    """The pageFunction source for the actor: the selectors travel as JSON, never as pasted text."""
+    return (
+        "async function pageFunction(context) {\n"
+        "  const { page, request, response } = context;\n"
+        f"  const slots = {json.dumps(slots)};\n"
+        f"  await page.waitForTimeout({int(settle_s) * 1000});\n"
+        "  const status = response ? (typeof response.status === 'function' ? response.status() : response.status) : null;\n"
+        "  const out = { requested: request.url, url: page.url(), title: await page.title(), status, slots: {} };\n"
+        "  for (const [name, sel] of Object.entries(slots)) {\n"
+        "    out.slots[name] = await page.$$eval(sel, els => els.map(e => ({ outer_html: e.outerHTML, text: e.innerText })));\n"
+        "  }\n"
+        "  out.market = await page.evaluate(() => [window.Shopify?.country ?? null, window.Shopify?.currency?.active ?? null]);\n"
+        "  return out;\n"
+        "}\n")
+
+
+def home_apify_input(cfg):
+    h = cfg["home"]
+    return {"startUrls": [{"url": h["url"]}], "linkSelector": "",
+            "pageFunction": home_page_function(h["slots"], HOME_SETTLE_S), "launcher": "chromium",
+            "proxyConfiguration": {"useApifyProxy": True, "apifyProxyGroups": ["RESIDENTIAL"], "apifyProxyCountry": "US"},
+            "maxPagesPerCrawl": 1, "maxRequestRetries": 0, "pageLoadTimeoutSecs": 60, "waitUntil": "domcontentloaded"}
+
+
+def home_apify_part(run_status, items, cfg):
+    """-> (home part, offer_slot raws to emit). Pure."""
+    h = cfg["home"]
+    part = {"state": "could_not_look", "reason": "", "route": "home_apify", "market": None, "slots_not_found": None}
+    if run_status != "SUCCEEDED":
+        part["reason"] = f"apify_run_{run_status}"
+        return part, []
+    it = items[0] if isinstance(items, list) and items else None
+    if not isinstance(it, dict):
+        part["reason"] = "home_not_returned"
+        return part, []
+    try:
+        host = urlparse(it.get("url") if isinstance(it.get("url"), str) else "").hostname
+    except ValueError:
+        host = None
+    status = it.get("status")
+    title = (it.get("title") or "").lower() if isinstance(it.get("title"), str) else ""
+    why = None
+    if host != h["host"]:
+        why = f"blocked: host={host}"
+    elif status is not None and (isinstance(status, bool) or not isinstance(status, (int, float))):
+        why = "home_status_unreadable"
+    elif status in (403, 429):
+        why = f"blocked: http_{status}"
+    else:
+        for phrase in ("attention required", "just a moment"):
+            if phrase in title:
+                why = f"blocked: title={phrase}"
+                break
+        if not why and status is not None and status >= 400:
+            why = f"http_{status}"
+    if why:
+        part["reason"] = why
+        return part, []
+    m = it.get("market")
+    if h["shopify_market_check"]:
+        if not (isinstance(m, list) and len(m) == 2 and m[0] is not None and m[1] is not None):
+            part["reason"] = "market_unconfirmed"
+            return part, []
+        part["market"] = {"country": m[0], "currency": m[1]}
+    slots = it.get("slots") if isinstance(it.get("slots"), dict) else {}
+    raws, missing = [], []
+    for name, sel in h["slots"].items():
+        els = slots.get(name)
+        els = [{"outer_html": e["outer_html"] if isinstance(e.get("outer_html"), str) else "",
+                "text": e["text"] if isinstance(e.get("text"), str) else ""} for e in els if isinstance(e, dict)] \
+            if isinstance(els, list) else []
+        if not els:
+            missing.append(name)
+        raws.append({"route": "home_apify", "slot": name, "selector": sel,
+                     "state": "found" if els else "not_found", "elements": els})
+    part.update(state="ok" if not missing else "partial",
+                reason=f"slots_not_found({','.join(missing)})" if missing else "", slots_not_found=missing)
+    return part, raws
+
+
+def home_apify(cfg):
+    """-> (part, cost_usd). One actor run for the home page; the records are emitted like the home_dom route's."""
+    h = cfg["home"]
+    part, _ = home_apify_part("NONE", None, cfg)
+    part.update(run_id=None, run_status=None, reason="")
+    token = read_token()
+    if not token:
+        part["reason"] = "missing_token"
+        return part, 0
+    hdr = {"Authorization": f"Bearer {token}", "Content-Type": "application/json", "Accept": "application/json"}
+    api = "https://api.apify.com/v2"
+    body = json.dumps(home_apify_input(cfg)).encode()
+    try:
+        status, _, b = http(f"{api}/acts/{HOME_APIFY_ACTOR}/runs?timeout={HOME_APIFY_RUN_TIMEOUT_S}"
+                            f"&memory={HOME_APIFY_MEMORY_MB}", "POST", hdr, body, spaced=False)
+    except Exception as e:
+        part["reason"] = f"apify_start_failed: {type(e).__name__}"
+        return part, 0
+    run_id = None
+    try:
+        run_id = json.loads(b)["data"]["id"] if status == 201 else None
+    except (ValueError, KeyError, TypeError):
+        pass
+    if not run_id:
+        part["reason"] = f"apify_start_failed: http_{status}"
+        return part, 0
+    part["run_id"] = run_id
+    run, usage = apify_wait(api, run_id, hdr, HOME_APIFY_RUN_TIMEOUT_S + 120)
+    if run is None:
+        part["reason"] = f"apify_wait_failed(run={run_id})"
+        return part, usage
+    data = run["data"]
+    cost = data.get("usageTotalUsd") or 0
+    part["run_status"] = data["status"]
+    items = None
+    if data["status"] == "SUCCEEDED":
+        try:
+            st, _, b = http(f"{api}/datasets/{data.get('defaultDatasetId')}/items?clean=true&format=json",
+                            headers=hdr, spaced=False)
+            why = f"http_{st}"
+            if st == 200:
+                items = json.loads(b.decode("utf-8", "replace"))
+                if not isinstance(items, list):
+                    items, why = None, "not_a_list"
+        except Exception as e:
+            items, why = None, type(e).__name__
+        if items is None:
+            part["reason"] = f"apify_items_failed: {why}"
+            return part, cost
+    fetched_at = utc_now()
+    result, raws = home_apify_part(data["status"], items, cfg)
+    part.update(result)
+    for raw in raws:
+        emit("offer_slot", f"offer_slot/{h['host']}/{raw['slot']}", h["url"], fetched_at, raw)
+    return part, cost
 
 
 def fetch_products_page(page, host, n):
@@ -505,11 +681,35 @@ def shopify_prices(page, cfg, home):
 
 
 # ---------------------------------------------------------------- Apify
+def apify_wait(api, run_id, hdr, max_total_s):
+    """Poll a run until it ends. -> (run object or None when the wait failed, usageTotalUsd of the last good poll)."""
+    started, fails, usage, run = time.monotonic(), 0, 0, None
+    while True:
+        try:
+            status, _, b = http(f"{api}/actor-runs/{run_id}?waitForFinish={APIFY_POLL_WAIT_S}", headers=hdr,
+                                timeout=APIFY_POLL_HTTP_TIMEOUT_S, spaced=False)
+            cand = json.loads(b) if status == 200 else None
+            ok = isinstance(cand, dict) and isinstance(cand.get("data"), dict)
+        except Exception:
+            ok = False
+        if ok:
+            fails, run = 0, cand
+            usage = run["data"].get("usageTotalUsd") or usage
+            if run["data"].get("status") in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
+                return run, usage
+        else:
+            fails += 1
+        if fails >= APIFY_POLL_ERRORS_MAX or time.monotonic() - started > max_total_s:
+            return None, usage
+        if not ok:
+            time.sleep(APIFY_POLL_ERROR_WAIT_S)
+
+
 def apify_prices(cfg, out_dir):
     """-> (part, cost_usd)."""
     listing_url = cfg["prices"]["listing_url"]
     part = {"state": "could_not_look", "reason": "", "route": "apify_ecommerce", "records": None,
-            "run_id": None, "run_status": None, "listed": None, "items": None,
+            "run_id": None, "run_status": None, "listed": None, "found_per_page": None, "items": None,
             "items_without_product_url": None, "duplicate_items": None, "items_without_price": None,
             "currency_not_reported": None, "errors": None}
     token = read_token()
@@ -535,27 +735,10 @@ def apify_prices(cfg, out_dir):
         part["reason"] = f"apify_start_failed: http_{status}"
         return part, 0
     part["run_id"] = run_id
-    started, fails, usage, run = time.monotonic(), 0, 0, None
-    while True:
-        try:
-            status, _, b = http(f"{api}/actor-runs/{run_id}?waitForFinish={APIFY_POLL_WAIT_S}", headers=hdr,
-                                timeout=APIFY_POLL_HTTP_TIMEOUT_S, spaced=False)
-            cand = json.loads(b) if status == 200 else None
-            ok = isinstance(cand, dict) and isinstance(cand.get("data"), dict)
-        except Exception:
-            ok = False
-        if ok:
-            fails, run = 0, cand
-            usage = run["data"].get("usageTotalUsd") or usage
-            if run["data"].get("status") in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
-                break
-        else:
-            fails += 1
-        if fails >= APIFY_POLL_ERRORS_MAX or time.monotonic() - started > APIFY_MAX_TOTAL_WAIT_S:
-            part["reason"] = f"apify_wait_failed(run={run_id})"
-            return part, usage
-        if not ok:
-            time.sleep(APIFY_POLL_ERROR_WAIT_S)
+    run, usage = apify_wait(api, run_id, hdr, APIFY_MAX_TOTAL_WAIT_S)
+    if run is None:
+        part["reason"] = f"apify_wait_failed(run={run_id})"
+        return part, usage
     data = run["data"]
     cost = data.get("usageTotalUsd") or 0
     part["run_status"] = data["status"]
@@ -631,6 +814,7 @@ def apify_prices(cfg, out_dir):
     max_hit = log_text is not None and "The maximum number of results per run has been reached" in log_text
     part["records"] = len(take)
     part["listed"] = listed
+    part["found_per_page"] = apify_found_per_page(log_text, listing_url) if log_text is not None else None
     part["state"], part["reason"] = apify_prices_state(data["status"], len(take), listed, max_hit, errors,
                                                        log_text is not None, counts)
     return part, cost
@@ -818,7 +1002,217 @@ def klaviyo_step(cfg, out_dir):
     return part
 
 
-def emails_step(cfg, name):
+_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+_LIST_RE = re.compile(rb'^\((?P<flags>[^)]*)\)\s+(?:"(?:[^"\\]|\\.)*"|NIL)\s+(?P<name>.+?)\s*$')
+_INTERNALDATE_RE = re.compile(r'INTERNALDATE "\s*(\d{1,2})-([A-Za-z]{3})-(\d{4}) (\d\d):(\d\d):(\d\d) ([+-])(\d\d)(\d\d)"')
+_LABELS_RE = re.compile(r'X-GM-LABELS \(((?:"(?:[^"\\]|\\.)*"|[^)"])*)\)')
+
+
+class ImapCommandError(Exception):
+    def __init__(self, reason):
+        super().__init__(reason)
+        self.reason = reason
+
+
+def imap_folders(list_lines):
+    """-> (name of the folder flagged \\All, name of the one flagged \\Junk), names unquoted, or None."""
+    found = {}
+    for line in list_lines:
+        m = _LIST_RE.match(line) if isinstance(line, bytes) else None
+        if not m:
+            continue
+        name = m.group("name").decode("ascii", "replace")
+        if len(name) >= 2 and name[0] == '"' and name[-1] == '"':
+            name = re.sub(r"\\(.)", r"\1", name[1:-1])
+        flags = m.group("flags").decode("ascii", "replace").lower().split()
+        for flag, key in (("\\all", "all"), ("\\junk", "junk")):
+            if flag in flags and "\\noselect" not in flags and key not in found:
+                found[key] = name
+    return found.get("all"), found.get("junk")
+
+
+def _quote(name):
+    return '"' + name.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def imap_since(dt):
+    return f"{dt.day:02d}-{_MONTHS[dt.month - 1]}-{dt.year}"
+
+
+def parse_fetch(meta):
+    """-> (X-GM-MSGID in hex or None, INTERNALDATE in UTC or None, X-GM-LABELS)."""
+    text = meta.decode("ascii", "replace") if isinstance(meta, bytes) else str(meta)
+    m = re.search(r"X-GM-MSGID (\d+)", text)
+    gid = format(int(m.group(1)), "x") if m else None
+    when = None
+    m = _INTERNALDATE_RE.search(text)
+    if m and m.group(2).title() in _MONTHS:
+        d, mon, y, hh, mm, ss, sign, zh, zm = m.groups()
+        offset = timedelta(hours=int(zh), minutes=int(zm)) * (1 if sign == "+" else -1)
+        when = (datetime(int(y), _MONTHS.index(mon.title()) + 1, int(d), int(hh), int(mm), int(ss),
+                         tzinfo=timezone.utc) - offset)
+    m = _LABELS_RE.search(text)
+    labels = []
+    if m:
+        for quoted, bare in re.findall(r'"((?:[^"\\]|\\.)*)"|([^\s"]+)', m.group(1)):
+            labels.append(re.sub(r"\\(.)", r"\1", quoted) if quoted or not bare else bare)
+    return gid, when, labels
+
+
+def _from_domain(raw):
+    msg = email.parser.BytesParser(policy=email.policy.default).parsebytes(raw)
+    if msg["From"] is None:
+        return ""
+    return email.utils.parseaddr(str(msg["From"]))[1].rsplit("@", 1)[-1].lower()
+
+
+def _domain_in(dom, domains):
+    return any(dom == d or dom.endswith("." + d) for d in domains)
+
+
+def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
+    """Read the inbox over IMAP (read-only, BODY.PEEK[]), redact in memory, write .eml files, emit records."""
+    address, password, host = creds
+    sender_domains = cfg["email_sender_domains"]
+    sign = _ts(signup["signup_at"])
+    end = sign + timedelta(seconds=FIRST_DAY_S)
+    start = sign - timedelta(seconds=SIGNUP_TOLERANCE_S)
+    part = {"state": "could_not_look", "reason": "", "route": "imap", "signup_at": signup["signup_at"],
+            "first_day_ends_at": end.strftime("%Y-%m-%dT%H:%M:%SZ"), "exported_at": None,
+            "fetched_at": None, "first_day_complete": None, "spam_checked": False, "messages": 0,
+            "in_window": 0, "in_first_day": 0, "before_signup": 0, "after_first_day": None, "eml_invalid": 0}
+    found = []  # (received, gmail id, eml dict, folder, redaction level)
+    seen = set()
+    error = None
+
+    def command(fn, *a, **k):
+        R["requests"] += 1
+        return fn(*a, **k)
+
+    def read_folder(conn, name, folder):
+        for dom in sender_domains:
+            typ, data = command(conn.uid, "SEARCH", None, "FROM", f'"{dom}"', "SINCE", imap_since(start - timedelta(days=1)))
+            if typ != "OK":
+                raise ImapCommandError("imap_error: search")
+            uids = [u.decode("ascii") for u in (data[0] or b"").split()] if data and isinstance(data[0], bytes) else []
+            for uid in uids:
+                typ, data = command(conn.uid, "FETCH", uid, "(X-GM-MSGID X-GM-LABELS INTERNALDATE BODY.PEEK[])")
+                if typ != "OK":
+                    raise ImapCommandError("imap_error: fetch")
+                item = next((d for d in data or [] if isinstance(d, tuple) and len(d) == 2), None)
+                if item is None:
+                    continue
+                attrs = b" ".join([item[0]] + [d for d in data if isinstance(d, bytes)]) \
+                    if isinstance(item[0], bytes) else item[0]
+                handle(attrs, item[1], folder)
+
+    def handle(meta, raw, folder):
+        gid, received, labels = parse_fetch(meta)
+        if gid is None:
+            gid = hashlib.sha256(raw).hexdigest()[:16]
+        if gid in seen:
+            return
+        seen.add(gid)
+        try:
+            dom = _from_domain(raw)
+        except Exception:
+            return
+        if not dom or not _domain_in(dom, sender_domains):
+            return
+        part["messages"] += 1
+        if received is None:
+            part["eml_invalid"] += 1
+            return
+        if received < start:
+            part["before_signup"] += 1
+            return
+        path = None
+        try:
+            strict = not _domain_in(dom, VERIFIED_DOMAINS)
+            data, _ = redact_message(raw, gid, received, labels, inbox=address, strict=strict)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            path = out_dir / f"{gid}.eml"
+            path.write_bytes(data)
+            e = read_eml(path, gid)
+            if e is None:
+                path.unlink()
+                part["eml_invalid"] += 1
+                return
+            if not _domain_in(e["from_domain"], sender_domains):
+                path.unlink()
+                return
+        except Exception:  # RedactionError or anything else about this one message
+            if path is not None:
+                try:
+                    path.unlink()
+                except OSError:
+                    pass
+            part["eml_invalid"] += 1
+            return
+        found.append((received, gid, e, folder, "strict" if strict else "verified"))
+
+    try:
+        conn = connect(host, timeout=IMAP_TIMEOUT_S)
+        try:
+            try:
+                command(conn.login, address, password)
+            except imaplib.IMAP4.abort:     # a subclass of IMAP4.error: the connection broke, the login was not refused
+                raise
+            except imaplib.IMAP4.error:
+                raise ImapCommandError("imap_login_failed")
+            part["fetched_at"] = utc_now()
+            typ, lines = command(conn.list)
+            if typ != "OK":
+                raise ImapCommandError("imap_error: list")
+            all_name, junk_name = imap_folders(lines)
+            if all_name is None:
+                raise ImapCommandError("imap_no_all_folder")
+            typ, _ = command(conn.select, _quote(all_name), readonly=True)
+            if typ != "OK":
+                raise ImapCommandError("imap_error: select")
+            read_folder(conn, all_name, "all")
+            if junk_name is not None:
+                try:
+                    typ, _ = command(conn.select, _quote(junk_name), readonly=True)
+                except Exception:
+                    typ = "NO"
+                if typ == "OK":
+                    read_folder(conn, junk_name, "spam")
+                    part["spam_checked"] = True
+        finally:
+            try:
+                command(conn.logout)
+            except Exception:
+                pass
+    except ImapCommandError as e:
+        error = e.reason
+    except Exception as e:
+        error = f"imap_error: {type(e).__name__}"
+    part["fetched_at"] = part["fetched_at"] or utc_now()
+    found.sort(key=lambda f: (f[0], f[1]))
+    for received, gid, e, folder, level in found:
+        in_first_day = received < end
+        part["in_first_day"] += in_first_day
+        emit("email", f"email/{gid}", signup["signup_url"], part["fetched_at"],
+             {"route": "imap", "file": e["file"], "sha256": e["sha256"], "eml": e["eml"],
+              "signup_at": part["signup_at"], "first_day_ends_at": part["first_day_ends_at"],
+              "folder": folder, "in_first_day": in_first_day, "redaction": level,
+              "spam_checked": part["spam_checked"]})
+    part["in_window"] = len(found)
+    if error:
+        part["state"] = "partial" if found else "could_not_look"
+        part["reason"] = error
+    else:
+        r = []
+        if not part["spam_checked"]:
+            r.append("spam_not_checked")
+        if part["eml_invalid"]:
+            r.append(f"eml_invalid={part['eml_invalid']}")
+        part["state"], part["reason"] = ("partial", "; ".join(r)) if r else ("ok", "")
+    return part
+
+
+def emails_step(cfg, name, out_dir):
     signup = None
     try:
         for s in json.loads(SIGNUPS_JSON.read_text())["signups"]:
@@ -826,6 +1220,12 @@ def emails_step(cfg, name):
                 signup = s
     except (OSError, ValueError, KeyError, TypeError):
         pass
+    creds = inbox_credentials()
+    if creds is not None:
+        stop = email_eval(signup, cfg["email_sender_domains"], None, [])
+        if stop[1] != "no_inbox_export":
+            return {"state": stop[0], "reason": stop[1], **stop[3], "route": "imap"}
+        return emails_imap(cfg, signup, creds, out_dir)
     manifest = None
     try:
         manifest = json.loads((EXPORT_DIR / "export.json").read_text())
@@ -842,7 +1242,7 @@ def emails_step(cfg, name):
              {"route": "inbox_export", "file": e["file"], "sha256": e["sha256"], "eml": e["eml"],
               "signup_at": stats["signup_at"], "first_day_ends_at": stats["first_day_ends_at"],
               "exported_at": stats["exported_at"], "spam_checked": stats["spam_checked"]})
-    return {"state": state, "reason": reason, **stats}
+    return {"state": state, "reason": reason, **stats, "route": "inbox_export"}
 
 
 # ---------------------------------------------------------------- brand run
@@ -862,7 +1262,7 @@ def run_brand(slug, inputs, names):
     part_path = out / f"{run_id}.jsonl.part"
     R.clear()
     R.update(fh=open(part_path, "w", encoding="utf-8"), kinds=Counter(), requests=0)
-    parts, cost, status, reason, crashed = {}, 0, None, "", False
+    parts, cost, home_cost, status, reason, crashed = {}, 0, 0, None, "", False
     try:
         log(f"[{slug}] start {run_id}")
         with sync_playwright() as pw:
@@ -871,7 +1271,10 @@ def run_brand(slug, inputs, names):
                 ctx = browser.new_context(locale="en-US", timezone_id="America/New_York",
                                           viewport={"width": 1400, "height": 950})
                 page = ctx.new_page()
-                home = home_step(page, cfg)
+                if cfg["home"].get("route") == "apify_playwright":
+                    home, home_cost = home_apify(cfg)
+                else:
+                    home, home_cost = home_step(page, cfg), 0
                 route = cfg["prices"]["route"]
                 if route == "shopify_products_json":
                     parts["prices"] = shopify_prices(page, cfg, home)
@@ -883,7 +1286,7 @@ def run_brand(slug, inputs, names):
                 browser.close()
         klaviyo = klaviyo_step(cfg, out / f"{run_id}.klaviyo") if cfg["klaviyo_company_id"] else None
         parts["offers"] = offers_part(home, klaviyo)
-        parts["emails"] = emails_step(cfg, names[slug])
+        parts["emails"] = emails_step(cfg, names[slug], out / f"{run_id}.eml")
         status, reason = combine_parts({k: (parts[k]["state"], parts[k]["reason"]) for k in ("prices", "offers", "emails")})
     except Exception as e:
         crashed = True
@@ -896,9 +1299,9 @@ def run_brand(slug, inputs, names):
               "started_at": started.strftime("%Y-%m-%dT%H:%M:%SZ"), "finished_at": utc_now(),
               "status": status, "reason": reason, "records": sum(R["kinds"].values()),
               "records_by_kind": dict(R["kinds"]), "expected_total": None, "requests": R["requests"],
-              "cost_usd": cost, "extra": {"parts": parts}}
+              "cost_usd": cost + home_cost, "extra": {"parts": parts}}
     (out / f"{run_id}.run.json").write_text(json.dumps(result, indent=2, ensure_ascii=False))
-    log(f"[{slug}] {status} | {reason} | {result['records_by_kind']} | cost_usd={cost}")
+    log(f"[{slug}] {status} | {reason} | {result['records_by_kind']} | cost_usd={result['cost_usd']}")
     return crashed
 
 

@@ -1,0 +1,68 @@
+2026-11-10T15:58:24.292Z ACTOR: Pulling container image of build vHFdGNm2japTPmKbP from registry.
+2026-11-10T15:58:24.295Z ACTOR: Creating container.
+2026-11-10T15:58:24.351Z ACTOR: Starting container.
+2026-11-10T15:58:24.352Z ACTOR: Running under "LIMITED_PERMISSIONS".
+2026-11-10T15:58:25.432Z INFO  System info {"apifyVersion":"3.7.0","apifyClientVersion":"2.25.0","crawleeVersion":"3.16.0","osType":"Linux","nodeVersion":"v24.22.1"}
+2026-11-10T15:58:25.433Z INFO  Actor is starting...
+2026-11-10T16:01:12.992Z INFO  Found 10 products in the listing page: https://www.blackriflecoffee.com/collections/coffee. Page: 1
+2026-11-10T16:01:21.672Z INFO  Product handled: https://www.blackriflecoffee.com/products/just-black-roast-rwb
+2026-11-10T16:01:22.462Z INFO  Product handled: https://www.blackriflecoffee.com/products/freedom-roast
+2026-11-10T16:01:24.291Z INFO  Product handled: https://www.blackriflecoffee.com/products/beyond-black-roast
+2026-11-10T16:01:24.583Z INFO  Product handled: https://www.blackriflecoffee.com/products/tactisquatch-roast
+2026-11-10T16:01:25.144Z INFO  Product handled: https://www.blackriflecoffee.com/products/just-decaf
+2026-11-10T16:01:25.181Z INFO  Product handled: https://www.blackriflecoffee.com/products/coffee-saves-roast
+2026-11-10T16:01:26.932Z INFO  Product handled: https://www.blackriflecoffee.com/products/fall-coffee-lineup
+2026-11-10T16:01:27.191Z INFO  Product handled: https://www.blackriflecoffee.com/products/thirty-presents-out
+2026-11-10T16:01:30.831Z INFO  Product handled: https://www.blackriflecoffee.com/products/dark-roast-bundle
+2026-11-10T16:01:31.298Z INFO  Found 22 products in the listing page: https://www.blackriflecoffee.com/collections/coffee. Page: 2
+2026-11-10T16:01:39.472Z INFO  Product handled: https://www.blackriflecoffee.com/products/rckr-roast-12oz-ground
+2026-11-10T16:01:39.933Z INFO  Product handled: https://www.blackriflecoffee.com/products/light-roast-bundle
+2026-11-10T16:01:40.033Z INFO  Product handled: https://www.blackriflecoffee.com/products/shooting-time-12oz-ground
+2026-11-10T16:01:40.292Z INFO  Product handled: https://www.blackriflecoffee.com/products/happy-hunting-kit
+2026-11-10T16:01:40.615Z INFO  Product handled: https://www.blackriflecoffee.com/products/happy-hunting-fully-loaded-kit
+2026-11-10T16:01:43.211Z INFO  Product handled: https://www.blackriflecoffee.com/products/supply-drop
+2026-11-10T16:01:43.780Z INFO  Product handled: https://www.blackriflecoffee.com/products/atomic-llama
+2026-11-10T16:01:44.710Z INFO  Product handled: https://www.blackriflecoffee.com/products/freedom-fuel-roast
+2026-11-10T16:01:45.062Z INFO  Product handled: https://www.blackriflecoffee.com/products/dictator-geisha-roast
+2026-11-10T16:01:45.088Z INFO  Product handled: https://www.blackriflecoffee.com/products/bourbon-roast
+2026-11-10T16:01:45.205Z INFO  Product handled: https://www.blackriflecoffee.com/products/maple-pecan
+2026-11-10T16:01:45.847Z INFO  Product handled: https://www.blackriflecoffee.com/products/just-black-roast
+2026-11-10T16:01:46.493Z INFO  Product handled: https://www.blackriflecoffee.com/products/ak-espresso-roast
+2026-11-10T16:01:46.595Z INFO  Product handled: https://www.blackriflecoffee.com/products/beyond-valor-roast
+2026-11-10T16:01:47.315Z INFO  Product handled: https://www.blackriflecoffee.com/products/pumpkin-spice-roast
+2026-11-10T16:01:47.429Z INFO  Product handled: https://www.blackriflecoffee.com/products/hazelnut-coffee-roast
+2026-11-10T16:01:47.850Z INFO  Product handled: https://www.blackriflecoffee.com/products/silencer-smooth-roast
+2026-11-10T16:01:49.409Z INFO  Found 22 products in the listing page: https://www.blackriflecoffee.com/collections/coffee. Page: 3
+2026-11-10T16:01:51.446Z INFO  Product handled: https://www.blackriflecoffee.com/products/medium-roast-bundle
+2026-11-10T16:01:52.166Z INFO  Product handled: https://www.blackriflecoffee.com/products/salty-caramel-roast
+2026-11-10T16:01:53.715Z INFO  Product handled: https://www.blackriflecoffee.com/products/caf-roast
+2026-11-10T16:01:56.249Z INFO  Product handled: https://www.blackriflecoffee.com/products/complete-mission-fuel-kit-1
+2026-11-10T16:01:56.344Z INFO  Product handled: https://www.blackriflecoffee.com/products/happy-hunting
+2026-11-10T16:02:00.504Z INFO  Product handled: https://www.blackriflecoffee.com/products/indulgent-flavored-coffee-bundle
+2026-11-10T16:02:01.414Z INFO  Found 30 products in the listing page: https://www.blackriflecoffee.com/collections/coffee. Page: 4
+2026-11-10T16:02:09.734Z INFO  Product handled: https://www.blackriflecoffee.com/products/fit-fuel-blend
+2026-11-10T16:02:10.616Z INFO  Product handled: https://www.blackriflecoffee.com/products/chocolate-flavored-coffee
+2026-11-10T16:02:11.419Z INFO  Product handled: https://www.blackriflecoffee.com/products/coffee-or-die
+2026-11-10T16:02:15.703Z INFO  Product handled: https://www.blackriflecoffee.com/products/thin-blue-line-roast
+2026-11-10T16:02:16.897Z INFO  Product handled: https://www.blackriflecoffee.com/products/gunship-roast
+2026-11-10T16:02:17.570Z INFO  Found 20 products in the listing page: https://www.blackriflecoffee.com/collections/coffee. Page: 5
+2026-11-10T16:02:18.292Z INFO  Product handled: https://www.blackriflecoffee.com/products/fools-gold-irish-cream
+2026-11-10T16:02:24.047Z INFO  Product handled: https://www.blackriflecoffee.com/products/wakin-the-neighbors
+2026-11-10T16:02:25.260Z INFO  Product handled: https://www.blackriflecoffee.com/products/fall-coffee-bundle-1
+2026-11-10T16:02:25.989Z INFO  Product handled: https://www.blackriflecoffee.com/products/dark-chocolate-roast
+2026-11-10T16:02:27.677Z INFO  Product handled: https://www.blackriflecoffee.com/products/fur-missile
+2026-11-10T16:02:27.896Z INFO  Product handled: https://www.blackriflecoffee.com/products/just-medium-canister
+2026-11-10T16:02:27.971Z INFO  Found 5 products in the listing page: https://www.blackriflecoffee.com/collections/coffee. Page: 6
+2026-11-10T16:02:28.514Z INFO  Product handled: https://www.blackriflecoffee.com/products/montana-knife-company-coffee
+2026-11-10T16:02:29.170Z INFO  Product handled: https://www.blackriflecoffee.com/products/power-llama-3
+2026-11-10T16:02:29.639Z INFO  Product handled: https://www.blackriflecoffee.com/products/iced-black
+2026-11-10T16:02:34.319Z INFO  Product handled: https://www.blackriflecoffee.com/products/ak-espresso-essentials-bundle
+2026-11-10T16:02:34.526Z INFO  Product handled: https://www.blackriflecoffee.com/products/royal-elk-12oz-whole-bean
+2026-11-10T16:02:35.601Z INFO  Product handled: https://www.blackriflecoffee.com/products/exclusive-coffee-subscription
+2026-11-10T16:02:36.066Z INFO  Product handled: https://www.blackriflecoffee.com/products/gothic-serpent-3-0-12oz-whole-bean
+2026-11-10T16:02:36.233Z INFO  Product handled: https://www.blackriflecoffee.com/products/best-of-brcc
+2026-11-10T16:02:37.857Z INFO  Product handled: https://www.blackriflecoffee.com/products/flavored-coffee-bundle
+2026-11-10T16:02:40.850Z INFO  Product handled: https://www.blackriflecoffee.com/products/caffeinate-mars-2-0-12oz-whole-bean
+2026-11-10T16:02:42.807Z INFO  Product handled: https://www.blackriflecoffee.com/products/fall-coffee-bundle
+2026-11-10T16:02:56.138Z INFO  Product handled: https://www.blackriflecoffee.com/products/liberty-roast
+2026-11-10T16:02:56.239Z INFO  Actor is finishing...

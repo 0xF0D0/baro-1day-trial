@@ -274,6 +274,32 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
         c = map_run(RUN, [record("email/5", "email", {"eml": eml})]).rows[0].columns
         self.assertEqual((c["body"], c["headline"], c["advertiser_name"]), (None, "Hi", "Shop"))
 
+    def test_imap_route_html_only_email(self):
+        eml = ("From: Shop <a@shop.test>\r\nSubject: Verify your email\r\nDate: Tue, 10 Nov 2026 15:13:02 +0000\r\n"
+               "Content-Type: text/html; charset=utf-8\r\n\r\n<p>hello https://shop.test/REDACTED</p>\r\n")
+        raw = {"route": "imap", "file": "1.eml", "eml": eml, "folder": "all", "in_first_day": True,
+               "redaction": "strict", "spam_checked": True}
+        r = map_run(RUN, [record("email/1", "email", raw)]).rows[0]
+        self.assertEqual((r.table, r.kind, r.scope), ("ads", "email", "emails"))
+        c = r.columns
+        self.assertEqual((c["channel"], c["headline"], c["body"]), ("email", "Verify your email", None))
+
+    def test_email_without_usable_date_takes_the_received_time(self):
+        got = datetime(2026, 11, 10, 15, 12, 32, tzinfo=timezone.utc)
+        for date in (None, "garbage", "Tue, 10 Nov 2026 15:12:32 -0000"):
+            head = f"Date: {date}\r\n" if date else ""
+            eml = (f"From: Shop <a@shop.test>\r\nSubject: Hi\r\n{head}X-Trial-Received-At: 2026-11-10T15:12:32Z\r\n"
+                   "Content-Type: text/plain; charset=utf-8\r\n\r\nhello\r\n")
+            with self.subTest(date=date):
+                r = map_run(RUN, [record("email/6", "email", {"eml": eml})]).rows[0]
+                self.assertEqual(r.columns["started_at"], got)
+
+    def test_email_without_date_and_received_time_raises(self):
+        for head in ("", "Date: garbage\r\n", "Date: garbage\r\nX-Trial-Received-At: soon\r\n"):
+            eml = f"From: Shop <a@shop.test>\r\nSubject: Hi\r\n{head}\r\nbody\r\n"
+            with self.subTest(head=head), self.assertRaises(MapError):
+                map_run(RUN, [record("email/7", "email", {"eml": eml})])
+
     def test_errors_start_with_key(self):
         p = load("products_deathwish_trimmed.json")["products"][0]
         bad_price = {**p, "variants": [{**p["variants"][0], "price": "free"}]}

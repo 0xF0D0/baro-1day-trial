@@ -17,11 +17,11 @@ Route per brand (exact values in section 3):
 
 | Brand | `prices` | `offers` | `emails` |
 |---|---|---|---|
-| `batiste` | where-to-buy API (`wtb-api-hub.swaven.com`), plain HTTP | home page | not signed up |
+| `batiste` | where-to-buy API (`wtb-api-hub.swaven.com`), plain HTTP | home page | `.eml` files (export route: `domain_not_searched` until the export covers `tintcommunities.com`) |
 | `living-proof` | Shopify `products.json`, in Chrome | home page + Klaviyo | `.eml` files |
 | `death-wish-coffee` | Shopify `products.json`, in Chrome | home page + Klaviyo | `.eml` files |
 | `black-rifle-coffee` | Apify actor `apify/e-commerce-scraping-tool` (paid) | home page + Klaviyo | `.eml` files |
-| `jinx` | Shopify `products.json`, in Chrome | home page + Klaviyo | not signed up |
+| `jinx` | Shopify `products.json`, in Chrome | home page + Klaviyo | `.eml` files (export route: `domain_not_searched` until the export covers `thinkjinx.com`) |
 
 It does not extract prices, offer texts or email contents, does not decide what is current, and does not read the Black Rifle manual snapshot (section 3). It never stores a full home page (F9).
 
@@ -31,8 +31,8 @@ It does not extract prices, offer texts or email contents, does not decide what 
 | F1 | The Living Proof, Death Wish Coffee and Jinx home pages open in headless Chrome (`channel="chrome"`) with status 200. The load event comes within 10 s. On each, `window.Shopify.country` is `US` and `window.Shopify.currency.active` is `USD`. The Batiste home opens with status 200 and has no `window.Shopify` | probe 10:43 UTC |
 | F2 | In the same browser, `https://<host>/products.json?limit=250&page=1` returns 200 `application/json; charset=utf-8` with 66 (Living Proof), 165 (Death Wish Coffee) and 73 (Jinx) products, within 6 s. `page=2` returns `{"products":[]}` | probe; `products_jinx_page1_full.json`, `products_page2_empty.json` |
 | F3 | The response is `{"products": [...]}`. Every product has an integer `id`, a string `handle` and a list `variants`; every variant has `id` and `price` (a string such as `"30.00"`). There is no currency field. The product page is `https://<host>/products/<handle>` | `products_*.json` |
-| F4 | Black Rifle blocks the collector's own access: curl gets 403 "Attention Required! \| Cloudflare", and in Playwright Chrome the home page sends itself to `blackriflecoffee.com/url?q=https://www.google.com/` about 3 s after loading (2 of 2 tries). By the owner's rule this path was not tried again; Black Rifle prices come from Apify instead | `source_info.md` section 2 |
-| F5 | Seen once on the Black Rifle home in a normal (not automated) browser: announcement bar `announcement-bar .swiper-slide`, bundle cards `product-carousel product-card`. Never checked in headless Chrome (F4) | `offers_blackrifle.json` |
+| F4 | Black Rifle blocks the collector's own access: curl gets 403 "Attention Required! \| Cloudflare", and in Playwright Chrome the home page sends itself to `blackriflecoffee.com/url?q=https://www.google.com/` about 3 s after loading (2 of 2 tries). By the owner's rule this path was not tried again; Black Rifle prices come from Apify instead. The home page comes through an actor too (F24) | `source_info.md` section 2 |
+| F5 | Seen once on the Black Rifle home in a normal (not automated) browser: announcement bar `announcement-bar .swiper-slide`, bundle cards `product-carousel product-card`. Never checked in headless Chrome (F4); read through an actor in F24 | `offers_blackrifle.json` |
 | F6 | Home slots, counted 8 s after the load event (the selectors are in section 3): Living Proof `announcement_bar` 3, `banner_heading` 2, `free_shipping_message` 3, `footer_newsletter` 1, `gift_with_purchase` 1; Death Wish Coffee `announcement_bar` 1, `banner_heading` 9, `footer_newsletter` 1; Jinx `announcement_bar` 2, `hero_retailer_button` 1, `free_shipping_message` 1, `column_heading` 6, `cart_note` 1; Batiste `community_signup` 1 | probe 10:43 UTC; `home_slots/*.html` |
 | F7 | Living Proof's free-shipping threshold is the attribute `data-limit="50"` on `p.cart__message`; Jinx's is `data-free-shipping-limit="65"` on `div.drawer__message` | `home_slots/living-proof.html`, `home_slots/jinx.html` |
 | F8 | The Klaviyo popup forms do not appear in the headless home DOM within 8 s. `GET https://static-forms.klaviyo.com/forms/api/v7/<company id>/full-forms` returns 200 `application/json` without login. Its top-level keys are `company_sender_settings`, `dynamic_info_config`, `form_settings`, `full_forms`. Every element of `full_forms` has a string `form_id`. Forms: Living Proof 5 at 05:19 UTC and 2 at 10:47 UTC, so the list changes during the day; Death Wish Coffee 16, Black Rifle 16, Jinx 0. Batiste has no Klaviyo account. The list does not say whether a form is currently shown | probe 10:47 UTC; `klaviyo_forms_*.json` (05:19 UTC) |
@@ -47,8 +47,11 @@ It does not extract prices, offer texts or email contents, does not decide what 
 | F17 | Apify API: `POST https://api.apify.com/v2/acts/apify~e-commerce-scraping-tool/runs?maxTotalChargeUsd=1&timeout=3600` returns 201 with `data.id`. `GET /v2/actor-runs/<id>?waitForFinish=60` returns the run object with `data.status`, `data.usageTotalUsd`, `data.defaultDatasetId`, `data.storageIds.datasets.errors`, `data.userId` and signed URLs in `data.output`. Items come from `GET /v2/datasets/<id>/items?clean=true&format=json`, the log from `GET /v2/logs/<id>` | run 2 calls; `apify/blackrifle_run2_run.json` |
 | F18 | The three redacted `.eml` files are ASCII with CRLF line ends. They have `From`, `Subject`, `Date`, `X-Trial-Gmail-Id`, `X-Trial-Received-At` (Gmail receive time, UTC, whole seconds), `X-Trial-Gmail-Labels`, `X-Trial-Redaction`, and `To: TRIAL_INBOX <trial_inbox@redacted.invalid>` | `eml/*.eml` |
 | F19 | The inbox was searched once, at 2026-11-10T07:26:17Z, for the three sender domains. The spam folder was not searched. One email per brand was found. The Death Wish Coffee email arrived 3 s **before** the recorded `signup_at`, because `signup_at` was recorded after the submit click finished | export session log; `eml/`; `part1/data/email_signups.json` (`note`) |
-| F20 | `part1/data/email_signups.json` lists Batiste and Jinx as `not_signed_up` with `signup_at` `null`. Black Rifle is `submitted_unconfirmed`, although its email arrived 94 s after `signup_at` | `part1/data/email_signups.json`, `eml/` |
+| F20 | `part1/data/email_signups.json` lists Batiste as `submitted_unconfirmed` (a community account on a third-party site, "Verify your email" received and not confirmed) and Jinx as `signed_up` (a customer account registration, "Customer account confirmation" received). For both, `signup_at` and `first_email_at` are the arrival time of the first mail. Black Rifle is `submitted_unconfirmed`, although its email arrived 94 s after `signup_at` | `part1/data/email_signups.json`, `eml/` |
 | F21 | A run with the same input at 2026-11-10T15:49Z again returned 55 items, but 47 of the item URLs ended in `?variant=<digits>` (for example `/products/dark-roast-bundle?variant=42986248175712`), and the log had six `Found` lines for pages 1 to 6 (12, 10, 20, 30, 22, 5), which sum to 99; a run nine minutes later, again with 55 items, summed to 109 and reported `priceCurrency`. The pages' counts overlap, so `listed` no longer equals the item count and such a run is `partial` with `apify_count_mismatch` | runs of 2026-11-10T15:49Z and 15:58Z (not kept as samples) |
+| F22 | Run 4 (2026-11-10, the input of section 4.4) logged six page lines for the one listing, `Found` 10, 22, 22, 30, 20 and 5, and 55 distinct `Product handled` lines; it returned 55 items. Page counts of one listing overlap, so they are not summed | `apify/blackrifle_run4_log.txt` |
+| F23 | In the inbox on 2026-11-10: "Customer account confirmation" from `support@thinkjinx.com` at `2026-11-10T15:12:32Z`, and "Verify your email" from a `tintcommunities.com` address (display name "Batiste Nation") at `2026-11-10T15:13:02Z`. Four hours later no newsletter welcome mail had arrived for either brand | inbox, 2026-11-10 |
+| F24 | Trial on 2026-11-11 of `apify/playwright-scraper` (API name `apify~playwright-scraper`) for the Black Rifle home page: `POST /v2/acts/apify~playwright-scraper/runs?timeout=180&memory=2048` returned 201 and the run was `SUCCEEDED` in under a minute, with `usageTotalUsd` about 0.003 (platform usage). The `pageFunction` runs in Node with `context = { page, request, response, log, ... }`; `page` is a Playwright page and `context.response.status` is a number, not a function (`response.status()` threw `TypeError: response.status is not a function`). The dataset held one item, the object the function returned: `url` `https://www.blackriflecoffee.com/`, `status` 200, title "Black Rifle Coffee Company – Black Rifle Coffee Company", market `["US", "USD"]`, 2 elements for `announcement-bar .swiper-slide` ("Free Shipping on orders over $75!", "We are America's Coffee®, By Veterans for people who love America.") and 166 for `product-carousel product-card`. When the page fails inside the actor, the run still ends `SUCCEEDED` with an empty dataset. `apify/web-scraper` was not used: it asks for full access to the Apify account | trial run, 2026-11-11 |
 
 Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - `products_*`;
@@ -56,7 +59,7 @@ Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - `klaviyo_forms_*.json`;
 - `batiste/`;
 - `batiste_wtb_availabilities_trimmed.json`;
-- `apify/blackrifle_run1_*` and `apify/blackrifle_run2_*`;
+- `apify/blackrifle_run1_*`, `apify/blackrifle_run2_*` and `apify/blackrifle_run4_log.txt` (six listing pages, 55 distinct products handled);
 - `eml/`.
 
 ## 3. Input
@@ -112,9 +115,9 @@ Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 }
 ```
 - Death Wish Coffee uses `h2.banner__heading`, not the whole banner box, because the banner boxes of customer-quote slides end with the customer's name (F9).
-- Black Rifle's home is still opened once per run, so the block is recorded each time (F4). Its slots come from F5.
+- `home.route` is optional. `"apify_playwright"` (Black Rifle only) reads the home page through an actor (4.1a); without the key the page is read in Chrome (4.1). Black Rifle's browser is still started for the run, because its refusal of our Chrome is why the actor is used (F4, F24). Its slots come from F5.
 - `shopify_market_check` is `false` for Black Rifle because its prices do not come from its site; their currency is checked on the Apify items (4.4).
-- `email_sender_domains` is empty for the two brands that have not signed up. It gets filled from their first real email (section 9).
+- `email_sender_domains` holds the sender domains of the brand's mail: `tintcommunities.com` for Batiste and `thinkjinx.com` for Jinx (F23). An empty list gives `sender_domains_unknown`.
 
 Other files the collector reads:
 
@@ -123,7 +126,9 @@ Other files the collector reads:
 | `part1/collectors/brands.json` | Brand `name` for each slug |
 | `part1/data/email_signups.json` | Signup time and page per brand (F20). Read only; the main thread owns it |
 | `part1/collectors/10_brand_site_and_emails/inbox_export/export.json` and the `.eml` files next to it | The inbox export (below) |
-| `.env` at the repository root | `APIFY_TOKEN` |
+| `.env` at the repository root | `APIFY_TOKEN`, `INBOX_ADDRESS`, `INBOX_APP_PASSWORD`, `INBOX_IMAP_HOST` (optional) |
+
+**Inbox credentials.** `INBOX_ADDRESS` and `INBOX_APP_PASSWORD` are read from the environment first, then from `.env` (the text after `KEY=`, surrounding whitespace and one pair of quotes removed). Spaces inside the app password are removed. `INBOX_IMAP_HOST` defaults to `imap.gmail.com`. With both address and password set, the collector reads the mailbox itself (section 4.6, route `imap`); otherwise it reads the export below (route `inbox_export`). The address and the password are never written to a file, a log line, a reason or a record.
 
 **Inbox export.** The inbox is read outside the collector, by the procedure in section 12 of `source_info.md`. That procedure:
 - searches the sender domains;
@@ -171,7 +176,11 @@ The folder now holds the export of F19:
 | `APIFY_POLL_ERRORS_MAX` | 3 | 4.4 |
 | `APIFY_POLL_ERROR_WAIT_S` | 15 | 4.4 |
 | `APIFY_MAX_TOTAL_WAIT_S` | 4200 | 4.4 |
+| `HOME_APIFY_ACTOR` | `apify~playwright-scraper` | 4.1a |
+| `HOME_APIFY_MEMORY_MB` | 2048 | 4.1a |
+| `HOME_APIFY_RUN_TIMEOUT_S` | 180 | 4.1a. The wait for the run ends `HOME_APIFY_RUN_TIMEOUT_S` + 120 s after the start |
 | `FIRST_DAY_S` | 86400 | 4.6 |
+| `IMAP_TIMEOUT_S` | 60 | 4.6 (route `imap`: socket timeout of the connection; a timeout in any command is an `OSError`, so `imap_error: TimeoutError`) |
 | `SIGNUP_TOLERANCE_S` | 300 | 4.6 (F19: the Death Wish Coffee email arrived 3 s before `signup_at`) |
 
 `RADAR_CAREFUL` (any non-empty value) restores the earlier pace; `part1/run.py --careful` sets it.
@@ -215,6 +224,35 @@ Order within a brand's run: (1) home page, (2) prices, (3) Klaviyo, (4) emails.
 | Step 1 failed | `could_not_look` | as in step 1 |
 | Every slot `found` | `ok` | empty |
 | Otherwise | `partial` | `slots_not_found(<slot names, comma-separated, in config order>)` |
+
+### 4.1a Home page through an actor (`offers`, `home.route` `apify_playwright`)
+Used instead of 4.1. Same slots, same records; nothing is opened in Chrome.
+1. Read `APIFY_TOKEN` as in 4.4 step 1. Missing: the home sub-part is `could_not_look` with `missing_token`, and no request is sent.
+2. Start once: `POST https://api.apify.com/v2/acts/apify~playwright-scraper/runs?timeout=180&memory=2048` (never sent twice; same `Authorization` header as 4.4). Input:
+   ```json
+   {"startUrls": [{"url": "<home.url>"}], "linkSelector": "", "pageFunction": "<source>", "launcher": "chromium", "proxyConfiguration": {"useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"], "apifyProxyCountry": "US"}, "maxPagesPerCrawl": 1, "maxRequestRetries": 0, "pageLoadTimeoutSecs": 60, "waitUntil": "domcontentloaded"}
+   ```
+   The `pageFunction` waits `HOME_SETTLE_S`, then returns one object: `requested`, `url`, `title`, `status` (number, or `null` without a response; the function accepts `response.status` as a number or a function, F24), `market` (`[Shopify.country, Shopify.currency.active]`) and `slots`: for each slot name, the list of `{outer_html, text}` of the elements matching its selector. The slots object is embedded as JSON, never pasted as text.
+   - Anything other than 201 with `data.id`: `apify_start_failed: http_<status>` or `apify_start_failed: <exception type>`.
+3. Poll as in 4.4 step 3 (same constants and `apify_wait_failed(run=<id>)`), but stop `HOME_APIFY_RUN_TIMEOUT_S` + 120 s after the start.
+4. If `data.status` is `SUCCEEDED`, GET the dataset items once (4.4 step 4); a failure gives `apify_items_failed: http_<status>`, `<exception type>` or `not_a_list`.
+5. `cost_usd` of the step is `data.usageTotalUsd` of the final run object (0 when no run started). The run's `cost_usd` is this plus the prices cost, and the home cost is kept even when the prices step raises.
+
+| Home sub-part, checked in this order | State | Reason |
+|---|---|---|
+| Steps 1 to 4 failed | `could_not_look` | as given there |
+| `data.status` is not `SUCCEEDED` | `could_not_look` | `apify_run_<status>` |
+| Dataset empty (the page failed inside the actor) | `could_not_look` | `home_not_returned` |
+| The item's `url` host is not `home.host`; a missing, non-string or unparseable `url` gives host `None` and is handled here, never raised | `could_not_look` | `blocked: host=<host>` |
+| `status` is neither `null` nor a number (a boolean is not a number) | `could_not_look` | `home_status_unreadable` |
+| `status` is 403 or 429 | `could_not_look` | `blocked: http_<status>` |
+| `title` contains (case-insensitive) `attention required` or `just a moment` | `could_not_look` | `blocked: title=<phrase>` |
+| `status` is 400 or higher | `could_not_look` | `http_<status>` |
+| `shopify_market_check` is true and `market` is not a two-element list with a non-null country and currency | `could_not_look` | `market_unconfirmed` |
+| Every slot has at least one element | `ok` | empty |
+| Otherwise (a slot missing from the item or not a list counts as no elements) | `partial` | `slots_not_found(<names, in config order>)` |
+
+The records are the `offer_slot` records of section 5 with `route` `home_apify`, one per slot in config order, written only when the sub-part is `ok` or `partial`; `fetched_at` is when the dataset was read. `market` is recorded only when `shopify_market_check` is true (then it is always confirmed, see the table). Each element is written as `{"outer_html": <string>, "text": <string>}`: a missing or non-string value becomes `""`, and an element that is not an object is skipped.
 
 ### 4.2 Klaviyo (`offers`, only when `klaviyo_company_id` is not `null`)
 1. GET `https://static-forms.klaviyo.com/forms/api/v7/<klaviyo_company_id>/full-forms`.
@@ -273,7 +311,7 @@ Order within a brand's run: (1) home page, (2) prices, (3) Klaviyo, (4) emails.
 7. Currency check on the items to be written:
    - If any `offers.priceCurrency` is neither `"USD"` nor `null`, `prices` is `could_not_look` with the reason `not_usd(<distinct values, sorted, comma-separated>)`, and no `product` record is written.
    - Otherwise write the records. The number of `null` values is `currency_not_reported`.
-8. `listed` is the sum of `N` over the distinct `(url, page)` pairs in log lines matching `Found (\d+) products in the listing page: (\S+)\. Page: (\d+)` whose url equals `listing_url`. It is `null` when there is no such line.
+8. `listed` is the number of distinct product URLs in log lines matching `Product handled: (\S+)`: what the actor says it handled. It is `null` when there is no such line. `found_per_page` keeps the `N` of the lines `Found (\d+) products in the listing page: (\S+)\. Page: (\d+)` for `listing_url`, one per page, for the record only: pages of one listing repeat products, so their sum is not a count (run 4: 10, 22, 22, 30, 20, 5 for 55 products). The size of the listing itself cannot be checked by the collector, because the site refuses its browser (F4).
 9. `cost_usd` is `data.usageTotalUsd` of the final run object.
 
 | `prices` state, checked in this order | State | Reason |
@@ -316,7 +354,12 @@ With the item shape of F15, every Black Rifle run ends `partial` with the reason
 | Anything else | `partial` | what applies, joined with `; `: `product_pages_failed=<n>`, the first failed EAN's `error` among EANs not refused as `unauthorized_product`, `eans_unauthorized=<n>`, `eans_not_attempted=<n>` |
 
 ### 4.6 Emails (`emails`)
-No network. Each check below ends the part when it fails.
+Two routes. Steps 1 and 2 come first on both and end the part when they fail. Then `inbox_credentials()` (section 3) decides: credentials set means route `imap`; otherwise route `inbox_export`. With credentials there is no fallback to the files: old mail must not stand in for a mailbox that could not be read.
+
+#### Route `inbox_export`
+No network. This is the procedure below, unchanged. The part also carries `route` `"inbox_export"`.
+
+Each check below ends the part when it fails.
 1. Find the entry in `part1/data/email_signups.json` whose `brand` equals the brand's `name` in `brands.json`.
    - No file or no entry: `could_not_look`, reason `no_signup_entry`.
    - `signup_at` is `null`: `could_not_look`, reason `not_signed_up(status=<entry status>)`.
@@ -347,6 +390,27 @@ No network. Each check below ends the part when it fails.
 
 `<h>` is `(exported_at − signup_at)` in hours, formatted with two decimals. So "0 emails" (`ok`, 0 records) and "could not look" (`could_not_look`) are different states, and a run before the 24 hours are over always shows `first_day_not_over` with the hours covered.
 
+#### Route `imap`
+Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per brand, opened with a timeout of `IMAP_TIMEOUT_S`. Each command is sent once (no retries) and adds 1 to `requests`. Nothing in the mailbox changes: folders are opened with `select(..., readonly=True)` and messages are fetched with `BODY.PEEK[]`.
+1. Steps 1 and 2 above (`no_signup_entry`, `not_signed_up(status=<entry status>)`, `sender_domains_unknown`).
+2. `login`. `imaplib.IMAP4.abort` (the connection broke; it is a subclass of `imaplib.IMAP4.error`) is caught first: `could_not_look`, reason `imap_error: abort`. Any other `imaplib.IMAP4.error` here (a refused login): `could_not_look`, reason `imap_login_failed`.
+3. `list`. The folders flagged `\All` and `\Junk` are used, whatever their (localized) names. No `\All` folder: `could_not_look`, reason `imap_no_all_folder`.
+4. For `\All`, then `\Junk`: `select` read-only. A refused `select` of `\All` is `imap_error: select`. A refused `select` of `\Junk`, or any exception from it, only leaves `spam_checked` false and the read of `\All` stands. A folder flagged `\Noselect` is never taken as `\All` or `\Junk`. When `\Junk` was read completely, `spam_checked` is true.
+5. Per sender domain: `UID SEARCH FROM "<domain>" SINCE <date of (signup_at − SIGNUP_TOLERANCE_S) − 1 day>` (`DD-Mon-YYYY`, English month names). The server compares dates without a time zone, so the search starts one day early; the exact time is checked on each message (step 7). The search matches substrings, so it can return other senders (step 8). A status other than `OK` is `imap_error: search`.
+6. Per UID: `UID FETCH <uid> (X-GM-MSGID X-GM-LABELS INTERNALDATE BODY.PEEK[])`. A status other than `OK` is `imap_error: fetch`. The attributes (`X-GM-MSGID`, `X-GM-LABELS`, `INTERNALDATE`) are read from the whole fetch answer: the first part of the literal's tuple joined with every `bytes` part, so a server may put them before or after the literal. The message ID is `X-GM-MSGID` in hexadecimal (the ID of the hand export); without it, the first 16 hex digits of the SHA-256 of the raw message. A message already handled in this run (other folder, other domain) is skipped. A message whose `From` domain is not one of the brand's sender domains (or a subdomain), or whose `From` cannot be read, is skipped silently (step 8). Each other distinct message counts in `messages`.
+7. `received_at` is `INTERNALDATE` in UTC. Before `signup_at − SIGNUP_TOLERANCE_S`: counted in `before_signup`, not written. Otherwise the message is redacted in memory with `tools/redact_eml.py` (`redact_message`, inbox = the address): the strict level when the `From` domain is not a verified sender (`VERIFIED_DOMAINS`) or a subdomain of one. A redaction failure, an unparseable message or a file that fails the checks of the `inbox_export` route's step 4 is counted in `eml_invalid`. The redacted bytes go to `raw/<brand>/<run_id>.eml/<gmail id>.eml`.
+8. A message whose `From` domain is not a sender domain (or a subdomain of one) is skipped without a count (`messages`, `before_signup` and `eml_invalid` count only the brand's mail) and its file is not kept.
+9. Every kept message is an `email` record, in order of `received_at`, then Gmail ID; the window has no end. `in_window` is the number of records, `in_first_day` the number received before `signup_at + FIRST_DAY_S`. `logout` is sent in every case; its errors are ignored.
+10. Any other exception from connecting or from a command: reason `imap_error: <exception type name>`. Records of earlier steps stay, so the state is `partial` with that reason when at least one record was kept, otherwise `could_not_look`. No text of an exception, no address, password or host is put into a reason, a log line or the part.
+
+| `emails` state (route `imap`) | State | Reason |
+|---|---|---|
+| steps 1, 2, 3, 4 or 10 without records | `could_not_look` | as given there |
+| both folders read, `eml_invalid` 0, no exception | `ok` | empty. 0 records means no email arrived |
+| anything else | `partial` | `spam_not_checked`, `eml_invalid=<n>`, or the step 10 reason, joined with `; ` |
+
+`first_day_not_over` does not apply on this route.
+
 ## 5. Output
 ### Records
 | `kind` | `key` | `url` | `fetched_at` |
@@ -354,9 +418,9 @@ No network. Each check below ends the part when it fails.
 | `product` (Shopify) | `product/<host>/<handle>` | `https://<host>/products/<handle>` | when the page response arrived |
 | `product` (Apify) | `product/www.blackriflecoffee.com/<handle from url>` | the item's `url` | the item's `scrapedAt`, cut to whole seconds (`YYYY-MM-DDTHH:MM:SSZ`); when it is missing, when the items response arrived |
 | `retailer_availability` | `wtb/<EAN>` | `https://www.batistehair.com<first product path>` (the page whose "SHOP NOW" button opens the widget) | when the request ended. For `not_attempted`, when the route stopped |
-| `offer_slot` | `offer_slot/<home host>/<slot>` | `home.url` | when the settle wait ended |
+| `offer_slot` | `offer_slot/<home host>/<slot>` | `home.url` | when the settle wait ended; route `home_apify`: when the dataset was read |
 | `klaviyo_form` | `klaviyo_form/<company id>/<form_id>` | the `full-forms` URL | when the response arrived |
-| `email` | `email/<X-Trial-Gmail-Id>` | the entry's `signup_url`: signing up there brings the same email | `exported_at` |
+| `email` | `email/<X-Trial-Gmail-Id>` | the entry's `signup_url`: signing up there brings the same email | route `inbox_export`: `exported_at`; route `imap`: when the mailbox was opened (after login) |
 
 `raw` per kind:
 ```json
@@ -364,9 +428,12 @@ No network. Each check below ends the part when it fails.
 {"route": "apify_ecommerce", "apify_run_id": "hnwXbDVmaBIo3D8pq", "item": {}}
 {"route": "batiste_wtb", "ean": "5010724526705", "product_pages": ["/products/dry-shampoo/fragrance-bare"], "state": "fetched", "error": null, "response": {}}
 {"route": "home_dom", "slot": "announcement_bar", "selector": "p.announcement-bar__message", "state": "found", "elements": [{"outer_html": "<p ...>", "text": "BUILD YOUR OWN ..."}]}
+{"route": "home_apify", "slot": "announcement_bar", "selector": "announcement-bar .swiper-slide", "state": "found", "elements": [{"outer_html": "<div ...>", "text": "Free Shipping ..."}]}
 {"route": "klaviyo_full_forms", "company_id": "Q6RhjR", "form": {}}
 {"route": "inbox_export", "file": "livingproof_20261110T044829Z_1a1c3c946076193d.eml", "sha256": "<of the file bytes>", "eml": "<the whole file as text>", "signup_at": "2026-11-10T04:47:06Z", "first_day_ends_at": "2026-11-11T04:47:06Z", "exported_at": "2026-11-10T07:26:17Z", "spam_checked": false}
+{"route": "imap", "file": "3e8.eml", "sha256": "<of the file bytes>", "eml": "<the whole file as text>", "signup_at": "2026-11-10T15:12:32Z", "first_day_ends_at": "2026-11-11T15:12:32Z", "folder": "all", "in_first_day": true, "redaction": "strict", "spam_checked": true}
 ```
+- On the `imap` route `folder` is `all` or `spam`, `redaction` is `verified` or `strict`, and `in_first_day` says whether the message arrived within 24 hours of `signup_at`.
 - `product`, `item`, `response` and `form` are unchanged.
 - `retailer_availability.state` is `fetched`, `failed`, `not_attempted` or `not_us`. `response` is `null` unless `fetched`.
 
@@ -379,7 +446,7 @@ No network. Each check below ends the part when it fails.
 ### Run result
 - `source` is `brand_site_and_emails`.
 - `expected_total` is `null`.
-- `cost_usd` is the Apify charge from 4.4, and 0 for the other brands.
+- `cost_usd` is the Apify charge from 4.4 plus the one from 4.1a, and 0 for brands that use neither. The 4.1a charge is included even when a later step fails or raises.
 
 `extra`:
 ```json
@@ -394,10 +461,12 @@ No network. Each check below ends the part when it fails.
 }}
 ```
 - `market` is `null` when there is no market check.
+- On the route `apify_playwright` the `home` part also has `route` (`home_apify`), `run_id` and `run_status` (`null` when no run started).
 - `klaviyo` is `null` when `klaviyo_company_id` is `null`.
 - For the other price routes, `prices` holds `state`, `reason`, `route`, `records` and the counters below.
-- For the Apify route: `run_id`, `run_status`, `listed`, `items`, `items_without_product_url`, `duplicate_items`, `items_without_price`, `currency_not_reported`, `errors` (the length of the errors dataset, or `null` if unread).
+- For the Apify route: `run_id`, `run_status`, `listed`, `found_per_page` (the per-page `N` of step 8, a list, for the record only; `null` if the log is unread), `items`, `items_without_product_url`, `duplicate_items`, `items_without_price`, `currency_not_reported`, `errors` (the length of the errors dataset, or `null` if unread).
 - For the Batiste route: `product_pages` (a list of `{"path", "state", "eans", "location", "error"}`), `eans`, `fetched`, `failed`, `not_attempted`.
+- The `emails` part carries `route` (`imap` or `inbox_export`). On `imap` it also has `fetched_at` (when the mailbox was opened), `messages` (distinct messages found), `in_window` (records written, with no end of window), `in_first_day`, `before_signup` and `eml_invalid`; `exported_at`, `first_day_complete` and `after_first_day` are `null`; `spam_checked` is true only when the `\Junk` folder was read completely.
 - When a part stops at an earlier check (for example `not_signed_up`), the counters it never reached are `null`.
 
 `offers` state:
@@ -431,7 +500,8 @@ def classify_batiste_page(status: int, location: str | None, html: str, wtbid: s
 def validate_wtb(resp: dict, ean: str) -> tuple[str, str]: ...    # (loc.Country, loc.ISOCurrencySymbol); raises ShapeError
 def parse_klaviyo(resp: dict) -> list[dict]: ...                  # raises ShapeError
 def apify_item_key(item: dict) -> str | None: ...
-def apify_listed(log: str, listing_url: str) -> int | None: ...
+def apify_listed(log: str, listing_url: str) -> int | None: ...  # distinct `Product handled` URLs
+def apify_found_per_page(log: str, listing_url: str) -> list[int]: ...  # `Found N` per page, in page order
 def extract_slots(page, slots: dict[str, str]) -> list[dict]: ... # raw of each offer_slot record
 def read_eml(path: str, manifest_gmail_id: str) -> dict | None: ...  # gmail_id, received_at, from_domain, sha256; None when invalid
 def emails_part(signup: dict | None, sender_domains: list[str], manifest: dict | None, emls: list[dict | None]) -> tuple[str, str, list[dict]]: ...  # state, reason, in-window messages
@@ -460,7 +530,9 @@ def redact_apify_run(run: dict) -> dict: ...
 | `klaviyo_forms_livingproof.json`, `_deathwish`, `_blackrifle`, `_jinx` | 5, 16, 16, 0 forms; first `form_id` `TgsYXf`, `YcKPdA`, `SzW6gs` |
 | a Klaviyo response with `form_id` removed from one form | `ShapeError` |
 | `apify/blackrifle_run2_items.json` | 55 keys, all distinct; first `product/www.blackriflecoffee.com/fall-coffee-lineup` |
-| `apify/blackrifle_run2_log.txt`, `apify/blackrifle_run1_log.txt` | `apify_listed` 55 and 10; the max-results line only in run 1 |
+| `apify/blackrifle_run4_log.txt`, `_run2_log.txt`, `_run1_log.txt` | `apify_listed` 55, 55 and 5; `apify_found_per_page` `[10, 22, 22, 30, 20, 5]`, `[55]`, `[10]`; the max-results line only in run 1 |
+| a log with no `Product handled` line | `apify_listed` `None`; `apify_found_per_page` `[]` |
+| `apify_prices_state("SUCCEEDED", 55, 55, False, 0, True, counts)` with run 4's `listed` and all counts 0 | `("ok", "")` |
 | `apify_prices_state("SUCCEEDED", 55, 55, False, 0, True, counts)` with `currency_not_reported` 55 and the other counts 0 | `("partial", "currency_not_reported(n=55)")` |
 | the same with `currency_not_reported` 0 | `("ok", "")` |
 | `apify_prices_state("SUCCEEDED", 5, 10, True, 0, True, counts)` with all counts 0 | `("partial", "apify_max_results_reached; apify_count_mismatch(got=5,listed=10)")` |
@@ -478,7 +550,8 @@ def redact_apify_run(run: dict) -> dict: ...
 | the same for Black Rifle | `first_day_not_over(covered=2.52h)` |
 | the same three with `exported_at` `2026-11-11T05:00:00Z` and `spam_checked` `true` | `("ok", "")`, 1 message each |
 | Living Proof with `exported_at` `2026-11-11T05:00:00Z`, `spam_checked` `true` and no messages | `("ok", "")`, 0 messages |
-| Jinx or Batiste (signup entry of `email_signups.json`) | `("could_not_look", "not_signed_up(status=not_signed_up)")` |
+| Batiste (domains `tintcommunities.com`) or Jinx (`thinkjinx.com`), signup entry of `email_signups.json`, with the `export.json` of section 3 (it searched only the three other domains) | `("could_not_look", "domain_not_searched(tintcommunities.com)")` and `("could_not_look", "domain_not_searched(thinkjinx.com)")` |
+| Jinx with an empty domain list | `("could_not_look", "sender_domains_unknown")` |
 | `emails_part` with `manifest` `None` | `("could_not_look", "no_inbox_export")` |
 | `combine_parts` with ok/ok/ok; could_not_look `a`/`b`/`c`; ok, partial `x`, could_not_look `y` | `("ok", "")`; `("could_not_look", "prices: a; offers: b; emails: c")`; `("partial", "offers: x; emails: y")` |
 
@@ -490,8 +563,8 @@ def redact_apify_run(run: dict) -> dict: ...
    - while `export.json` is the export of section 3, `emails` `partial` with the reason `first_day_not_over(covered=2.65h); spam_not_checked` and 1 `email` record;
    - status `partial`.
 3. `--brand death-wish-coffee` gives the same pattern: 165 products on 2026-11-10, and 3 `offer_slot` records.
-4. `--brand jinx` gives `prices` `ok` (73 products on 2026-11-10), `offers` `ok` with 0 `klaviyo_form` records, `emails` `could_not_look` with the reason `not_signed_up(status=not_signed_up)`, and status `partial`.
-5. `--brand batiste` gives `offers` `ok` and `emails` `could_not_look`. For `prices`, one of two things happens:
+4. `--brand jinx` gives `prices` `ok` (73 products on 2026-11-10), `offers` `ok` with 0 `klaviyo_form` records, `emails` `could_not_look` with the reason `domain_not_searched(thinkjinx.com)` on the export route (no credentials), and status `partial`.
+5. `--brand batiste` gives `offers` `ok` and `emails` `could_not_look` (`domain_not_searched(tintcommunities.com)` on the export route). For `prices`, one of two things happens:
    - `ok`, with one `retailer_availability` record per EAN, all `fetched` (63 on 2026-11-10), and 5 pages `redirected`;
    - or a `blocked: http_403` failure recorded as in 4.5. In that case, stop and report (section 9).
 6. `--brand black-rifle-coffee` gives:
@@ -531,9 +604,9 @@ Stop work and report, with the exact response, when any of these happen. Do not 
 - A `products.json` page 1 has exactly 250 products, or 0 products. Paging past page 1, and an empty store, were never observed.
 - On the first implementation run, a home slot is `not_found`, the Living Proof, Death Wish Coffee, Jinx or Batiste home is blocked, or a market check is not `US`/`USD`.
 - The Black Rifle home is not blocked. Its slots (F5) were never checked in headless Chrome.
-- An Apify item has keys outside the union of the F15 and F16 shapes, an `inputUrl` other than `listing_url`, or an `unblocker-proxy-per-product` charge. Or the log has no `Found` line, or `listed` differs from the item count.
+- An Apify item has keys outside the union of the F15 and F16 shapes, an `inputUrl` other than `listing_url`, or an `unblocker-proxy-per-product` charge. Or the log has no `Product handled` line, or `listed` differs from the item count.
 - A Klaviyo response has top-level keys other than those in F8.
 - A Batiste product page returns 200 without the widget tag, or redirects somewhere other than `https://www.batistehair.com/batiste-products`.
-- `email_signups.json` gets a `signup_at` for Batiste or Jinx. Their sender domain must be taken from their first real email, added to `email_sender_domains` and to the export query, before the part can be collected.
+- The inbox export (or the `imap` route) is run for Batiste or Jinx. Their sender domains (`tintcommunities.com`, `thinkjinx.com`) must be in the export query and in `searched_domains`, or the part stays `domain_not_searched`.
 - An email from a signed-up brand arrives from a domain that is not in its `email_sender_domains`, or a manifest message is invalid (4.6 step 4).
 - Anything else that makes a step in section 4 impossible to carry out as written.
