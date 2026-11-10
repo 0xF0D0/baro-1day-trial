@@ -32,6 +32,13 @@ def _bool(value) -> bool:
     raise ValueError(f"unrecognised boolean: {value!r}")
 
 
+def _stock(text) -> str | None:
+    text = (text or "").lower()
+    if "out of stock" in text or "unavailable" in text:
+        return "OUT_OF_STOCK"
+    return "IN_STOCK" if "in stock" in text else None
+
+
 def _product(rec: dict) -> Row:
     raw = rec["raw"]
     columns = {"retailer": "amazon", "product_id": rec["key"], "price_max": None, "currency": "USD",
@@ -40,7 +47,7 @@ def _product(rec: dict) -> Row:
     if d is not None:  # these columns come only from the detail item
         columns.update(title=d.get("title"), price=_amount(d.get("price")), list_price=_amount(d.get("listPrice")),
                        rating=_dec(d.get("stars")), review_count=d.get("reviewsCount"),
-                       availability=d.get("inStockText"), seller_name=(d.get("seller") or {}).get("name"))
+                       availability=_stock(d.get("inStockText")), seller_name=(d.get("seller") or {}).get("name"))
     return Row("products", "product", rec["key"], "all", rec["url"], rec["fetched_at"], raw, columns)
 
 

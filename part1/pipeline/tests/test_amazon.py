@@ -52,9 +52,16 @@ class AmazonTest(unittest.TestCase):
         self.assertEqual(row.columns, {
             "retailer": "amazon", "product_id": "B08VFVSBXM", "title": DETAIL["title"], "price": Decimal("17.48"),
             "price_max": None, "list_price": None, "currency": "USD", "rating": Decimal("4.60"),
-            "review_count": 3357, "rank": 2, "sponsored": None, "availability": "In Stock  In Stock",
+            "review_count": 3357, "rank": 2, "sponsored": None, "availability": "IN_STOCK",
             "seller_name": "Death Wish Coffee Co.", "sold_count": None})
         self.assertEqual(m.not_fetched, 0)
+
+    def test_availability_from_stock_text(self):
+        for text, want in [("In Stock  In Stock", "IN_STOCK"), ("Only 3 left in stock - order soon.", "IN_STOCK"),
+                           ("Currently unavailable.", "OUT_OF_STOCK"), ("Temporarily out of stock.", "OUT_OF_STOCK"),
+                           ("Usually ships within 2 to 3 days", None), (None, None), ("", None)]:
+            c = map_run(OK, [product({**DETAIL, "inStockText": text})]).rows[0].columns
+            self.assertEqual(c["availability"], want, text)
 
     def test_list_price(self):
         c = map_run(OK, [product({**DETAIL, "listPrice": {"value": 21.5, "currency": "$"}})]).rows[0].columns

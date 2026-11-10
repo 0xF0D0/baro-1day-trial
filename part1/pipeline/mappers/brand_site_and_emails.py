@@ -67,7 +67,7 @@ def _availability_rows(rec: dict) -> list[Row]:
         if entry["rid"] not in first or (entry["sid"].endswith("_WEB") and not first[entry["rid"]]["sid"].endswith("_WEB")):
             first[entry["rid"]] = entry
     return [Row("products", "retailer_availability", f"{rec['key']}/{rid}", rec["key"], rec["url"], rec["fetched_at"],
-                raw, _product_columns(retailer=e["rname"], product_id=raw["ean"], title=title, price=_dec(e["pr"]),
+                raw, _product_columns(retailer=e["rname"].strip().lower(), product_id=raw["ean"], title=title, price=_dec(e["pr"]),
                                       currency=e["currency"], availability=_stock(e["av"])))
             for rid, e in first.items()]
 
@@ -106,11 +106,11 @@ def _map_record(rec: dict, offer_scopes: tuple[str, str]) -> tuple[list[Row], bo
 
 
 def map_run(run: dict, records: list[dict]) -> MappedRun:
-    parts = (run.get("extra") or {}).get("parts")
-    if not isinstance(parts, dict) or not parts:
-        raise MapError("run.extra has no parts")
+    parts = (run.get("extra") or {}).get("parts")   # a run that stopped on an exception may hold few or none
+    if not isinstance(parts, dict):
+        parts = {}
     offers = parts.get("offers") or {}
-    split = isinstance(offers.get("home"), dict)
+    split = isinstance(offers.get("home"), dict) or "offers" not in parts
     offer_scopes = ("offers_home", "offers_klaviyo") if split else ("offers", "offers")
     rows, barcodes, not_fetched = [], [], 0
     for rec in records:
@@ -135,6 +135,15 @@ def map_run(run: dict, records: list[dict]) -> MappedRun:
         else:
             scopes.append(Scope(name, part["state"], part["reason"]))
     names = {s.name for s in scopes}
+    needed = {"product": lambda r: "prices", "retailer_availability": lambda r: r["key"],
+              "offer_slot": lambda r: offer_scopes[0], "klaviyo_form": lambda r: offer_scopes[1], "email": lambda r: "emails"}
+    for rec in records:     # a scope the run never reported is a gap of this run, not a reason to reject it
+        name = needed[rec["kind"]](rec)
+        if name not in names:
+            scopes.append(Scope(name, "partial", run["reason"]))
+            names.add(name)
+    if not scopes:
+        scopes.append(Scope("all", run["status"], run["reason"]))
     for row in rows:
         if row.scope not in names:
             raise MapError(f"{row.key}: scope {row.scope!r} is not in the scopes of the run")

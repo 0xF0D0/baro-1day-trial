@@ -103,11 +103,11 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
                          "wtb/5010724526705", "https://example.test/x", FETCHED))
         self.assertIs(r.raw, m.rows[1].raw)
         self.assertEqual(r.columns, {
-            "retailer": "Target", "product_id": "5010724526705", "title": resp["prd"]["pname"],
+            "retailer": "target", "product_id": "5010724526705", "title": resp["prd"]["pname"],
             "price": Decimal("8.99"), "price_max": None, "list_price": None, "currency": "USD", "rating": None,
             "review_count": None, "rank": None, "sponsored": None, "availability": "IN_STOCK",
             "seller_name": None, "sold_count": None})
-        self.assertEqual(m.rows[4].columns["retailer"], "Ulta")
+        self.assertEqual(m.rows[4].columns["retailer"], "ulta")
         self.assertEqual(m.scopes, [Scope("wtb/5010724526705", "ok", ""), Scope("offers_home", "ok", ""),
                                     Scope("offers_klaviyo", "could_not_look", "klaviyo_http_500"),
                                     Scope("emails", "partial", PARTS_OK["emails"]["reason"])])
@@ -234,9 +234,27 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
                 map_run(RUN, [rec])
             self.assertTrue(str(cm.exception).startswith(key), str(cm.exception))
 
-    def test_run_without_parts_raises(self):
-        with self.assertRaises(MapError):
-            map_run({"status": "ok", "reason": "", "extra": {}}, [])
+    def test_crashed_run_without_parts_still_maps(self):
+        run = {**RUN, "status": "could_not_look", "reason": "exception: RuntimeError: no browser", "extra": {"parts": {}}}
+        m = map_run(run, [])
+        self.assertEqual((m.rows, m.scopes), ([], [Scope("all", "could_not_look", "exception: RuntimeError: no browser")]))
+
+    def test_run_without_extra_gives_the_all_scope(self):
+        run = {"status": "could_not_look", "reason": "exception: RuntimeError: boom"}
+        m = map_run(run, [])
+        self.assertEqual((m.rows, m.scopes), ([], [Scope("all", "could_not_look", "exception: RuntimeError: boom")]))
+        m = map_run({**run, "extra": {}}, [])
+        self.assertEqual(m.scopes, [Scope("all", "could_not_look", "exception: RuntimeError: boom")])
+
+    def test_crashed_run_with_records_of_an_unfinished_part(self):
+        # only the prices part was recorded; an offer_slot record is already in the file
+        p = load("products_deathwish_trimmed.json")["products"][0]
+        run = {"status": "could_not_look", "reason": "exception: RuntimeError: boom",
+               "extra": {"parts": {"prices": PARTS_OK["prices"]}}}
+        m = map_run(run, [shopify(p), slot("a", "found", ["x"])])
+        self.assertEqual([(r.kind, r.scope) for r in m.rows], [("product", "prices"), ("offer_slot", "offers_home")])
+        self.assertEqual(m.scopes, [Scope("prices", "ok", ""),
+                                    Scope("offers_home", "partial", "exception: RuntimeError: boom")])
 
 
 if __name__ == "__main__":

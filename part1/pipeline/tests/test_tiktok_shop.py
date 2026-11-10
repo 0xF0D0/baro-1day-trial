@@ -90,8 +90,17 @@ class TiktokShopTest(unittest.TestCase):
             "retailer": "tiktok_shop", "product_id": "1729466621878506208",
             "title": "fueled by iced coffee and anxiety retro humor coffee lover tee",
             "price": Decimal("22.00"), "price_max": None, "list_price": None, "currency": "USD",
-            "rating": Decimal("0.00"), "review_count": 0, "rank": 8, "sponsored": None,
+            "rating": None, "review_count": 0, "rank": 8, "sponsored": None,
             "availability": None, "seller_name": "CustomCreationsByStephanie", "sold_count": 12})
+
+    def test_rating_is_none_without_reviews(self):
+        item = {**TRACKED, "reviewCount": 0, "rating": 0}
+        c = tiktok_shop.map_run(OK_RUN, [envelope(item)]).rows[0].columns
+        self.assertEqual((c["rating"], c["review_count"]), (None, 0))
+        c = tiktok_shop.map_run(OK_RUN, [envelope({**TRACKED, "reviewCount": None, "rating": 0})]).rows[0].columns
+        self.assertEqual((c["rating"], c["review_count"]), (None, None))
+        c = tiktok_shop.map_run(OK_RUN, [envelope({**TRACKED, "reviewCount": 5, "rating": 4.5})]).rows[0].columns
+        self.assertEqual((c["rating"], c["review_count"]), (Decimal("4.50"), 5))
 
     def test_list_price_from_original_price(self):
         item = {**TRACKED, "originalPrice": 59.5}

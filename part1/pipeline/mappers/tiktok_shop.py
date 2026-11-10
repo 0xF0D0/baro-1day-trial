@@ -63,9 +63,10 @@ def _map_record(rec: dict) -> Row | None:
             raise ValueError(f"unknown item_state {raw['item_state']!r}")
         return None
     item = raw["item"]
+    reviews = _int(item.get("reviewCount"))
     columns = {"retailer": "tiktok_shop", "product_id": item["productId"], "title": item["title"],
                "price": _dec(item["currentPrice"]), "price_max": None, "list_price": _dec(item.get("originalPrice")),
-               "currency": item["currency"], "rating": _dec(item.get("rating")), "review_count": _int(item.get("reviewCount")),
+               "currency": item["currency"], "rating": _dec(item.get("rating")) if reviews else None, "review_count": reviews,
                "rank": _int(item["rank"]) if kind == "search_result" else None, "sponsored": None,
                "availability": None, "seller_name": item.get("sellerName"), "sold_count": _int(item.get("soldCount"))}
     return Row("products", kind, rec["key"], PART_OF_KIND[kind], rec["url"], rec["fetched_at"], raw, columns)
