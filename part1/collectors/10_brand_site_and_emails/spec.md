@@ -17,11 +17,11 @@ Route per brand (exact values in section 3):
 
 | Brand | `prices` | `offers` | `emails` |
 |---|---|---|---|
-| `batiste` | where-to-buy API (`wtb-api-hub.swaven.com`), plain HTTP | home page | not signed up |
+| `batiste` | where-to-buy API (`wtb-api-hub.swaven.com`), plain HTTP | home page | `.eml` files (export route: `domain_not_searched` until the export covers `tintcommunities.com`) |
 | `living-proof` | Shopify `products.json`, in Chrome | home page + Klaviyo | `.eml` files |
 | `death-wish-coffee` | Shopify `products.json`, in Chrome | home page + Klaviyo | `.eml` files |
 | `black-rifle-coffee` | Apify actor `apify/e-commerce-scraping-tool` (paid) | home page + Klaviyo | `.eml` files |
-| `jinx` | Shopify `products.json`, in Chrome | home page + Klaviyo | not signed up |
+| `jinx` | Shopify `products.json`, in Chrome | home page + Klaviyo | `.eml` files (export route: `domain_not_searched` until the export covers `thinkjinx.com`) |
 
 It does not extract prices, offer texts or email contents, does not decide what is current, and does not read the Black Rifle manual snapshot (section 3). It never stores a full home page (F9).
 
@@ -393,7 +393,7 @@ Each check below ends the part when it fails.
 #### Route `imap`
 Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per brand, opened with a timeout of `IMAP_TIMEOUT_S`. Each command is sent once (no retries) and adds 1 to `requests`. Nothing in the mailbox changes: folders are opened with `select(..., readonly=True)` and messages are fetched with `BODY.PEEK[]`.
 1. Steps 1 and 2 above (`no_signup_entry`, `not_signed_up(status=<entry status>)`, `sender_domains_unknown`).
-2. `login`. `imaplib.IMAP4.error` here: `could_not_look`, reason `imap_login_failed`.
+2. `login`. `imaplib.IMAP4.abort` (the connection broke; it is a subclass of `imaplib.IMAP4.error`) is caught first: `could_not_look`, reason `imap_error: abort`. Any other `imaplib.IMAP4.error` here (a refused login): `could_not_look`, reason `imap_login_failed`.
 3. `list`. The folders flagged `\All` and `\Junk` are used, whatever their (localized) names. No `\All` folder: `could_not_look`, reason `imap_no_all_folder`.
 4. For `\All`, then `\Junk`: `select` read-only. A refused `select` of `\All` is `imap_error: select`. A refused `select` of `\Junk`, or any exception from it, only leaves `spam_checked` false and the read of `\All` stands. A folder flagged `\Noselect` is never taken as `\All` or `\Junk`. When `\Junk` was read completely, `spam_checked` is true.
 5. Per sender domain: `UID SEARCH FROM "<domain>" SINCE <date of (signup_at − SIGNUP_TOLERANCE_S) − 1 day>` (`DD-Mon-YYYY`, English month names). The server compares dates without a time zone, so the search starts one day early; the exact time is checked on each message (step 7). The search matches substrings, so it can return other senders (step 8). A status other than `OK` is `imap_error: search`.
@@ -550,7 +550,8 @@ def redact_apify_run(run: dict) -> dict: ...
 | the same for Black Rifle | `first_day_not_over(covered=2.52h)` |
 | the same three with `exported_at` `2026-11-11T05:00:00Z` and `spam_checked` `true` | `("ok", "")`, 1 message each |
 | Living Proof with `exported_at` `2026-11-11T05:00:00Z`, `spam_checked` `true` and no messages | `("ok", "")`, 0 messages |
-| Jinx or Batiste (signup entry of `email_signups.json`) | `("could_not_look", "not_signed_up(status=not_signed_up)")` |
+| Batiste (domains `tintcommunities.com`) or Jinx (`thinkjinx.com`), signup entry of `email_signups.json`, with the `export.json` of section 3 (it searched only the three other domains) | `("could_not_look", "domain_not_searched(tintcommunities.com)")` and `("could_not_look", "domain_not_searched(thinkjinx.com)")` |
+| Jinx with an empty domain list | `("could_not_look", "sender_domains_unknown")` |
 | `emails_part` with `manifest` `None` | `("could_not_look", "no_inbox_export")` |
 | `combine_parts` with ok/ok/ok; could_not_look `a`/`b`/`c`; ok, partial `x`, could_not_look `y` | `("ok", "")`; `("could_not_look", "prices: a; offers: b; emails: c")`; `("partial", "offers: x; emails: y")` |
 
@@ -562,8 +563,8 @@ def redact_apify_run(run: dict) -> dict: ...
    - while `export.json` is the export of section 3, `emails` `partial` with the reason `first_day_not_over(covered=2.65h); spam_not_checked` and 1 `email` record;
    - status `partial`.
 3. `--brand death-wish-coffee` gives the same pattern: 165 products on 2026-11-10, and 3 `offer_slot` records.
-4. `--brand jinx` gives `prices` `ok` (73 products on 2026-11-10), `offers` `ok` with 0 `klaviyo_form` records, `emails` `could_not_look` with the reason `not_signed_up(status=not_signed_up)`, and status `partial`.
-5. `--brand batiste` gives `offers` `ok` and `emails` `could_not_look`. For `prices`, one of two things happens:
+4. `--brand jinx` gives `prices` `ok` (73 products on 2026-11-10), `offers` `ok` with 0 `klaviyo_form` records, `emails` `could_not_look` with the reason `domain_not_searched(thinkjinx.com)` on the export route (no credentials), and status `partial`.
+5. `--brand batiste` gives `offers` `ok` and `emails` `could_not_look` (`domain_not_searched(tintcommunities.com)` on the export route). For `prices`, one of two things happens:
    - `ok`, with one `retailer_availability` record per EAN, all `fetched` (63 on 2026-11-10), and 5 pages `redirected`;
    - or a `blocked: http_403` failure recorded as in 4.5. In that case, stop and report (section 9).
 6. `--brand black-rifle-coffee` gives:
@@ -606,6 +607,6 @@ Stop work and report, with the exact response, when any of these happen. Do not 
 - An Apify item has keys outside the union of the F15 and F16 shapes, an `inputUrl` other than `listing_url`, or an `unblocker-proxy-per-product` charge. Or the log has no `Product handled` line, or `listed` differs from the item count.
 - A Klaviyo response has top-level keys other than those in F8.
 - A Batiste product page returns 200 without the widget tag, or redirects somewhere other than `https://www.batistehair.com/batiste-products`.
-- `email_signups.json` gets a `signup_at` for Batiste or Jinx. Their sender domain must be taken from their first real email, added to `email_sender_domains` and to the export query, before the part can be collected.
+- The inbox export (or the `imap` route) is run for Batiste or Jinx. Their sender domains (`tintcommunities.com`, `thinkjinx.com`) must be in the export query and in `searched_domains`, or the part stays `domain_not_searched`.
 - An email from a signed-up brand arrives from a domain that is not in its `email_sender_domains`, or a manifest message is invalid (4.6 step 4).
 - Anything else that makes a step in section 4 impossible to carry out as written.

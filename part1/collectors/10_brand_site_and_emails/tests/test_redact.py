@@ -150,6 +150,34 @@ class VerifiedLevel(unittest.TestCase):
         with self.assertRaises(redact_eml.RedactionError):
             redact_eml.redact_message(src, "gm1", RECEIVED, [])
 
+    def test_encoded_subject_with_local_part_raises(self):
+        local = "radarinbox77"
+        src = klaviyo_message().replace(
+            b"Subject: Welcome", f"Subject: \U0001F389 {local}, here's 15% off \u2615".encode())
+        with self.assertRaises(redact_eml.RedactionError):
+            redact_eml.redact_message(src, "gm1", RECEIVED, [], inbox=f"{local}@example.org")
+
+    def test_encoded_from_name_with_local_part_raises(self):
+        local = "radarinbox77"
+        src = klaviyo_message().replace(
+            b"From: Shop <news@livingproof.com>",
+            f"From: \u2615\u2615\u2615 {local} \u2615\u2615\u2615 <news@livingproof.com>".encode())
+        with self.assertRaises(redact_eml.RedactionError):
+            redact_eml.redact_message(src, "gm1", RECEIVED, [], inbox=f"{local}@example.org")
+
+    def test_percent_encoded_dot_in_link_raises(self):
+        src = klaviyo_message().replace(
+            b"https://livingproof.com/products/shampoo?v=1",
+            b"https://livingproof.com/x?e=radar%2Einbox77%40example.org")
+        with self.assertRaises(redact_eml.RedactionError):
+            redact_eml.redact_message(src, "gm1", RECEIVED, [], inbox=INBOX)
+
+    def test_emoji_subject_without_address_succeeds(self):
+        src = klaviyo_message().replace(
+            b"Subject: Welcome", "Subject: \U0001F389 15% off \u2615".encode())
+        out, _ = redact_eml.redact_message(src, "gm1", RECEIVED, [], inbox=INBOX)
+        self.assertIn(b"=?utf-8?", out)
+
     def test_convert_still_writes_file(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
@@ -306,6 +334,10 @@ class StrictLevel(unittest.TestCase):
         for subject in (f"for {INBOX}", f"for {LOCAL}"):
             with self.subTest(subject=subject), self.assertRaises(redact_eml.RedactionError):
                 strict(other_message(subject=subject))
+
+    def test_entity_encoded_dot_in_plain_raises(self):
+        with self.assertRaises(redact_eml.RedactionError):
+            strict(other_message(plain="see radar&#46;inbox77 now\n"))
 
     def test_redaction_text(self):
         out, _ = strict(other_message(plain="https://a.example/x/y and a@b.example\n"))

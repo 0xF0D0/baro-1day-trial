@@ -284,6 +284,22 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
         c = r.columns
         self.assertEqual((c["channel"], c["headline"], c["body"]), ("email", "Verify your email", None))
 
+    def test_email_without_usable_date_takes_the_received_time(self):
+        got = datetime(2026, 11, 10, 15, 12, 32, tzinfo=timezone.utc)
+        for date in (None, "garbage", "Tue, 10 Nov 2026 15:12:32 -0000"):
+            head = f"Date: {date}\r\n" if date else ""
+            eml = (f"From: Shop <a@shop.test>\r\nSubject: Hi\r\n{head}X-Trial-Received-At: 2026-11-10T15:12:32Z\r\n"
+                   "Content-Type: text/plain; charset=utf-8\r\n\r\nhello\r\n")
+            with self.subTest(date=date):
+                r = map_run(RUN, [record("email/6", "email", {"eml": eml})]).rows[0]
+                self.assertEqual(r.columns["started_at"], got)
+
+    def test_email_without_date_and_received_time_raises(self):
+        for head in ("", "Date: garbage\r\n", "Date: garbage\r\nX-Trial-Received-At: soon\r\n"):
+            eml = f"From: Shop <a@shop.test>\r\nSubject: Hi\r\n{head}\r\nbody\r\n"
+            with self.subTest(head=head), self.assertRaises(MapError):
+                map_run(RUN, [record("email/7", "email", {"eml": eml})])
+
     def test_errors_start_with_key(self):
         p = load("products_deathwish_trimmed.json")["products"][0]
         bad_price = {**p, "variants": [{**p["variants"][0], "price": "free"}]}

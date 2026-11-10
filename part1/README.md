@@ -188,7 +188,8 @@ That is fifty rows after a full pass.
 | `not_us(...)`, `market_unconfirmed` | The brand's site served another market, or its home page did not load. Run from a US IP address; run that source again |
 | `blocked`, an HTTP 403 or 429 | The site refused. Run that source later at the slower pace, `--careful --sources <n>`. Nothing here works around a block |
 | `emails: first_day_not_over`, `spam_not_checked`, `domain_not_searched(...)` | About the welcome emails read from the exported files; expected without a mailbox. See `collectors/10_brand_site_and_emails/inbox_setup.md` |
-| `emails: imap_login_failed`, `imap_error: ...` | The mailbox could not be read with the credentials in `.env`. The exported files are not used in its place |
+| `emails: imap_login_failed`, `imap_error: ...`, `imap_no_all_folder` | The mailbox could not be read with the credentials in `.env`. The exported files are not used in its place |
+| `emails: eml_invalid=<n>` | That many messages could not be redacted safely or read, and were not stored. The others were |
 | `exit=timeout` on a `collect` line | The process was stopped and wrote nothing. The next pass reads that source again; raise `--timeout` if it keeps happening |
 | anything else | Each collector's `spec.md` lists its reasons, and its output is in `part1/logs/` |
 

@@ -27,7 +27,7 @@ Two levels (redact_message):
   only; every link cut to its host, mailto: and other addresses replaced; the inbox
   address and its local part replaced; any error raises RedactionError with a fixed text.
 """
-import base64, datetime, json, re, sys
+import base64, datetime, html as html_lib, json, re, sys, urllib.parse
 from html.parser import HTMLParser
 from email import policy
 from email.message import EmailMessage
@@ -242,15 +242,24 @@ def _redact_strict_inner(src, gmail_id, received_at, labels, inbox):
         f'{links} link(s) cut; {addresses} address(es) replaced; {dropped} part(s) dropped.')
 
     data = out.as_bytes()
+    if _address_present(out, data, [out.get_content()], inbox, local):
+        raise RedactionError('inbox address still present', ' for ', '; nothing written')
+    return data, counts
+
+
+def _address_present(out, data, bodies, inbox, local):
+    """Hard check shared by both levels: the inbox address or its local part is anywhere in the
+    output bytes, the decoded header values (encoded words are invisible in the bytes) or the
+    decoded bodies, also after percent- and entity-decoding."""
     check = data.decode('latin-1')
     for k, v in out.items():
         check += '\n' + str(v)
-    check += '\n' + out.get_content()
+    for b in bodies:
+        check += '\n' + b
     low = check.lower()
     low += '\n' + low.replace('%40', '@')
-    if inbox in low or local in low:
-        raise RedactionError('inbox address still present', ' for ', '; nothing written')
-    return data, counts
+    decoded = html_lib.unescape(urllib.parse.unquote(check)).lower()
+    return any(x in t for t in (low, decoded) for x in (inbox, local))
 
 
 def redact_message(src, gmail_id, received_at, labels, inbox=None, strict=False):
@@ -334,10 +343,10 @@ def redact_message(src, gmail_id, received_at, labels, inbox=None, strict=False)
 
     data = out.as_bytes()
     check = data.decode('latin-1')
-    for part in out.walk():
-        if not part.is_multipart():
-            check += part.get_content()
-    if inbox in check.lower() or local in check.lower():
+    bodies = [p.get_content() for p in out.walk() if not p.is_multipart()]
+    for b in bodies:
+        check += b
+    if _address_present(out, data, bodies, inbox, local):
         raise RedactionError('inbox address still present', ' for ', '; nothing written')
     if LEFTOVER_RE.search(check):
         raise RedactionError('tracking token still present', ' for ', '; nothing written')

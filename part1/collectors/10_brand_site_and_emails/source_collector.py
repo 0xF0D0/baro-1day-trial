@@ -1156,6 +1156,8 @@ def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
         try:
             try:
                 command(conn.login, address, password)
+            except imaplib.IMAP4.abort:     # a subclass of IMAP4.error: the connection broke, the login was not refused
+                raise
             except imaplib.IMAP4.error:
                 raise ImapCommandError("imap_login_failed")
             part["fetched_at"] = utc_now()

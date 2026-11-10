@@ -388,6 +388,11 @@ class ImapRouteTests(unittest.TestCase):
         part, *_ = run_imap(conn)
         self.assertEqual((part["state"], part["reason"]), ("could_not_look", "imap_error: select"))
 
+    def test_dropped_connection_during_login_is_not_a_refusal(self):
+        conn = FakeConn({}, login_error=imaplib.IMAP4.abort("x"))
+        part, *_ = run_imap(conn)
+        self.assertEqual((part["state"], part["reason"]), ("could_not_look", "imap_error: abort"))
+
     def test_login_refused_names_nothing(self):
         err = imaplib.IMAP4.error(f"[AUTHENTICATIONFAILED] {ADDRESS} {PASSWORD_SQUEEZED} {HOST}")
         conn = FakeConn({}, login_error=err)
