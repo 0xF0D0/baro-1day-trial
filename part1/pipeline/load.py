@@ -11,7 +11,7 @@ from psycopg.types.json import Jsonb
 
 import db
 from mappers import MAPPERS
-from model import COMMON_COLUMNS, TABLE_COLUMNS, MapError
+from model import COMMON_COLUMNS, TABLE_COLUMNS, MapError, Scope
 
 SOURCE_DATE_DAYS = 3
 
@@ -192,12 +192,15 @@ def _load(conn, run_path: Path, mappers: dict, run: dict, out: Outcome) -> Outco
     except (MapError, ValueError) as e:
         out.result, out.error = "failed", _first_line(e)
         return out
+    scopes = mapped.scopes
+    if str(run["reason"]).startswith("exception:"):  # the record file may be cut short
+        scopes = [Scope(s.name, "partial", run["reason"]) if s.status == "ok" else s for s in scopes]
     _insert_run(conn, run, "applied")
-    for scope in mapped.scopes:
+    for scope in scopes:
         _insert_scope(conn, run, scope.name, scope.status, scope.reason)
     out.inserted, out.updated, out.ended = _write_rows(conn, run, mapper, mapped.rows)
     out.not_fetched = mapped.not_fetched
-    out.ended += _end_absent(conn, run, mapper, mapped.scopes)
+    out.ended += _end_absent(conn, run, mapper, scopes)
     out.result = "applied"
     return out
 

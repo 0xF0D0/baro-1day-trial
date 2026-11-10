@@ -34,6 +34,15 @@ class EndingTest(DbTestCase):
         self.write_run("fake", "b", T2, status="partial", reason="x", records=[rec("a")]); self.load()
         self.assertEqual([r["ended_at"] for r in self.table("products")], [None, None, None])
 
+    def test_run_stopped_by_exception_ends_nothing(self):
+        self.write_run("fake", "b", T1, records=[rec("a", scope="s1"), rec("b", scope="s1")], extra={"scopes": [["s1", "ok", ""]]}); self.load()
+        self.write_run("fake", "b", T2, status="partial", reason="exception: RuntimeError: boom",
+                       records=[rec("a", scope="s1")], extra={"scopes": [["s1", "ok", ""]]}); self.load()
+        p = by_key(self.table("products"))
+        self.assertEqual((p["a"]["last_seen_at"], p["b"]["ended_at"]), (ts(T2), None))
+        scopes = [(r["run_id"], r["scope"], r["status"], r["reason"]) for r in self.table("run_scopes")]
+        self.assertEqual(scopes, [(T1, "s1", "ok", ""), (T2, "s1", "partial", "exception: RuntimeError: boom")])
+
     def test_item_returns(self):
         self.write_run("fake", "b", T1, records=[rec("a"), rec("b")]); self.load()
         self.write_run("fake", "b", T2, records=[rec("a")]); self.load()
