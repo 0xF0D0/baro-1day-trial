@@ -9,6 +9,86 @@ what each competitor is doing, since when, whether it stopped, and what the agen
 | `pipeline/` | loads those files into tables, marks what ended, records what changed, applies the ad angles, defines the views | `pipeline/README.md` |
 | `run.py` | one command that does a whole pass | this page |
 
+## Prerequisites
+
+What a machine needs before the first pass. Nothing here is started or installed by `run.py`.
+
+| Needed | Used by | Without it |
+|---|---|---|
+| Python 3.10 or newer (developed on 3.14) | everything | nothing runs |
+| A PostgreSQL server that is already running (developed on 16, local) and a database in it | the loader and the tables | the collectors still write their files; nothing is loaded |
+| Google Chrome, installed | sources 1, 3, 5, 7 and 10, through Playwright with `channel="chrome"`. No Playwright browser download is needed | those sources fail |
+| A desktop session | source 7 opens a visible Chrome window | source 7 fails |
+| An Apify account with usage available, and its API token | sources 2, 3, 4, 6, 8, 9 and parts of 5 and 10 | each of those records "could not look" (`missing_token`); the rest runs |
+| An Anthropic API key (optional) | labeling the angles of ad texts not seen before | new texts stay `not_labeled`; the labels already in the repository still apply |
+| A US IP address | see "Network" | see "Network" |
+
+No collector logs in anywhere, and none needs an email account: see "Accounts and the inbox".
+
+### `.env`
+
+Three lines, in `.env` at the repository root (`.env.example` is the template; `.env` is ignored by git):
+
+| Key | Needed | Notes |
+|---|---|---|
+| `APIFY_TOKEN` | for the Apify sources | Must be in the file: most collectors read the file, not the environment |
+| `ANTHROPIC_API_KEY` | no | Environment variable or the file |
+| `DATABASE_URL` | no | Default `postgresql://localhost:5432/market_radar`. Set it for another host, port, user or database. An environment variable of the same name wins over the file |
+
+### Postgres
+
+The code connects to `DATABASE_URL` and expects the server to be up and the database to exist (`createdb
+market_radar`). The loader creates the tables and views on its first run. On macOS, Homebrew Postgres may refuse to
+start without a locale: `LC_ALL=en_US.UTF-8 pg_ctl -D <data directory> start`.
+
+### Apify
+
+- The collectors call thirteen actors. All are billed per event: none needs a monthly rental, so a token whose
+  account has usage available is enough.
+
+  | Source | Actors |
+  |---|---|
+  | 2 TikTok ads | `fetch_cat/tiktok-ads-library-scraper` |
+  | 3 Meta Ad Library | `apify/facebook-ads-scraper` |
+  | 4 Amazon | `apt_marble/amazon-search-results-scraper`, `junglee/Amazon-crawler`, `delicious_zebu/amazon-reviews-scraper-with-advanced-filters` |
+  | 5 retail shelf | `automation-lab/target-scraper`, `igview-owner/sephora-search-scraper`, `parseforge/chewy-com-scraper`, `apify/e-commerce-scraping-tool`, `automation-lab/chewy-product-reviews-scraper` |
+  | 6 Google results | `apify/google-search-scraper` |
+  | 8 TikTok posts | `clockworks/tiktok-scraper` |
+  | 9 TikTok Shop | `lurkapi/tiktok-shop-scraper` |
+  | 10 brand site (Black Rifle only) | `apify/e-commerce-scraping-tool` |
+
+- **Cost.** One pass of all ten sources and five brands cost 7.33 USD (the latest run of each on 2026-11-11):
+  Amazon 3.12, Meta 2.41, retail shelf 0.78, TikTok posts 0.34, Google results 0.25, TikTok Shop 0.24, brand site
+  0.12, TikTok ads 0.07. The account's plan credit or monthly limit has to leave room for that; a run the account
+  refuses to start is recorded as a failure of that step, not retried.
+- **Runs at once.** At `--jobs` 16 a pass can have 31 actor runs going at the same time. The account used here
+  allows 32. With a lower limit, lower `--jobs`.
+
+### Network
+
+Everything here was developed and run from a US IP address (a datacenter VPN). What is known about other addresses:
+
+- Source 10 checks which market each brand's site serves and records `not_us` instead of prices when it is not the
+  US in USD.
+- Sources 1, 3 and 7 put the US in the URL (`region=US`, `country=US`, `geo=US`). Source 1 behaved the same from a
+  non-US address during research; the others were not tried from one.
+- The Apify actors fetch from their own addresses.
+
+### Accounts and the inbox
+
+- **No logins.** No collector signs in anywhere; every page it opens is public.
+- **Welcome emails (source 10) come from files, not from an inbox.** The collector reads the redacted `.eml` files
+  in `collectors/10_brand_site_and_emails/inbox_export/` and never connects to a mailbox. The repository holds the
+  export of 2026-11-10: one email each for Living Proof, Death Wish Coffee and Black Rifle Coffee. A rerun reads
+  these same files, so it needs no email account.
+- **Adding newer mail is a manual step outside the pass.** It needs an inbox that is signed up to the brands' lists
+  (the signups are recorded in `data/email_signups.json`) and the export procedure in section 12 of that
+  collector's `source_info.md`: the mailbox is read by hand, each message is redacted with `tools/redact_eml.py`
+  and the result is checked with `tools/verify_eml.py`. Batiste and Jinx have no exported mail: their emails are
+  recorded as `not_signed_up`.
+- **Only for checking records by hand:** an Amazon review link opens only when signed in to Amazon, and a TikTok ad
+  detail link only with a TikTok Creative Center login. Neither is needed to run.
+
 ## Setup
 
 From the repository root:
@@ -17,12 +97,6 @@ From the repository root:
     .venv/bin/pip install -r part1/requirements.txt
     createdb market_radar
     cp .env.example .env        # then fill in what you have
-
-- Google Chrome must be installed: sources 1, 3, 5, 7 and 10 drive it. Source 7 opens a visible window.
-- A running local Postgres. On macOS, Homebrew Postgres may refuse to start without a locale:
-  `LC_ALL=en_US.UTF-8 pg_ctl -D <data directory> start`.
-- `.env` holds `APIFY_TOKEN` (sources 2, 3, 4, 6, 8, 9 and parts of 5 and 10) and, optionally, `ANTHROPIC_API_KEY`
-  (labeling new ad texts). Without a token or key the step that needs it records "could not look" and the rest runs.
 
 ## One pass
 
