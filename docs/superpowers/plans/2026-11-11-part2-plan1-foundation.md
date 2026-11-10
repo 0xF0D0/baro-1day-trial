@@ -26,6 +26,7 @@
 - Every ciphertext column has `SET STATISTICS 0`.
 - No log line or metric label carries a request path, body or customer ID. Log route templates. The LB access log is off and its error log is at `crit`.
 - No wall-clock time in any data decision.
+- Empty maps and lists encode as `{}` and `[]`, never `null`. Python's `json.dumps` writes `{}` and `[]`, while Go writes `null` for a nil map or slice, so every map and slice that reaches JSON is created non-nil. The only values that may be `null` are `last_contact_ms`, `customer_id` and `next_cursor`.
 - Locks are Postgres advisory transaction locks: tenant status (shared by ingest, exclusive by tenant erasure) and customer (shared by that customer's ingest, exclusive while writing its tombstone). They are always taken in that order.
 - Committed documents are in English.
 
@@ -211,6 +212,8 @@ func TestVendorAUnknownType(t *testing.T) {
 
 func TestUnknownTypeWithoutCustomer(t *testing.T) // vendor B "shop.note" with payload {"text":"x"} -> CustomerID == nil
 
+func TestEmptyLinesEncodeAsArray(t *testing.T) // A order.created with "line_items": [] -> json.Marshal(ev) contains `"lines":[]`
+
 func TestVendorBTimestamp(t *testing.T) // "2026-07-01T12:00:00.123Z" -> OccurredAtMs == 1782907200123
 
 func TestMalformed(t *testing.T) {
@@ -298,7 +301,9 @@ func TestApplyContinuesFromAnyPoint(t *testing.T) {
 }
 
 func TestEmptyResultShape(t *testing.T) {
-	// json.Marshal(Fold("t_edge", nil, identity)) contains `"inventory":{}`, `"campaigns":{}` and `"last_contact_ms":null`
+	// json.Marshal(Fold("t_edge", nil, identity)) contains `"inventory":{}`, `"campaigns":{}`,
+	// `"shipment_status_counts":{}`, `"messages_by_channel":{}` and `"last_contact_ms":null`, and no other null
+	// (checked on the bytes, not only after decoding, because a decoded null and {} can both look empty)
 }
 ```
 
@@ -670,6 +675,7 @@ func TestWebhookStatusCodes(t *testing.T) {
 
 func TestStateEndpoint(t *testing.T) {
 	// after 3 ingested events, GET /tenants/t_a/state with tok_a -> 200, body JSON-equal to fold.Fold of those 3
+	// a tenant with no events -> 200 and the body bytes contain "inventory":{} (not null)
 	// no Authorization -> 401; "Bearer nope" -> 401; tok_a on /tenants/t_b/state -> 404
 	// after DELETE /tenants/t_b: tok_b on /tenants/t_b/state -> 410; tok_a on /tenants/t_b/state -> 404
 }
@@ -677,6 +683,8 @@ func TestStateEndpoint(t *testing.T) {
 func TestEventsEndpoint(t *testing.T) {
 	// 5 events; limit=2 gives pages of 2, 2, 1 with next_cursor non-null, non-null, null; IDs in canon order
 	// missing from_ms -> 400; limit=0 -> 400; limit=abc -> 400
+	// a window with no events -> body bytes are exactly {"events":[],"next_cursor":null}
+	//   (verify.py iterates body["events"], so null there would crash it)
 }
 
 func TestParseLimit(t *testing.T) // "" -> 1000; "5000" -> 1000; "7" -> 7; "0" and "-1" -> error
