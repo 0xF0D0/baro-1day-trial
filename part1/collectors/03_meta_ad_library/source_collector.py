@@ -203,11 +203,24 @@ def get_counts(S, page_ids):
             browser.close()
 
 
+def fetch_limit(count):
+    return min(count + RESULTS_MARGIN, RESULTS_MAX)
+
+
+def page_problem(n, count, limit):
+    """The reason name when n distinct ads do not prove a full read of a page, else None."""
+    if n < count:
+        return "incomplete"
+    if n >= limit:
+        return "truncated"
+    return None
+
+
 def fetch_items(S, pid, count, token):
     """Runs the Actor for one page. Returns (run, items) or None after adding a reason."""
     def fail(name, detail=""):
         S["bad"].add(pid); S["reasons"].append(f"{name}({pid})" + (f": {detail}" if detail else ""))
-    limit = min(count + RESULTS_MARGIN, RESULTS_MAX)
+    limit = fetch_limit(count)
     cap = -(-limit * 58 // 100) / 100
     url = (f"https://api.apify.com/v2/acts/{ACTOR}/runs?timeout={RUN_TIMEOUT_S}&maxItems={limit}"
            f"&maxTotalChargeUsd={cap}&waitForFinish=60")
@@ -250,8 +263,12 @@ def write_page(S, slug, pid, count, run, items):
         S["bad"].add(pid); S["reasons"].append(f"apify_shape_changed({pid})")
         return
     n = len({it["adArchiveID"] for it in items})
-    if n < count:
+    limit = fetch_limit(count)
+    problem = page_problem(n, count, limit)
+    if problem == "incomplete":
         S["bad"].add(pid); S["reasons"].append(f"incomplete({pid}): got={n} count={count}")
+    elif problem == "truncated":
+        S["bad"].add(pid); S["reasons"].append(f"truncated({pid}): got={n} limit={limit}")
     for it in items:
         ad = it["adArchiveID"]
         if ad in S["seen"]:
@@ -266,6 +283,8 @@ def write_page(S, slug, pid, count, run, items):
         S["fh"].write(json.dumps(rec, ensure_ascii=False) + "\n")
         S["fh"].flush()
         S["records"] += 1
+    if pid not in S["bad"]:
+        S["done"].add(pid)
 
 
 def collect(slug, S, token):
@@ -279,7 +298,10 @@ def collect(slug, S, token):
         return
     for pid in page_ids:
         count = S["counts"].get(pid)
-        if pid in S["bad"] or not count:
+        if pid in S["bad"]:
+            continue
+        if not count:
+            S["done"].add(pid)
             continue
         got = fetch_items(S, pid, count, token)
         if got:
@@ -301,7 +323,7 @@ def decide(S):
 
 def page_states(S):
     """Per page id: whether its ad list was read in full, and the reasons that name it."""
-    return {pid: {"ads_complete": pid in S["counts"] and pid not in S["bad"],
+    return {pid: {"ads_complete": pid in S["done"] and pid not in S["bad"],
                   "reasons": [r for r in S["reasons"] if f"({pid})" in r]}
             for pid in S["page_ids"]}
 
@@ -313,7 +335,7 @@ def run_brand(slug) -> int:
     out.mkdir(parents=True, exist_ok=True)
     part = out / f"{run_id}.jsonl.part"
     S = {"requests": 0, "cost": 0.0, "records": 0, "counts": {}, "runs": {}, "media_files": 0, "media_failed": 0,
-         "reasons": [], "bad": set(), "seen": set(), "browser_err": None, "missing": False, "page_ids": [],
+         "reasons": [], "bad": set(), "done": set(), "seen": set(), "browser_err": None, "missing": False, "page_ids": [],
          "fh": part.open("w", encoding="utf-8")}
     code = 0
     try:

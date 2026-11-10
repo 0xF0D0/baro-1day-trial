@@ -50,14 +50,21 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(it["snapshot"]["pageName"], "Living Proof")
 
     def test_page_states(self):
-        S = {"page_ids": ["A", "B", "C", "D"], "counts": {"A": 5, "C": 0}, "bad": {"B"},
-             "reasons": ["blocked(B)", "media_failed(X)"]}
+        S = {"page_ids": ["A", "B", "C", "D", "E"], "counts": {"A": 5, "C": 0, "E": 7}, "bad": {"B"},
+             "done": {"A", "B", "C"}, "reasons": ["blocked(B)", "media_failed(X)"]}
         self.assertEqual(sc.page_states(S), {
             "A": {"ads_complete": True, "reasons": []},
             "B": {"ads_complete": False, "reasons": ["blocked(B)"]},
             "C": {"ads_complete": True, "reasons": []},
-            "D": {"ads_complete": False, "reasons": []}})
-        self.assertEqual(sc.page_states({"page_ids": [], "counts": {}, "bad": set(), "reasons": []}), {})
+            "D": {"ads_complete": False, "reasons": []},
+            "E": {"ads_complete": False, "reasons": []}})
+        self.assertEqual(sc.page_states({"page_ids": [], "counts": {}, "bad": set(), "done": set(), "reasons": []}), {})
+
+    def test_page_problem(self):
+        self.assertEqual(sc.page_problem(90, 100, 150), "incomplete")
+        self.assertEqual(sc.page_problem(150, 100, 150), "truncated")
+        self.assertEqual(sc.page_problem(120, 100, 150), None)
+        self.assertEqual(sc.page_problem(0, 0, 50), None)
 
 
 if __name__ == "__main__":
