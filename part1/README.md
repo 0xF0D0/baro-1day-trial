@@ -9,12 +9,15 @@ what each competitor is doing, since when, whether it stopped, and what the agen
 | `pipeline/` | loads those files into tables, marks what ended, records what changed, applies the ad angles, defines the views | `pipeline/README.md` |
 | `run.py` | one command that does a whole pass | this page |
 
+Every command on this page is run from the repository root.
+
 ## Prerequisites
 
 What a machine needs before the first pass. Nothing here is started or installed by `run.py`.
 
 | Needed | Used by | Without it |
 |---|---|---|
+| macOS or Linux | `run.py` uses POSIX process groups and file locks. Developed on macOS; not tried on Linux, and it will not run on Windows | nothing runs |
 | Python 3.10 or newer (developed on 3.14) | everything | nothing runs |
 | A running PostgreSQL server with a database in it (developed on 16): one already installed, or Docker for the compose file in this folder | the loader and the tables | the collectors still write their files; nothing is loaded |
 | Google Chrome, installed | sources 1, 3, 5, 7 and 10, through Playwright with `channel="chrome"`. No Playwright browser download is needed | those sources fail |
@@ -27,7 +30,9 @@ No collector logs in anywhere, and none needs an email account: see "Accounts an
 
 ### `.env`
 
-Three lines, in `.env` at the repository root (`.env.example` is the template; `.env` is ignored by git):
+Three keys are read today, from `.env` at the repository root (`.env.example` is the template; `.env` is ignored
+by git). Two more are reserved for reading the inbox and are not read by any code yet (see
+`collectors/10_brand_site_and_emails/inbox_setup.md`).
 
 | Key | Needed | Notes |
 |---|---|---|
@@ -73,7 +78,8 @@ the tables and views on its first run. Two ways to have a server:
 
 ### Network
 
-Everything here was developed and run from a US IP address (a datacenter VPN). What is known about other addresses:
+Run it from a US IP address. Everything here was developed and run from one (a datacenter VPN). What is known
+about other addresses:
 
 - Source 10 checks which market each brand's site serves and records `not_us` instead of prices when it is not the
   US in USD.
@@ -110,6 +116,13 @@ From the repository root:
 
 It runs the collectors side by side, loads their files, asks a model for the angles of ad texts it has not seen, and
 applies them. Running it again adds no duplicates.
+
+**How long.** Minutes. Measured on 2026-11-11, per source, for the slowest of its processes: source 1 about 2
+minutes, source 3 under 2, source 5 under 2.5, source 10 under 3 except Black Rifle Coffee (4 to 5, one Apify run).
+Source 4 took about 5 minutes before the waits were shortened and was not timed since; the remaining sources took
+between 20 seconds and 5 minutes in earlier runs. The first pass of a day is longer: source 1 then loads every ad's
+detail page, about 12 seconds each (about 170 of them on that day). A pass of all ten sources at once has not been
+timed.
 
 | Option | Meaning | Default |
 |---|---|---|
@@ -151,6 +164,37 @@ value, 3 when another pass is still running, and 130 when the pass was interrupt
 scheduler stopping it): it then stops what it started and loads nothing more. A collector that fails does not stop the pass: the others'
 files are still loaded, and nothing is marked ended for a source that was not read completely.
 
+### Did it work
+
+Exit code 0 with `failed=0` on the `collect:` line and on the loader's `runs:` line means every collector process
+ended and every file was loaded. It does not mean every source was read: each source and brand has its own status.
+The latest one for each:
+
+    psql market_radar -c "SELECT DISTINCT ON (source, brand) source, brand, status, reason, records, finished_at FROM runs WHERE result = 'applied' ORDER BY source, brand, run_id DESC"
+
+That is fifty rows after a full pass.
+
+| Status | Meaning |
+|---|---|
+| `ok` | Everything in scope was read. `ok` with no records means the source showed nothing, for example no TikTok ads for that brand |
+| `partial` | Some of it was read; `reason` names what was not. Rows that were not looked at are not marked ended |
+| `could_not_look` | Nothing could be read. The tables do not change for that source and brand |
+
+| Reason, or what the pass printed | What to do |
+|---|---|
+| `missing_token` | Put `APIFY_TOKEN` in `.env` |
+| `not_us(...)`, `market_unconfirmed` | The brand's site served another market, or its home page did not load. Run from a US IP address; run that source again |
+| `blocked`, an HTTP 403 or 429 | The site refused. Run that source later at the slower pace, `--careful --sources <n>`. Nothing here works around a block |
+| `emails: not_signed_up`, `first_day_not_over`, `spam_not_checked` | About the welcome emails only; expected with the files in this repository. See `collectors/10_brand_site_and_emails/inbox_setup.md` |
+| `exit=timeout` on a `collect` line | The process was stopped and wrote nothing. The next pass reads that source again; raise `--timeout` if it keeps happening |
+| anything else | Each collector's `spec.md` lists its reasons, and its output is in `part1/logs/` |
+
+For comparison, the state on 2026-11-11: 40 `ok`, 9 `partial`, 1 `could_not_look`. Not `ok` were the brand site for
+all five brands (the emails; also 55 of 109 products and a refused home page for Black Rifle Coffee, and 6 of 63
+barcodes refused for Batiste), TikTok Shop for three brands (15 to 19 of 20 search results fetched), the retail
+shelf for Batiste (one product's reviews) and TikTok ads for Batiste (`could_not_look`). The tables held 1,163 ads,
+753 products, 1,266 reviews, 199 posts, 833 search rankings, 530 search-interest rows and 42 changes.
+
 ## Every hour
 
 `run.py` is what a scheduler calls; a second pass that starts while one is running exits at once.
@@ -158,12 +202,43 @@ files are still loaded, and nothing is marked ended for a source that was not re
     0 * * * * cd <repository> && mkdir -p part1/logs && .venv/bin/python part1/run.py >> part1/logs/cron.log 2>&1
 
 - The schedule has to run inside a desktop session, because source 7 opens a browser window.
-- Every pass costs what its Apify collectors cost; the `collect:` line prints the sum. The runs of 2026-11-11 cost
-  5.28 USD (without source 3 for three brands and source 5 for one), 3.12 USD of it source 4. Sources 1 and 7 cost
-  nothing. Which sources run every hour and which once a day is a choice made with `--sources`, for example:
+- Every pass costs what its Apify collectors cost; the `collect:` line prints the sum. A pass of everything cost
+  7.33 USD on 2026-11-11, 3.12 USD of it source 4 (see "Apify"). Sources 1 and 7 cost nothing. Which sources run
+  every hour and which once a day is a choice made with `--sources`, for example:
 
       0 * * * * cd <repository> && mkdir -p part1/logs && .venv/bin/python part1/run.py --sources 1,7 >> part1/logs/cron.log 2>&1
       30 6 * * * cd <repository> && mkdir -p part1/logs && .venv/bin/python part1/run.py --sources 2,3,4,5,6,8,9,10 >> part1/logs/cron.log 2>&1
+
+## Brands
+
+The five brands are in `collectors/brands.json` (name and slug). Each collector also has a `brand_inputs.json` of
+its own with what it needs for each brand: page IDs, search terms, product listing addresses, sender domains.
+Adding a brand means adding it to `brands.json` and to all ten `brand_inputs.json` files; each collector's `spec.md`
+describes its fields and how the values were found.
+
+## Handing the tables over
+
+The tables are in the local database only. To give them to someone else:
+
+    pg_dump --no-owner -d postgresql://localhost:5432/market_radar -f market_radar.sql
+
+and on the other side:
+
+    createdb market_radar && psql -d market_radar -f market_radar.sql
+
+The dump holds the tables and the three views. The collectors' files (`collectors/*/raw/`, ignored by git) are the
+other way: the loader rebuilds every table from them.
+
+## Tests
+
+No test contacts a live site or costs anything.
+
+    .venv/bin/python -m unittest discover -s part1/tests                                    # run.py
+    for d in part1/collectors/*/tests; do .venv/bin/python -m unittest discover -s "$d"; done   # the ten collectors
+    createdb market_radar_test
+    .venv/bin/python -m unittest discover -s part1/pipeline/tests                           # the loader; needs that database
+
+The loader tests read `TEST_DATABASE_URL` (default `postgresql://localhost:5432/market_radar_test`).
 
 ## Where to look
 

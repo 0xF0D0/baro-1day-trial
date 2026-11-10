@@ -99,7 +99,7 @@ As in the shared contract. No extra options.
 | `PART_SPACING_S` | `5` | between the two parts and between brands with `--all` |
 
 ## 4. Procedure
-HTTP: the `requests` library, one request at a time, `timeout=HTTP_TIMEOUT_S`, header `Authorization: Bearer <token>`. No request goes to any host other than `api.apify.com`.
+HTTP: the standard library (`urllib.request`), one request at a time, `timeout=HTTP_TIMEOUT_S`, header `Authorization: Bearer <token>`. No request goes to any host other than `api.apify.com`.
 
 **Before anything:** if the token is missing or empty, finish with `could_not_look`, `reason` `missing_token`, `requests` 0, `cost_usd` 0, and write no records.
 
