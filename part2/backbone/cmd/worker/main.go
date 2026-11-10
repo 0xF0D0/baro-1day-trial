@@ -82,6 +82,9 @@ func run(log *slog.Logger) error {
 	defer sweepTicker.Stop()
 	// One loop serves both tickers, so rebuild, flush and sweep never overlap.
 	tick(ctx, log, cfg, st, ids)
+	// Sweep once at startup too, so a worker that restarts more often than the
+	// sweep interval still sweeps.
+	sweep(ctx, log, cfg, st, ids)
 	for {
 		select {
 		case <-ctx.Done():
