@@ -1,13 +1,14 @@
 """Raw collector for the Meta Ad Library. See spec.md."""
 import argparse, json, re, sys, time
 import urllib.request, urllib.error
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
 COUNT_TIMEOUT_S, SITE_SPACING_S, RESULTS_MARGIN, RESULTS_MAX = 30, 15, 50, 1000
 PRICE_USD, RUN_TIMEOUT_S, WAIT_LIMIT_S = 0.0058, 1800, 2100
-HTTP_TIMEOUT_S, MEDIA_TIMEOUT_S, MEDIA_SPACING_S = 90, 60, 1
+HTTP_TIMEOUT_S, MEDIA_TIMEOUT_S, MEDIA_WORKERS = 90, 60, 8
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
 ACTOR, SOURCE = "apify~facebook-ads-scraper", "meta_ad_library"
 TERMINAL = ("SUCCEEDED", "FAILED", "TIMED-OUT", "ABORTED")
@@ -16,7 +17,6 @@ ENV_FILE = HERE.parents[2] / ".env"
 LIST_URL = ("https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US"
             "&view_all_page_id={}&search_type=page&media_type=all")
 _last_site_nav = None
-_last_media = None
 
 
 def parse_site_count(html: str) -> int:
@@ -121,30 +121,38 @@ def err(e):
     return f"http_{e.code}" if isinstance(e, urllib.error.HTTPError) else type(e).__name__
 
 
-def fetch_media(S, brand, url):
-    """Returns relative path or None."""
-    global _last_media
+def fetch_media(brand, url):
+    """One GET, sent once. Returns (relative path or None, whether a request was sent)."""
     name = urlparse(url).path.rsplit("/", 1)[-1]
     dest = HERE / "media" / brand / name
     rel = f"media/{brand}/{name}"
     if dest.exists():
-        return rel
-    if _last_media is not None:
-        time.sleep(max(0, MEDIA_SPACING_S - (time.time() - _last_media)))
-    S["requests"] += 1
+        return rel, False
     try:
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=MEDIA_TIMEOUT_S) as r:
             ok, body = r.status == 200, r.read()
     except Exception:
-        _last_media = time.time()
-        return None
-    _last_media = time.time()
+        return None, True
     if not ok:
-        return None
+        return None, True
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_bytes(body)
-    return rel
+    part = dest.with_name(name + ".part")
+    part.write_bytes(body)
+    part.replace(dest)
+    return rel, True
+
+
+def fetch_all_media(S, brand, urls):
+    """Up to MEDIA_WORKERS GETs at a time. Returns {url: relative path or None}."""
+    name_of = lambda u: urlparse(u).path.rsplit("/", 1)[-1]
+    first = {}
+    for u in urls:
+        first.setdefault(name_of(u), u)
+    with ThreadPoolExecutor(MEDIA_WORKERS) as pool:
+        done = dict(zip(first, pool.map(lambda u: fetch_media(brand, u), first.values())))
+    S["requests"] += sum(sent for _, sent in done.values())
+    return {u: done[name_of(u)][0] for u in urls}
 
 
 def get_counts(S, page_ids):
@@ -269,13 +277,15 @@ def write_page(S, slug, pid, count, run, items):
         S["bad"].add(pid); S["reasons"].append(f"incomplete({pid}): got={n} count={count}")
     elif problem == "truncated":
         S["bad"].add(pid); S["reasons"].append(f"truncated({pid}): got={n} limit={limit}")
+    paths = fetch_all_media(S, slug, [u for it in items if it["adArchiveID"] not in S["seen"]
+                                      for _, u in media_targets(it)])
     for it in items:
         ad = it["adArchiveID"]
         if ad in S["seen"]:
             continue
         S["seen"].add(ad)
         remove_partner_fields(it)
-        media = {field: fetch_media(S, slug, url) for field, url in media_targets(it)}
+        media = {field: paths[url] for field, url in media_targets(it)}
         S["media_files"] += len(media)
         S["media_failed"] += sum(v is None for v in media.values())
         rec = {"key": ad, "kind": "ad", "url": f"https://www.facebook.com/ads/library/?id={ad}",

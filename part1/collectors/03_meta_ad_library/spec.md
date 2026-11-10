@@ -53,12 +53,12 @@ Choices made with the user on 2026-11-10: both Batiste pages; one record per ad;
 | `WAIT_LIMIT_S` | 2100 |
 | `HTTP_TIMEOUT_S` | 90 |
 | `MEDIA_TIMEOUT_S` | 60 |
-| `MEDIA_SPACING_S` | 1 |
+| `MEDIA_WORKERS` | 8 |
 
 ## 4. Procedure
 If `APIFY_TOKEN` is missing from `.env`, write the run result (`could_not_look`, `missing_token`) and stop before any request.
 
-Requests are made one at a time, with `SITE_SPACING_S` between navigations to `www.facebook.com` (also across brands) and `MEDIA_SPACING_S` between media GETs. A page that gets a reason skips its remaining steps, except where a step says otherwise.
+Navigations to `www.facebook.com` and Apify API requests are made one at a time, with `SITE_SPACING_S` between navigations (also across brands). Media GETs go to the CDN host named in each item, not to `www.facebook.com`, and run up to `MEDIA_WORKERS` at a time with no spacing. A page that gets a reason skips its remaining steps, except where a step says otherwise.
 
 1. **Counts.** Start Playwright (`chromium.launch(headless=True, channel="chrome")`, context `locale="en-US"`) and keep the body of every response whose `request.resource_type` is `document`. For each page ID:
    - Open the list URL with `wait_until="domcontentloaded"`. Call `page.wait_for_timeout(500)` until a kept body contains `search_results_connection` or `COUNT_TIMEOUT_S` has passed.
@@ -79,7 +79,7 @@ Requests are made one at a time, with `SITE_SPACING_S` between navigations to `w
    - Items whose `adArchiveID` was already seen in this brand run are skipped.
    - Fewer distinct ads than `count` gives `incomplete: got=<n> count=<count>`; the ads received are still written. More than `count` is fine (ads that started in the meantime).
    - As many distinct ads as the requested `limit`, or more, gives `truncated: got=<n> limit=<limit>`; the ads received are still written.
-5. **Each ad, in dataset order:** call `remove_partner_fields(item)`. For each `(field, url)` in `media_targets(item)`, the file is `media/<brand>/<last path segment of url>`. If it exists (from this or an earlier run), use it with no request. Otherwise GET the URL once (`MEDIA_TIMEOUT_S`, a Chrome `User-Agent`) and write the body on HTTP 200; any other outcome makes the entry `null`. Then write the record.
+5. **Media, then ads.** First the media of the page: take `media_targets(item)` of every ad of the page that is not yet written. The file is `media/<brand>/<last path segment of url>`; when several URLs share a file name, the first one is used. A file that exists (from this or an earlier run) is used with no request. Every other file is requested once (`MEDIA_TIMEOUT_S`, a Chrome `User-Agent`), up to `MEDIA_WORKERS` at a time; on HTTP 200 the body is written to `<name>.part` and renamed, so an interrupted run leaves no truncated file under the final name. Any other outcome makes the entry `null`. Then, for each ad in dataset order: call `remove_partner_fields(item)` and write the record.
 
 `remove_partner_fields(item)`: if `str(snapshot.pageId) != str(item.pageId)`, set `snapshot.pageName`, `pageProfileUri`, `pageProfilePictureUrl` and `pageId` to `null`. If `snapshot.brandedContent` is an object whose `pageId` differs from `item.pageId`, set its `pageName`, `pageProfileUri` and `pageId` to `null`.
 
