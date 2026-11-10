@@ -127,6 +127,15 @@ class AnglesTest(AngleBase):
         self.conn.rollback()
         self.assertEqual(len(self.table("ad_angles")), 1)
 
+    def test_label_with_line_separator_in_evidence_is_one_label(self):
+        evidence = "Save 20% today"
+        label = self.line("Save 20% today", angle_offer="discount", offer_evidence=evidence)
+        self.labels = self.dir / "labels.jsonl"
+        self.labels.write_text(json.dumps(label, ensure_ascii=False) + "\n", encoding="utf-8")
+        found = angles.read_labels(self.labels)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[label["text_sha256"]]["offer_evidence"], evidence)
+
     def test_read_labels_names_the_line(self):
         good = json.dumps(self.line("one"))
         bad = json.dumps(self.line("two", angle_offer="sale"))
