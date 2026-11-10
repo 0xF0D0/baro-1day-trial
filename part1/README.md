@@ -70,9 +70,9 @@ the tables and views on its first run. Two ways to have a server:
   | 9 TikTok Shop | `lurkapi/tiktok-shop-scraper` |
   | 10 brand site (Black Rifle only) | `apify/e-commerce-scraping-tool` |
 
-- **Cost.** One pass of all ten sources and five brands cost 7.33 USD (the latest run of each on 2026-11-11):
+- **Cost.** One pass of all ten sources and five brands cost 7.34 USD (the latest run of each on 2026-11-11):
   Amazon 3.12, Meta 2.41, retail shelf 0.78, TikTok posts 0.34, Google results 0.25, TikTok Shop 0.24, brand site
-  0.12, TikTok ads 0.07. The account's plan credit or monthly limit has to leave room for that; a run the account
+  0.13, TikTok ads 0.07. The account's plan credit or monthly limit has to leave room for that; a run the account
   refuses to start is recorded as a failure of that step, not retried.
 - **Runs at once.** At `--jobs` 16 a pass can have 31 actor runs going at the same time. The account used here
   allows 32. With a lower limit, lower `--jobs`.
@@ -192,11 +192,12 @@ That is fifty rows after a full pass.
 | `exit=timeout` on a `collect` line | The process was stopped and wrote nothing. The next pass reads that source again; raise `--timeout` if it keeps happening |
 | anything else | Each collector's `spec.md` lists its reasons, and its output is in `part1/logs/` |
 
-For comparison, the state on 2026-11-11: 40 `ok`, 9 `partial`, 1 `could_not_look`. Not `ok` were the brand site for
-all five brands (the emails; also a refused home page for Black Rifle Coffee, whose 55 products the collector
-then misreported as 55 of 109, and 6 of 63 barcodes refused for Batiste), TikTok Shop for three brands (15 to 19 of 20 search results fetched), the retail
-shelf for Batiste (one product's reviews) and TikTok ads for Batiste (`could_not_look`). The tables held 1,163 ads,
-753 products, 1,266 reviews, 199 posts, 833 search rankings, 530 search-interest rows and 42 changes.
+For comparison, the state on 2026-11-11, with a mailbox configured: 43 `ok`, 6 `partial`, 1 `could_not_look`. Not
+`ok` were the brand site for Batiste (6 of 63 barcodes refused by the where-to-buy API) and for Black Rifle Coffee
+(its product actor reported no currency and one error), TikTok Shop for three brands (15 to 19 of 20 search
+results fetched), the retail shelf for Batiste (one product's reviews) and TikTok ads for Batiste
+(`could_not_look`). The tables held 1,167 ads, 753 products, 1,266 reviews, 199 posts, 833 search rankings, 530
+search-interest rows and 42 changes.
 
 ## Every hour
 
@@ -206,7 +207,7 @@ shelf for Batiste (one product's reviews) and TikTok ads for Batiste (`could_not
 
 - The schedule has to run inside a desktop session, because source 7 opens a browser window.
 - Every pass costs what its Apify collectors cost; the `collect:` line prints the sum. A pass of everything cost
-  7.33 USD on 2026-11-11, 3.12 USD of it source 4 (see "Apify"). Sources 1 and 7 cost nothing. Which sources run
+  7.34 USD on 2026-11-11, 3.12 USD of it source 4 (see "Apify"). Sources 1 and 7 cost nothing. Which sources run
   every hour and which once a day is a choice made with `--sources`, for example:
 
       0 * * * * cd <repository> && mkdir -p part1/logs && .venv/bin/python part1/run.py --sources 1,7 >> part1/logs/cron.log 2>&1
