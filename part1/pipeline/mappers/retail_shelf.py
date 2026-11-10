@@ -65,6 +65,21 @@ def _product_values(retailer: str, li: dict) -> dict:
                 availability=None if in_stock is None else ("IN_STOCK" if in_stock else "OUT_OF_STOCK"))
 
 
+_IN_STOCK, _OUT_OF_STOCK = ("InStock",), ("OutOfStock", "SoldOut", "Discontinued")
+
+
+def _page_values(pp: dict) -> dict:
+    """price, price_max and availability from a fetched Ulta product page."""
+    price = pp["price"]
+    if isinstance(price, str) and re.fullmatch(r"\d+(\.\d+)?", price.strip()):
+        price = price.strip()
+    elif isinstance(price, bool) or not isinstance(price, (int, float)):
+        raise ValueError(f"product_page price is not a number: {price!r}")
+    avail = pp.get("availability")
+    return dict(price=_dec(price), price_max=None,
+                availability="IN_STOCK" if avail in _IN_STOCK else "OUT_OF_STOCK" if avail in _OUT_OF_STOCK else None)
+
+
 def _date_part(text) -> date | None:
     return None if text is None else date.fromisoformat(text[:10])
 
@@ -97,6 +112,13 @@ def _map_record(rec: dict) -> Row:
                    "currency": "USD", "rating": _dec(v["rating"]), "review_count": v["review_count"],
                    "rank": raw["rank"], "sponsored": v["sponsored"], "availability": v["availability"],
                    "seller_name": None, "sold_count": None}
+        pp = raw.get("product_page") if retailer == "ulta" else None
+        if isinstance(pp, dict):
+            if pp.get("state") == "fetched":
+                columns.update(_page_values(pp))
+            else:
+                for k in ("price", "price_max", "availability"):
+                    del columns[k]
         table = "products"
     elif kind == "review":
         columns = {"product_key": raw["product_key"], **_review_values(retailer, raw["review"])}

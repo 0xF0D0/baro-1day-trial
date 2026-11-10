@@ -24,10 +24,18 @@ def items(name):
     return json.loads((SAMPLES / name).read_text())["items"]
 
 
-def product(retailer, li, rank=1, key="x:1"):
-    return {"key": key, "kind": "product", "url": "https://example.test/" + key, "fetched_at": "2026-11-10T00:00:00Z",
-            "raw": {"retailer": retailer, "rank": rank, "listing_item": li, "reviews_state": "fetched",
-                    "reviews_error": None, "reviews_meta": None}}
+def product(retailer, li, rank=1, key="x:1", **extra):
+    rec = {"key": key, "kind": "product", "url": "https://example.test/" + key, "fetched_at": "2026-11-10T00:00:00Z",
+           "raw": {"retailer": retailer, "rank": rank, "listing_item": li, "reviews_state": "fetched",
+                   "reviews_error": None, "reviews_meta": None}}
+    rec["raw"].update(extra)
+    return rec
+
+
+def page(state="fetched", price=33, availability="InStock", error=None):
+    ok = state == "fetched"
+    return {"state": state, "error": error, "sku": "2604512" if ok else None, "price": price if ok else None,
+            "currency": "USD" if ok else None, "availability": availability if ok else None}
 
 
 def review(retailer, product_key, r, key="x:1:r"):
@@ -68,6 +76,24 @@ class RetailShelfTest(unittest.TestCase):
         self.assertEqual((c["price"], c["price_max"], c["list_price"]), (Decimal("12.99"), Decimal("20.99"), None))
         c = cols(listPrice="$12.99", salePrice="$9.74")
         self.assertEqual((c["price"], c["price_max"], c["list_price"]), (Decimal("9.74"), None, Decimal("12.99")))
+
+    def test_ulta_product_page(self):
+        rng = {**ULTA_LI, "listPrice": "$18.00 - $45.00"}
+        cols = lambda **kw: map_run(RUN, [product("ulta", rng, key="ulta:x", **kw)]).rows[0].columns
+        c = cols(product_page=page())
+        self.assertEqual((c["price"], c["price_max"], c["availability"]), (Decimal("33.00"), None, "IN_STOCK"))
+        c = cols(product_page=page("failed", error="http_500"))
+        self.assertTrue({"price", "price_max", "availability"}.isdisjoint(c))
+        self.assertEqual(len(c), 11)
+        for kw in ({"product_page": None}, {}):
+            c = cols(**kw)
+            self.assertEqual((c["price"], c["price_max"], c["availability"]), (Decimal("18.00"), Decimal("45.00"), None))
+        for avail, want in (("OutOfStock", "OUT_OF_STOCK"), ("SoldOut", "OUT_OF_STOCK"), ("Discontinued", "OUT_OF_STOCK"), ("PreOrder", None)):
+            self.assertEqual(cols(product_page=page(availability=avail))["availability"], want)
+        self.assertEqual(cols(product_page=page(price="20.99"))["price"], Decimal("20.99"))
+        self.assertEqual(cols(product_page=page(price="33"))["price"], Decimal("33.00"))
+        with self.assertRaisesRegex(MapError, "^ulta:x"):
+            cols(product_page=page(price="abc"))
 
     def test_target_product(self):
         li = items("apify/target_al_store2581_4brands.json")[0]        # tcin 75561114

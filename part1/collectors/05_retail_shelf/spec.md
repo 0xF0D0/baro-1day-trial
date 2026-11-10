@@ -35,6 +35,7 @@ The other 12 brand and retailer combinations list none of the brand's products. 
 | F10 | `apify/e-commerce-scraping-tool` with one Target or Sephora product URL returns that product's newest reviews with `reviewBody`, `name` (the review title), `datePublished`, `reviewRating.ratingValue`, `inputUrl` (the URL sent), `author` (the reviewer's name). There is no review ID. Its cap must be at least $1.00. For Chewy it returned nothing in 9 minutes |
 | F11 | `automation-lab/chewy-product-reviews-scraper` with one product URL returns its newest reviews with `reviewId`, `rating`, `title`, `reviewText`, `reviewDate`, `helpfulVotes`, `isIncentivized`, `contributorBadge`, `reviewerName`, `sourceUrl`, and the product's `ratingCount`, `reviewCount`, `rating1Count` to `rating5Count` |
 | F12 | A run's `usageTotalUsd` becomes final about 10 s after its status first reads `SUCCEEDED` |
+| F13 | From inside an open ulta.com page, `fetch(<product url>, {credentials: "include"})` returns 200 and the page HTML (about 1 MB). Among its `<script type="application/ld+json">` blocks, one is a `Product` whose `sku` equals the URL's `sku` and which has `offers` (`price`, `priceCurrency`, `availability`); the price was seen both as a number (`33`) and as a numeric string (`"20.99"`), the availability both as `InStock` and as `https://schema.org/InStock`; a `ProductGroup` block lists every size under `hasVariant` as `Product` objects with a `sku` but no `offers`. The `Product` block also holds a `review` list with reviewers' names, which is never stored. For a product sold in several sizes the listing shows a range and the URL's page shows one size's price: listing 12.99-20.99, 18-45 and 4.99-6.99 gave page prices 20.99, 33 and 5.99 (2026-11-10) |
 
 Samples for all of these are in `part1/collectors/05_retail_shelf/samples/` (`ulta/`, `sephora/`, `apify/`, `chewy/`, `target_screen/`).
 
@@ -96,6 +97,8 @@ One search term per Target run (F7). The Sephora filters are set because leaving
 
 **Selection.** Go through the rows in order and keep a row when it matches the brand: Ulta and Sephora `brandName == brand_name`; Chewy `manufacturer == brand_name`; Target `brand == brand_name`, `isMarketplace` false, and `itemType` in `item_types` when that is not `null` (F8). Target only: skip a row whose `parentTcin` is not `null` and whose `parentTcin` and `reviewCount` equal those of a kept row (F8). Stop at `PRODUCTS_PER_CELL`. Sponsored rows count like any other. Fewer than 10 is the full scope, not a failure (Death Wish at Target has 9).
 
+**Ulta product pages.** For every selected product of an Ulta cell, before the reviews: wait `ULTA_SPACING_S`, then fetch the product's URL from the open page with `page.evaluate` and `fetch(url, {credentials: "include"})` (one attempt, counted in `requests`). On status 200, `product_page_offer(html, skuId)` reads the `Product` JSON-LD object whose `sku` equals the listing item's `skuId` (top level, list items or `@graph` only, never `hasVariant`) and returns only `{sku, price, currency, availability}` (the part after the last `/`); `ValueError` `product_ld_not_found` otherwise, or `price_not_number` unless the price is a number or a plain decimal string (returned as received). Status 403 or 429 is `failed` with `blocked: http_<status>`, any other status `failed` with `http_<status>`, an exception `failed` with `browser: <message>`. After a 403 or 429, or `MAX_FAILURES_IN_A_ROW` failed pages in a row, the remaining products get `not_attempted`. Reviews are fetched as before, whatever happened to the page. Neither the JSON-LD block nor the HTML is stored.
+
 **Reviews.** A product whose listed review count (Ulta and Target `reviewCount`, Sephora `reviews`, Chewy `ratingCount`) is `null` or 0 gets `reviews_state` `none` and no request. For the others:
 - Ulta: open the first such product's `action.url` (same timeout and block test as the list page), wait 3 s, scroll `page.mouse.wheel(0, 3500)` twice 2.5 s apart, and wait up to `REVIEW_KEY_WAIT_S` for the PowerReviews request; take its `apikey` (F3). If the page does not load, is blocked, or no request comes, these products get `failed` with `browser: <message>`, `blocked` or `review_key_not_found`. Otherwise fetch the F3 URL once per product from that page with `page.evaluate` and `fetch(url, {signal: AbortSignal.timeout(REVIEW_FETCH_TIMEOUT_S * 1000)})`. Status 403 or 429 is `blocked`. Leave `ULTA_SPACING_S` between all Ulta navigations and fetches.
 - Target and Sephora: one e-commerce call per product with the product record's `url`. Chewy: one Chewy reviews call per product.
@@ -111,9 +114,10 @@ One search term per Target run (F7). The Sephora filters are set because leaving
 | `key` | `<retailer>:<product id>`: Ulta `productId`, Target `tcin`, Sephora `productId`, Chewy `partNumber` | `<product key>:<review id>`: Ulta `ugc_id`, Chewy `reviewId`, Target and Sephora `"h" + sha256(datePublished + "\n" + reviewBody).hexdigest()[:16]` (no ID is given, F10) |
 | `url` | Ulta `action.url`, Target `url`, Sephora `productUrl`, Chewy `url` | Ulta the product URL, Target and Sephora `inputUrl`, Chewy `sourceUrl` |
 | `fetched_at` | When the listing was read | When the review response arrived |
-| `raw` | `{"retailer", "rank", "listing_item", "reviews_state", "reviews_error", "reviews_meta"}` | `{"retailer", "product_key", "review"}` |
+| `raw` | `{"retailer", "rank", "listing_item", "product_page", "reviews_state", "reviews_error", "reviews_meta"}` | `{"retailer", "product_key", "review"}` |
 
 - `listing_item` is the row as received. `rank` is 1 to n in selection order. `reviews_state` is `fetched`, `none`, `failed` or `not_attempted`; `reviews_error` is `null` or the failure text. `reviews_meta` is Ulta's `{"total_results": <paging.total_results>, "rollup": <results[0].rollup>}`, otherwise `null`.
+- `product_page` is `null` except for Ulta: `{"state", "error", "sku", "price", "currency", "availability"}`, `state` `fetched`, `failed` or `not_attempted`, `error` `null` or the failure text, the last four `null` unless `fetched`.
 - `review` is the review as received, after the personal data is removed. The same Ulta review can appear under several products of one pool (F2); the product in the key keeps them apart.
 
 Run result: `source` is `retail_shelf`, `expected_total` is `null`, `requests` counts page navigations, in-page review fetches and Apify runs. `extra` is `{"cells": [{"retailer": "ulta", "status": "ok", "reason": "", "selected": 10}]}`.
@@ -126,8 +130,8 @@ Run result: `source` is `retail_shelf`, `expected_total` is `null`, `requests` c
 | No rows, or a row lacks a needed key, or the Ulta module is not found exactly once | `could_not_look` | `list_empty` or `list_shape_changed` |
 | A Target row has another `storeId` | `could_not_look` | `store_mismatch` |
 | Rows, but none matches the brand | `could_not_look` | `brand_matched_none` |
-| Every selected product is `fetched` or `none` | `ok` | empty |
-| Anything else | `partial` | what applies, joined with `; `: `review_key_not_found`, `reviews_blocked`, `reviews_failed=<n>`, `reviews_not_attempted=<n>` |
+| Every selected product is `fetched` or `none` (Ulta: and every product page is `fetched`) | `ok` | empty |
+| Anything else | `partial` | what applies, joined with `; `: `review_key_not_found`, `reviews_blocked`, `reviews_failed=<n>`, `reviews_not_attempted=<n>`, `product_pages_failed=<n>`, `product_pages_not_attempted=<n>` |
 
 The run's `status` is `ok` when every cell is `ok`, `could_not_look` when every cell is `could_not_look`, otherwise `partial`. Its `reason` joins, with ` | `, `<retailer>: <cell reason>` for every cell that is not `ok`. Example: Batiste without a token is `partial`, `target: missing_token`.
 
@@ -172,7 +176,7 @@ def review_key(product_key: str, retailer: str, review: dict) -> str: ...
 | sort the rank is based on | Best Sellers (page default) | relevance, store 2581 | Bestselling | actor's order, basis unknown (F9) |
 | sponsored | `li.sponsored` | `li.isSponsored` | `li.sponsored` | not given |
 | title | `li.productName` | `li.title` | `li.displayName` | `li.name` |
-| price as shown | `li.salePrice` or `li.listPrice` | `li.priceString` (`li.price`, `li.regularPrice`) | `li.listPrice` (`li.onSaleData`) | `li.displayPrice` (`li.strikePrice`, `li.autoshipPrice`) |
+| price as shown | `raw.product_page.price` (the size in the URL; `li.listPrice` is the listing card's range, `li.salePrice` its sale price) | `li.priceString` (`li.price`, `li.regularPrice`) | `li.listPrice` (`li.onSaleData`) | `li.displayPrice` (`li.strikePrice`, `li.autoshipPrice`) |
 | rating, review count | `li.rating`, `li.reviewCount` | `li.rating`, `li.reviewCount` | `li.rating`, `li.reviews` | `li.rating`, `li.ratingCount` |
 | own / other-site reviews, histogram | `raw.reviews_meta.rollup` | no | no | in `r` of its reviews |
 | review rating, title, body, date | `r.metrics.rating`, `r.details.headline`, `r.details.comments`, `r.details.created_date` | `r.reviewRating.ratingValue`, `r.name`, `r.reviewBody`, `r.datePublished` | same as Target | `r.rating`, `r.title`, `r.reviewText`, `r.reviewDate` |
