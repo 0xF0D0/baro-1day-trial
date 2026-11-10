@@ -115,6 +115,6 @@ def map_run(run: dict, records: list[dict]) -> MappedRun:
     for rec in records:
         try:
             rows.append(_map_record(rec))
-        except (KeyError, IndexError, TypeError, ValueError, AttributeError) as e:
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError, ArithmeticError, OverflowError, OSError) as e:
             raise MapError(f"{rec.get('key')}: {type(e).__name__}: {e}") from e
     return MappedRun(rows, scopes)

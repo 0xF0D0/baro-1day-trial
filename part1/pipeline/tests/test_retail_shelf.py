@@ -105,6 +105,15 @@ class RetailShelfTest(unittest.TestCase):
                 map_run(RUN, [bad])
             self.assertTrue(str(e.exception).startswith(bad["key"]))
 
+    def test_malformed_values_are_keyed_errors(self):
+        target = items("apify/target_al_store2581_4brands.json")[0]
+        for bad in (product("target", {**target, "rating": "n/a"}, key="target:1"),
+                    product("target", {**target, "price": "free"}, key="target:2"),
+                    review("ulta", "ulta:p", {**ULTA_R, "details": {**ULTA_R["details"], "created_date": 10**20}}, key="ulta:p:3")):
+            with self.assertRaises(MapError) as e:
+                map_run(RUN, [bad])
+            self.assertTrue(str(e.exception).startswith(bad["key"]))
+
     def test_registry(self):
         self.assertIs(mappers.MAPPERS["retail_shelf"], mappers.retail_shelf)
 
