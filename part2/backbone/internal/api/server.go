@@ -58,6 +58,9 @@ func writeJSON(w http.ResponseWriter, v any) {
 }
 
 func bearer(r *http.Request) string {
-	tok, _ := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	tok, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if !ok {
+		return ""
+	}
 	return tok
 }

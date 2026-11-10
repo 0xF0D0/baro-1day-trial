@@ -126,8 +126,18 @@ func TestWebhookStatusCodes(t *testing.T) {
 		{"valid B", "/webhooks/vendor-b", invB("a.shops.example", "b-1", "2026-07-01T00:10:07.912Z"),
 			sigB("sec_a2", invB("a.shops.example", "b-1", "2026-07-01T00:10:07.912Z")), 200},
 		{"unknown shop", "/webhooks/vendor-b", invB("zz.shops.example", "b-2", "2026-07-01T00:10:07.912Z"), nil, 404},
-		{"oversize", "/webhooks/vendor-a", bytes.Repeat([]byte("x"), 2<<20), nil, 400},
 	}
+	// Oversize: valid, correctly signed JSON padded past 1 MiB. Without the
+	// cap this would be accepted (200); with it the read fails (400).
+	big := bodyA("acct_a", "evt_big", "ads.metric", 7, `{"campaign_id":"c","spend":1,"impressions":1,"clicks":1}`)
+	big = append(big[:len(big)-1], []byte(`,"pad":"`+strings.Repeat("x", 1<<20+10)+`"}`)...)
+	cases = append(cases, struct {
+		name string
+		path string
+		body []byte
+		hdr  map[string]string
+		want int
+	}{"oversize", "/webhooks/vendor-a", big, sigA("sec_a1", big), 400})
 	// "fractional created" needs a valid signature over the malformed body.
 	frac := bodyA("acct_a", "evt_3", "ads.metric", "1.5", `{"campaign_id":"c","spend":1,"impressions":1,"clicks":1}`)
 	cases[6].body, cases[6].hdr = frac, sigA("sec_a1", frac)
@@ -391,6 +401,21 @@ func TestLogsCarryNoPathsOrIDs(t *testing.T) {
 	for _, bad := range []string{"cus_secret", "/tenants/t_a/customers", "acct_a", "evt_l1", "nowhere"} {
 		if strings.Contains(out, bad) {
 			t.Errorf("log contains %q: %s", bad, out)
+		}
+	}
+}
+
+func TestBearerPrefixRequired(t *testing.T) {
+	e := newEnv(t)
+	for _, c := range []struct{ method, path, auth string }{
+		{"GET", "/tenants/t_a/state", "tok_a"},
+		{"GET", "/tenants/t_a/events?from_ms=0&to_ms=1", "tok_a"},
+		{"DELETE", "/tenants/t_a/customers/cus_1", "adm_test"},
+		{"DELETE", "/tenants/t_b", "adm_test"},
+	} {
+		code, _ := e.do(t, c.method, c.path, "", nil, map[string]string{"Authorization": c.auth})
+		if code != 401 {
+			t.Errorf("%s %s with bare token: %d", c.method, c.path, code)
 		}
 	}
 }
