@@ -158,6 +158,17 @@ services:
       minio:
         condition: service_healthy
 
+  bench:
+    build: ./backbone
+    profiles: ["tools"]
+    entrypoint: ["/usr/local/bin/bench"]
+    volumes:
+      - ${TENANTS_FILE:?set TENANTS_FILE}:/config/tenants.json:ro
+      - ${DATA_DIR:-./out}:/data:ro
+    depends_on:
+      lb:
+        condition: service_started
+
   lb:
     image: nginx:1.27-alpine
     ports:

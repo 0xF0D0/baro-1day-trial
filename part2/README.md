@@ -71,6 +71,19 @@ The `worker` compose service runs the same image with the `worker` binary. Every
 
 `part2/scripts/tier-stats.sh <data-dir>` prints `hot=<rows in hot_events> cold=<events in cold buckets> dirty=<tenants marked dirty> garbage=<rows in garbage> pending=<pending tombstones>` from the running Postgres. `e2e.sh` uses a 2s flush interval (override with `FLUSH_INTERVAL`) so the cold tier is exercised during the replay, and runs `tier-stats.sh` after verify and an optional `SETTLE_SECONDS` wait; its exit code is still the verifier's.
 
+## Benchmark
+
+`INFRA=<supplied infrastructure dir> part2/scripts/benchmark.sh <data-dir>` measures the stack on one data set. It starts from `down -v` and `up -d --build --wait` (with `FLUSH_INTERVAL=10s` unless set), runs `replay.sh` and keeps its `done:` line (ingest throughput), waits until the worker logs a `flush tick` with `"days_flushed":0` after the replay ended (the first tick logged after the replay is skipped, because it may have started earlier; `SETTLE_TIMEOUT_S`, default 600), runs `verify.sh`, then runs the `bench` tool service (`cmd/bench`).
+
+`bench` takes the first and the last UTC day of the delivery times as the cold and the hot window. For every tenant and each of `ROUNDS` rounds (default 5) it reads `/state` and the first page of `/events` for each window, through the load balancer with the tenant's own token, `CONCURRENCY` (default 8) at a time. It prints `state`, `range_cold` and `range_hot` lines (`count`, `p50`, `p95`, `p99`, `max` in ms, nearest-rank), the three tenants with the slowest state reads, `skipped_erased` (a `410` on a tenant's first state read skips that tenant) and `errors`; any other non-200 answer is an error and the exit code is 1.
+
+The script then reads from Postgres the hot bytes per event, the cold bytes per event (`cold_manifest`) and the index bytes per cold event (`customer_days` and `sku_moves`), and the peak memory of `api1`, `api2`, `worker`, `postgres` and `minio` from `/sys/fs/cgroup/memory.peak` (`n/a` if unreadable). It writes `part2/out/<name>/benchmark.txt` (machine, settings, each number with a one-line method, verify's result) and prints it. The exit code is 0 only if verify and `bench` both succeed. It never prints customer IDs.
+
+```sh
+export INFRA=~/Downloads/BARO_Work_Trial/infrastructure
+part2/scripts/benchmark.sh "$INFRA/data"
+```
+
 ## Stop
 
 `TENANTS_FILE` must be set for these too.
