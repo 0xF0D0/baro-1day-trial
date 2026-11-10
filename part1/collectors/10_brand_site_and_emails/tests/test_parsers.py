@@ -49,7 +49,7 @@ class ParserTests(unittest.TestCase):
         self.assertEqual((state, reason), ("partial", "first_day_not_over(covered=2.65h); spam_not_checked"))
         self.assertEqual(len(msgs), 1)
         self.assertEqual(sc.emails_part(signups["Jinx"], [], manifest, emls),
-                         ("could_not_look", "not_signed_up(status=not_signed_up)", []))
+                         ("could_not_look", "sender_domains_unknown", []))
 
     def test_apify_items_and_log(self):
         items = jload(SAMPLES / "apify/blackrifle_run2_items.json")

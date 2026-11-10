@@ -274,6 +274,16 @@ class BrandSiteAndEmailsTest(unittest.TestCase):
         c = map_run(RUN, [record("email/5", "email", {"eml": eml})]).rows[0].columns
         self.assertEqual((c["body"], c["headline"], c["advertiser_name"]), (None, "Hi", "Shop"))
 
+    def test_imap_route_html_only_email(self):
+        eml = ("From: Shop <a@shop.test>\r\nSubject: Verify your email\r\nDate: Tue, 10 Nov 2026 15:13:02 +0000\r\n"
+               "Content-Type: text/html; charset=utf-8\r\n\r\n<p>hello https://shop.test/REDACTED</p>\r\n")
+        raw = {"route": "imap", "file": "1.eml", "eml": eml, "folder": "all", "in_first_day": True,
+               "redaction": "strict", "spam_checked": True}
+        r = map_run(RUN, [record("email/1", "email", raw)]).rows[0]
+        self.assertEqual((r.table, r.kind, r.scope), ("ads", "email", "emails"))
+        c = r.columns
+        self.assertEqual((c["channel"], c["headline"], c["body"]), ("email", "Verify your email", None))
+
     def test_errors_start_with_key(self):
         p = load("products_deathwish_trimmed.json")["products"][0]
         bad_price = {**p, "variants": [{**p["variants"][0], "price": "free"}]}

@@ -4,7 +4,7 @@
              "slots": {"community_signup": "div#footer-signup"}},
     "klaviyo_company_id": null,
     "prices": {"route": "batiste_wtb", "listing_url": "https://www.batistehair.com/batiste-products", "wtbid": "679a839e96a96e0f672b1fcc"},
-    "email_sender_domains": []
+    "email_sender_domains": ["tintcommunities.com"]
   },
   "living-proof": {
     "home": {"url": "https://www.livingproof.com/", "host": "www.livingproof.com", "shopify_market_check": true,
@@ -43,6 +43,6 @@
                        "cart_note": "em.cart__note"}},
     "klaviyo_company_id": "V2u2jn",
     "prices": {"route": "shopify_products_json", "host": "www.thinkjinx.com"},
-    "email_sender_domains": []
+    "email_sender_domains": ["thinkjinx.com"]
   }
 }

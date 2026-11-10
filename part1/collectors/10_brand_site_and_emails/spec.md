@@ -47,9 +47,10 @@ It does not extract prices, offer texts or email contents, does not decide what 
 | F17 | Apify API: `POST https://api.apify.com/v2/acts/apify~e-commerce-scraping-tool/runs?maxTotalChargeUsd=1&timeout=3600` returns 201 with `data.id`. `GET /v2/actor-runs/<id>?waitForFinish=60` returns the run object with `data.status`, `data.usageTotalUsd`, `data.defaultDatasetId`, `data.storageIds.datasets.errors`, `data.userId` and signed URLs in `data.output`. Items come from `GET /v2/datasets/<id>/items?clean=true&format=json`, the log from `GET /v2/logs/<id>` | run 2 calls; `apify/blackrifle_run2_run.json` |
 | F18 | The three redacted `.eml` files are ASCII with CRLF line ends. They have `From`, `Subject`, `Date`, `X-Trial-Gmail-Id`, `X-Trial-Received-At` (Gmail receive time, UTC, whole seconds), `X-Trial-Gmail-Labels`, `X-Trial-Redaction`, and `To: TRIAL_INBOX <trial_inbox@redacted.invalid>` | `eml/*.eml` |
 | F19 | The inbox was searched once, at 2026-11-10T07:26:17Z, for the three sender domains. The spam folder was not searched. One email per brand was found. The Death Wish Coffee email arrived 3 s **before** the recorded `signup_at`, because `signup_at` was recorded after the submit click finished | export session log; `eml/`; `part1/data/email_signups.json` (`note`) |
-| F20 | `part1/data/email_signups.json` lists Batiste and Jinx as `not_signed_up` with `signup_at` `null`. Black Rifle is `submitted_unconfirmed`, although its email arrived 94 s after `signup_at` | `part1/data/email_signups.json`, `eml/` |
+| F20 | `part1/data/email_signups.json` lists Batiste as `submitted_unconfirmed` (a community account on a third-party site, "Verify your email" received and not confirmed) and Jinx as `signed_up` (a customer account registration, "Customer account confirmation" received). For both, `signup_at` and `first_email_at` are the arrival time of the first mail. Black Rifle is `submitted_unconfirmed`, although its email arrived 94 s after `signup_at` | `part1/data/email_signups.json`, `eml/` |
 | F21 | A run with the same input at 2026-11-10T15:49Z again returned 55 items, but 47 of the item URLs ended in `?variant=<digits>` (for example `/products/dark-roast-bundle?variant=42986248175712`), and the log had six `Found` lines for pages 1 to 6 (12, 10, 20, 30, 22, 5), which sum to 99; a run nine minutes later, again with 55 items, summed to 109 and reported `priceCurrency`. The pages' counts overlap, so `listed` no longer equals the item count and such a run is `partial` with `apify_count_mismatch` | runs of 2026-11-10T15:49Z and 15:58Z (not kept as samples) |
 | F22 | Run 4 (2026-11-10, the input of section 4.4) logged six page lines for the one listing, `Found` 10, 22, 22, 30, 20 and 5, and 55 distinct `Product handled` lines; it returned 55 items. Page counts of one listing overlap, so they are not summed | `apify/blackrifle_run4_log.txt` |
+| F23 | In the inbox on 2026-11-10: "Customer account confirmation" from `support@thinkjinx.com` at `2026-11-10T15:12:32Z`, and "Verify your email" from a `tintcommunities.com` address (display name "Batiste Nation") at `2026-11-10T15:13:02Z`. Four hours later no newsletter welcome mail had arrived for either brand | inbox, 2026-11-10 |
 
 Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - `products_*`;
@@ -115,7 +116,7 @@ Samples are in `part1/collectors/10_brand_site_and_emails/samples/`:
 - Death Wish Coffee uses `h2.banner__heading`, not the whole banner box, because the banner boxes of customer-quote slides end with the customer's name (F9).
 - Black Rifle's home is still opened once per run, so the block is recorded each time (F4). Its slots come from F5.
 - `shopify_market_check` is `false` for Black Rifle because its prices do not come from its site; their currency is checked on the Apify items (4.4).
-- `email_sender_domains` is empty for the two brands that have not signed up. It gets filled from their first real email (section 9).
+- `email_sender_domains` holds the sender domains of the brand's mail: `tintcommunities.com` for Batiste and `thinkjinx.com` for Jinx (F23). An empty list gives `sender_domains_unknown`.
 
 Other files the collector reads:
 
@@ -124,7 +125,9 @@ Other files the collector reads:
 | `part1/collectors/brands.json` | Brand `name` for each slug |
 | `part1/data/email_signups.json` | Signup time and page per brand (F20). Read only; the main thread owns it |
 | `part1/collectors/10_brand_site_and_emails/inbox_export/export.json` and the `.eml` files next to it | The inbox export (below) |
-| `.env` at the repository root | `APIFY_TOKEN` |
+| `.env` at the repository root | `APIFY_TOKEN`, `INBOX_ADDRESS`, `INBOX_APP_PASSWORD`, `INBOX_IMAP_HOST` (optional) |
+
+**Inbox credentials.** `INBOX_ADDRESS` and `INBOX_APP_PASSWORD` are read from the environment first, then from `.env` (the text after `KEY=`, surrounding whitespace and one pair of quotes removed). Spaces inside the app password are removed. `INBOX_IMAP_HOST` defaults to `imap.gmail.com`. With both address and password set, the collector reads the mailbox itself (section 4.6, route `imap`); otherwise it reads the export below (route `inbox_export`). The address and the password are never written to a file, a log line, a reason or a record.
 
 **Inbox export.** The inbox is read outside the collector, by the procedure in section 12 of `source_info.md`. That procedure:
 - searches the sender domains;
@@ -317,7 +320,12 @@ With the item shape of F15, every Black Rifle run ends `partial` with the reason
 | Anything else | `partial` | what applies, joined with `; `: `product_pages_failed=<n>`, the first failed EAN's `error` among EANs not refused as `unauthorized_product`, `eans_unauthorized=<n>`, `eans_not_attempted=<n>` |
 
 ### 4.6 Emails (`emails`)
-No network. Each check below ends the part when it fails.
+Two routes. Steps 1 and 2 come first on both and end the part when they fail. Then `inbox_credentials()` (section 3) decides: credentials set means route `imap`; otherwise route `inbox_export`. With credentials there is no fallback to the files: old mail must not stand in for a mailbox that could not be read.
+
+#### Route `inbox_export`
+No network. This is the procedure below, unchanged. The part also carries `route` `"inbox_export"`.
+
+Each check below ends the part when it fails.
 1. Find the entry in `part1/data/email_signups.json` whose `brand` equals the brand's `name` in `brands.json`.
    - No file or no entry: `could_not_look`, reason `no_signup_entry`.
    - `signup_at` is `null`: `could_not_look`, reason `not_signed_up(status=<entry status>)`.
@@ -348,6 +356,27 @@ No network. Each check below ends the part when it fails.
 
 `<h>` is `(exported_at − signup_at)` in hours, formatted with two decimals. So "0 emails" (`ok`, 0 records) and "could not look" (`could_not_look`) are different states, and a run before the 24 hours are over always shows `first_day_not_over` with the hours covered.
 
+#### Route `imap`
+Standard library `imaplib` over TLS to `INBOX_IMAP_HOST`, one connection per brand. Each command is sent once (no retries) and adds 1 to `requests`. Nothing in the mailbox changes: folders are opened with `select(..., readonly=True)` and messages are fetched with `BODY.PEEK[]`.
+1. Steps 1 and 2 above (`no_signup_entry`, `not_signed_up(status=<entry status>)`, `sender_domains_unknown`).
+2. `login`. `imaplib.IMAP4.error` here: `could_not_look`, reason `imap_login_failed`.
+3. `list`. The folders flagged `\All` and `\Junk` are used, whatever their (localized) names. No `\All` folder: `could_not_look`, reason `imap_no_all_folder`.
+4. For `\All`, then `\Junk`: `select` read-only. A refused `select` of `\All` is `imap_error: select`. A refused or failing `select` of `\Junk` leaves `spam_checked` false. When `\Junk` was read completely, `spam_checked` is true.
+5. Per sender domain: `UID SEARCH FROM "<domain>" SINCE <date of signup_at − SIGNUP_TOLERANCE_S>` (`DD-Mon-YYYY`, English month names). A status other than `OK` is `imap_error: search`.
+6. Per UID: `UID FETCH <uid> (X-GM-MSGID X-GM-LABELS INTERNALDATE BODY.PEEK[])`. A status other than `OK` is `imap_error: fetch`. The message ID is `X-GM-MSGID` in hexadecimal (the ID of the hand export); without it, the first 16 hex digits of the SHA-256 of the raw message. A message already handled in this run (other folder, other domain) is skipped. Each distinct message counts in `messages`.
+7. `received_at` is `INTERNALDATE` in UTC. Before `signup_at − SIGNUP_TOLERANCE_S`: counted in `before_signup`, not written. Otherwise the message is redacted in memory with `tools/redact_eml.py` (`redact_message`, inbox = the address): the strict level when the `From` domain is not a verified sender (`VERIFIED_DOMAINS`) or a subdomain of one. A redaction failure, an unparseable message or a file that fails the checks of the `inbox_export` route's step 4 is counted in `eml_invalid`. The redacted bytes go to `raw/<brand>/<run_id>.eml/<gmail id>.eml`.
+8. A message whose `From` domain is not a sender domain (or a subdomain of one) is skipped without a count and its file is not kept.
+9. Every kept message is an `email` record, in order of `received_at`, then Gmail ID; the window has no end. `in_window` is the number of records, `in_first_day` the number received before `signup_at + FIRST_DAY_S`. `logout` is sent in every case; its errors are ignored.
+10. Any other exception from connecting or from a command: reason `imap_error: <exception type name>`. Records of earlier steps stay, so the state is `partial` with that reason when at least one record was kept, otherwise `could_not_look`. No text of an exception, no address, password or host is put into a reason, a log line or the part.
+
+| `emails` state (route `imap`) | State | Reason |
+|---|---|---|
+| steps 1, 2, 3, 4 or 10 without records | `could_not_look` | as given there |
+| both folders read, `eml_invalid` 0, no exception | `ok` | empty. 0 records means no email arrived |
+| anything else | `partial` | `spam_not_checked`, `eml_invalid=<n>`, or the step 10 reason, joined with `; ` |
+
+`first_day_not_over` does not apply on this route.
+
 ## 5. Output
 ### Records
 | `kind` | `key` | `url` | `fetched_at` |
@@ -357,7 +386,7 @@ No network. Each check below ends the part when it fails.
 | `retailer_availability` | `wtb/<EAN>` | `https://www.batistehair.com<first product path>` (the page whose "SHOP NOW" button opens the widget) | when the request ended. For `not_attempted`, when the route stopped |
 | `offer_slot` | `offer_slot/<home host>/<slot>` | `home.url` | when the settle wait ended |
 | `klaviyo_form` | `klaviyo_form/<company id>/<form_id>` | the `full-forms` URL | when the response arrived |
-| `email` | `email/<X-Trial-Gmail-Id>` | the entry's `signup_url`: signing up there brings the same email | `exported_at` |
+| `email` | `email/<X-Trial-Gmail-Id>` | the entry's `signup_url`: signing up there brings the same email | route `inbox_export`: `exported_at`; route `imap`: when the mailbox was opened (after login) |
 
 `raw` per kind:
 ```json
@@ -367,7 +396,9 @@ No network. Each check below ends the part when it fails.
 {"route": "home_dom", "slot": "announcement_bar", "selector": "p.announcement-bar__message", "state": "found", "elements": [{"outer_html": "<p ...>", "text": "BUILD YOUR OWN ..."}]}
 {"route": "klaviyo_full_forms", "company_id": "Q6RhjR", "form": {}}
 {"route": "inbox_export", "file": "livingproof_20261110T044829Z_1a1c3c946076193d.eml", "sha256": "<of the file bytes>", "eml": "<the whole file as text>", "signup_at": "2026-11-10T04:47:06Z", "first_day_ends_at": "2026-11-11T04:47:06Z", "exported_at": "2026-11-10T07:26:17Z", "spam_checked": false}
+{"route": "imap", "file": "3e8.eml", "sha256": "<of the file bytes>", "eml": "<the whole file as text>", "signup_at": "2026-11-10T15:12:32Z", "first_day_ends_at": "2026-11-11T15:12:32Z", "folder": "all", "in_first_day": true, "redaction": "strict", "spam_checked": true}
 ```
+- On the `imap` route `folder` is `all` or `spam`, `redaction` is `verified` or `strict`, and `in_first_day` says whether the message arrived within 24 hours of `signup_at`.
 - `product`, `item`, `response` and `form` are unchanged.
 - `retailer_availability.state` is `fetched`, `failed`, `not_attempted` or `not_us`. `response` is `null` unless `fetched`.
 
@@ -399,6 +430,7 @@ No network. Each check below ends the part when it fails.
 - For the other price routes, `prices` holds `state`, `reason`, `route`, `records` and the counters below.
 - For the Apify route: `run_id`, `run_status`, `listed`, `found_per_page` (the per-page `N` of step 8, a list, for the record only; `null` if the log is unread), `items`, `items_without_product_url`, `duplicate_items`, `items_without_price`, `currency_not_reported`, `errors` (the length of the errors dataset, or `null` if unread).
 - For the Batiste route: `product_pages` (a list of `{"path", "state", "eans", "location", "error"}`), `eans`, `fetched`, `failed`, `not_attempted`.
+- The `emails` part carries `route` (`imap` or `inbox_export`). On `imap` it also has `fetched_at` (when the mailbox was opened), `messages` (distinct messages found), `in_window` (records written, with no end of window), `in_first_day`, `before_signup` and `eml_invalid`; `exported_at`, `first_day_complete` and `after_first_day` are `null`; `spam_checked` is true only when the `\Junk` folder was read completely.
 - When a part stops at an earlier check (for example `not_signed_up`), the counters it never reached are `null`.
 
 `offers` state:

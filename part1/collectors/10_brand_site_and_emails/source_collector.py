@@ -9,6 +9,7 @@ import email.parser
 import email.policy
 import email.utils
 import hashlib
+import imaplib
 import json
 import os
 import re
@@ -29,6 +30,9 @@ BRANDS_JSON = ROOT / "part1/collectors/brands.json"
 SIGNUPS_JSON = ROOT / "part1/data/email_signups.json"
 EXPORT_DIR = HERE / "inbox_export"
 RAW_DIR = HERE / "raw"
+
+sys.path.insert(0, str(HERE / "tools"))
+from redact_eml import VERIFIED_DOMAINS, RedactionError, redact_message  # noqa: E402
 
 NAV_TIMEOUT_S = 45
 HOME_SETTLE_S = 8
@@ -379,6 +383,31 @@ def read_token():
     except OSError:
         pass
     return None
+
+
+def _dotenv_value(key):
+    try:
+        for line in (ROOT / ".env").read_text().splitlines():
+            if line.startswith(key + "="):
+                v = line[len(key) + 1:].strip()
+                if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+                    v = v[1:-1]
+                return v
+    except OSError:
+        pass
+    return None
+
+
+def inbox_credentials():
+    """(address, app password, host) from the environment, then .env; None unless address and password are set."""
+    def get(key):
+        v = os.environ.get(key)
+        return v.strip() if v and v.strip() else (_dotenv_value(key) or "").strip()
+
+    address, password = get("INBOX_ADDRESS"), "".join(get("INBOX_APP_PASSWORD").split())
+    if not address or not password:
+        return None
+    return address, password, get("INBOX_IMAP_HOST") or "imap.gmail.com"
 
 
 # ---------------------------------------------------------------- Chrome steps
@@ -824,7 +853,214 @@ def klaviyo_step(cfg, out_dir):
     return part
 
 
-def emails_step(cfg, name):
+_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+_LIST_RE = re.compile(rb'^\((?P<flags>[^)]*)\)\s+(?:"(?:[^"\\]|\\.)*"|NIL)\s+(?P<name>.+?)\s*$')
+_INTERNALDATE_RE = re.compile(r'INTERNALDATE "\s*(\d{1,2})-([A-Za-z]{3})-(\d{4}) (\d\d):(\d\d):(\d\d) ([+-])(\d\d)(\d\d)"')
+_LABELS_RE = re.compile(r'X-GM-LABELS \(((?:"(?:[^"\\]|\\.)*"|[^)"])*)\)')
+
+
+class ImapCommandError(Exception):
+    def __init__(self, reason):
+        super().__init__(reason)
+        self.reason = reason
+
+
+def imap_folders(list_lines):
+    """-> (name of the folder flagged \\All, name of the one flagged \\Junk), names unquoted, or None."""
+    found = {}
+    for line in list_lines:
+        m = _LIST_RE.match(line) if isinstance(line, bytes) else None
+        if not m:
+            continue
+        name = m.group("name").decode("ascii", "replace")
+        if len(name) >= 2 and name[0] == '"' and name[-1] == '"':
+            name = re.sub(r"\\(.)", r"\1", name[1:-1])
+        flags = m.group("flags").decode("ascii", "replace").lower().split()
+        for flag, key in (("\\all", "all"), ("\\junk", "junk")):
+            if flag in flags and key not in found:
+                found[key] = name
+    return found.get("all"), found.get("junk")
+
+
+def _quote(name):
+    return '"' + name.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def imap_since(dt):
+    return f"{dt.day:02d}-{_MONTHS[dt.month - 1]}-{dt.year}"
+
+
+def parse_fetch(meta):
+    """-> (X-GM-MSGID in hex or None, INTERNALDATE in UTC or None, X-GM-LABELS)."""
+    text = meta.decode("ascii", "replace") if isinstance(meta, bytes) else str(meta)
+    m = re.search(r"X-GM-MSGID (\d+)", text)
+    gid = format(int(m.group(1)), "x") if m else None
+    when = None
+    m = _INTERNALDATE_RE.search(text)
+    if m and m.group(2).title() in _MONTHS:
+        d, mon, y, hh, mm, ss, sign, zh, zm = m.groups()
+        offset = timedelta(hours=int(zh), minutes=int(zm)) * (1 if sign == "+" else -1)
+        when = (datetime(int(y), _MONTHS.index(mon.title()) + 1, int(d), int(hh), int(mm), int(ss),
+                         tzinfo=timezone.utc) - offset)
+    m = _LABELS_RE.search(text)
+    labels = []
+    if m:
+        for quoted, bare in re.findall(r'"((?:[^"\\]|\\.)*)"|([^\s"]+)', m.group(1)):
+            labels.append(re.sub(r"\\(.)", r"\1", quoted) if quoted or not bare else bare)
+    return gid, when, labels
+
+
+def _from_domain(raw):
+    msg = email.parser.BytesParser(policy=email.policy.default).parsebytes(raw)
+    if msg["From"] is None:
+        return ""
+    return email.utils.parseaddr(str(msg["From"]))[1].rsplit("@", 1)[-1].lower()
+
+
+def _domain_in(dom, domains):
+    return any(dom == d or dom.endswith("." + d) for d in domains)
+
+
+def emails_imap(cfg, signup, creds, out_dir, connect=imaplib.IMAP4_SSL):
+    """Read the inbox over IMAP (read-only, BODY.PEEK[]), redact in memory, write .eml files, emit records."""
+    address, password, host = creds
+    sender_domains = cfg["email_sender_domains"]
+    sign = _ts(signup["signup_at"])
+    end = sign + timedelta(seconds=FIRST_DAY_S)
+    start = sign - timedelta(seconds=SIGNUP_TOLERANCE_S)
+    part = {"state": "could_not_look", "reason": "", "route": "imap", "signup_at": signup["signup_at"],
+            "first_day_ends_at": end.strftime("%Y-%m-%dT%H:%M:%SZ"), "exported_at": None,
+            "fetched_at": None, "first_day_complete": None, "spam_checked": False, "messages": 0,
+            "in_window": 0, "in_first_day": 0, "before_signup": 0, "after_first_day": None, "eml_invalid": 0}
+    found = []  # (received, gmail id, eml dict, folder, redaction level)
+    seen = set()
+    error = None
+
+    def command(fn, *a, **k):
+        R["requests"] += 1
+        return fn(*a, **k)
+
+    def read_folder(conn, name, folder):
+        for dom in sender_domains:
+            typ, data = command(conn.uid, "SEARCH", None, "FROM", f'"{dom}"', "SINCE", imap_since(start))
+            if typ != "OK":
+                raise ImapCommandError("imap_error: search")
+            uids = [u.decode("ascii") for u in (data[0] or b"").split()] if data and isinstance(data[0], bytes) else []
+            for uid in uids:
+                typ, data = command(conn.uid, "FETCH", uid, "(X-GM-MSGID X-GM-LABELS INTERNALDATE BODY.PEEK[])")
+                if typ != "OK":
+                    raise ImapCommandError("imap_error: fetch")
+                item = next((d for d in data or [] if isinstance(d, tuple) and len(d) == 2), None)
+                if item is None:
+                    part["messages"] += 1
+                    part["eml_invalid"] += 1
+                    continue
+                handle(item[0], item[1], folder)
+
+    def handle(meta, raw, folder):
+        gid, received, labels = parse_fetch(meta)
+        if gid is None:
+            gid = hashlib.sha256(raw).hexdigest()[:16]
+        if gid in seen:
+            return
+        seen.add(gid)
+        part["messages"] += 1
+        if received is None:
+            part["eml_invalid"] += 1
+            return
+        if received < start:
+            part["before_signup"] += 1
+            return
+        path = None
+        try:
+            dom = _from_domain(raw)
+            if not dom:
+                raise ValueError("no sender")
+            if not _domain_in(dom, sender_domains):
+                return
+            strict = not _domain_in(dom, VERIFIED_DOMAINS)
+            data, _ = redact_message(raw, gid, received, labels, inbox=address, strict=strict)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            path = out_dir / f"{gid}.eml"
+            path.write_bytes(data)
+            e = read_eml(path, gid)
+            if e is None:
+                path.unlink()
+                part["eml_invalid"] += 1
+                return
+            if not _domain_in(e["from_domain"], sender_domains):
+                path.unlink()
+                return
+        except Exception:  # RedactionError or anything else about this one message
+            if path is not None:
+                try:
+                    path.unlink()
+                except OSError:
+                    pass
+            part["eml_invalid"] += 1
+            return
+        found.append((received, gid, e, folder, "strict" if strict else "verified"))
+
+    try:
+        conn = connect(host)
+        try:
+            try:
+                command(conn.login, address, password)
+            except imaplib.IMAP4.error:
+                raise ImapCommandError("imap_login_failed")
+            part["fetched_at"] = utc_now()
+            typ, lines = command(conn.list)
+            if typ != "OK":
+                raise ImapCommandError("imap_error: list")
+            all_name, junk_name = imap_folders(lines)
+            if all_name is None:
+                raise ImapCommandError("imap_no_all_folder")
+            typ, _ = command(conn.select, _quote(all_name), readonly=True)
+            if typ != "OK":
+                raise ImapCommandError("imap_error: select")
+            read_folder(conn, all_name, "all")
+            if junk_name is not None:
+                try:
+                    typ, _ = command(conn.select, _quote(junk_name), readonly=True)
+                except imaplib.IMAP4.error:
+                    typ = "NO"
+                if typ == "OK":
+                    read_folder(conn, junk_name, "spam")
+                    part["spam_checked"] = True
+        finally:
+            try:
+                command(conn.logout)
+            except Exception:
+                pass
+    except ImapCommandError as e:
+        error = e.reason
+    except Exception as e:
+        error = f"imap_error: {type(e).__name__}"
+    part["fetched_at"] = part["fetched_at"] or utc_now()
+    found.sort(key=lambda f: (f[0], f[1]))
+    for received, gid, e, folder, level in found:
+        in_first_day = received < end
+        part["in_first_day"] += in_first_day
+        emit("email", f"email/{gid}", signup["signup_url"], part["fetched_at"],
+             {"route": "imap", "file": e["file"], "sha256": e["sha256"], "eml": e["eml"],
+              "signup_at": part["signup_at"], "first_day_ends_at": part["first_day_ends_at"],
+              "folder": folder, "in_first_day": in_first_day, "redaction": level,
+              "spam_checked": part["spam_checked"]})
+    part["in_window"] = len(found)
+    if error:
+        part["state"] = "partial" if found else "could_not_look"
+        part["reason"] = error
+    else:
+        r = []
+        if not part["spam_checked"]:
+            r.append("spam_not_checked")
+        if part["eml_invalid"]:
+            r.append(f"eml_invalid={part['eml_invalid']}")
+        part["state"], part["reason"] = ("partial", "; ".join(r)) if r else ("ok", "")
+    return part
+
+
+def emails_step(cfg, name, out_dir):
     signup = None
     try:
         for s in json.loads(SIGNUPS_JSON.read_text())["signups"]:
@@ -832,6 +1068,12 @@ def emails_step(cfg, name):
                 signup = s
     except (OSError, ValueError, KeyError, TypeError):
         pass
+    creds = inbox_credentials()
+    if creds is not None:
+        stop = email_eval(signup, cfg["email_sender_domains"], None, [])
+        if stop[1] != "no_inbox_export":
+            return {"state": stop[0], "reason": stop[1], **stop[3], "route": "imap"}
+        return emails_imap(cfg, signup, creds, out_dir)
     manifest = None
     try:
         manifest = json.loads((EXPORT_DIR / "export.json").read_text())
@@ -848,7 +1090,7 @@ def emails_step(cfg, name):
              {"route": "inbox_export", "file": e["file"], "sha256": e["sha256"], "eml": e["eml"],
               "signup_at": stats["signup_at"], "first_day_ends_at": stats["first_day_ends_at"],
               "exported_at": stats["exported_at"], "spam_checked": stats["spam_checked"]})
-    return {"state": state, "reason": reason, **stats}
+    return {"state": state, "reason": reason, **stats, "route": "inbox_export"}
 
 
 # ---------------------------------------------------------------- brand run
@@ -889,7 +1131,7 @@ def run_brand(slug, inputs, names):
                 browser.close()
         klaviyo = klaviyo_step(cfg, out / f"{run_id}.klaviyo") if cfg["klaviyo_company_id"] else None
         parts["offers"] = offers_part(home, klaviyo)
-        parts["emails"] = emails_step(cfg, names[slug])
+        parts["emails"] = emails_step(cfg, names[slug], out / f"{run_id}.eml")
         status, reason = combine_parts({k: (parts[k]["state"], parts[k]["reason"]) for k in ("prices", "offers", "emails")})
     except Exception as e:
         crashed = True
