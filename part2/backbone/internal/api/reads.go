@@ -1,16 +1,21 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"backbone/internal/canon"
-	"backbone/internal/fold"
 	"backbone/internal/store"
 )
 
 const maxLimit = 1000
+
+// readDeadline bounds one read, well inside the grace period before sweep
+// may delete an object that read is using.
+const readDeadline = 60 * time.Second
 
 // parseLimit returns the page size: default and cap are maxLimit.
 func parseLimit(s string) (int, error) {
@@ -60,16 +65,13 @@ func (s *server) state(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	// ScanAll yields events in canonical order, so they can be folded as they stream.
-	st := fold.New(sc.TenantID(), sc.Keys().CustomerKeyHex)
-	err := s.st.ScanAll(r.Context(), sc, func(ev canon.Event) error {
-		return st.Apply(ev)
-	})
+	ctx, cancel := context.WithTimeout(r.Context(), readDeadline)
+	defer cancel()
+	res, err := s.st.State(ctx, sc)
 	if err != nil {
 		readErr(w, err)
 		return
 	}
-	res := st.Result()
 	writeJSON(w, res)
 }
 
@@ -100,7 +102,9 @@ func (s *server) events(w http.ResponseWriter, r *http.Request) {
 		}
 		after = &k
 	}
-	rows, err := s.st.Range(r.Context(), sc, from, to, after, limit+1)
+	ctx, cancel := context.WithTimeout(r.Context(), readDeadline)
+	defer cancel()
+	rows, err := s.st.Range(ctx, sc, from, to, after, limit+1)
 	if err != nil {
 		readErr(w, err)
 		return

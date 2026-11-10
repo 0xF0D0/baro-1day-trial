@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"backbone/internal/canon"
+	"backbone/internal/fold"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -37,7 +38,10 @@ func eventAAD(tenantID, eventID string) []byte {
 
 // Ingest stores one event in a single READ COMMITTED transaction. It holds
 // the shared tenant-status lock, then (for customer events) the shared
-// customer lock, so erasure of either cannot interleave with the insert.
+// customer lock, so erasure of either cannot interleave with the insert,
+// and finally the shared cold-commit lock while it reads cold_until. An event
+// older than cold_until is late: it is deduplicated against its day bucket
+// and, when stored, marks the tenant dirty.
 func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestResult, error) {
 	tenant := sc.TenantID()
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
@@ -76,6 +80,39 @@ func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestRes
 		}
 	}
 
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`, lockKey("cold-commit", []byte(tenant))); err != nil {
+		return 0, fmt.Errorf("store: cold-commit lock: %w", err)
+	}
+	var coldUntil int64
+	var dirty bool
+	if err := tx.QueryRow(ctx, `SELECT cold_until, dirty FROM tenant_cold WHERE tenant_id = $1`, tenant).
+		Scan(&coldUntil, &dirty); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, ErrUnknownTenant
+		}
+		return 0, fmt.Errorf("store: read cold state: %w", err)
+	}
+	late := ev.OccurredAtMs < coldUntil
+	if late {
+		var object string
+		err := tx.QueryRow(ctx, `SELECT object FROM cold_manifest WHERE tenant_id = $1 AND day = $2`,
+			tenant, fold.Day(ev.OccurredAtMs)).Scan(&object)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return 0, fmt.Errorf("store: read cold manifest: %w", err)
+		}
+		if err == nil {
+			bucket, err := s.getBucket(ctx, sc, object)
+			if err != nil {
+				return 0, err
+			}
+			for _, b := range bucket {
+				if b.EventID == ev.EventID {
+					return Duplicate, nil
+				}
+			}
+		}
+	}
+
 	plain, err := json.Marshal(ev)
 	if err != nil {
 		return 0, fmt.Errorf("store: marshal event: %w", err)
@@ -87,6 +124,11 @@ func (s *Store) Ingest(ctx context.Context, sc Scope, ev canon.Event) (IngestRes
 		tenant, ev.EventID, ev.OccurredAtMs, customerKey, sealed)
 	if err != nil {
 		return 0, fmt.Errorf("store: insert event: %w", err)
+	}
+	if late && tag.RowsAffected() > 0 {
+		if _, err := tx.Exec(ctx, `UPDATE tenant_cold SET dirty = true WHERE tenant_id = $1`, tenant); err != nil {
+			return 0, fmt.Errorf("store: mark dirty: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return 0, fmt.Errorf("store: ingest commit: %w", err)
@@ -116,26 +158,6 @@ func (s *Store) ScanAll(ctx context.Context, sc Scope, fn func(canon.Event) erro
 		ORDER BY occurred_at_ms, event_id`, []any{sc.TenantID()}, fn)
 }
 
-// Range returns events with fromMs <= occurred_at_ms < toMs and a key strictly
-// greater than after (when non-nil), in key order, at most limit of them.
-func (s *Store) Range(ctx context.Context, sc Scope, fromMs, toMs int64, after *Key, limit int) ([]canon.Event, error) {
-	afterMs, afterID := int64(-1<<63), ""
-	if after != nil {
-		afterMs, afterID = after.OccurredAtMs, after.EventID
-	}
-	out := []canon.Event{}
-	err := s.read(ctx, sc, `SELECT event_id, payload FROM hot_events
-		WHERE tenant_id = $1 AND occurred_at_ms >= $2 AND occurred_at_ms < $3
-		  AND (occurred_at_ms, event_id) > ($4, $5::text COLLATE "C")
-		ORDER BY occurred_at_ms, event_id LIMIT $6`,
-		[]any{sc.TenantID(), fromMs, toMs, afterMs, afterID, limit},
-		func(e canon.Event) error { out = append(out, e); return nil })
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // read runs query in a REPEATABLE READ READ ONLY transaction whose first
 // statement reads the tenant status, and feeds each decrypted event to fn.
 func (s *Store) read(ctx context.Context, sc Scope, query string, args []any, fn func(canon.Event) error) error {
@@ -153,6 +175,12 @@ func (s *Store) read(ctx context.Context, sc Scope, query string, args []any, fn
 		s.forgetKeys(tenant)
 		return ErrTenantErased
 	}
+	return scanHot(ctx, tx, sc, query, args, fn)
+}
+
+// scanHot runs query inside tx and feeds each decrypted event to fn.
+func scanHot(ctx context.Context, tx pgx.Tx, sc Scope, query string, args []any, fn func(canon.Event) error) error {
+	tenant := sc.TenantID()
 	rows, err := tx.Query(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("store: read events: %w", err)

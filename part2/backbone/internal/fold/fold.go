@@ -47,10 +47,10 @@ type State struct {
 	eventCount      int64
 	orders          map[string]*order
 	inventory       map[string]int64
-	oversold        int64
+	oversold        map[string]int64 // per SKU, only non-zero entries
 	customers       map[string]struct{}
 	messages        map[string]int64
-	lastContact     *int64
+	dayMax          map[int64]int64 // latest message.received time per UTC day
 	campaigns       map[string]Campaign
 	orphanRefunds   int64
 	orphanShipments int64
@@ -64,6 +64,8 @@ func New(tenantID string, customerKey func(customerID string) string) *State {
 		customerKey: customerKey,
 		orders:      map[string]*order{},
 		inventory:   map[string]int64{},
+		oversold:    map[string]int64{},
+		dayMax:      map[int64]int64{},
 		customers:   map[string]struct{}{},
 		messages:    map[string]int64{},
 		campaigns:   map[string]Campaign{},
@@ -111,90 +113,95 @@ type reqAdMetric struct {
 	Clicks      *int64  `json:"clicks"`
 }
 
-// Apply folds one event and always returns nil. Fields are checked in the
-// order the reducer reads them, and a field the reducer never reaches is not
+// ApplyMoves folds one event and returns the inventory movements it caused.
+// Fields are checked in the order the reducer reads them, and a field the reducer never reaches is not
 // required. A known type whose data lacks a field the reducer reads, or has it
 // with the wrong JSON type, is treated like an unknown type: it is counted
 // (with its customer) and changes nothing else. For order.refunded and
 // shipment.updated, order_id is read first: a missing order is an orphan
 // whatever the other fields hold, and for an existing order a missing or
 // malformed amount_cents / status changes nothing.
-func (s *State) Apply(e canon.Event) error {
+func (s *State) ApplyMoves(e canon.Event) []Move {
+	var moves []Move
 	s.begin(e)
 	switch e.Type {
 	case "order.created":
 		var d reqOrderCreated
 		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil || d.Lines == nil {
-			return nil
+			return moves
 		}
 		for _, l := range *d.Lines {
 			if l.SKU == nil || l.Qty == nil || l.UnitCents == nil {
-				return nil
+				return moves
 			}
 		}
 		if _, ok := s.orders[*d.OrderID]; ok {
-			return nil
+			return moves
 		}
 		var gross int64
-		for _, l := range *d.Lines {
+		for i, l := range *d.Lines {
 			gross += *l.Qty * *l.UnitCents
 			have := s.inventory[*l.SKU]
 			take := min(have, *l.Qty)
 			s.inventory[*l.SKU] = have - take
-			s.oversold += *l.Qty - take
+			if over := *l.Qty - take; over != 0 {
+				s.oversold[*l.SKU] += over
+			}
+			moves = append(moves, Move{SKU: *l.SKU, Kind: "order", Amount: *l.Qty, LineNo: i})
 		}
 		s.orders[*d.OrderID] = &order{gross: gross, status: "unfulfilled"}
 	case "order.refunded":
 		var d reqOrderRefunded
 		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil {
-			return nil
+			return moves
 		}
 		o, ok := s.orders[*d.OrderID]
 		if !ok {
 			s.orphanRefunds++
-			return nil
+			return moves
 		}
 		var amount *int64
 		if json.Unmarshal(d.AmountCents, &amount) != nil || amount == nil {
-			return nil
+			return moves
 		}
 		o.refunded = min(o.gross, o.refunded+*amount)
 	case "shipment.updated":
 		var d reqShipmentUpdated
 		if json.Unmarshal(e.Data, &d) != nil || d.OrderID == nil {
-			return nil
+			return moves
 		}
 		o, ok := s.orders[*d.OrderID]
 		if !ok {
 			s.orphanShipments++
-			return nil
+			return moves
 		}
 		var status *string
 		if json.Unmarshal(d.Status, &status) != nil || status == nil {
-			return nil
+			return moves
 		}
 		o.status = *status
 	case "inventory.adjusted":
 		var d reqInventoryAdjusted
 		if json.Unmarshal(e.Data, &d) != nil || d.SKU == nil || d.Delta == nil {
-			return nil
+			return moves
 		}
 		s.inventory[*d.SKU] = max(0, s.inventory[*d.SKU]+*d.Delta)
+		moves = append(moves, Move{SKU: *d.SKU, Kind: "adjust", Amount: *d.Delta})
 	case "message.received":
 		var d reqMessageReceived
 		if json.Unmarshal(e.Data, &d) != nil || d.Channel == nil {
-			return nil
+			return moves
 		}
 		s.messages[*d.Channel]++
-		if s.lastContact == nil || e.OccurredAtMs > *s.lastContact {
-			t := e.OccurredAtMs
-			s.lastContact = &t
+		day := Day(e.OccurredAtMs)
+		if cur, ok := s.dayMax[day]; !ok || e.OccurredAtMs > cur {
+			s.dayMax[day] = e.OccurredAtMs
 		}
 	case "ad.metric":
 		var d reqAdMetric
 		if json.Unmarshal(e.Data, &d) != nil || d.CampaignID == nil || d.SpendCents == nil ||
 			d.Impressions == nil || d.Clicks == nil {
-			return nil
+			return moves
 		}
 		c := s.campaigns[*d.CampaignID]
 		c.SpendCents += *d.SpendCents
@@ -202,6 +209,13 @@ func (s *State) Apply(e canon.Event) error {
 		c.Clicks += *d.Clicks
 		s.campaigns[*d.CampaignID] = c
 	}
+	return moves
+}
+
+// Apply folds one event, discarding the movements ApplyMoves reports. It always
+// returns nil; the error result exists for callers that treat folding as fallible.
+func (s *State) Apply(e canon.Event) error {
+	s.ApplyMoves(e)
 	return nil
 }
 
@@ -221,7 +235,6 @@ func (s *State) Result() Result {
 		OrderCount:           int64(len(s.orders)),
 		ShipmentStatusCounts: map[string]int64{},
 		Inventory:            make(map[string]int64, len(s.inventory)),
-		OversoldUnits:        s.oversold,
 		CustomerCount:        int64(len(s.customers)),
 		MessagesByChannel:    make(map[string]int64, len(s.messages)),
 		Campaigns:            make(map[string]Campaign, len(s.campaigns)),
@@ -237,9 +250,18 @@ func (s *State) Result() Result {
 	for k, v := range s.campaigns {
 		r.Campaigns[k] = v
 	}
-	if s.lastContact != nil {
-		t := *s.lastContact
-		r.LastContactMs = &t
+	for _, v := range s.oversold {
+		r.OversoldUnits += v
+	}
+	first := true
+	var last int64
+	for _, v := range s.dayMax {
+		if first || v > last {
+			last, first = v, false
+		}
+	}
+	if !first {
+		r.LastContactMs = &last
 	}
 	for _, o := range s.orders {
 		r.ShipmentStatusCounts[o.status]++

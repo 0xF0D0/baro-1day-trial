@@ -26,3 +26,40 @@ CREATE TABLE IF NOT EXISTS tombstones (
   requested_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (tenant_id, customer_key)
 );
+CREATE TABLE IF NOT EXISTS tenant_cold (
+  tenant_id       text PRIMARY KEY REFERENCES tenants,
+  cold_until      bigint NOT NULL DEFAULT (-9223372036854775807 - 1),
+  snapshot_object text,
+  reducer_version text NOT NULL DEFAULT 'v1',
+  dirty           boolean NOT NULL DEFAULT false
+);
+CREATE TABLE IF NOT EXISTS cold_manifest (
+  tenant_id text NOT NULL,
+  day       bigint NOT NULL,
+  object    text NOT NULL,
+  events    integer NOT NULL,
+  bytes     integer NOT NULL,
+  PRIMARY KEY (tenant_id, day)
+);
+CREATE TABLE IF NOT EXISTS garbage (
+  object      text PRIMARY KEY,
+  tenant_id   text NOT NULL,
+  replaced_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS customer_days (
+  tenant_id    text NOT NULL,
+  customer_key bytea NOT NULL,
+  day          bigint NOT NULL,
+  PRIMARY KEY (tenant_id, customer_key, day)
+);
+CREATE TABLE IF NOT EXISTS sku_moves (
+  tenant_id      text NOT NULL,
+  sku_key        bytea NOT NULL,
+  occurred_at_ms bigint NOT NULL,
+  event_id       text COLLATE "C" NOT NULL,
+  line_no        integer NOT NULL,
+  value          bytea NOT NULL,
+  PRIMARY KEY (tenant_id, sku_key, occurred_at_ms, event_id, line_no)
+);
+ALTER TABLE sku_moves ALTER COLUMN value SET STATISTICS 0;
+CREATE INDEX IF NOT EXISTS sku_moves_event ON sku_moves (tenant_id, event_id);

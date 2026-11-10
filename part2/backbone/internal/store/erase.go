@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"backbone/internal/canon"
+	"backbone/internal/fold"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -60,37 +63,289 @@ func (s *Store) EraseCustomer(ctx context.Context, sc Scope, customerID string) 
 		return nil
 	}
 
-	tx2, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
+	return s.eraseCustomerCold(ctx, sc, customerID)
+}
+
+// coldPlan is the object work of one customer erasure, prepared before the
+// commit locks are taken.
+type coldPlan struct {
+	replaceDays map[int64]string // day -> new bucket object
+	replaceN    map[int64]int    // day -> remaining event count
+	replaceB    map[int64]int    // day -> new bucket size in bytes
+	deleteDays  []int64          // days whose bucket becomes empty
+	oldObjects  []string         // replaced buckets
+	oldSnapshot *string
+	newSnapshot string
+	removedIDs  []string
+}
+
+// eraseCustomerCold is the second transaction of EraseCustomer. It holds the
+// cold-writer lock for its whole length, so a flush that already read the
+// customer's hot rows finishes first and the erasure then sees its output.
+func (s *Store) eraseCustomerCold(ctx context.Context, sc Scope, customerID string) error {
+	tenant := sc.TenantID()
+	customerKey := sc.Keys().CustomerKey(customerID)
+
+	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return fmt.Errorf("store: erase customer begin: %w", err)
 	}
-	defer tx2.Rollback(ctx) //nolint:errcheck
-	if _, err := tx2.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`, lockKey("tenant-status", []byte(tenant))); err != nil {
+	defer tx.Rollback(ctx) //nolint:errcheck
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, lockKey("cold-writer", []byte(tenant))); err != nil {
+		return fmt.Errorf("store: cold-writer lock: %w", err)
+	}
+	status, err := tenantStatus(ctx, tx, tenant)
+	if err != nil {
+		return err
+	}
+	if status == "erased" {
+		s.forgetKeys(tenant)
+		if _, err := tx.Exec(ctx,
+			`UPDATE tombstones SET status = 'done' WHERE tenant_id = $1 AND customer_key = $2`,
+			tenant, customerKey); err != nil {
+			return fmt.Errorf("store: finish tombstone: %w", err)
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return fmt.Errorf("store: erase customer commit: %w", err)
+		}
+		return nil
+	}
+
+	plan, err := s.planColdErase(ctx, tx, sc, customerID, customerKey)
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock_shared($1)`, lockKey("tenant-status", []byte(tenant))); err != nil {
 		return fmt.Errorf("store: tenant status lock: %w", err)
 	}
-	if _, err := tx2.Exec(ctx,
-		`DELETE FROM hot_events WHERE tenant_id = $1 AND customer_key = $2`, tenant, customerKey); err != nil {
-		return fmt.Errorf("store: delete customer events: %w", err)
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, lockKey("cold-commit", []byte(tenant))); err != nil {
+		return fmt.Errorf("store: cold-commit lock: %w", err)
 	}
-	if _, err := tx2.Exec(ctx,
+	status, err = tenantStatus(ctx, tx, tenant)
+	if err != nil {
+		return err
+	}
+	if status == "erased" {
+		s.forgetKeys(tenant)
+		return nil
+	}
+	for day, obj := range plan.replaceDays {
+		if _, err := tx.Exec(ctx, `UPDATE cold_manifest SET object = $3, events = $4, bytes = $5 WHERE tenant_id = $1 AND day = $2`,
+			tenant, day, obj, plan.replaceN[day], plan.replaceB[day]); err != nil {
+			return fmt.Errorf("store: update manifest: %w", err)
+		}
+	}
+	for _, day := range plan.deleteDays {
+		if _, err := tx.Exec(ctx, `DELETE FROM cold_manifest WHERE tenant_id = $1 AND day = $2`, tenant, day); err != nil {
+			return fmt.Errorf("store: delete manifest: %w", err)
+		}
+	}
+	garbage := plan.oldObjects
+	if plan.oldSnapshot != nil {
+		garbage = append(garbage, *plan.oldSnapshot)
+	}
+	for _, o := range garbage {
+		if _, err := tx.Exec(ctx, `INSERT INTO garbage (object, tenant_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+			o, tenant); err != nil {
+			return fmt.Errorf("store: insert garbage: %w", err)
+		}
+	}
+	if plan.newSnapshot != "" {
+		if _, err := tx.Exec(ctx, `UPDATE tenant_cold SET snapshot_object = $2 WHERE tenant_id = $1`,
+			tenant, plan.newSnapshot); err != nil {
+			return fmt.Errorf("store: update snapshot pointer: %w", err)
+		}
+	}
+	for _, q := range []string{
+		`DELETE FROM hot_events WHERE tenant_id = $1 AND customer_key = $2`,
+		`DELETE FROM customer_days WHERE tenant_id = $1 AND customer_key = $2`,
+	} {
+		if _, err := tx.Exec(ctx, q, tenant, customerKey); err != nil {
+			return fmt.Errorf("store: delete customer rows: %w", err)
+		}
+	}
+	if len(plan.removedIDs) > 0 {
+		if _, err := tx.Exec(ctx, `DELETE FROM sku_moves WHERE tenant_id = $1 AND event_id = ANY($2)`,
+			tenant, plan.removedIDs); err != nil {
+			return fmt.Errorf("store: delete sku moves: %w", err)
+		}
+	}
+	if _, err := tx.Exec(ctx,
 		`UPDATE tombstones SET status = 'done' WHERE tenant_id = $1 AND customer_key = $2`,
 		tenant, customerKey); err != nil {
 		return fmt.Errorf("store: finish tombstone: %w", err)
 	}
-	if err := tx2.Commit(ctx); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("store: erase customer commit: %w", err)
 	}
 	return nil
 }
 
+// planColdErase rewrites the customer's buckets and the snapshot as new
+// objects. It changes nothing in Postgres.
+func (s *Store) planColdErase(ctx context.Context, tx pgx.Tx, sc Scope, customerID string, customerKey []byte) (coldPlan, error) {
+	tenant := sc.TenantID()
+	plan := coldPlan{replaceDays: map[int64]string{}, replaceN: map[int64]int{}, replaceB: map[int64]int{}}
+
+	rows, err := tx.Query(ctx, `SELECT day FROM customer_days WHERE tenant_id = $1 AND customer_key = $2 ORDER BY day`,
+		tenant, customerKey)
+	if err != nil {
+		return plan, fmt.Errorf("store: read customer days: %w", err)
+	}
+	var days []int64
+	for rows.Next() {
+		var d int64
+		if err := rows.Scan(&d); err != nil {
+			rows.Close()
+			return plan, fmt.Errorf("store: scan customer day: %w", err)
+		}
+		days = append(days, d)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return plan, fmt.Errorf("store: read customer days: %w", err)
+	}
+	if len(days) == 0 {
+		return plan, nil
+	}
+
+	var removed []canon.Event
+	remaining := map[int64][]canon.Event{}
+	oldObject := map[int64]string{}
+	for _, day := range days {
+		var obj string
+		if err := tx.QueryRow(ctx, `SELECT object FROM cold_manifest WHERE tenant_id = $1 AND day = $2`,
+			tenant, day).Scan(&obj); err != nil {
+			return plan, fmt.Errorf("store: read manifest row: %w", err)
+		}
+		events, err := s.getBucket(ctx, sc, obj)
+		if err != nil {
+			return plan, err
+		}
+		keep := make([]canon.Event, 0, len(events))
+		hit := false
+		for _, ev := range events {
+			if ev.CustomerID != nil && *ev.CustomerID == customerID {
+				removed = append(removed, ev)
+				plan.removedIDs = append(plan.removedIDs, ev.EventID)
+				hit = true
+			} else {
+				keep = append(keep, ev)
+			}
+		}
+		if !hit {
+			continue
+		}
+		remaining[day] = keep
+		oldObject[day] = obj
+	}
+	if len(removed) == 0 {
+		return plan, nil
+	}
+
+	for day, keep := range remaining {
+		plan.oldObjects = append(plan.oldObjects, oldObject[day])
+		if len(keep) == 0 {
+			plan.deleteDays = append(plan.deleteDays, day)
+			continue
+		}
+		name, size, err := s.putBucket(ctx, sc, day, keep)
+		if err != nil {
+			return plan, err
+		}
+		plan.replaceDays[day] = name
+		plan.replaceN[day] = len(keep)
+		plan.replaceB[day] = size
+	}
+
+	// Latest remaining message time of each affected day, with fold semantics.
+	dayMax := map[int64]*int64{}
+	for _, day := range fold.AffectedDays(removed) {
+		x := fold.New(tenant, sc.Keys().CustomerKeyHex)
+		for _, ev := range remaining[day] {
+			if err := x.Apply(ev); err != nil {
+				return plan, err
+			}
+		}
+		if v, ok := x.Snapshot().LastMessageByDay[day]; ok {
+			v := v
+			dayMax[day] = &v
+		} else {
+			dayMax[day] = nil
+		}
+	}
+
+	removedSet := make(map[string]struct{}, len(plan.removedIDs))
+	for _, id := range plan.removedIDs {
+		removedSet[id] = struct{}{}
+	}
+	moves := map[string][]fold.Move{}
+	for _, sku := range fold.AffectedSKUs(removed) {
+		mrows, err := tx.Query(ctx, `SELECT event_id, line_no, value FROM sku_moves
+			WHERE tenant_id = $1 AND sku_key = $2 ORDER BY occurred_at_ms, event_id, line_no`,
+			tenant, sc.Keys().SKUKey(sku))
+		if err != nil {
+			return plan, fmt.Errorf("store: read sku moves: %w", err)
+		}
+		list := []fold.Move{}
+		for mrows.Next() {
+			var id string
+			var line int
+			var sealed []byte
+			if err := mrows.Scan(&id, &line, &sealed); err != nil {
+				mrows.Close()
+				return plan, fmt.Errorf("store: scan sku move: %w", err)
+			}
+			if _, gone := removedSet[id]; gone {
+				continue
+			}
+			m, err := openSKUMove(sc, id, line, sealed)
+			if err != nil {
+				mrows.Close()
+				return plan, err
+			}
+			list = append(list, m)
+		}
+		mrows.Close()
+		if err := mrows.Err(); err != nil {
+			return plan, fmt.Errorf("store: read sku moves: %w", err)
+		}
+		moves[sku] = list
+	}
+
+	var coldUntil int64
+	if err := tx.QueryRow(ctx, `SELECT cold_until, snapshot_object FROM tenant_cold WHERE tenant_id = $1`,
+		tenant).Scan(&coldUntil, &plan.oldSnapshot); err != nil {
+		return plan, fmt.Errorf("store: read cold state: %w", err)
+	}
+	if plan.oldSnapshot == nil {
+		return plan, fmt.Errorf("store: customer has cold days but the tenant has no snapshot")
+	}
+	snap, err := s.getSnapshot(ctx, sc, *plan.oldSnapshot)
+	if err != nil {
+		return plan, err
+	}
+	next := fold.RemoveCustomer(snap, sc.Keys().CustomerKeyHex(customerID), removed, moves, dayMax)
+	plan.newSnapshot, err = s.putSnapshot(ctx, sc, coldUntil, next)
+	if err != nil {
+		return plan, err
+	}
+	return plan, nil
+}
+
 // EraseTenant marks the tenant erased and deletes its key, events and
-// tombstones in one transaction, then drops its cached keys. It is idempotent.
+// tombstones, and its cold-tier index rows in one transaction, then drops its cached keys. It is idempotent.
 func (s *Store) EraseTenant(ctx context.Context, tenantID string) error {
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return fmt.Errorf("store: erase tenant begin: %w", err)
 	}
 	defer tx.Rollback(ctx) //nolint:errcheck
+	// Lock order: cold-writer, then tenant status.
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, lockKey("cold-writer", []byte(tenantID))); err != nil {
+		return fmt.Errorf("store: cold-writer lock: %w", err)
+	}
 	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, lockKey("tenant-status", []byte(tenantID))); err != nil {
 		return fmt.Errorf("store: tenant status lock: %w", err)
 	}
@@ -108,6 +363,10 @@ func (s *Store) EraseTenant(ctx context.Context, tenantID string) error {
 		`DELETE FROM tenant_keys WHERE tenant_id = $1`,
 		`DELETE FROM hot_events WHERE tenant_id = $1`,
 		`DELETE FROM tombstones WHERE tenant_id = $1`,
+		`DELETE FROM tenant_cold WHERE tenant_id = $1`,
+		`DELETE FROM cold_manifest WHERE tenant_id = $1`,
+		`DELETE FROM customer_days WHERE tenant_id = $1`,
+		`DELETE FROM sku_moves WHERE tenant_id = $1`,
 	} {
 		if _, err := tx.Exec(ctx, q, tenantID); err != nil {
 			return fmt.Errorf("store: erase tenant data: %w", err)
