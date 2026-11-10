@@ -26,6 +26,28 @@ dc() { docker compose -f "$COMPOSE" "$@"; }
 dc down -v
 dc up -d --build --wait
 
+# Memory sampler: every 2 s, the max of each service's cgroup memory.current, kept in files.
+SERVICES="api1 api2 worker postgres minio"
+SAMPLES="$(mktemp -d)"
+SAMPLER_PID=""
+stop_sampler() {
+  if [ -n "$SAMPLER_PID" ]; then kill "$SAMPLER_PID" 2>/dev/null || true; wait "$SAMPLER_PID" 2>/dev/null || true; SAMPLER_PID=""; fi
+}
+trap 'stop_sampler; rm -rf "$SAMPLES"' EXIT
+(
+  while true; do
+    for s in $SERVICES; do
+      v="$(dc exec -T "$s" cat /sys/fs/cgroup/memory.current 2>/dev/null | tr -d '\r\n' || true)"
+      if [[ "$v" =~ ^[0-9]+$ ]]; then
+        old="$(cat "$SAMPLES/$s" 2>/dev/null || echo 0)"
+        [ "$v" -gt "$old" ] && echo "$v" > "$SAMPLES/$s"
+      fi
+    done
+    sleep 2
+  done
+) &
+SAMPLER_PID=$!
+
 rc=0
 fail() { echo "benchmark: $*" >&2; rc=1; }
 
@@ -89,19 +111,16 @@ SQL="SELECT
 STORAGE="$(dc exec -T postgres psql -U postgres -tA -F '|' -c "$SQL" 2>/dev/null || echo 'n/a|n/a|n/a|n/a|n/a')"
 IFS='|' read -r HOT_BPE HOT_N COLD_BPE COLD_N IDX_BPE <<< "$STORAGE"
 
-# 7. Peak memory per service (cgroup v2 memory.peak), in MiB.
-mem() {
-  local v
-  v="$(dc exec -T "$1" cat /sys/fs/cgroup/memory.peak 2>/dev/null | tr -d '\r\n' || true)"
-  if [[ "$v" =~ ^[0-9]+$ ]]; then
-    awk -v b="$v" 'BEGIN { printf "%.1f MiB", b / 1048576 }'
-  else
-    echo "n/a"
-  fi
-}
+# 7. Peak memory per service, in MiB: (a) VmHWM of PID 1, (b) sampled cgroup memory.current.
+stop_sampler
+mib() { awk -v b="$1" 'BEGIN { printf "%.1f MiB", b / 1048576 }'; }
 MEM=""
-for s in api1 api2 worker postgres minio; do
-  MEM="$MEM  $s: $(mem "$s")"$'\n'
+for s in $SERVICES; do
+  kb="$(dc exec -T "$s" grep VmHWM /proc/1/status 2>/dev/null | awk '{print $2}' | tr -d '\r\n' || true)"
+  if [[ "$kb" =~ ^[0-9]+$ ]]; then rss="$(mib $((kb * 1024)))"; else rss="n/a"; fi
+  cg="$(cat "$SAMPLES/$s" 2>/dev/null || true)"
+  if [[ "$cg" =~ ^[0-9]+$ ]]; then cgs="$(mib "$cg")"; else cgs="n/a"; fi
+  MEM="$MEM  $s: process peak RSS $rss; container peak sampled $cgs"$'\n'
 done
 
 DOCKER_MEM_B="$(docker info --format '{{.MemTotal}}' 2>/dev/null || true)"
@@ -136,7 +155,8 @@ DOCKER_CPU="${DOCKER_CPU:-n/a}"
   echo
   echo "peak memory:"
   printf '%s' "$MEM"
-  echo "  method: cat /sys/fs/cgroup/memory.peak in each container, in MiB; n/a if unreadable."
+  echo "  process peak RSS method: VmHWM of PID 1 from /proc/1/status in each container, read at the end, in MiB; for postgres it is the postmaster only; backends not included; n/a if unreadable."
+  echo "  container peak sampled method: cgroup memory.current, includes page cache, sampled every 2 s (max over samples, from after startup to before the report); n/a if unreadable."
   echo
   echo "verify.py:"
   echo "${VERIFY_LINES:-not run}" | sed 's/^/  /'
