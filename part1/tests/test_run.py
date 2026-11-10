@@ -27,6 +27,7 @@ args = sys.argv[1:]
 brands = [b["slug"] for b in json.loads((here.parent / "brands.json").read_text())]
 todo = brands if args == ["--all"] else [args[1]]
 (here / "calls.log").open("a").write(" ".join(args) + "\n")
+(here / "env.log").open("a").write(os.environ.get("RADAR_CAREFUL", "") + "\n")
 if cfg.get("spawn_child"):
     import subprocess
     child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
@@ -43,19 +44,21 @@ sys.exit(cfg.get("exit", 0))
 '''
 
 LOAD_STUB = r'''
-import json, sys
+import json, os, sys
 from pathlib import Path
 here = Path(__file__).resolve().parent
 cfg = json.loads((here / "cmds.json").read_text())
+(here / "env.log").open("a").write(os.environ.get("RADAR_CAREFUL", "") + "\n")
 (here / "load.calls").open("a").write(json.dumps(sys.argv[1:]) + "\n")
 sys.exit(cfg["load_exit"])
 '''
 
 LABEL_STUB = r'''
-import json, sys
+import json, os, sys
 from pathlib import Path
 here = Path(__file__).resolve().parent
 cfg = json.loads((here / "cmds.json").read_text())
+(here / "env.log").open("a").write(os.environ.get("RADAR_CAREFUL", "") + "\n")
 (here / "label.calls").open("a").write("called\n")
 if cfg["label_appends"]:
     Path(cfg["labels_file"]).open("a").write("{}\n")
@@ -132,11 +135,55 @@ class RunTests(unittest.TestCase):
         return self.make(cfgs)
 
     def test_plan_jobs(self):
-        folders = ["01_a", "04_amazon", "05_b"]
+        folders = ["01_a", "04_amazon", "07_search_interest"]
         self.assertEqual(run.plan_jobs(folders, ["x", "y"], None),
-                         [Job("01_a", None), Job("04_amazon", "x"), Job("04_amazon", "y"), Job("05_b", None)])
-        self.assertEqual(run.plan_jobs(folders, ["x", "y"], "y"),
-                         [Job("01_a", "y"), Job("04_amazon", "y"), Job("05_b", "y")])
+                         [Job("01_a", "x"), Job("01_a", "y"), Job("04_amazon", "x"), Job("04_amazon", "y"),
+                          Job("07_search_interest", None)])
+        self.assertEqual(run.plan_jobs(folders, ["x", "y"], None, careful=True),
+                         [Job("01_a", None), Job("04_amazon", "x"), Job("04_amazon", "y"),
+                          Job("07_search_interest", None)])
+        for careful in (False, True):
+            self.assertEqual(run.plan_jobs(folders, ["x", "y"], "y", careful=careful),
+                             [Job("01_a", "y"), Job("04_amazon", "y"), Job("07_search_interest", "y")])
+
+    def env_log(self, folder):
+        return (self.cdir / folder / "env.log").read_text().splitlines()
+
+    def test_careful_pass(self):
+        self.make({"01_a": {}, "04_amazon": {}})
+        with unittest.mock.patch.dict(os.environ):
+            os.environ.pop("RADAR_CAREFUL", None)
+            code, _ = self.run_pass("--careful")
+            self.assertEqual(code, 0)
+            self.assertEqual(self.calls("01_a"), ["--all"])
+            self.assertEqual(sorted(self.calls("04_amazon")), ["--brand x", "--brand y"])
+            self.assertEqual(self.env_log("01_a"), ["1"])
+            self.assertEqual(self.env_log("04_amazon"), ["1", "1"])
+            # load runs once, label once (labels file unchanged): neither got the variable
+            self.assertEqual((self.tmp / "env.log").read_text().splitlines(), ["", ""])
+            for f in (self.cdir / "01_a" / "calls.log", self.cdir / "01_a" / "env.log",
+                      self.cdir / "04_amazon" / "calls.log", self.cdir / "04_amazon" / "env.log",
+                      self.tmp / "env.log"):
+                f.unlink()
+            shutil.rmtree(self.cdir / "01_a" / "raw")
+            shutil.rmtree(self.cdir / "04_amazon" / "raw")
+            code, _ = self.run_pass()
+            self.assertEqual(code, 0)
+            self.assertEqual(sorted(self.calls("01_a")), ["--brand x", "--brand y"])
+            self.assertEqual(self.env_log("01_a"), ["", ""])
+            self.assertEqual(self.env_log("04_amazon"), ["", ""])
+
+    def test_default_jobs_is_16(self):
+        self.three()
+        seen = []
+
+        def fake(jobs, cdir, log_dir, max_jobs, *a, **kw):
+            seen.append(max_jobs)
+            return {}
+        with unittest.mock.patch.object(run, "run_jobs", fake):
+            self.run_pass()
+            self.run_pass("--jobs", "3")
+        self.assertEqual(seen, [16, 3])
 
     def test_select_sources(self):
         folders = ["01_a", "04_amazon", "10_b"]
@@ -163,20 +210,23 @@ class RunTests(unittest.TestCase):
         code, lines = self.run_pass()
         self.assertEqual(code, 1)
         self.assertEqual(sorted(l.rsplit(" ", 1)[0] for l in lines if l.startswith("collect ") and "exit=" in l),
-                         ["collect 01_a all exit=0", "collect 04_amazon x exit=0",
-                          "collect 04_amazon y exit=0", "collect 05_b all exit=1"])
+                         ["collect 01_a x exit=0", "collect 01_a y exit=0", "collect 04_amazon x exit=0",
+                          "collect 04_amazon y exit=0", "collect 05_b x exit=1", "collect 05_b y exit=1"])
         for l in lines:
             if "exit=" in l:
                 self.assertRegex(l, r" \d+s$")
-        self.assertIn("collect: jobs=4 failed=1 runs=6 ok=2 partial=2 could_not_look=2 cost_usd=0.1000", lines)
+        # 3 folders x 2 brands = 6 jobs; 05_b fails for both brands so failed=2; each job writes one run
+        # file (the 2020 file is older than the start) so runs=6: 01_a ok x2, 04_amazon partial x2,
+        # 05_b could_not_look x2; cost = 2 x 0.05 from 04_amazon
+        self.assertIn("collect: jobs=6 failed=2 runs=6 ok=2 partial=2 could_not_look=2 cost_usd=0.1000", lines)
         self.assertEqual(self.load_calls(), [["--collectors-dir", str(self.cdir)]])
         self.assertEqual((self.tmp / "label.calls").read_text().splitlines(), ["called"])
-        self.assertEqual(self.calls("01_a"), ["--all"])
+        self.assertEqual(sorted(self.calls("01_a")), ["--brand x", "--brand y"])
         self.assertEqual(sorted(self.calls("04_amazon")), ["--brand x", "--brand y"])
         stamps = list((self.state / "logs").iterdir())
         self.assertEqual(len(stamps), 1)
         self.assertRegex(stamps[0].name, r"^\d{8}T\d{6}Z$")
-        for name in ("01_a.all.log", "04_amazon.x.log", "04_amazon.y.log", "05_b.all.log"):
+        for name in ("01_a.x.log", "01_a.y.log", "04_amazon.x.log", "04_amazon.y.log", "05_b.x.log", "05_b.y.log"):
             self.assertIn("stub done", (stamps[0] / name).read_text())
 
     def test_labels_change_triggers_a_second_load(self):
@@ -229,7 +279,7 @@ class RunTests(unittest.TestCase):
     def test_timeout_stops_the_job_and_its_children(self):
         self.make({"01_a": {"sleep": 60, "spawn_child": True}, "05_b": {}})
         t0 = time.time()
-        code, lines = self.run_pass("--timeout", "0.05")
+        code, lines = self.run_pass("--timeout", "0.05", "--careful")
         self.assertLess(time.time() - t0, 20)
         self.assertEqual(code, 1)
         self.assertTrue(any(l.startswith("collect 01_a all exit=timeout ") for l in lines), lines)
@@ -341,11 +391,11 @@ class RunTests(unittest.TestCase):
                 shutil.rmtree(self.state, True)
                 for f in self.tmp.glob("load.*"):
                     f.unlink()
-                self.make({"01_a": {"sleep": 60, "spawn_child": True}})
+                self.make({"07_search_interest": {"sleep": 60, "spawn_child": True}})
                 proc, out = self.start_driver()
-                self.assertTrue(self.wait_for(self.cdir / "01_a" / "started.--all"), "collector did not start")
-                self.assertTrue(self.wait_for(self.cdir / "01_a" / "child.pid"))
-                pid = int((self.cdir / "01_a" / "child.pid").read_text())
+                self.assertTrue(self.wait_for(self.cdir / "07_search_interest" / "started.--all"), "collector did not start")
+                self.assertTrue(self.wait_for(self.cdir / "07_search_interest" / "child.pid"))
+                pid = int((self.cdir / "07_search_interest" / "child.pid").read_text())
                 self.addCleanup(lambda p=pid: self._kill(p))
                 proc.send_signal(sig)
                 self.assertEqual(proc.wait(20), 130)
@@ -367,10 +417,10 @@ class RunTests(unittest.TestCase):
         self.assertFalse((self.tmp / "label.calls").exists())
 
     def test_leftover_child_is_cleaned_up_after_a_normal_exit(self):
-        self.make({"01_a": {"spawn_child": True}})
+        self.make({"07_search_interest": {"spawn_child": True}})
         code, _ = self.run_pass()
         self.assertEqual(code, 0)
-        pid = int((self.cdir / "01_a" / "child.pid").read_text())
+        pid = int((self.cdir / "07_search_interest" / "child.pid").read_text())
         self.addCleanup(lambda: self._kill(pid))
         self.assert_gone(pid, "leftover child")
 
@@ -406,7 +456,7 @@ class RunTests(unittest.TestCase):
             raise PermissionError(1, "Operation not permitted")
 
         with unittest.mock.patch.object(run.os, "killpg", killpg_then_deny):
-            code, lines = self.run_pass("--timeout", "0.05")
+            code, lines = self.run_pass("--timeout", "0.05", "--careful")
         self.assertEqual(code, 1)
         self.assertTrue(any(l.startswith("collect 01_a all exit=timeout ") for l in lines), lines)
         self.assertTrue(any(l.startswith("collect 05_b all exit=0 ") for l in lines), lines)
@@ -423,7 +473,7 @@ class RunTests(unittest.TestCase):
             return real(cmd, *a, **kw)
 
         with unittest.mock.patch.object(run.subprocess, "Popen", popen):
-            code, lines = self.run_pass()
+            code, lines = self.run_pass("--careful")
         self.assertEqual(code, 1)
         self.assertTrue(any(l.startswith("collect 01_a all exit=error ") for l in lines), lines)
         self.assertTrue(any(l.startswith("collect 05_b all exit=0 ") for l in lines), lines)
@@ -443,9 +493,9 @@ class RunTests(unittest.TestCase):
             json.dumps({"run_id": "20990101T000005Z", "status": "weird", "cost_usd": None}))
         code, lines = self.run_pass()
         self.assertEqual(code, 0)
-        # two good runs from the stubs (01_a and 05_b, one per brand-less --all: x and y each) plus
-        # the "abc" file (ok, cost 0) and the "weird" file (runs only)
-        self.assertIn("collect: jobs=2 failed=0 runs=6 ok=5 partial=0 could_not_look=0 cost_usd=0.0000", lines)
+        # 2 folders x 2 brands = 4 jobs, one run file each = 4 good stub runs, plus
+        # the "abc" file (ok, cost 0) and the "weird" file (runs only): runs=6, ok=5
+        self.assertIn("collect: jobs=4 failed=0 runs=6 ok=5 partial=0 could_not_look=0 cost_usd=0.0000", lines)
         self.assertEqual(len(self.load_calls()), 1)
 
     def test_bad_jobs_and_timeout_values_stop_before_anything_runs(self):

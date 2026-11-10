@@ -19,8 +19,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Collectors that only call the Apify API, so their brands may run side by side.
-BRAND_PARALLEL = ("02_tiktok_ad_library", "04_amazon", "06_google_results", "08_tiktok_posts", "09_tiktok_shop")
+# Normal plan: every collector gets one job per brand, except these, which get one --all job.
+BRAND_SEQUENTIAL = ("07_search_interest",)
+# --careful plan: only these (they just call the Apify API) get one job per brand; the rest get one --all job.
+CAREFUL_BRAND_PARALLEL = ("02_tiktok_ad_library", "04_amazon", "06_google_results", "08_tiktok_posts",
+                          "09_tiktok_shop")
 ROOT = Path(__file__).resolve().parents[1]
 POLL_S = 0.05
 KILL_GRACE_S = 10
@@ -62,12 +65,12 @@ def select_sources(folders: list[str], sources: str | None) -> list[str]:
     return [f for f in folders if f in chosen]
 
 
-def plan_jobs(folders: list[str], brands: list[str], brand: str | None) -> list[Job]:
+def plan_jobs(folders: list[str], brands: list[str], brand: str | None, careful: bool = False) -> list[Job]:
     jobs = []
     for f in folders:
         if brand is not None:
             jobs.append(Job(f, brand))
-        elif f in BRAND_PARALLEL:
+        elif (f in CAREFUL_BRAND_PARALLEL) if careful else (f not in BRAND_SEQUENTIAL):
             jobs.extend(Job(f, b) for b in brands)
         else:
             jobs.append(Job(f, None))
@@ -91,7 +94,7 @@ def _stop_group(proc: subprocess.Popen) -> None:
     proc.wait()
 
 
-def run_jobs(jobs, collectors_dir, log_dir, max_jobs, timeout_s, python=sys.executable, on_done=None):
+def run_jobs(jobs, collectors_dir, log_dir, max_jobs, timeout_s, python=sys.executable, on_done=None, env=None):
     log_dir.mkdir(parents=True, exist_ok=True)
     results: dict[Job, str] = {j: "not_started" for j in jobs}
     stop = threading.Event()
@@ -114,7 +117,8 @@ def run_jobs(jobs, collectors_dir, log_dir, max_jobs, timeout_s, python=sys.exec
         try:
             with open(log, "wb") as out:
                 proc = subprocess.Popen([python, str(script), *args], stdin=subprocess.DEVNULL,
-                                        stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
+                                        stdout=out, stderr=subprocess.STDOUT, start_new_session=True,
+                                        env=env)
         except OSError:
             results[job] = "not_started"
             if on_done:
@@ -206,9 +210,11 @@ def main(argv=None, *, load_cmd=None, label_cmd=None, labels_file=None, state_di
     ap = argparse.ArgumentParser(prog="run.py", description="Collect, load and label in one pass.")
     ap.add_argument("--brand")
     ap.add_argument("--sources")
-    ap.add_argument("--jobs", type=int, default=8)
+    ap.add_argument("--jobs", type=int, default=16)
     ap.add_argument("--timeout", type=float, default=60, help="minutes per job")
     ap.add_argument("--no-label", action="store_true")
+    ap.add_argument("--careful", action="store_true",
+                    help="one --all job for most collectors, and tell the collectors to slow down")
     ap.add_argument("--collectors-dir", type=Path, default=ROOT / "part1/collectors")
     a = ap.parse_args(argv)
     if a.jobs < 1:
@@ -242,7 +248,7 @@ def main(argv=None, *, load_cmd=None, label_cmd=None, labels_file=None, state_di
             return 3
 
         start_stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        jobs = plan_jobs(folders, brands, a.brand)
+        jobs = plan_jobs(folders, brands, a.brand, a.careful)
 
         def on_done(job, text, secs):
             say(f"collect {job.folder} {job.brand or 'all'} exit={text} {int(secs)}s")
@@ -260,7 +266,7 @@ def main(argv=None, *, load_cmd=None, label_cmd=None, labels_file=None, state_di
             pass
         try:
             results = run_jobs(jobs, cdir, state_dir / "logs" / start_stamp, a.jobs, a.timeout * 60,
-                               on_done=on_done)
+                               on_done=on_done, env={**os.environ, "RADAR_CAREFUL": "1"} if a.careful else None)
 
             failed = sum(1 for t in results.values() if t != "0")
             s = summarize(cdir, folders, start_stamp)
