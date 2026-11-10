@@ -269,8 +269,13 @@ func TestFlushStopsWhenTenantErasedDuringFlush(t *testing.T) {
 		mkEvent("e-d6", (d+6)*msDay+7, "c3"),
 	})
 	store.SetFlushAfterRead(func() {
-		if err := st.EraseTenant(ctx, "t_1"); err != nil {
-			t.Errorf("erase during flush: %v", err)
+		// EraseTenant would wait for the flush's cold-writer lock, so mark the
+		// tenant erased directly; FlushDay must notice at its commit re-check.
+		if _, err := st.Pool().Exec(ctx, `DELETE FROM tenant_keys WHERE tenant_id = 't_1'`); err != nil {
+			t.Errorf("delete key: %v", err)
+		}
+		if _, err := st.Pool().Exec(ctx, `UPDATE tenants SET status = 'erased' WHERE tenant_id = 't_1'`); err != nil {
+			t.Errorf("mark erased: %v", err)
 		}
 	})
 	defer store.SetFlushAfterRead(nil)
