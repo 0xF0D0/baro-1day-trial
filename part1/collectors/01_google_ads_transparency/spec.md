@@ -44,9 +44,11 @@ Samples for all of these are in `part1/collectors/01_google_ads_transparency/sam
 | `MAX_LIST_RESPONSES` | 50 |
 | `DETAIL_WINDOW_DAYS` | 7 |
 | `DETAIL_TIMEOUT_S` | 20 |
-| `DETAIL_SPACING_S` | 10 (F8) |
+| `DETAIL_SPACING_S` | 2 (10 when `RADAR_CAREFUL` is set) |
 | `MAX_FAILURES_IN_A_ROW` | 5 |
 | `SCRIPT_TIMEOUT_S` | 20 |
+
+`RADAR_CAREFUL` (any non-empty value) restores the earlier pace; `part1/run.py --careful` sets it.
 
 ## 4. Procedure
 Playwright, `chromium.launch(headless=True, channel="chrome")`, context `locale="en-US"`, `viewport={"width": 1400, "height": 950}`. One page, one request at a time. Wait `DETAIL_SPACING_S` before every page navigation except the first one of the process. The collector only reads responses to requests the page sends itself; the script preview GET in step 5 is the one exception.

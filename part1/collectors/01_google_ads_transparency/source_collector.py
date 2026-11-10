@@ -3,6 +3,7 @@ import argparse
 import copy
 import gzip
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -18,7 +19,7 @@ SCROLL_EVERY_S = 2.5
 MAX_LIST_RESPONSES = 50
 DETAIL_WINDOW_DAYS = 7
 DETAIL_TIMEOUT_S = 20
-DETAIL_SPACING_S = 10
+DETAIL_SPACING_S = 10 if os.environ.get("RADAR_CAREFUL") else 2
 MAX_FAILURES_IN_A_ROW = 5
 SCRIPT_TIMEOUT_S = 20
 

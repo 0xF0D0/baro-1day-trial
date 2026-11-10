@@ -7,8 +7,9 @@ from urllib.parse import parse_qs, urlparse
 
 HERE = Path(__file__).parent
 PRODUCTS_PER_CELL, NAV_TIMEOUT_S, REVIEW_KEY_WAIT_S, REVIEW_FETCH_TIMEOUT_S = 10, 45, 20, 20
-ULTA_SPACING_S, MAX_FAILURES_IN_A_ROW = 3, 3
-APIFY_TIMEOUT_S, APIFY_POLL_S, APIFY_COST_WAIT_S = 300, 10, 15
+ULTA_SPACING_S = 3 if os.environ.get("RADAR_CAREFUL") else 2
+MAX_FAILURES_IN_A_ROW = 3
+APIFY_TIMEOUT_S, APIFY_POLL_S, APIFY_COST_WAIT_S = 300, 3, 15
 BLOCK_WORDS = ("access denied", "captcha", "unusual traffic")
 ROW_KEYS = {
     "ulta": ["productId", "brandName", "reviewCount"],

@@ -1,12 +1,13 @@
 """Raw collector for the Meta Ad Library. See spec.md."""
-import argparse, json, re, sys, time
+import argparse, json, os, re, sys, time
 import urllib.request, urllib.error
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-COUNT_TIMEOUT_S, SITE_SPACING_S, RESULTS_MARGIN, RESULTS_MAX = 30, 15, 50, 1000
+COUNT_TIMEOUT_S, RESULTS_MARGIN, RESULTS_MAX = 30, 50, 1000
+SITE_SPACING_S = 15 if os.environ.get("RADAR_CAREFUL") else 5
 PRICE_USD, RUN_TIMEOUT_S, WAIT_LIMIT_S = 0.0058, 1800, 2100
 HTTP_TIMEOUT_S, MEDIA_TIMEOUT_S, MEDIA_WORKERS = 90, 60, 8
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"

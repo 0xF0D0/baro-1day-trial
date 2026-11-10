@@ -10,6 +10,7 @@ import email.policy
 import email.utils
 import hashlib
 import json
+import os
 import re
 import sys
 import time
@@ -30,7 +31,7 @@ RAW_DIR = HERE / "raw"
 NAV_TIMEOUT_S = 45
 HOME_SETTLE_S = 8
 HTTP_TIMEOUT_S = 30
-SPACING_S = 4
+SPACING_S = 4 if os.environ.get("RADAR_CAREFUL") else 2
 PRODUCTS_PAGE_SIZE = 250
 MAX_PRODUCT_PAGES = 10
 APIFY_MAX_PRODUCTS = 80

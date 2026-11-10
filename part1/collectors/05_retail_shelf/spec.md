@@ -64,11 +64,13 @@ Samples for all of these are in `part1/collectors/05_retail_shelf/samples/` (`ul
 | `NAV_TIMEOUT_S` | 45 |
 | `REVIEW_KEY_WAIT_S` | 20 |
 | `REVIEW_FETCH_TIMEOUT_S` | 20 |
-| `ULTA_SPACING_S` | 3 |
+| `ULTA_SPACING_S` | 2 (3 when `RADAR_CAREFUL` is set) |
 | `MAX_FAILURES_IN_A_ROW` | 3 |
 | `APIFY_TIMEOUT_S` | 300 |
-| `APIFY_POLL_S` | 10 |
+| `APIFY_POLL_S` | 3 |
 | `APIFY_COST_WAIT_S` | 15 |
+
+`RADAR_CAREFUL` (any non-empty value) restores the earlier pace; `part1/run.py --careful` sets it.
 
 ## 4. Procedure
 Cells run in the order of `brand_inputs.json`, one request at a time. A failed cell does not stop the next one.

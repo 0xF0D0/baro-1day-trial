@@ -62,5 +62,26 @@ class ParseTests(unittest.TestCase):
         self.assertTrue(urls[0].startswith("https://displayads-formats.googleusercontent.com/ads/preview/content.js"))
 
 
+class CarefulPaceTests(unittest.TestCase):
+    def _pace(self, value):
+        import importlib, os
+        from unittest import mock
+        env = dict(os.environ)
+        env.pop("RADAR_CAREFUL", None)
+        if value is not None:
+            env["RADAR_CAREFUL"] = value
+        try:
+            with mock.patch.dict(os.environ, env, clear=True):
+                importlib.reload(sc)
+                return {n: getattr(sc, n) for n in ['DETAIL_SPACING_S']}
+        finally:
+            importlib.reload(sc)
+
+    def test_pace(self):
+        self.assertEqual(self._pace(None)["DETAIL_SPACING_S"], 2)
+        self.assertEqual(self._pace("")["DETAIL_SPACING_S"], 2)
+        self.assertEqual(self._pace("1")["DETAIL_SPACING_S"], 10)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -45,7 +45,7 @@ Choices made with the user on 2026-11-10: both Batiste pages; one record per ad;
 | Constant | Value |
 |---|---|
 | `COUNT_TIMEOUT_S` | 30 |
-| `SITE_SPACING_S` | 15 |
+| `SITE_SPACING_S` | 5 (15 when `RADAR_CAREFUL` is set) |
 | `RESULTS_MARGIN` | 50 |
 | `RESULTS_MAX` | 1000 |
 | `PRICE_USD` | 0.0058 |
@@ -54,6 +54,8 @@ Choices made with the user on 2026-11-10: both Batiste pages; one record per ad;
 | `HTTP_TIMEOUT_S` | 90 |
 | `MEDIA_TIMEOUT_S` | 60 |
 | `MEDIA_WORKERS` | 8 |
+
+`RADAR_CAREFUL` (any non-empty value) restores the earlier pace; `part1/run.py --careful` sets it.
 
 ## 4. Procedure
 If `APIFY_TOKEN` is missing from `.env`, write the run result (`could_not_look`, `missing_token`) and stop before any request.

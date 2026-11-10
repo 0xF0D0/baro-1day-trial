@@ -84,5 +84,26 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(sc.wtb_failure(500, b"oops"), ("http_500", True))
 
 
+class CarefulPaceTests(unittest.TestCase):
+    def _pace(self, value):
+        import importlib, os
+        from unittest import mock
+        env = dict(os.environ)
+        env.pop("RADAR_CAREFUL", None)
+        if value is not None:
+            env["RADAR_CAREFUL"] = value
+        try:
+            with mock.patch.dict(os.environ, env, clear=True):
+                importlib.reload(sc)
+                return {n: getattr(sc, n) for n in ['SPACING_S']}
+        finally:
+            importlib.reload(sc)
+
+    def test_pace(self):
+        self.assertEqual(self._pace(None)["SPACING_S"], 2)
+        self.assertEqual(self._pace("")["SPACING_S"], 2)
+        self.assertEqual(self._pace("1")["SPACING_S"], 4)
+
+
 if __name__ == "__main__":
     unittest.main()

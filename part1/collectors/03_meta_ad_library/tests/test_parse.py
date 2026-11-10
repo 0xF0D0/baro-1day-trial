@@ -110,5 +110,26 @@ class ParseTests(unittest.TestCase):
             self.assertEqual([p.name for p in d.iterdir() if p.name.endswith(".part")], [])
 
 
+class CarefulPaceTests(unittest.TestCase):
+    def _pace(self, value):
+        import importlib, os
+        from unittest import mock
+        env = dict(os.environ)
+        env.pop("RADAR_CAREFUL", None)
+        if value is not None:
+            env["RADAR_CAREFUL"] = value
+        try:
+            with mock.patch.dict(os.environ, env, clear=True):
+                importlib.reload(sc)
+                return {n: getattr(sc, n) for n in ['SITE_SPACING_S']}
+        finally:
+            importlib.reload(sc)
+
+    def test_pace(self):
+        self.assertEqual(self._pace(None)["SITE_SPACING_S"], 5)
+        self.assertEqual(self._pace("")["SITE_SPACING_S"], 5)
+        self.assertEqual(self._pace("1")["SITE_SPACING_S"], 15)
+
+
 if __name__ == "__main__":
     unittest.main()

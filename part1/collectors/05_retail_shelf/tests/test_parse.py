@@ -61,5 +61,29 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(sc.product_page_offer(page(5.99, "https://schema.org/OutOfStock"), "1")["availability"], "OutOfStock")
 
 
+class CarefulPaceTests(unittest.TestCase):
+    def _pace(self, value):
+        import importlib, os
+        from unittest import mock
+        env = dict(os.environ)
+        env.pop("RADAR_CAREFUL", None)
+        if value is not None:
+            env["RADAR_CAREFUL"] = value
+        try:
+            with mock.patch.dict(os.environ, env, clear=True):
+                importlib.reload(sc)
+                return {n: getattr(sc, n) for n in ['ULTA_SPACING_S', 'APIFY_POLL_S']}
+        finally:
+            importlib.reload(sc)
+
+    def test_pace(self):
+        self.assertEqual(self._pace(None)["ULTA_SPACING_S"], 2)
+        self.assertEqual(self._pace("")["ULTA_SPACING_S"], 2)
+        self.assertEqual(self._pace("1")["ULTA_SPACING_S"], 3)
+        self.assertEqual(self._pace(None)["APIFY_POLL_S"], 3)
+        self.assertEqual(self._pace("")["APIFY_POLL_S"], 3)
+        self.assertEqual(self._pace("1")["APIFY_POLL_S"], 3)
+
+
 if __name__ == "__main__":
     unittest.main()
